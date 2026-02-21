@@ -6,7 +6,12 @@ pub struct Sat(pub u64);
 
 impl Sat {
   pub const LAST: Self = Self(Self::SUPPLY - 1);
-  pub const SUPPLY: u64 = 2099999997690000;
+  // Dogecoin has no hard supply cap; 200 billion DOGE (with 8 decimal places)
+  // is used as a practical ceiling that won't overflow u64 and comfortably
+  // exceeds current + projected circulating supply (~140B DOGE as of 2025).
+  // Dogecoin has no hard supply cap; 180 billion DOGE (in shiboshis) is used
+  // as a practical ceiling. 200B would overflow u64 (max ~184B DOGE in shibs).
+  pub const SUPPLY: u64 = 180_000_000_000 * COIN_VALUE;
 
   pub fn n(self) -> u64 {
     self.0
@@ -180,7 +185,13 @@ impl Sat {
 
     let cycle_start_epoch = cycle_number * CYCLE_EPOCHS;
 
-    const HALVING_INCREMENT: u32 = SUBSIDY_HALVING_INTERVAL % DIFFCHANGE_INTERVAL;
+    // Guard against zero (Dogecoin has SUBSIDY_HALVING_INTERVAL=1, DIFFCHANGE_INTERVAL=1;
+    // 1 % 1 = 0 which would cause a divide-by-zero; the degree system doesn't
+    // apply to Dogecoin anyway so any non-zero value is safe here).
+    const HALVING_INCREMENT: u32 = {
+      let h = SUBSIDY_HALVING_INTERVAL % DIFFCHANGE_INTERVAL;
+      if h == 0 { 1 } else { h }
+    };
 
     // For valid degrees the relationship between epoch_offset and period_offset
     // will increment by 336 every halving.

@@ -10,7 +10,14 @@ impl Rune {
 
   const UNLOCKED: usize = 12;
 
-  const UNLOCK_INTERVAL: u32 = SUBSIDY_HALVING_INTERVAL / 12;
+  // Guard against zero (Dogecoin's SUBSIDY_HALVING_INTERVAL=1, 1/12=0 in
+  // integer division which would cause a divide-by-zero; runes are a
+  // Bitcoin-only concept and this path won't be reached on Dogecoin).
+  const UNLOCK_INTERVAL: u32 = if SUBSIDY_HALVING_INTERVAL >= 12 {
+    SUBSIDY_HALVING_INTERVAL / 12
+  } else {
+    1
+  };
 
   const STEPS: &'static [u128] = &[
     0,

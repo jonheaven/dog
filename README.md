@@ -1,3 +1,7 @@
+# Shibes
+
+You should periodically create checkpoints of the redb database that you can restore from. Dogecoin has more reorgs than bitcoin due to its 1 minute block times and casey/ord does not handle reorgs. There is an open issue [here](https://github.com/casey/ord/issues/148).
+
 <h1 align=center><code>ord</code></h1>
 
 <div align=center>
@@ -39,21 +43,9 @@ ordinal degenerates.
 Donate
 ------
 
-Ordinals is open-source and community funded. The current lead maintainer of
-`ord` is [raphjaph](https://github.com/raphjaph/). Raph's work on `ord` is
-entirely funded by donations. If you can, please consider donating!
+BTC: [bc1qguzk63exy7h5uygg8m2tcenca094a8t464jfyvrmr0s6wkt74wls3zr5m3](https://mempool.space/address/bc1qguzk63exy7h5uygg8m2tcenca094a8t464jfyvrmr0s6wkt74wls3zr5m3)
 
-The donation address is
-[bc1qguzk63exy7h5uygg8m2tcenca094a8t464jfyvrmr0s6wkt74wls3zr5m3](https://mempool.space/address/bc1qguzk63exy7h5uygg8m2tcenca094a8t464jfyvrmr0s6wkt74wls3zr5m3).
-
-This address is 2 of 4 multisig wallet with keys held by
-[raphjaph](https://twitter.com/raphjaph),
-[erin](https://twitter.com/realizingerin),
-[rodarmor](https://twitter.com/rodarmor), and
-[ordinally](https://twitter.com/veryordinally).
-
-Bitcoin received will go towards funding maintenance and development of `ord`,
-as well as hosting costs for [ordinals.com](https://ordinals.com).
+DOGE: DFundmtrigBGH6Q2MFAibzSq6NxsxMPMjB
 
 Thank you for donating!
 

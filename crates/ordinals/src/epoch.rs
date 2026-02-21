@@ -1,63 +1,151 @@
 use super::*;
 
+// ---------------------------------------------------------------------------
+// Dogecoin subsidy data loaded at compile time from the JSON files in the
+// repository root.  The "wonky era" covers blocks 0–~145,005 where each block
+// received a random reward.  Beyond that range, the post-wonky halving
+// schedule is used.
+// ---------------------------------------------------------------------------
+
+/// Cumulative shiboshi totals at each block boundary during the wonky era.
+/// `STARTING_SATS[n]` is the total number of shiboshis minted before block n.
+static STARTING_SATS: LazyLock<Vec<u64>> = LazyLock::new(|| {
+  serde_json::from_str(include_str!("../../../starting_sats.json"))
+    .expect("starting_sats.json must be valid JSON")
+});
+
+/// Per-block subsidy (in shiboshis) for every block in the wonky era.
+/// Keyed by block height as a string (matches the JSON format).
+static SUBSIDIES: LazyLock<std::collections::HashMap<u32, u64>> = LazyLock::new(|| {
+  let raw: serde_json::Value =
+    serde_json::from_str(include_str!("../../../subsidies.json"))
+      .expect("subsidies.json must be valid JSON");
+  raw["epochs"]
+    .as_object()
+    .expect("subsidies.json must have an 'epochs' object")
+    .iter()
+    .map(|(k, v)| {
+      (
+        k.parse::<u32>().expect("epoch key must be a valid u32"),
+        v.as_u64().expect("epoch value must be a valid u64"),
+      )
+    })
+    .collect()
+});
+
+/// The permanent Dogecoin block reward floor (after the halving schedule
+/// converges): 10,000 DOGE = 1_000_000_000_000 shiboshis.
+pub const DOGE_MIN_SUBSIDY: u64 = 10_000 * COIN_VALUE;
+
+/// Number of blocks covered by the wonky-era JSON files.
+const WONKY_ERA_LEN: u32 = 145_006;
+
+/// Return the subsidy (in shiboshis) for a given Dogecoin block height.
+///
+/// * Heights 0–(WONKY_ERA_LEN-1) are looked up from `subsidies.json`.
+/// * Heights beyond that use the standard post-wonky halving schedule.
+pub fn dogecoin_block_subsidy(height: u32) -> u64 {
+  if let Some(&s) = SUBSIDIES.get(&height) {
+    return s;
+  }
+  dogecoin_standard_subsidy(height)
+}
+
+/// Return the cumulative shiboshis minted before `height`.
+///
+/// For wonky-era heights this is read directly from `starting_sats.json`.
+/// For post-wonky heights it is computed by summing the fixed epoch rewards.
+pub fn dogecoin_starting_sats(height: u32) -> u64 {
+  let h = height as usize;
+  if h < STARTING_SATS.len() {
+    return STARTING_SATS[h];
+  }
+  // Sum up all wonky-era sats then add standard-era rewards.
+  let wonky_total = *STARTING_SATS.last().unwrap_or(&0);
+  let post_wonky = cumulative_post_wonky_sats(height);
+  wonky_total.saturating_add(post_wonky)
+}
+
+/// Dogecoin post-wonky halving schedule (blocks ≥ 145,000):
+///
+/// | Block range       | Reward per block |
+/// |-------------------|-----------------|
+/// | 145,000–199,999   | 500,000 DOGE    |
+/// | 200,000–299,999   | 250,000 DOGE    |
+/// | 300,000–399,999   | 125,000 DOGE    |
+/// | 400,000–499,999   | 62,500  DOGE    |
+/// | 500,000–599,999   | 31,250  DOGE    |
+/// | 600,000+          | 10,000  DOGE    |
+fn dogecoin_standard_subsidy(height: u32) -> u64 {
+  if height >= 600_000 {
+    return DOGE_MIN_SUBSIDY;
+  }
+  match height / 100_000 {
+    0 | 1 => 500_000 * COIN_VALUE, // 0–199,999 (wonky for 0–144,999; fixed after)
+    2 => 250_000 * COIN_VALUE,
+    3 => 125_000 * COIN_VALUE,
+    4 => 62_500 * COIN_VALUE,
+    5 => 31_250 * COIN_VALUE,
+    _ => DOGE_MIN_SUBSIDY,
+  }
+}
+
+/// Cumulative shiboshis minted from block WONKY_ERA_LEN up to (but not
+/// including) `height`.
+fn cumulative_post_wonky_sats(height: u32) -> u64 {
+  let start = WONKY_ERA_LEN;
+  if height <= start {
+    return 0;
+  }
+  // Walk through each post-wonky 100k-block halving period and accumulate.
+  let mut total: u64 = 0;
+  let mut h = start;
+  while h < height {
+    let subsidy = dogecoin_standard_subsidy(h);
+    // How many blocks remain in this 100k-period?
+    let period_end = ((h / 100_000) + 1) * 100_000;
+    let period_end = period_end.min(height);
+    let blocks = (period_end - h) as u64;
+    total = total.saturating_add(blocks.saturating_mul(subsidy));
+    h = period_end;
+  }
+  total
+}
+
+// ---------------------------------------------------------------------------
+// Epoch type
+//
+// With SUBSIDY_HALVING_INTERVAL = 1, Epoch(n) corresponds to block n.
+// This lets the existing ordinals machinery work unmodified: every height
+// is its own epoch, and `subsidy()` / `starting_sat()` delegate to the
+// Dogecoin subsidy functions above.
+// ---------------------------------------------------------------------------
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Display, Serialize, PartialOrd)]
 pub struct Epoch(pub u32);
 
 impl Epoch {
-  pub const STARTING_SATS: [Sat; 34] = [
-    Sat(0),
-    Sat(1050000000000000),
-    Sat(1575000000000000),
-    Sat(1837500000000000),
-    Sat(1968750000000000),
-    Sat(2034375000000000),
-    Sat(2067187500000000),
-    Sat(2083593750000000),
-    Sat(2091796875000000),
-    Sat(2095898437500000),
-    Sat(2097949218750000),
-    Sat(2098974609270000),
-    Sat(2099487304530000),
-    Sat(2099743652160000),
-    Sat(2099871825870000),
-    Sat(2099935912620000),
-    Sat(2099967955890000),
-    Sat(2099983977420000),
-    Sat(2099991988080000),
-    Sat(2099995993410000),
-    Sat(2099997995970000),
-    Sat(2099998997250000),
-    Sat(2099999497890000),
-    Sat(2099999748210000),
-    Sat(2099999873370000),
-    Sat(2099999935950000),
-    Sat(2099999967240000),
-    Sat(2099999982780000),
-    Sat(2099999990550000),
-    Sat(2099999994330000),
-    Sat(2099999996220000),
-    Sat(2099999997060000),
-    Sat(2099999997480000),
-    Sat(Sat::SUPPLY),
-  ];
-  pub const FIRST_POST_SUBSIDY: Epoch = Self(33);
+  /// There is no "first post-subsidy" epoch for Dogecoin (10k DOGE floor
+  /// is permanent), so we set this to a very large value.
+  pub const FIRST_POST_SUBSIDY: Epoch = Self(u32::MAX);
 
   pub fn subsidy(self) -> u64 {
-    if self < Self::FIRST_POST_SUBSIDY {
-      (50 * COIN_VALUE) >> self.0
-    } else {
-      0
-    }
+    dogecoin_block_subsidy(self.0)
   }
 
   pub fn starting_sat(self) -> Sat {
-    *Self::STARTING_SATS
-      .get(usize::try_from(self.0).unwrap())
-      .unwrap_or_else(|| Self::STARTING_SATS.last().unwrap())
+    Sat(dogecoin_starting_sats(self.0))
   }
 
   pub fn starting_height(self) -> Height {
+    // With SUBSIDY_HALVING_INTERVAL = 1, epoch n starts at height n.
     Height(self.0 * SUBSIDY_HALVING_INTERVAL)
+  }
+
+  /// Iterator over every epoch's starting sat (from `starting_sats.json`).
+  /// Used by the `ord epochs` subcommand.
+  pub fn all_starting_sats() -> impl Iterator<Item = Sat> {
+    STARTING_SATS.iter().copied().map(Sat)
   }
 }
 
@@ -69,80 +157,52 @@ impl PartialEq<u32> for Epoch {
 
 impl From<Sat> for Epoch {
   fn from(sat: Sat) -> Self {
-    if sat < Self::STARTING_SATS[1] {
-      Epoch(0)
-    } else if sat < Self::STARTING_SATS[2] {
-      Epoch(1)
-    } else if sat < Self::STARTING_SATS[3] {
-      Epoch(2)
-    } else if sat < Self::STARTING_SATS[4] {
-      Epoch(3)
-    } else if sat < Self::STARTING_SATS[5] {
-      Epoch(4)
-    } else if sat < Self::STARTING_SATS[6] {
-      Epoch(5)
-    } else if sat < Self::STARTING_SATS[7] {
-      Epoch(6)
-    } else if sat < Self::STARTING_SATS[8] {
-      Epoch(7)
-    } else if sat < Self::STARTING_SATS[9] {
-      Epoch(8)
-    } else if sat < Self::STARTING_SATS[10] {
-      Epoch(9)
-    } else if sat < Self::STARTING_SATS[11] {
-      Epoch(10)
-    } else if sat < Self::STARTING_SATS[12] {
-      Epoch(11)
-    } else if sat < Self::STARTING_SATS[13] {
-      Epoch(12)
-    } else if sat < Self::STARTING_SATS[14] {
-      Epoch(13)
-    } else if sat < Self::STARTING_SATS[15] {
-      Epoch(14)
-    } else if sat < Self::STARTING_SATS[16] {
-      Epoch(15)
-    } else if sat < Self::STARTING_SATS[17] {
-      Epoch(16)
-    } else if sat < Self::STARTING_SATS[18] {
-      Epoch(17)
-    } else if sat < Self::STARTING_SATS[19] {
-      Epoch(18)
-    } else if sat < Self::STARTING_SATS[20] {
-      Epoch(19)
-    } else if sat < Self::STARTING_SATS[21] {
-      Epoch(20)
-    } else if sat < Self::STARTING_SATS[22] {
-      Epoch(21)
-    } else if sat < Self::STARTING_SATS[23] {
-      Epoch(22)
-    } else if sat < Self::STARTING_SATS[24] {
-      Epoch(23)
-    } else if sat < Self::STARTING_SATS[25] {
-      Epoch(24)
-    } else if sat < Self::STARTING_SATS[26] {
-      Epoch(25)
-    } else if sat < Self::STARTING_SATS[27] {
-      Epoch(26)
-    } else if sat < Self::STARTING_SATS[28] {
-      Epoch(27)
-    } else if sat < Self::STARTING_SATS[29] {
-      Epoch(28)
-    } else if sat < Self::STARTING_SATS[30] {
-      Epoch(29)
-    } else if sat < Self::STARTING_SATS[31] {
-      Epoch(30)
-    } else if sat < Self::STARTING_SATS[32] {
-      Epoch(31)
-    } else if sat < Self::STARTING_SATS[33] {
-      Epoch(32)
-    } else {
-      Epoch(33)
+    // Binary search through the STARTING_SATS array, then fall back to
+    // post-wonky computation.
+    let starting_sats = &*STARTING_SATS;
+    let target = sat.n();
+
+    // Find the last entry ≤ target (this is the epoch/block where sat lives).
+    match starting_sats.binary_search(&target) {
+      Ok(i) => Epoch(i as u32),
+      Err(i) => {
+        // i is the insertion point; the epoch is i-1
+        if i == 0 {
+          Epoch(0)
+        } else if i < starting_sats.len() {
+          Epoch((i - 1) as u32)
+        } else {
+          // Beyond wonky era: binary search in post-wonky range
+          // Approximate: start from WONKY_ERA_LEN and search forward.
+          let wonky_total = *starting_sats.last().unwrap_or(&0);
+          if target < wonky_total {
+            Epoch(starting_sats.len().saturating_sub(1) as u32)
+          } else {
+            // Find the block in the post-wonky range
+            let mut h = WONKY_ERA_LEN;
+            let mut cumulative = wonky_total;
+            loop {
+              let subsidy = dogecoin_block_subsidy(h);
+              if cumulative + subsidy > target || subsidy == 0 {
+                return Epoch(h);
+              }
+              cumulative += subsidy;
+              h += 1;
+              if h > 10_000_000 {
+                // Safety cap — should never be reached in practice
+                return Epoch(h);
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
 
 impl From<Height> for Epoch {
   fn from(height: Height) -> Self {
+    // With SUBSIDY_HALVING_INTERVAL = 1: epoch == height.
     Self(height.0 / SUBSIDY_HALVING_INTERVAL)
   }
 }
@@ -152,91 +212,36 @@ mod tests {
   use super::super::*;
 
   #[test]
-  fn starting_sat() {
-    assert_eq!(Epoch(0).starting_sat(), 0);
-    assert_eq!(
-      Epoch(1).starting_sat(),
-      Epoch(0).subsidy() * u64::from(SUBSIDY_HALVING_INTERVAL)
-    );
-    assert_eq!(
-      Epoch(2).starting_sat(),
-      (Epoch(0).subsidy() + Epoch(1).subsidy()) * u64::from(SUBSIDY_HALVING_INTERVAL)
-    );
-    assert_eq!(Epoch(33).starting_sat(), Sat(Sat::SUPPLY));
-    assert_eq!(Epoch(34).starting_sat(), Sat(Sat::SUPPLY));
+  fn subsidy_block_0_is_nonzero() {
+    // Dogecoin block 0 had a positive reward.
+    assert!(Epoch(0).subsidy() > 0);
   }
 
   #[test]
-  fn starting_sats() {
-    let mut sat = 0;
-
-    let mut epoch_sats = Vec::new();
-
-    for epoch in 0..34 {
-      epoch_sats.push(sat);
-      sat += u64::from(SUBSIDY_HALVING_INTERVAL) * Epoch(epoch).subsidy();
-    }
-
-    assert_eq!(Epoch::STARTING_SATS.as_slice(), epoch_sats);
-    assert_eq!(Epoch::STARTING_SATS.len(), 34);
+  fn subsidy_post_wonky_era() {
+    // Post-wonky halving schedule sanity checks.
+    assert_eq!(Epoch(200_000).subsidy(), 250_000 * 100_000_000);
+    assert_eq!(Epoch(300_000).subsidy(), 125_000 * 100_000_000);
+    assert_eq!(Epoch(600_000).subsidy(), 10_000 * 100_000_000);
+    assert_eq!(Epoch(1_000_000).subsidy(), 10_000 * 100_000_000);
   }
 
   #[test]
-  fn subsidy() {
-    assert_eq!(Epoch(0).subsidy(), 5000000000);
-    assert_eq!(Epoch(1).subsidy(), 2500000000);
-    assert_eq!(Epoch(32).subsidy(), 1);
-    assert_eq!(Epoch(33).subsidy(), 0);
+  fn starting_sat_block_0_is_zero() {
+    assert_eq!(Epoch(0).starting_sat(), Sat(0));
   }
 
   #[test]
-  fn starting_height() {
-    assert_eq!(Epoch(0).starting_height(), 0);
-    assert_eq!(Epoch(1).starting_height(), SUBSIDY_HALVING_INTERVAL);
-    assert_eq!(Epoch(2).starting_height(), SUBSIDY_HALVING_INTERVAL * 2);
+  fn from_height_identity() {
+    // With SUBSIDY_HALVING_INTERVAL = 1, Epoch::from(Height(n)) == Epoch(n).
+    assert_eq!(Epoch::from(Height(0)), Epoch(0));
+    assert_eq!(Epoch::from(Height(42)), Epoch(42));
+    assert_eq!(Epoch::from(Height(600_000)), Epoch(600_000));
   }
 
   #[test]
-  fn from_height() {
-    assert_eq!(Epoch::from(Height(0)), 0);
-    assert_eq!(Epoch::from(Height(SUBSIDY_HALVING_INTERVAL)), 1);
-    assert_eq!(Epoch::from(Height(SUBSIDY_HALVING_INTERVAL) + 1), 1);
-  }
-
-  #[test]
-  fn from_sat() {
-    for (epoch, starting_sat) in Epoch::STARTING_SATS.into_iter().enumerate() {
-      if epoch > 0 {
-        assert_eq!(
-          Epoch::from(Sat(starting_sat.n() - 1)),
-          Epoch(u32::try_from(epoch).unwrap() - 1)
-        );
-      }
-      assert_eq!(
-        Epoch::from(starting_sat),
-        Epoch(u32::try_from(epoch).unwrap())
-      );
-      assert_eq!(
-        Epoch::from(starting_sat + 1),
-        Epoch(u32::try_from(epoch).unwrap())
-      );
-    }
-    assert_eq!(Epoch::from(Sat(0)), 0);
-    assert_eq!(Epoch::from(Sat(1)), 0);
-    assert_eq!(Epoch::from(Epoch(1).starting_sat()), 1);
-    assert_eq!(Epoch::from(Epoch(1).starting_sat() + 1), 1);
-    assert_eq!(Epoch::from(Sat(u64::MAX)), 33);
-  }
-
-  #[test]
-  fn eq() {
-    assert_eq!(Epoch(0), 0);
-    assert_eq!(Epoch(100), 100);
-  }
-
-  #[test]
-  fn first_post_subsidy() {
-    assert_eq!(Epoch::FIRST_POST_SUBSIDY.subsidy(), 0);
-    assert!(Epoch(Epoch::FIRST_POST_SUBSIDY.0 - 1).subsidy() > 0);
+  fn starting_height_identity() {
+    assert_eq!(Epoch(0).starting_height(), Height(0));
+    assert_eq!(Epoch(100).starting_height(), Height(100));
   }
 }

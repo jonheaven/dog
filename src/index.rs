@@ -1208,6 +1208,11 @@ impl Index {
   }
 
   pub fn get_block_by_height(&self, height: u32) -> Result<Option<Block>> {
+    let tx = self.database.begin_read()?;
+    let indexed = tx.open_table(HEIGHT_TO_BLOCK_HEADER)?.get(&height)?.is_some();
+    if !indexed {
+      return Ok(None);
+    }
     Ok(
       self
         .client
@@ -1219,6 +1224,20 @@ impl Index {
   }
 
   pub fn get_block_by_hash(&self, hash: BlockHash) -> Result<Option<Block>> {
+    let tx = self.database.begin_read()?;
+    let height_to_block_header = tx.open_table(HEIGHT_TO_BLOCK_HEADER)?;
+    let indexed = height_to_block_header
+      .range(0..)?
+      .rev()
+      .any(|entry| {
+        entry
+          .ok()
+          .map(|(_, header)| Header::load(*header.value()).block_hash() == hash)
+          .unwrap_or(false)
+      });
+    if !indexed {
+      return Ok(None);
+    }
     self.client.get_block(&hash).into_option()
   }
 

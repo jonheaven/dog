@@ -86,7 +86,7 @@ use {
     str::FromStr,
     sync::{
       Arc, LazyLock, Mutex,
-      atomic::{self, AtomicBool},
+      atomic::{self, AtomicBool, AtomicU64},
     },
     thread,
     time::{Duration, Instant, SystemTime},
@@ -148,9 +148,11 @@ type SnafuResult<T = (), E = SnafuError> = std::result::Result<T, E>;
 
 const BROTLI: &str = "br";
 const BROTLI_BUFFER_SIZE: usize = 4096;
+const INTERRUPT_LIMIT: u64 = 5;
 const MAX_STANDARD_OP_RETURN_SIZE: usize = 83;
 const TARGET_POSTAGE: Amount = Amount::from_sat(10_000);
 
+static INTERRUPTS: AtomicU64 = AtomicU64::new(0);
 static SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
 static LISTENERS: Mutex<Vec<axum_server::Handle<SocketAddr>>> = Mutex::new(Vec::new());
 static INDEXER: Mutex<Option<thread::JoinHandle<()>>> = Mutex::new(None);
@@ -259,11 +261,19 @@ pub fn main() {
   env_logger::init();
 
   ctrlc::set_handler(move || {
-    if SHUTTING_DOWN.fetch_or(true, atomic::Ordering::Relaxed) {
+    eprintln!(
+      "Detected Ctrl-C, attempting to shut down ord gracefully. Press Ctrl-C {INTERRUPT_LIMIT} times to force shutdown."
+    );
+
+    let interrupts = INTERRUPTS.fetch_add(1, atomic::Ordering::Relaxed);
+
+    if interrupts > INTERRUPT_LIMIT {
       process::exit(1);
     }
 
-    eprintln!("Shutting down gracefully. Press <CTRL-C> again to shutdown immediately.");
+    if SHUTTING_DOWN.fetch_or(true, atomic::Ordering::Relaxed) {
+      process::exit(1);
+    }
 
     LISTENERS
       .lock()

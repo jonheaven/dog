@@ -84,7 +84,11 @@ impl InscriptionUpdater<'_, '_> {
       .map(|txout| txout.value.to_sat())
       .sum::<u64>();
 
-    let envelopes = ParsedEnvelope::from_transaction(tx);
+    let envelopes = if index.settings.chain().is_dogecoin() {
+      ParsedEnvelope::from_transactions_dogecoin(std::slice::from_ref(tx))
+    } else {
+      ParsedEnvelope::from_transaction(tx)
+    };
     let has_new_inscriptions = !envelopes.is_empty();
     let mut envelopes = envelopes.into_iter().peekable();
 

@@ -5,7 +5,7 @@ use {
   bitcoin::{
     Network, OutPoint, ScriptBuf, Transaction,
     consensus::{Decodable, Encodable},
-    constants::{DIFFCHANGE_INTERVAL, SUBSIDY_HALVING_INTERVAL},
+
     opcodes,
     script::{self, Instruction},
   },
@@ -13,6 +13,7 @@ use {
   serde::{Deserialize, Serialize},
   serde_with::{DeserializeFromStr, SerializeDisplay},
   std::{
+    sync::LazyLock,
     cmp,
     collections::{HashMap, VecDeque},
     fmt::{self, Formatter},
@@ -31,6 +32,10 @@ pub use {
 
 pub const COIN_VALUE: u64 = 100_000_000;
 pub const CYCLE_EPOCHS: u32 = 6;
+
+// Dogecoin-specific chain constants.
+pub const DIFFCHANGE_INTERVAL: u32 = 1;
+pub const SUBSIDY_HALVING_INTERVAL: u32 = 1;
 
 fn default<T: Default>() -> T {
   Default::default()

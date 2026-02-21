@@ -100,6 +100,26 @@ impl ParsedEnvelope {
       .map(|envelope| envelope.into())
       .collect()
   }
+
+  /// Dogecoin: parse inscriptions from `input[0].script_sig`.
+  ///
+  /// Dogecoin inscriptions embed the envelope as a sequence of data pushes in
+  /// the scriptSig of the first input, with this layout:
+  ///
+  /// ```text
+  /// PUSH("ord")  PUSH(npieces)  PUSH(content_type)
+  ///   [PUSH(chunk) ...]    (body data, one or more pushes)
+  /// ```
+  ///
+  /// The `npieces` field indicates how many transactions the inscription spans
+  /// (multi-part inscriptions).  This function handles single-transaction
+  /// inscriptions; pass a list of ordered transactions for multi-part ones.
+  pub fn from_transactions_dogecoin(txs: &[Transaction]) -> Vec<Self> {
+    RawEnvelope::from_transactions_dogecoin(txs)
+      .into_iter()
+      .map(|envelope| envelope.into())
+      .collect()
+  }
 }
 
 impl RawEnvelope {
@@ -256,6 +276,52 @@ impl RawEnvelope {
         Some(_) => return Ok((false, None)),
       }
     }
+  }
+
+  /// Dogecoin: parse inscriptions from the `input[0].script_sig` of each
+  /// transaction in `txs`.
+  ///
+  /// The scriptSig contains a sequence of data-push operations.  We scan for a
+  /// push whose value is exactly `PROTOCOL_ID` (b"ord") and then treat all
+  /// subsequent pushes as the envelope payload using the standard ordinals
+  /// tag-value format (field tag / field value alternating, empty tag marks
+  /// body start — identical to Bitcoin's envelope payload layout).
+  pub fn from_transactions_dogecoin(txs: &[Transaction]) -> Vec<Self> {
+    let mut envelopes = Vec::new();
+
+    for tx in txs {
+      if tx.input.is_empty() {
+        continue;
+      }
+
+      let script_sig = &tx.input[0].script_sig;
+
+      // Collect all data pushes; ignore non-push opcodes.
+      let mut pushes: Vec<Vec<u8>> = Vec::new();
+      for instruction in script_sig.instructions().flatten() {
+        if let PushBytes(data) = instruction {
+          pushes.push(data.as_bytes().to_vec());
+        }
+      }
+
+      // Find the "ord" protocol marker.
+      let Some(ord_pos) = pushes.iter().position(|p| p.as_slice() == PROTOCOL_ID) else {
+        continue;
+      };
+
+      // Everything after "ord" is the payload (tag-value pairs + body).
+      let payload: Vec<Vec<u8>> = pushes[ord_pos + 1..].to_vec();
+
+      envelopes.push(Envelope {
+        input: 0,
+        offset: envelopes.len() as u32,
+        payload,
+        pushnum: false,
+        stutter: false,
+      });
+    }
+
+    envelopes
   }
 }
 

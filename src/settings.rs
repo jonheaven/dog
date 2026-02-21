@@ -314,7 +314,17 @@ impl Settings {
     let bitcoin_data_dir = match &self.bitcoin_data_dir {
       Some(bitcoin_data_dir) => bitcoin_data_dir.clone(),
       None => {
-        if cfg!(target_os = "linux") {
+        if chain.is_dogecoin() {
+          if cfg!(target_os = "linux") {
+            dirs::home_dir()
+              .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
+              .join(".dogecoin")
+          } else {
+            dirs::data_dir()
+              .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
+              .join("Dogecoin")
+          }
+        } else if cfg!(target_os = "linux") {
           dirs::home_dir()
             .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
             .join(".bitcoin")
@@ -438,38 +448,49 @@ impl Settings {
       )
     })?;
 
+    let ord_chain = self.chain();
+
     let mut checks = 0;
     let rpc_chain = loop {
       match client.get_blockchain_info() {
         Ok(blockchain_info) => {
-          break match blockchain_info.chain.to_string().as_str() {
-            "bitcoin" => Chain::Mainnet,
-            "regtest" => Chain::Regtest,
-            "signet" => Chain::Signet,
-            "testnet" => Chain::Testnet,
-            "testnet4" => Chain::Testnet4,
-            other => bail!("Bitcoin RPC server on unknown chain: {other}"),
+          // Dogecoin Core returns "main"/"test"/"regtest"; Bitcoin Core
+          // returns "bitcoin"/"testnet"/"signet"/"regtest"/"testnet4".
+          break if ord_chain.is_dogecoin() {
+            match blockchain_info.chain.to_string().as_str() {
+              "main" => Chain::Dogecoin,
+              "test" => Chain::DogecoinTestnet,
+              "regtest" => Chain::DogecoinRegtest,
+              other => bail!("Dogecoin RPC server on unknown chain: {other}"),
+            }
+          } else {
+            match blockchain_info.chain.to_string().as_str() {
+              "bitcoin" => Chain::Mainnet,
+              "regtest" => Chain::Regtest,
+              "signet" => Chain::Signet,
+              "testnet" => Chain::Testnet,
+              "testnet4" => Chain::Testnet4,
+              other => bail!("Bitcoin RPC server on unknown chain: {other}"),
+            }
           };
         }
         Err(bitcoincore_rpc::Error::JsonRpc(bitcoincore_rpc::jsonrpc::Error::Rpc(err)))
           if err.code == -28 => {}
         Err(err) if err.to_string().contains("Resource temporarily unavailable") => {}
-        Err(err) => bail!("Failed to connect to Bitcoin Core RPC at `{rpc_url}`:  {err}"),
+        Err(err) => bail!("Failed to connect to RPC at `{rpc_url}`:  {err}"),
       }
 
       ensure! {
         checks < 100,
-        "Failed to connect to Bitcoin Core RPC at `{rpc_url}`",
+        "Failed to connect to RPC at `{rpc_url}`",
       }
 
       checks += 1;
       thread::sleep(Duration::from_millis(100));
     };
 
-    let ord_chain = self.chain();
-
     if rpc_chain != ord_chain {
-      bail!("Bitcoin RPC server is on {rpc_chain} but ord is on {ord_chain}");
+      bail!("RPC server is on {rpc_chain} but ord is on {ord_chain}");
     }
 
     Ok(client)
@@ -496,8 +517,19 @@ impl Settings {
       return Ok(cookie_file.clone());
     }
 
+    let chain = self.chain();
     let path = if let Some(bitcoin_data_dir) = &self.bitcoin_data_dir {
       bitcoin_data_dir.clone()
+    } else if chain.is_dogecoin() {
+      if cfg!(target_os = "linux") {
+        dirs::home_dir()
+          .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
+          .join(".dogecoin")
+      } else {
+        dirs::data_dir()
+          .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
+          .join("Dogecoin")
+      }
     } else if cfg!(target_os = "linux") {
       dirs::home_dir()
         .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
@@ -508,7 +540,7 @@ impl Settings {
         .join("Bitcoin")
     };
 
-    let path = self.chain().join_with_data_dir(path);
+    let path = chain.join_with_data_dir(path);
 
     Ok(path.join(".cookie"))
   }
