@@ -1,8 +1,9 @@
 use {
   self::{
     entry::{
-      Entry, HeaderValue, InscriptionEntry, InscriptionEntryValue, InscriptionIdValue,
-      OutPointValue, DuneEntryValue, DuneIdValue, KoinuPointValue, SatRange, TxidValue,
+      DnsEntryValue, Entry, HeaderValue, InscriptionEntry, InscriptionEntryValue,
+      InscriptionIdValue, OutPointValue, DuneEntryValue, DuneIdValue, KoinuPointValue, SatRange,
+      TxidValue,
     },
     event::Event,
     lot::Lot,
@@ -39,7 +40,7 @@ use {
   },
 };
 
-pub use self::entry::DuneEntry;
+pub use self::entry::{DnsEntry, DuneEntry};
 
 pub(crate) mod entry;
 pub mod event;
@@ -80,6 +81,11 @@ define_table! { TRANSACTION_ID_TO_RUNE, &TxidValue, u128 }
 define_table! { TRANSACTION_ID_TO_TRANSACTION, &TxidValue, &[u8] }
 define_table! { WRITE_TRANSACTION_STARTING_BLOCK_COUNT_TO_TIMESTAMP, u32, u128 }
 
+// Dogecoin Name System tables
+define_table! { DNS_NAME_TO_ENTRY, &str, DnsEntryValue }
+define_table! { DNS_INSCRIPTION_ID_TO_NAME, InscriptionIdValue, &str }
+define_multimap_table! { DNS_NAMESPACE_TO_NAMES, &str, &str }
+
 #[derive(Copy, Clone)]
 pub(crate) enum Statistic {
   Schema = 0,
@@ -99,6 +105,7 @@ pub(crate) enum Statistic {
   SatRanges = 14,
   UnboundInscriptions = 16,
   LastSavepointHeight = 17,
+  DnsNames = 18,
 }
 
 impl Statistic {
@@ -845,6 +852,76 @@ impl Index {
       .unwrap()
       .map(|x| x.value())
       .unwrap_or_default()
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dogecoin Name System (DNS) queries
+  // ---------------------------------------------------------------------------
+
+  pub fn get_dns_name(&self, name: &str) -> Result<Option<DnsEntry>> {
+    let tx = self.database.begin_read()?;
+    let table = tx.open_table(DNS_NAME_TO_ENTRY)?;
+    if let Some(guard) = table.get(name)? {
+      let mut entry = DnsEntry::load(guard.value());
+      // Dynamically resolve current holder address
+      entry.address = self.get_inscription_current_address(&entry.owner_inscription_id)?;
+      Ok(Some(entry))
+    } else {
+      Ok(None)
+    }
+  }
+
+  pub fn get_dns_names_by_namespace(&self, namespace: &str) -> Result<Option<Vec<String>>> {
+    let tx = self.database.begin_read()?;
+    let table = tx.open_multimap_table(DNS_NAMESPACE_TO_NAMES)?;
+    let mut names: Vec<String> = table
+      .get(namespace)?
+      .filter_map(|r| r.ok())
+      .map(|v| v.value().to_string())
+      .collect();
+    if names.is_empty() {
+      Ok(None)
+    } else {
+      names.sort();
+      Ok(Some(names))
+    }
+  }
+
+  pub fn get_dns_stats(&self) -> Result<(u64, std::collections::HashMap<String, u64>)> {
+    let tx = self.database.begin_read()?;
+    let table = tx.open_table(DNS_NAME_TO_ENTRY)?;
+    let mut total = 0u64;
+    let mut by_namespace: std::collections::HashMap<String, u64> =
+      std::collections::HashMap::new();
+    for entry in table.iter()? {
+      let (name, _) = entry?;
+      total += 1;
+      if let Some(dot) = name.value().find('.') {
+        let ns = name.value()[dot + 1..].to_string();
+        *by_namespace.entry(ns).or_insert(0) += 1;
+      }
+    }
+    Ok((total, by_namespace))
+  }
+
+  fn get_inscription_current_address(
+    &self,
+    inscription_id: &InscriptionId,
+  ) -> Result<Option<String>> {
+    let Some(satpoint) = self.get_inscription_satpoint_by_id(*inscription_id)? else {
+      return Ok(None);
+    };
+    if satpoint.outpoint == unbound_outpoint() {
+      return Ok(None);
+    }
+    let tx = self.database.begin_read()?;
+    let outpoint_to_utxo = tx.open_table(OUTPOINT_TO_UTXO_ENTRY)?;
+    let Some(utxo_guard) = outpoint_to_utxo.get(&satpoint.outpoint.store())? else {
+      return Ok(None);
+    };
+    let parsed = utxo_guard.value().parse(self);
+    let script = Script::from_bytes(parsed.script_pubkey());
+    Ok(self.settings.chain().address_string_from_script(script))
   }
 
   pub(crate) fn get_offers(&self) -> Result<Vec<Vec<u8>>> {

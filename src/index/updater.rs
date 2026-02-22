@@ -656,6 +656,8 @@ impl Updater<'_> {
           self.index,
           input_sat_ranges.as_ref(),
         )?;
+
+        self.index_dns_transaction(tx, *txid, block.header.time, wtx)?;
       }
 
       for (vout, output_utxo_entry) in output_utxo_entries.into_iter().enumerate() {
@@ -880,6 +882,105 @@ impl Updater<'_> {
     self.index.begin_write()?.commit()?;
 
     Reorg::update_savepoints(self.index, self.height)?;
+
+    Ok(())
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dogecoin Name System (DNS) indexing
+  // A DNS name is a plain-text inscription whose body is "name.namespace"
+  // (e.g. "satoshi.doge"). The body must be valid UTF-8, contain exactly one
+  // dot, and the part after the dot must be a known namespace.
+  // ---------------------------------------------------------------------------
+  fn index_dns_transaction(
+    &mut self,
+    tx: &Transaction,
+    txid: Txid,
+    block_time: u32,
+    wtx: &WriteTransaction,
+  ) -> Result<()> {
+    use crate::subcommand::dns::is_valid_dns_namespace;
+
+    let mut dns_name_to_entry = wtx.open_table(DNS_NAME_TO_ENTRY)?;
+    let mut dns_inscription_id_to_name = wtx.open_table(DNS_INSCRIPTION_ID_TO_NAME)?;
+    let mut dns_namespace_to_names = wtx.open_multimap_table(DNS_NAMESPACE_TO_NAMES)?;
+    let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
+
+    let envelopes = ParsedEnvelope::from_transaction(tx);
+
+    for (envelope_index, envelope) in envelopes.into_iter().enumerate() {
+      let Some(body) = envelope.payload.body() else {
+        continue;
+      };
+
+      let Ok(text) = std::str::from_utf8(body) else {
+        continue;
+      };
+      let name = text.trim();
+
+      // Must be "label.namespace" — exactly one dot, non-empty parts
+      let parts: Vec<&str> = name.split('.').collect();
+      if parts.len() != 2 || parts[0].is_empty() || parts[1].is_empty() {
+        continue;
+      }
+      let namespace = parts[1];
+      if !is_valid_dns_namespace(namespace) {
+        continue;
+      }
+
+      // Skip if name already registered (first inscription wins)
+      if dns_name_to_entry.get(name)?.is_some() {
+        continue;
+      }
+
+      let inscription_id = InscriptionId {
+        txid,
+        index: envelope_index as u32,
+      };
+
+      // Look up the sequence number for this inscription, then find its inscription number.
+      // We copy the u32 out immediately so the table guard is released before the next lookup.
+      let maybe_seq: Option<u32> = {
+        let id_to_seq = wtx.open_table(INSCRIPTION_ID_TO_SEQUENCE_NUMBER)?;
+        id_to_seq
+          .get(&inscription_id.store())?
+          .map(|g| g.value())
+      };
+      let inscription_number: i32 = if let Some(seq) = maybe_seq {
+        let num_to_seq = wtx.open_table(INSCRIPTION_NUMBER_TO_SEQUENCE_NUMBER)?;
+        num_to_seq
+          .iter()?
+          .filter_map(|r| r.ok())
+          .find(|(_, s)| s.value() == seq)
+          .map(|(n, _)| n.value())
+          .unwrap_or(0)
+      } else {
+        0
+      };
+
+      let entry = DnsEntry {
+        name: name.to_string(),
+        owner_inscription_id: inscription_id,
+        owner_inscription_number: inscription_number,
+        height: self.height,
+        timestamp: block_time,
+        fee: 0, // fee calculation requires input lookup; leave 0 for now
+        address: None, // resolved dynamically from current satpoint
+        avatar: None,
+        reverse: None,
+      };
+
+      dns_name_to_entry.insert(name, entry.store())?;
+      dns_inscription_id_to_name.insert(&inscription_id.store(), name)?;
+      dns_namespace_to_names.insert(namespace, name)?;
+
+      // Update total count statistic
+      let prev = statistic_to_count
+        .get(&Statistic::DnsNames.key())?
+        .map(|g| g.value())
+        .unwrap_or(0);
+      statistic_to_count.insert(&Statistic::DnsNames.key(), &(prev + 1))?;
+    }
 
     Ok(())
   }

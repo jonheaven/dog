@@ -488,6 +488,80 @@ impl Entry for Txid {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Dogecoin Name System (DNS) entry — stored in DNS_NAME_TO_ENTRY table
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
+pub struct DnsEntry {
+  pub name: String,
+  pub owner_inscription_id: InscriptionId,
+  pub owner_inscription_number: i32,
+  pub height: u32,
+  pub timestamp: u32,
+  pub fee: u64,
+  pub address: Option<String>,
+  pub avatar: Option<String>,
+  pub reverse: Option<String>,
+}
+
+pub(crate) type DnsEntryValue = (
+  String,             // name
+  InscriptionIdValue, // owner_inscription_id
+  i32,                // owner_inscription_number
+  u32,                // height
+  u32,                // timestamp
+  u64,                // fee
+  Option<String>,     // address
+  Option<String>,     // avatar
+  Option<String>,     // reverse
+);
+
+impl Entry for DnsEntry {
+  type Value = DnsEntryValue;
+
+  #[rustfmt::skip]
+  fn load(
+    (
+      name,
+      owner_inscription_id,
+      owner_inscription_number,
+      height,
+      timestamp,
+      fee,
+      address,
+      avatar,
+      reverse,
+    ): DnsEntryValue,
+  ) -> Self {
+    Self {
+      name,
+      owner_inscription_id: InscriptionId::load(owner_inscription_id),
+      owner_inscription_number,
+      height,
+      timestamp,
+      fee,
+      address,
+      avatar,
+      reverse,
+    }
+  }
+
+  fn store(self) -> Self::Value {
+    (
+      self.name,
+      self.owner_inscription_id.store(),
+      self.owner_inscription_number,
+      self.height,
+      self.timestamp,
+      self.fee,
+      self.address,
+      self.avatar,
+      self.reverse,
+    )
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

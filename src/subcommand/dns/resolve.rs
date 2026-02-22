@@ -1,0 +1,47 @@
+use {
+  super::super::*,
+  crate::subcommand::dns::DnsInfo,
+};
+
+#[derive(Clone, Debug, Parser)]
+pub struct ResolveCommand {
+  #[arg(help = "Name to resolve (e.g., 'satoshi.doge')")]
+  pub name: String,
+
+  #[arg(long, help = "Output as JSON")]
+  pub json: bool,
+}
+
+impl ResolveCommand {
+  pub(crate) fn run(self, settings: Settings) -> SubcommandResult {
+    let index = Index::open(&settings)?;
+    index.update()?;
+
+    if let Some(entry) = index.get_dns_name(&self.name)? {
+      if self.json {
+        let info = DnsInfo::from(entry);
+        println!("{}", serde_json::to_string_pretty(&info)?);
+      } else {
+        println!("Name:        {}", entry.name);
+        println!("Inscription: {}", entry.owner_inscription_id);
+        if let Some(ref addr) = entry.address {
+          println!("Address:     {}", addr);
+        } else {
+          println!("Address:     (not configured)");
+        }
+        if let Some(ref avatar) = entry.avatar {
+          println!("Avatar:      {}", avatar);
+        }
+        println!("Height:      {}", entry.height);
+      }
+    } else {
+      if self.json {
+        println!("{{\"error\": \"name '{}' not found\"}}", self.name);
+      } else {
+        eprintln!("Name '{}' not found", self.name);
+      }
+    }
+
+    Ok(None)
+  }
+}
