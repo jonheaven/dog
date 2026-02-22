@@ -8,7 +8,7 @@ fn addresses() {
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   let etched = batch(
     &core,

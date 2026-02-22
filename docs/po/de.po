@@ -2603,16 +2603,16 @@ msgid "The server can be run locally with:"
 msgstr "Der Server kann lokal betrieben werden mit:"
 
 #: src\guides/explorer.md:11
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src\guides/explorer.md:13
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Um einen Port anzugeben, fügen Sie Folgendes `--http-port` flag:"
 
 #: src\guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
-msgstr "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "`dog server --http-port 8080`"
 
 #: src\guides/explorer.md:17
 msgid "To test how your inscriptions will look you can run:"
@@ -4886,9 +4886,9 @@ msgstr ""
 
 #: src\guides/moderation.md:4
 msgid ""
-"`ord` includes a block explorer, which you can run locally with `ord server`."
+"`ord` includes a block explorer, which you can run locally with `dog server`."
 msgstr ""
-"`ord` enthält einen Block-Explorer, den Sie lokal mit `ord server` ausführen "
+"`ord` enthält einen Block-Explorer, den Sie lokal mit `dog server` ausführen "
 "können."
 
 #: src\guides/moderation.md:6
@@ -4979,10 +4979,10 @@ msgstr "`ordinals.com`"
 
 #: src\guides/moderation.md:40
 msgid ""
-"The `ordinals.com` instances use `systemd` to run the `ord server` service, "
+"The `ordinals.com` instances use `systemd` to run the `dog server` service, "
 "which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
-"Die `ordinals.com`-Instanzen verwenden `systemd`, um den Dienst `ord server` "
+"Die `ordinals.com`-Instanzen verwenden `systemd`, um den Dienst `dog server` "
 "auszuführen, der `ord` genannt wird und eine Konfigurationsdatei unter `/var/"
 "lib/ord/ord.yaml`."
 
@@ -5018,11 +5018,11 @@ msgstr ""
 msgid ""
 "Sometimes the `ord` database must be reindexed, which means deleting the "
 "database and restarting the indexing process with either `ord index run` or "
-"`ord server`. Reasons to reindex are:"
+"`dog server`. Reasons to reindex are:"
 msgstr ""
 "Manchmal muss die `ord`-Datenbank neu indexiert werden, was bedeutet, die "
 "Datenbank zu löschen und den Indexierungsprozess mit `ord index run` oder "
-"`ord server` erneut zu starten. Gründe für eine Neuerstellung des Index "
+"`dog server` erneut zu starten. Gründe für eine Neuerstellung des Index "
 "können sein:"
 
 #: src\guides/reindexing.md:8

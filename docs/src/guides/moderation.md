@@ -1,7 +1,7 @@
 Moderation
 ==========
 
-`ord` includes a block explorer, which you can run locally with `ord server`.
+`ord` includes a block explorer, which you can run locally with `dog server`.
 
 The block explorer allows viewing inscriptions. Inscriptions are user-generated
 content, which may be objectionable or unlawful.
@@ -37,7 +37,7 @@ subcommand.
 `doginals.com`
 --------------
 
-The `doginals.com` instances use `systemd` to run the `ord server` service,
+The `doginals.com` instances use `systemd` to run the `dog server` service,
 which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`.
 
 To hide an inscription on `doginals.com`:

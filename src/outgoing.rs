@@ -45,7 +45,7 @@ impl FromStr for Outgoing {
       .unwrap()
     });
 
-    static RUNE: LazyLock<Regex> = LazyLock::new(|| {
+    static DUNE: LazyLock<Regex> = LazyLock::new(|| {
       Regex::new(
         r"(?x)
         ^
@@ -86,13 +86,13 @@ impl FromStr for Outgoing {
       Ok(Outgoing::Amount(
         input.parse().snafu_context(error::AmountParse { input })?,
       ))
-    } else if let Some(captures) = RUNE.captures(input) {
+    } else if let Some(captures) = DUNE.captures(input) {
       let decimal = captures[1]
         .parse::<Decimal>()
-        .snafu_context(error::RuneAmountParse { input })?;
+        .snafu_context(error::DuneAmountParse { input })?;
       let dune = captures[2]
         .parse()
-        .snafu_context(error::RuneParse { input })?;
+        .snafu_context(error::DuneParse { input })?;
       Ok(Self::Dune { decimal, dune })
     } else {
       Err(SnafuError::OutgoingParse {

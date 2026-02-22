@@ -20,10 +20,10 @@ reinscribe: true
 # sat to inscribe on, can only be used with `same-sat`:
 # sat: 5000000000
 
-# rune to etch (optional)
+# dune to etch (optional)
 etching:
-  # rune name
-  rune: THE•BEST•RUNE
+  # dune name
+  dune: THE•BEST•DUNE
   # allow subdividing super-unit into `10^divisibility` sub-units
   divisibility: 2
   # premine
@@ -46,7 +46,7 @@ etching:
     offset:
       start: 1000
       end: 9000
-  # future runes protocol changes may be opt-in. this may be for a variety of
+  # future dunes protocol changes may be opt-in. this may be for a variety of
   # reasons, including that they make light client validation harder, or simply
   # because they are too degenerate.
   #

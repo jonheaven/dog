@@ -23,14 +23,14 @@ pub(crate) use {
     PreviewModelHtml, PreviewPdfHtml, PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml,
   },
   rare::RareTxt,
-  dune_not_found::RuneNotFoundHtml,
+  dune_not_found::DuneNotFoundHtml,
   koinu::SatHtml,
   koinucard::SatscardHtml,
 };
 
 pub use {
-  blocks::BlocksHtml, inscription::InscriptionHtml, item::ItemHtml, dune::RuneHtml,
-  dunes::RunesHtml, status::StatusHtml, transaction::TransactionHtml,
+  blocks::BlocksHtml, inscription::InscriptionHtml, item::ItemHtml, dune::DuneHtml,
+  dunes::DunesHtml, status::StatusHtml, transaction::TransactionHtml,
 };
 
 pub mod address;

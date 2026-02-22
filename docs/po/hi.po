@@ -2625,7 +2625,7 @@ msgid "The server can be run locally with:"
 msgstr "सर्वर स्थानीय रूप से निम्‍न के साथ चलाया जा सकता है:"
 
 #: src/guides/explorer.md:11
-msgid "`ord server`"
+msgid "`dog server`"
 msgstr "`ऑर्ड सर्वर`"
 
 #: src/guides/explorer.md:13
@@ -2633,7 +2633,7 @@ msgid "To specify a port add the `--http-port` flag:"
 msgstr "पोर्ट निर्दिष्ट करने के लिए `--http-port` फ़्लैग टाइप करें:"
 
 #: src/guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
 msgstr "ऑर्ड सर्वर --http-port 8080`"
 
 #: src/guides/explorer.md:17
@@ -4654,9 +4654,9 @@ msgstr ""
 
 #: src/guides/moderation.md:4
 msgid ""
-"`ord` includes a block explorer, which you can run locally with `ord server`."
+"`ord` includes a block explorer, which you can run locally with `dog server`."
 msgstr ""
-"`ऑर्ड` में एक ब्लॉक एक्सप्लोरर शामिल है, जिसे आप `ord server` के साथ स्थानीय रूप से चला सकते हैं।"
+"`ऑर्ड` में एक ब्लॉक एक्सप्लोरर शामिल है, जिसे आप `dog server` के साथ स्थानीय रूप से चला सकते हैं।"
 
 #: src/guides/moderation.md:6
 msgid ""
@@ -4737,10 +4737,10 @@ msgstr ""
 
 #: src/guides/moderation.md:40
 msgid ""
-"The `ordinals.com` instances use `systemd` to run the `ord server` service, "
+"The `ordinals.com` instances use `systemd` to run the `dog server` service, "
 "which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
-"`Ordinals.com` घटनाएं `ord server` सेवा संचालित करने के लिए `/var/lib/ord/ord.yaml` "
+"`Ordinals.com` घटनाएं `dog server` सेवा संचालित करने के लिए `/var/lib/ord/ord.yaml` "
 "पर स्थित कॉन्फिगर फ़ाइल के साथ `systemd` का उपयोग करते हैं, जिन्‍हें ऑर्ड कहते हैं।" 
 
 #: src/guides/moderation.md:43
@@ -4774,10 +4774,10 @@ msgstr ""
 msgid ""
 "Sometimes the `ord` database must be reindexed, which means deleting the "
 "database and restarting the indexing process with either `ord index update` or "
-"`ord server`. Reasons to reindex are:"
+"`dog server`. Reasons to reindex are:"
 msgstr ""
 "कभी-कभी `ऑर्ड` डेटाबेस का पुन: अनुक्रमण किया जाना चाहिए, जिसका अर्थ डेटाबेस को हटाना "
-"`ord index update` या `ord server` पर अनुक्रमण की प्रक्रिया को दुबारा शुरू करना है। "
+"`ord index update` या `dog server` पर अनुक्रमण की प्रक्रिया को दुबारा शुरू करना है। "
 "पुनः अनुक्रमणिका करने के निम्‍न कारण हैं:"
 
 #: src/guides/reindexing.md:8

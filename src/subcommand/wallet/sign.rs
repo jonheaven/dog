@@ -63,7 +63,7 @@ impl Sign {
 
     let to_sign = bip322::create_to_sign(&to_spend, None)?;
 
-    let result = wallet.bitcoin_client().sign_raw_transaction_with_wallet(
+    let result = wallet.dogecoin_client().sign_raw_transaction_with_wallet(
       &to_sign.extract_tx()?,
       Some(&[bitcoincore_rpc::json::SignRawTransactionInput {
         txid: to_spend.compute_txid(),

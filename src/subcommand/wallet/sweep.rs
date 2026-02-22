@@ -31,7 +31,7 @@ pub(crate) struct Sweep {
 impl Sweep {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
-      wallet.has_rune_index(),
+      wallet.has_dune_index(),
       "sweeping private key requires index created with `--index-dunes`",
     );
 
@@ -67,18 +67,18 @@ impl Sweep {
     let address_info = &ord_client
       .get(wallet.rpc_url().join(&format!("/address/{address}"))?)
       .send()
-      .context("failed to get address info from ord server")?
+      .context("failed to get address info from dog server")?
       .json::<api::AddressInfo>()
-      .context("failed to get address info from ord server")?;
+      .context("failed to get address info from dog server")?;
 
     let mut utxos = Vec::new();
     for outpoint in &address_info.outputs {
       let output = ord_client
         .get(wallet.rpc_url().join(&format!("/output/{outpoint}"))?)
         .send()
-        .context("failed to get output info from ord server")?
+        .context("failed to get output info from dog server")?
         .json::<api::Output>()
-        .context("failed to get output info from ord server")?;
+        .context("failed to get output info from dog server")?;
 
       ensure! {
         output.dunes.as_ref().unwrap().is_empty(),
@@ -163,7 +163,7 @@ impl Sweep {
     };
 
     let tx = fund_raw_transaction(
-      wallet.bitcoin_client(),
+      wallet.dogecoin_client(),
       self.fee_rate,
       &tx,
       Some(input_weights),
@@ -200,7 +200,7 @@ impl Sweep {
       }
 
       let result = wallet
-        .bitcoin_client()
+        .dogecoin_client()
         .sign_raw_transaction_with_wallet(&tx, None, None)
         .context("failed to sign transaction with wallet")?;
 

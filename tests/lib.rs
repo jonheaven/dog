@@ -13,7 +13,7 @@ use {
   mockcore::TransactionTemplate,
   dog::{
     Inscription, InscriptionId, DuneEntry, api, base64_decode, base64_encode, chain::Chain,
-    decimal::Decimal, outgoing::Outgoing, subcommand::dunes::RuneInfo, templates::InscriptionHtml,
+    decimal::Decimal, outgoing::Outgoing, subcommand::dunes::DuneInfo, templates::InscriptionHtml,
     wallet::ListDescriptorsResult, wallet::batch,
   },
   ordinals::{
@@ -75,7 +75,7 @@ mod verify;
 mod version;
 mod wallet;
 
-const RUNE: u128 = 99246114928149462;
+const DUNE: u128 = 99246114928149462;
 
 type Balance = dog::subcommand::wallet::balance::Output;
 type Balances = dog::subcommand::balances::Output;
@@ -382,7 +382,7 @@ fn batch(core: &mockcore::Handle, dog: &TestServer, batchfile: batch::File) -> E
     ),
   );
 
-  let batch::RuneInfo {
+  let batch::DuneInfo {
     destination,
     location,
     dune: _,

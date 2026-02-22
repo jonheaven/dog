@@ -23,16 +23,16 @@ impl Display for MintError {
 mod tests {
   use {super::*, crate::index::testing::Context};
 
-  const RUNE: u128 = 99246114928149462;
+  const DUNE: u128 = 99246114928149462;
 
   #[test]
-  fn index_starts_with_no_runes() {
+  fn index_starts_with_no_dunes() {
     let context = Context::builder().arg("--index-dunes").build();
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
-  fn default_index_does_not_index_runes() {
+  fn default_index_does_not_index_dunes() {
     let context = Context::builder().build();
 
     context.mine_blocks(1);
@@ -40,7 +40,7 @@ mod tests {
     context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           ..default()
         }),
         ..default()
@@ -48,11 +48,11 @@ mod tests {
       1,
     );
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
-  fn empty_dunestone_does_not_create_rune() {
+  fn empty_dunestone_does_not_create_dune() {
     let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
@@ -67,17 +67,17 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
-  fn etching_with_no_edicts_creates_rune() {
+  fn etching_with_no_edicts_creates_dune() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           ..default()
         }),
         ..default()
@@ -85,14 +85,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -104,7 +104,7 @@ mod tests {
   }
 
   #[test]
-  fn etching_with_edict_creates_rune() {
+  fn etching_with_edict_creates_dune() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -115,7 +115,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -124,14 +124,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -144,7 +144,7 @@ mod tests {
   }
 
   #[test]
-  fn runes_must_be_greater_than_or_equal_to_minimum_for_height() {
+  fn dunes_must_be_greater_than_or_equal_to_minimum_for_height() {
     let minimum = Dune::minimum_at_height(
       Chain::DogecoinRegtest.network(),
       Height((Dunestone::COMMIT_CONFIRMATIONS + 2).into()),
@@ -174,7 +174,7 @@ mod tests {
         1,
       );
 
-      context.assert_runes([], []);
+      context.assert_dunes([], []);
     }
 
     {
@@ -200,7 +200,7 @@ mod tests {
         1,
       );
 
-      context.assert_runes(
+      context.assert_dunes(
         [(
           id,
           DuneEntry {
@@ -221,7 +221,7 @@ mod tests {
   }
 
   #[test]
-  fn etching_cannot_specify_reserved_rune() {
+  fn etching_cannot_specify_reserved_dune() {
     {
       let context = Context::builder().arg("--index-dunes").build();
 
@@ -241,7 +241,7 @@ mod tests {
         1,
       );
 
-      context.assert_runes([], []);
+      context.assert_dunes([], []);
     }
 
     {
@@ -264,7 +264,7 @@ mod tests {
         1,
       );
 
-      context.assert_runes(
+      context.assert_dunes(
         [(
           id,
           DuneEntry {
@@ -285,7 +285,7 @@ mod tests {
   }
 
   #[test]
-  fn reserved_runes_may_be_etched() {
+  fn reserved_dunes_may_be_etched() {
     let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
@@ -316,7 +316,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id0,
         DuneEntry {
@@ -367,7 +367,7 @@ mod tests {
 
     let id1 = DuneId { block: 4, tx: 1 };
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -419,7 +419,7 @@ mod tests {
   }
 
   #[test]
-  fn etching_with_non_zero_divisibility_and_rune() {
+  fn etching_with_non_zero_divisibility_and_dune() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -431,7 +431,7 @@ mod tests {
         }],
         etching: Some(Etching {
           divisibility: Some(1),
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -442,13 +442,13 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           etching: txid,
@@ -481,7 +481,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -490,14 +490,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -528,7 +528,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -537,14 +537,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -571,7 +571,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(100),
           ..default()
         }),
@@ -580,14 +580,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 100,
@@ -618,7 +618,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(200),
           ..default()
         }),
@@ -627,7 +627,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -635,7 +635,7 @@ mod tests {
           burned: 100,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 200,
@@ -666,7 +666,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           ..default()
         }),
         ..default()
@@ -674,14 +674,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -694,7 +694,7 @@ mod tests {
   }
 
   #[test]
-  fn input_runes_may_be_allocated() {
+  fn input_dunes_may_be_allocated() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -705,7 +705,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -714,14 +714,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -756,14 +756,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -782,7 +782,7 @@ mod tests {
   }
 
   #[test]
-  fn etched_rune_is_allocated_with_zero_supply_for_cenotaph() {
+  fn etched_dune_is_allocated_with_zero_supply_for_cenotaph() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -793,7 +793,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           ..default()
         }),
         pointer: Some(10),
@@ -802,14 +802,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -821,7 +821,7 @@ mod tests {
   }
 
   #[test]
-  fn etched_rune_parameters_are_unset_for_cenotaph() {
+  fn etched_dune_parameters_are_unset_for_cenotaph() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -833,7 +833,7 @@ mod tests {
         }],
         etching: Some(Etching {
           premine: Some(u128::MAX),
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             cap: Some(1),
             amount: Some(1),
@@ -851,7 +851,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -864,7 +864,7 @@ mod tests {
           number: 0,
           premine: 0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           symbol: None,
@@ -877,7 +877,7 @@ mod tests {
   }
 
   #[test]
-  fn reserved_runes_are_not_allocated_in_cenotaph() {
+  fn reserved_dunes_are_not_allocated_in_cenotaph() {
     let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
@@ -902,11 +902,11 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
-  fn input_runes_are_burned_if_an_unrecognized_even_tag_is_encountered() {
+  fn input_dunes_are_burned_if_an_unrecognized_even_tag_is_encountered() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -917,7 +917,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -926,14 +926,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -964,7 +964,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -972,7 +972,7 @@ mod tests {
           burned: u128::MAX,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -985,7 +985,7 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_are_assigned_to_first_non_op_return_output() {
+  fn unallocated_dunes_are_assigned_to_first_non_op_return_output() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -996,7 +996,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1005,14 +1005,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1037,14 +1037,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1063,7 +1063,7 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_are_burned_if_no_non_op_return_output_is_present() {
+  fn unallocated_dunes_are_burned_if_no_non_op_return_output_is_present() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -1074,7 +1074,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1083,14 +1083,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1116,14 +1116,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1137,7 +1137,7 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_are_assigned_to_default_output() {
+  fn unallocated_dunes_are_assigned_to_default_output() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -1148,7 +1148,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1157,14 +1157,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1196,14 +1196,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1222,7 +1222,7 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_are_burned_if_default_output_is_op_return() {
+  fn unallocated_dunes_are_burned_if_default_output_is_op_return() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -1233,7 +1233,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1242,14 +1242,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1281,14 +1281,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1302,7 +1302,7 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_in_transactions_with_no_dunestone_are_assigned_to_first_non_op_return_output()
+  fn unallocated_dunes_in_transactions_with_no_dunestone_are_assigned_to_first_non_op_return_output()
    {
     let context = Context::builder().arg("--index-dunes").build();
 
@@ -1314,7 +1314,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1323,14 +1323,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1355,14 +1355,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1381,7 +1381,7 @@ mod tests {
   }
 
   #[test]
-  fn duplicate_runes_are_forbidden() {
+  fn duplicate_dunes_are_forbidden() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -1392,7 +1392,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1401,14 +1401,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1427,7 +1427,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           ..default()
         }),
         ..default()
@@ -1437,14 +1437,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1457,7 +1457,7 @@ mod tests {
   }
 
   #[test]
-  fn output_may_hold_multiple_runes() {
+  fn output_may_hold_multiple_dunes() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
@@ -1468,7 +1468,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1477,14 +1477,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id0,
         DuneEntry {
           block: id0.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1509,7 +1509,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE + 1)),
+          dune: Some(Dune(DUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1518,7 +1518,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -1526,7 +1526,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1540,7 +1540,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1578,7 +1578,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -1586,7 +1586,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1600,7 +1600,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1621,7 +1621,7 @@ mod tests {
   }
 
   #[test]
-  fn multiple_input_runes_on_the_same_input_may_be_allocated() {
+  fn multiple_input_dunes_on_the_same_input_may_be_allocated() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
@@ -1632,7 +1632,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1641,14 +1641,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id0,
         DuneEntry {
           block: id0.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1673,7 +1673,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE + 1)),
+          dune: Some(Dune(DUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1682,7 +1682,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -1690,7 +1690,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1704,7 +1704,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1742,7 +1742,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -1750,7 +1750,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1764,7 +1764,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1809,7 +1809,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -1817,7 +1817,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1831,7 +1831,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1861,7 +1861,7 @@ mod tests {
   }
 
   #[test]
-  fn multiple_input_runes_on_different_inputs_may_be_allocated() {
+  fn multiple_input_dunes_on_different_inputs_may_be_allocated() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
@@ -1872,7 +1872,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1881,14 +1881,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id0,
         DuneEntry {
           block: id0.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1913,7 +1913,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE + 1)),
+          dune: Some(Dune(DUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1922,7 +1922,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -1930,7 +1930,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1944,7 +1944,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2000,7 +2000,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -2008,7 +2008,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2022,7 +2022,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2043,7 +2043,7 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_are_assigned_to_first_non_op_return_output_when_op_return_is_not_last_output()
+  fn unallocated_dunes_are_assigned_to_first_non_op_return_output_when_op_return_is_not_last_output()
    {
     let context = Context::builder().arg("--index-dunes").build();
 
@@ -2055,7 +2055,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2064,14 +2064,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2101,14 +2101,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2121,7 +2121,7 @@ mod tests {
   }
 
   #[test]
-  fn multiple_runes_may_be_etched_in_one_block() {
+  fn multiple_dunes_may_be_etched_in_one_block() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
@@ -2132,7 +2132,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2149,7 +2149,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE + 1)),
+          dune: Some(Dune(DUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2158,7 +2158,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -2166,7 +2166,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2180,7 +2180,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2221,7 +2221,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2230,14 +2230,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2279,14 +2279,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2305,7 +2305,7 @@ mod tests {
   }
 
   #[test]
-  fn edicts_which_refer_to_input_rune_with_no_balance_are_skipped() {
+  fn edicts_which_refer_to_input_dune_with_no_balance_are_skipped() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
@@ -2316,7 +2316,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2325,14 +2325,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id0,
         DuneEntry {
           block: id0.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2357,7 +2357,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE + 1)),
+          dune: Some(Dune(DUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2366,7 +2366,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -2374,7 +2374,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2388,7 +2388,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2441,7 +2441,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [
         (
           id0,
@@ -2449,7 +2449,7 @@ mod tests {
             block: id0.block,
             etching: txid0,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2463,7 +2463,7 @@ mod tests {
             block: id1.block,
             etching: txid1,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2504,7 +2504,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX / 2),
           ..default()
         }),
@@ -2513,14 +2513,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX / 2,
@@ -2555,14 +2555,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX / 2,
@@ -2581,7 +2581,7 @@ mod tests {
   }
 
   #[test]
-  fn edicts_may_transfer_runes_to_op_return_outputs() {
+  fn edicts_may_transfer_dunes_to_op_return_outputs() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -2592,7 +2592,7 @@ mod tests {
           output: 1,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2601,7 +2601,7 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -2609,7 +2609,7 @@ mod tests {
           burned: u128::MAX,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2622,7 +2622,7 @@ mod tests {
   }
 
   #[test]
-  fn outputs_with_no_runes_have_no_balance() {
+  fn outputs_with_no_dunes_have_no_balance() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -2633,7 +2633,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2642,14 +2642,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2662,7 +2662,7 @@ mod tests {
   }
 
   #[test]
-  fn edicts_which_transfer_no_runes_to_output_create_no_balance_entry() {
+  fn edicts_which_transfer_no_dunes_to_output_create_no_balance_entry() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -2680,7 +2680,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2689,14 +2689,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2720,7 +2720,7 @@ mod tests {
           output: 5,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2729,14 +2729,14 @@ mod tests {
       4,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2772,7 +2772,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2781,14 +2781,14 @@ mod tests {
       4,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2836,7 +2836,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2845,14 +2845,14 @@ mod tests {
       4,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2881,7 +2881,7 @@ mod tests {
           output: 5,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(4000),
           ..default()
         }),
@@ -2890,14 +2890,14 @@ mod tests {
       4,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 4000,
@@ -2933,7 +2933,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2942,14 +2942,14 @@ mod tests {
       4,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2984,7 +2984,7 @@ mod tests {
           },
         ],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2993,14 +2993,14 @@ mod tests {
       4,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3032,7 +3032,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3041,14 +3041,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3084,14 +3084,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3130,7 +3130,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3139,14 +3139,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3189,14 +3189,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3235,7 +3235,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3244,14 +3244,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3294,14 +3294,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3340,7 +3340,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3349,14 +3349,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3392,14 +3392,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3438,7 +3438,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3447,14 +3447,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3497,14 +3497,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3543,7 +3543,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3552,14 +3552,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3602,14 +3602,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3662,7 +3662,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           symbol: Some('$'),
           premine: Some(u128::MAX),
           ..default()
@@ -3672,14 +3672,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3693,7 +3693,7 @@ mod tests {
   }
 
   #[test]
-  fn allocate_all_remaining_runes_in_etching() {
+  fn allocate_all_remaining_dunes_in_etching() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
@@ -3704,7 +3704,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3713,14 +3713,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3733,7 +3733,7 @@ mod tests {
   }
 
   #[test]
-  fn allocate_all_remaining_runes_in_inputs() {
+  fn allocate_all_remaining_dunes_in_inputs() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
@@ -3744,7 +3744,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3753,14 +3753,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3796,14 +3796,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3822,13 +3822,13 @@ mod tests {
   }
 
   #[test]
-  fn rune_can_be_minted_without_edict() {
+  fn dune_can_be_minted_without_edict() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -3841,14 +3841,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -3878,7 +3878,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -3891,7 +3891,7 @@ mod tests {
           }),
           mints: 1,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -3910,13 +3910,13 @@ mod tests {
   }
 
   #[test]
-  fn rune_cannot_be_minted_less_than_limit_amount() {
+  fn dune_cannot_be_minted_less_than_limit_amount() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -3929,14 +3929,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -3972,7 +3972,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -3985,7 +3985,7 @@ mod tests {
           }),
           mints: 1,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4010,7 +4010,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             cap: Some(100),
             amount: Some(1000),
@@ -4023,14 +4023,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -4066,7 +4066,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -4079,7 +4079,7 @@ mod tests {
           }),
           mints: 1,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4116,7 +4116,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -4129,7 +4129,7 @@ mod tests {
           }),
           mints: 2,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4176,7 +4176,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -4190,7 +4190,7 @@ mod tests {
           }),
           mints: 3,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4224,7 +4224,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4242,7 +4242,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4255,7 +4255,7 @@ mod tests {
       ..default()
     };
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
@@ -4273,7 +4273,7 @@ mod tests {
 
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4298,7 +4298,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4317,7 +4317,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4335,7 +4335,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4348,7 +4348,7 @@ mod tests {
       ..default()
     };
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
@@ -4364,7 +4364,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
@@ -4382,7 +4382,7 @@ mod tests {
 
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4401,7 +4401,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4419,7 +4419,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4432,7 +4432,7 @@ mod tests {
       ..default()
     };
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
@@ -4448,7 +4448,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
@@ -4466,7 +4466,7 @@ mod tests {
 
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4485,7 +4485,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4503,7 +4503,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4516,7 +4516,7 @@ mod tests {
       ..default()
     };
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
@@ -4534,7 +4534,7 @@ mod tests {
 
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4559,7 +4559,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4578,7 +4578,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4596,7 +4596,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4609,7 +4609,7 @@ mod tests {
       ..default()
     };
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
@@ -4626,7 +4626,7 @@ mod tests {
     context.mine_blocks(1);
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4651,7 +4651,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4670,7 +4670,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4688,7 +4688,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4701,7 +4701,7 @@ mod tests {
       ..default()
     };
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
@@ -4718,7 +4718,7 @@ mod tests {
     context.mine_blocks(1);
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4743,7 +4743,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4762,7 +4762,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4780,7 +4780,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4809,7 +4809,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([(id, entry0)], []);
+    context.assert_dunes([(id, entry0)], []);
 
     context.mine_blocks(1);
 
@@ -4829,7 +4829,7 @@ mod tests {
 
     entry0.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry0)],
       [(
         OutPoint {
@@ -4848,7 +4848,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4866,7 +4866,7 @@ mod tests {
       block: id.block,
       etching: txid0,
       spaced_dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4895,7 +4895,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([(id, entry)], []);
+    context.assert_dunes([(id, entry)], []);
 
     context.mine_blocks(1);
 
@@ -4915,7 +4915,7 @@ mod tests {
 
     entry.mints += 1;
 
-    context.assert_runes(
+    context.assert_dunes(
       [(id, entry)],
       [(
         OutPoint {
@@ -4939,7 +4939,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(1111),
           terms: Some(Terms {
             amount: Some(1000),
@@ -4953,14 +4953,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -4991,14 +4991,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5022,7 +5022,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(2),
@@ -5035,14 +5035,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5076,13 +5076,13 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5124,14 +5124,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5181,14 +5181,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5227,7 +5227,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             offset: (None, Some(2)),
@@ -5240,14 +5240,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5281,13 +5281,13 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5312,7 +5312,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -5325,14 +5325,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5367,14 +5367,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5407,13 +5407,13 @@ mod tests {
   }
 
   #[test]
-  fn runes_can_be_etched_and_premined_in_the_same_transaction() {
+  fn dunes_can_be_etched_and_premined_in_the_same_transaction() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(2000),
           terms: Some(Terms {
             amount: Some(1000),
@@ -5431,14 +5431,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5461,7 +5461,7 @@ mod tests {
     let (txid, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             offset: (None, Some(1)),
             ..default()
@@ -5473,14 +5473,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5503,7 +5503,7 @@ mod tests {
     let (txid, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(2000),
           terms: Some(Terms {
             amount: Some(1000),
@@ -5522,14 +5522,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5554,7 +5554,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -5586,14 +5586,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5623,7 +5623,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -5636,14 +5636,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5689,14 +5689,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5739,7 +5739,7 @@ mod tests {
 
     let dunestone = Dunestone {
       etching: Some(Etching {
-        dune: Some(Dune(RUNE)),
+        dune: Some(Dune(DUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5776,7 +5776,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
@@ -5799,7 +5799,7 @@ mod tests {
 
     let dunestone = Dunestone {
       etching: Some(Etching {
-        dune: Some(Dune(RUNE)),
+        dune: Some(Dune(DUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5836,11 +5836,11 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
-  fn immature_commits_are_not_valid_even_when_bitcoind_is_ahead() {
+  fn immature_commits_are_not_valid_even_when_core_is_ahead() {
     let context = Context::builder().arg("--index-dunes").build();
 
     let block_count = context.index.block_count().unwrap().into_usize();
@@ -5859,7 +5859,7 @@ mod tests {
 
     let dunestone = Dunestone {
       etching: Some(Etching {
-        dune: Some(Dune(RUNE)),
+        dune: Some(Dune(DUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5898,7 +5898,7 @@ mod tests {
 
     context.mine_blocks_with_update(1, true);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
@@ -5921,7 +5921,7 @@ mod tests {
 
     let dunestone = Dunestone {
       etching: Some(Etching {
-        dune: Some(Dune(RUNE)),
+        dune: Some(Dune(DUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5948,18 +5948,18 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
-  fn tx_commits_to_rune_ignores_invalid_script() {
+  fn tx_commits_to_dune_ignores_invalid_script() {
     let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
 
     let dunestone = Dunestone {
       etching: Some(Etching {
-        dune: Some(Dune(RUNE)),
+        dune: Some(Dune(DUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5983,7 +5983,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes([], []);
+    context.assert_dunes([], []);
   }
 
   #[test]
@@ -5993,7 +5993,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -6002,14 +6002,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -6045,14 +6045,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -6066,9 +6066,9 @@ mod tests {
   }
 
   #[test]
-  fn genesis_rune() {
+  fn genesis_dune() {
     assert_eq!(
-      Chain::Dogecoin.first_rune_height(),
+      Chain::Dogecoin.first_dune_height(),
       SUBSIDY_HALVING_INTERVAL * 4,
     );
 
@@ -6076,7 +6076,7 @@ mod tests {
       .chain(Chain::Dogecoin)
       .arg("--index-dunes")
       .build()
-      .assert_runes(
+      .assert_dunes(
         [(
           DuneId { block: 1, tx: 0 },
           DuneEntry {

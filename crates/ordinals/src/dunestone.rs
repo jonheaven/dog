@@ -583,7 +583,7 @@ mod tests {
   }
 
   #[test]
-  fn decipher_etching_with_rune() {
+  fn decipher_etching_with_dune() {
     assert_eq!(
       decipher(&[
         Tag::Flags.into(),
@@ -1897,7 +1897,7 @@ mod tests {
   }
 
   #[test]
-  fn min_and_max_runes_are_not_cenotaphs() {
+  fn min_and_max_dunes_are_not_cenotaphs() {
     assert_eq!(
       decipher(&[Tag::Flags.into(), Flag::Etching.into(), Tag::Dune.into(), 0]),
       Artifact::Dunestone(Dunestone {

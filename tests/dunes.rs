@@ -15,7 +15,7 @@ fn flag_is_required() {
 }
 
 #[test]
-fn no_runes() {
+fn no_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   assert_eq!(
@@ -29,14 +29,14 @@ fn no_runes() {
 }
 
 #[test]
-fn one_rune() {
+fn one_dune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  let etch = etch(&core, &dog, Dune(RUNE));
+  let etch = etch(&core, &dog, Dune(DUNE));
 
   pretty_assert_eq!(
     CommandBuilder::new("--index-dunes --regtest dunes")
@@ -44,8 +44,8 @@ fn one_rune() {
       .run_and_deserialize_output::<Output>(),
     Output {
       dunes: vec![(
-        Dune(RUNE),
-        RuneInfo {
+        Dune(DUNE),
+        DuneInfo {
           block: 7,
           burned: 0,
           divisibility: 0,
@@ -56,7 +56,7 @@ fn one_rune() {
           number: 0,
           premine: 1000,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0
           },
           supply: 1000,
@@ -73,15 +73,15 @@ fn one_rune() {
 }
 
 #[test]
-fn two_runes() {
+fn two_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  let a = etch(&core, &dog, Dune(RUNE));
-  let b = etch(&core, &dog, Dune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(DUNE));
+  let b = etch(&core, &dog, Dune(DUNE + 1));
 
   pretty_assert_eq!(
     CommandBuilder::new("--index-dunes --regtest dunes")
@@ -90,8 +90,8 @@ fn two_runes() {
     Output {
       dunes: vec![
         (
-          Dune(RUNE),
-          RuneInfo {
+          Dune(DUNE),
+          DuneInfo {
             block: 7,
             burned: 0,
             divisibility: 0,
@@ -102,7 +102,7 @@ fn two_runes() {
             number: 0,
             premine: 1000,
             dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0
             },
             supply: 1000,
@@ -113,8 +113,8 @@ fn two_runes() {
           }
         ),
         (
-          Dune(RUNE + 1),
-          RuneInfo {
+          Dune(DUNE + 1),
+          DuneInfo {
             block: 14,
             burned: 0,
             divisibility: 0,
@@ -125,7 +125,7 @@ fn two_runes() {
             number: 1,
             premine: 1000,
             dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0
             },
             supply: 1000,

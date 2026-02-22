@@ -65,7 +65,7 @@ impl Plan {
 
     if self.dry_run {
       let commit_psbt = wallet
-        .bitcoin_client()
+        .dogecoin_client()
         .wallet_process_psbt(
           &base64_encode(
             &Psbt::from_unsigned_tx(Self::remove_witnesses(commit_tx.clone()))?.serialize(),
@@ -91,11 +91,11 @@ impl Plan {
     }
 
     let signed_commit_tx = wallet
-      .bitcoin_client()
+      .dogecoin_client()
       .sign_raw_transaction_with_wallet(&commit_tx, None, None)?
       .hex;
 
-    let result = wallet.bitcoin_client().sign_raw_transaction_with_wallet(
+    let result = wallet.dogecoin_client().sign_raw_transaction_with_wallet(
       &reveal_tx,
       Some(
         &commit_tx
@@ -126,11 +126,11 @@ impl Plan {
     }
 
     let commit_txid = wallet
-      .bitcoin_client()
+      .dogecoin_client()
       .send_raw_transaction(&signed_commit_tx)?;
 
-    if let Some(ref rune_info) = dune {
-      wallet.bitcoin_client().lock_unspent(&[OutPoint {
+    if let Some(ref dune_info) = dune {
+      wallet.dogecoin_client().lock_unspent(&[OutPoint {
         txid: commit_txid,
         vout: commit_vout.try_into().unwrap(),
       }])?;
@@ -139,7 +139,7 @@ impl Plan {
       let reveal = consensus::encode::deserialize::<Transaction>(&signed_reveal_tx)?;
 
       wallet.save_etching(
-        &rune_info.dune.dune,
+        &dune_info.dune.dune,
         &commit,
         &reveal,
         self.output(
@@ -155,11 +155,11 @@ impl Plan {
       )?;
 
       Ok(Some(Box::new(
-        wallet.wait_for_maturation(rune_info.dune.dune)?,
+        wallet.wait_for_maturation(dune_info.dune.dune)?,
       )))
     } else {
       let reveal = match wallet
-        .bitcoin_client()
+        .dogecoin_client()
         .send_raw_transaction(&signed_reveal_tx)
       {
         Ok(txid) => txid,
@@ -200,7 +200,7 @@ impl Plan {
     reveal_psbt: Option<String>,
     total_fees: u64,
     inscriptions: Vec<Inscription>,
-    dune: Option<RuneInfo>,
+    dune: Option<DuneInfo>,
   ) -> Output {
     let mut inscriptions_output = Vec::new();
     for i in 0..inscriptions.len() {
@@ -654,7 +654,7 @@ impl Plan {
       (None, None) => {}
     }
 
-    let dune = dune.map(|(destination, dune, vout)| RuneInfo {
+    let dune = dune.map(|(destination, dune, vout)| DuneInfo {
       destination: destination.map(|destination| uncheck(&destination)),
       location: vout.map(|vout| OutPoint {
         txid: reveal_tx.compute_txid(),
@@ -680,11 +680,11 @@ impl Plan {
     );
 
     let info = wallet
-      .bitcoin_client()
+      .dogecoin_client()
       .get_descriptor_info(&format!("rawtr({})", recovery_private_key.to_wif()))?;
 
     let response = wallet
-      .bitcoin_client()
+      .dogecoin_client()
       .import_descriptors(ImportDescriptors {
         descriptor: format!(
           "rawtr({})#{}",

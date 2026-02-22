@@ -39,7 +39,7 @@ msgstr "Gemachtigde"
 msgid "Metadata"
 msgstr "Metadata"
 
-#: src/SUMMARY.md:10 src/inscriptions/pointer.md:1 src/runes.md:135 src/runes/specification.md:320
+#: src/SUMMARY.md:10 src/inscriptions/pointer.md:1 src/dunes.md:135 src/dunes/specification.md:320
 msgid "Pointer"
 msgstr "Pointer"
 
@@ -55,9 +55,9 @@ msgstr "Recursie"
 msgid "Rendering"
 msgstr "Rendering"
 
-#: src/SUMMARY.md:14 src/runes.md:1
-msgid "Runes"
-msgstr "Runes"
+#: src/SUMMARY.md:14 src/dunes.md:1
+msgid "Dunes"
+msgstr "Dunes"
 
 #: src/SUMMARY.md:15 src/inscriptions/delegate.md:9 src/inscriptions/provenance.md:14
 msgid "Specification"
@@ -855,11 +855,11 @@ msgstr "Aantal Inscripties"
 msgid "Indices"
 msgstr "Index"
 
-#: src/inscriptions.md:121 src/inscriptions.md:124 src/runes/specification.md:196 src/runes/specification.md:197 src/runes/specification.md:340 src/runes/specification.md:422
+#: src/inscriptions.md:121 src/inscriptions.md:124 src/dunes/specification.md:196 src/dunes/specification.md:197 src/dunes/specification.md:340 src/dunes/specification.md:422
 msgid "0"
 msgstr "0"
 
-#: src/inscriptions.md:121 src/inscriptions.md:123 src/runes/specification.md:197 src/runes/specification.md:342
+#: src/inscriptions.md:121 src/inscriptions.md:123 src/dunes/specification.md:197 src/dunes/specification.md:342
 msgid "2"
 msgstr "2"
 
@@ -867,9 +867,9 @@ msgstr "2"
 msgid "i0, i1"
 msgstr "i0, il"
 
-#: src/inscriptions.md:122 src/inscriptions.md:125 src/runes/specification.md:177 src/runes/specification.md:178 src/runes/specification.md:179 src/runes/specification.md:186
-#: src/runes/specification.md:188 src/runes/specification.md:189 src/runes/specification.md:195 src/runes/specification.md:197 src/runes/specification.md:198
-#: src/runes/specification.md:341 src/runes/specification.md:423
+#: src/inscriptions.md:122 src/inscriptions.md:125 src/dunes/specification.md:177 src/dunes/specification.md:178 src/dunes/specification.md:179 src/dunes/specification.md:186
+#: src/dunes/specification.md:188 src/dunes/specification.md:189 src/dunes/specification.md:195 src/dunes/specification.md:197 src/dunes/specification.md:198
+#: src/dunes/specification.md:341 src/dunes/specification.md:423
 msgid "1"
 msgstr "1"
 
@@ -877,7 +877,7 @@ msgstr "1"
 msgid "i2"
 msgstr "i2"
 
-#: src/inscriptions.md:123 src/inscriptions.md:124 src/runes/specification.md:180 src/runes/specification.md:187 src/runes/specification.md:196 src/runes/specification.md:343
+#: src/inscriptions.md:123 src/inscriptions.md:124 src/dunes/specification.md:180 src/dunes/specification.md:187 src/dunes/specification.md:196 src/dunes/specification.md:343
 msgid "3"
 msgstr "3"
 
@@ -885,7 +885,7 @@ msgstr "3"
 msgid "i3, i4, i5"
 msgstr "i3, i4, i5"
 
-#: src/inscriptions.md:125 src/runes/specification.md:178 src/runes/specification.md:189 src/runes/specification.md:198
+#: src/inscriptions.md:125 src/dunes/specification.md:178 src/dunes/specification.md:189 src/dunes/specification.md:198
 msgid "4"
 msgstr "4"
 
@@ -1396,11 +1396,11 @@ msgstr ""
 
 #: src/inscriptions/recursion.md:8
 msgid ""
-"Since changes to recursive endpoints might break inscriptions that rely on them, recursive endpoints have backwards-compatibility guarantees not shared by `ord server`'s other "
+"Since changes to recursive endpoints might break inscriptions that rely on them, recursive endpoints have backwards-compatibility guarantees not shared by `dog server`'s other "
 "endpoints. In particular:"
 msgstr ""
 "Aangezien wijzigingen aan recursieve eindpunten inscripties die van deze eindpunten afhankelijk zijn, kunnen breken, hebben recursieve eindpunten garanties voor achterwaartse "
-"compatibiliteit die niet gedeeld worden door de andere eindpunten van `ord server`. In het bijzonder:"
+"compatibiliteit die niet gedeeld worden door de andere eindpunten van `dog server`. In het bijzonder:"
 
 #: src/inscriptions/recursion.md:12
 msgid "Recursive endpoints will not be removed"
@@ -1886,131 +1886,131 @@ msgstr ""
 "Bij het vergroten van AVIF- en JPEG XL-inscripties moet `image-rendering: auto` worden gebruikt. Dit stelt inschrijvers in staat om te kiezen voor niet-pixelated vergroting voor "
 "niet-pixelkunstinscripties. Totdat JPEG XL breed wordt ondersteund door browsers, wordt het niet als een aanbevolen afbeeldingsformaat beschouwd."
 
-#: src/runes.md:4
-msgid "Runes allow Bitcoin transactions to etch, mint, and transfer Bitcoin-native digital commodities."
-msgstr "Runes stellen Bitcoin-transacties in staat om Bitcoin-native digitale goederen te graveren, te slaan en over te dragen."
+#: src/dunes.md:4
+msgid "Dunes allow Bitcoin transactions to etch, mint, and transfer Bitcoin-native digital commodities."
+msgstr "Dunes stellen Bitcoin-transacties in staat om Bitcoin-native digitale goederen te graveren, te slaan en over te dragen."
 
-#: src/runes.md:7
-msgid "Whereas every inscription is unique, every unit of a rune is the same. They are interchangeable tokens, fit for a variety of purposes."
-msgstr "Hoewel elke inscriptie uniek is, is elke eenheid van een rune hetzelfde. Het zijn verwisselbare tokens, geschikt voor verschillende doeleinden."
+#: src/dunes.md:7
+msgid "Whereas every inscription is unique, every unit of a dune is the same. They are interchangeable tokens, fit for a variety of purposes."
+msgstr "Hoewel elke inscriptie uniek is, is elke eenheid van een dune hetzelfde. Het zijn verwisselbare tokens, geschikt voor verschillende doeleinden."
 
-#: src/runes.md:10 src/runes/specification.md:20
-msgid "Runestones"
-msgstr "Runestones"
+#: src/dunes.md:10 src/dunes/specification.md:20
+msgid "Dunestones"
+msgstr "Dunestones"
 
-#: src/runes.md:13
-msgid "Rune protocol messages, called runestones, are stored in Bitcoin transaction outputs."
-msgstr "Rune-protocolberichten, genaamd runestones, worden opgeslagen in Bitcoin-transactieoutputs."
+#: src/dunes.md:13
+msgid "Dune protocol messages, called dunestones, are stored in Bitcoin transaction outputs."
+msgstr "Dune-protocolberichten, genaamd dunestones, worden opgeslagen in Bitcoin-transactieoutputs."
 
-#: src/runes.md:16
+#: src/dunes.md:16
 msgid ""
-"A runestone output's script pubkey begins with an `OP_RETURN`, followed by `OP_13`, followed by zero or more data pushes. These data pushes are concatenated and decoded into a "
-"sequence of 128-bit integers, and finally parsed into a runestone."
+"A dunestone output's script pubkey begins with an `OP_RETURN`, followed by `OP_13`, followed by zero or more data pushes. These data pushes are concatenated and decoded into a "
+"sequence of 128-bit integers, and finally parsed into a dunestone."
 msgstr ""
-"Een runestone-outputscriptpubkey begint met een `OP_RETURN`, gevolgd door `OP_13`, gevolgd door nul of meer datastuwers. Deze datastuwers worden samengevoegd en gedecodeerd in een "
-"reeks van 128-bit gehele getallen, en uiteindelijk geparsed in een runestone."
+"Een dunestone-outputscriptpubkey begint met een `OP_RETURN`, gevolgd door `OP_13`, gevolgd door nul of meer datastuwers. Deze datastuwers worden samengevoegd en gedecodeerd in een "
+"reeks van 128-bit gehele getallen, en uiteindelijk geparsed in een dunestone."
 
-#: src/runes.md:21
-msgid "A transaction may have at most one runestone."
-msgstr "Een transactie mag maximaal één runestone bevatten."
+#: src/dunes.md:21
+msgid "A transaction may have at most one dunestone."
+msgstr "Een transactie mag maximaal één dunestone bevatten."
 
-#: src/runes.md:23
-msgid "A runestone may etch a new rune, mint an existing rune, and transfer runes from a transaction's inputs to its outputs."
-msgstr "Een runestone kan een nieuwe rune graveren, een bestaande rune slaan en runes overdragen van de invoeren naar de outputs van een transactie."
+#: src/dunes.md:23
+msgid "A dunestone may etch a new dune, mint an existing dune, and transfer dunes from a transaction's inputs to its outputs."
+msgstr "Een dunestone kan een nieuwe dune graveren, een bestaande dune slaan en dunes overdragen van de invoeren naar de outputs van een transactie."
 
-#: src/runes.md:26
-msgid "A transaction output may hold balances of any number of runes."
-msgstr "Een transactieoutput kan saldi van elk aantal runes bevatten."
+#: src/dunes.md:26
+msgid "A transaction output may hold balances of any number of dunes."
+msgstr "Een transactieoutput kan saldi van elk aantal dunes bevatten."
 
-#: src/runes.md:28
+#: src/dunes.md:28
 msgid ""
-"Runes are identified by IDs, which consist of the block in which a rune was etched and the index of the etching transaction within that block, represented in text as `BLOCK:TX`. "
-"For example, the ID of the rune etched in the 20th transaction of the 500th block is `500:20`."
+"Dunes are identified by IDs, which consist of the block in which a dune was etched and the index of the etching transaction within that block, represented in text as `BLOCK:TX`. "
+"For example, the ID of the dune etched in the 20th transaction of the 500th block is `500:20`."
 msgstr ""
-"Runes worden geïdentificeerd door ID's, die bestaan uit het blok waarin een rune is gegraveerd en de index van de graveringstransactie binnen dat blok, weergegeven in tekst als "
-"`BLOK:TX`. Bijvoorbeeld, de ID van de rune gegraveerd in de 20e transactie van het 500e blok is `500:20`."
+"Dunes worden geïdentificeerd door ID's, die bestaan uit het blok waarin een dune is gegraveerd en de index van de graveringstransactie binnen dat blok, weergegeven in tekst als "
+"`BLOK:TX`. Bijvoorbeeld, de ID van de dune gegraveerd in de 20e transactie van het 500e blok is `500:20`."
 
-#: src/runes.md:33
+#: src/dunes.md:33
 msgid "Etching"
 msgstr "Graveren (Etching)"
 
-#: src/runes.md:36
-msgid "Runes come into existence by being etched. Etching creates a rune and sets its properties. Once set, these properties are immutable, even to its etcher."
+#: src/dunes.md:36
+msgid "Dunes come into existence by being etched. Etching creates a dune and sets its properties. Once set, these properties are immutable, even to its etcher."
 msgstr ""
-"Runes komen tot stand door te worden gegraveerd. Graveren creëert een rune en stelt zijn eigenschappen in. Zodra deze eigenschappen zijn ingesteld, zijn ze onwijzigbaar, zelfs voor "
+"Dunes komen tot stand door te worden gegraveerd. Graveren creëert een dune en stelt zijn eigenschappen in. Zodra deze eigenschappen zijn ingesteld, zijn ze onwijzigbaar, zelfs voor "
 "de graveren."
 
-#: src/runes.md:39 src/runes/specification.md:420
+#: src/dunes.md:39 src/dunes/specification.md:420
 msgid "Name"
 msgstr "Naam"
 
-#: src/runes.md:41
-msgid "Names consist of the letters A through Z and are between one and twenty-six letters long. For example `UNCOMMONGOODS` is a rune name."
-msgstr "Namen bestaan uit de letters A tot Z en zijn tussen de één en zesentwintig letters lang. Bijvoorbeeld `UNCOMMONGOODS` is een runennaam."
+#: src/dunes.md:41
+msgid "Names consist of the letters A through Z and are between one and twenty-six letters long. For example `UNCOMMONGOODS` is a dune name."
+msgstr "Namen bestaan uit de letters A tot Z en zijn tussen de één en zesentwintig letters lang. Bijvoorbeeld `UNCOMMONGOODS` is een dunennaam."
 
-#: src/runes.md:44
+#: src/dunes.md:44
 msgid "Names may contain spacers, represented as bullets, to aid readability. `UNCOMMONGOODS` might be etched as `UNCOMMON•GOODS`."
 msgstr "Namen mogen spaties bevatten, weergegeven als punten, om de leesbaarheid te verbeteren. `UNCOMMONGOODS` kan bijvoorbeeld worden gegraveerd als `UNCOMMON•GOODS`."
 
-#: src/runes.md:47
-msgid "The uniqueness of a name does not depend on spacers. Thus, a rune may not be etched with the same sequence of letters as an existing rune, even if it has different spacers."
+#: src/dunes.md:47
+msgid "The uniqueness of a name does not depend on spacers. Thus, a dune may not be etched with the same sequence of letters as an existing dune, even if it has different spacers."
 msgstr ""
-"De uniciteit van een naam hangt niet af van spaties. Een rune kan dus niet worden gegraveerd met dezelfde reeks letters als een bestaande rune, zelfs niet als deze verschillende "
+"De uniciteit van een naam hangt niet af van spaties. Een dune kan dus niet worden gegraveerd met dezelfde reeks letters als een bestaande dune, zelfs niet als deze verschillende "
 "spaties heeft."
 
-#: src/runes.md:51
+#: src/dunes.md:51
 msgid "Spacers can only be placed between two letters. Finally, spacers do not count towards the letter count."
 msgstr "Spaties kunnen alleen worden geplaatst tussen twee letters. Bovendien tellen spaties niet mee voor het aantal letters."
 
-#: src/runes.md:54 src/runes/specification.md:330 src/runes/specification.md:338
+#: src/dunes.md:54 src/dunes/specification.md:330 src/dunes/specification.md:338
 msgid "Divisibility"
 msgstr "Deelbaarheid"
 
-#: src/runes.md:56
+#: src/dunes.md:56
 msgid ""
-"A rune's divisibility is how finely it may be divided into its atomic units. Divisibility is expressed as the number of digits permissible after the decimal point in an amount of "
-"runes. A rune with divisibility 0 may not be divided. A unit of a rune with divisibility 1 may be divided into ten sub-units, a rune with divisibility 2 may be divided into a "
+"A dune's divisibility is how finely it may be divided into its atomic units. Divisibility is expressed as the number of digits permissible after the decimal point in an amount of "
+"dunes. A dune with divisibility 0 may not be divided. A unit of a dune with divisibility 1 may be divided into ten sub-units, a dune with divisibility 2 may be divided into a "
 "hundred, and so on."
 msgstr ""
-"De deelbaarheid van een rune is hoe fijn deze kan worden verdeeld in zijn atomaire eenheden. Deelbaarheid wordt uitgedrukt als het aantal cijfers dat is toegestaan na de decimale "
-"punt in een hoeveelheid runes. Een rune met deelbaarheid 0 kan niet worden verdeeld. Een eenheid van een rune met deelbaarheid 1 kan worden verdeeld in tien sub-eenheden, een rune "
+"De deelbaarheid van een dune is hoe fijn deze kan worden verdeeld in zijn atomaire eenheden. Deelbaarheid wordt uitgedrukt als het aantal cijfers dat is toegestaan na de decimale "
+"punt in een hoeveelheid dunes. Een dune met deelbaarheid 0 kan niet worden verdeeld. Een eenheid van een dune met deelbaarheid 1 kan worden verdeeld in tien sub-eenheden, een dune "
 "met deelbaarheid 2 kan worden verdeeld in honderd, enzovoort."
 
-#: src/runes.md:62 src/runes/specification.md:365
+#: src/dunes.md:62 src/dunes/specification.md:365
 msgid "Symbol"
 msgstr "Symbool"
 
-#: src/runes.md:64
-msgid "A rune's currency symbol is a single Unicode code point, for example `$`, `⧉`, or `🧿`, displayed after quantities of that rune."
-msgstr "Het valutateken van een rune is een enkel Unicode-teken, bijvoorbeeld `$`, `⧉` of `🧿`, weergegeven na hoeveelheden van die rune."
+#: src/dunes.md:64
+msgid "A dune's currency symbol is a single Unicode code point, for example `$`, `⧉`, or `🧿`, displayed after quantities of that dune."
+msgstr "Het valutateken van een dune is een enkel Unicode-teken, bijvoorbeeld `$`, `⧉` of `🧿`, weergegeven na hoeveelheden van die dune."
 
-#: src/runes.md:67
-msgid "101 atomic units of a rune with divisibility 2 and symbol `🧿` would be rendered as `1.01 🧿`."
-msgstr "101 atomaire eenheden van een rune met deelbaarheid 2 en symbool `🧿` zouden worden weergegeven als `1.01 🧿`."
+#: src/dunes.md:67
+msgid "101 atomic units of a dune with divisibility 2 and symbol `🧿` would be rendered as `1.01 🧿`."
+msgstr "101 atomaire eenheden van een dune met deelbaarheid 2 en symbool `🧿` zouden worden weergegeven als `1.01 🧿`."
 
-#: src/runes.md:70
-msgid "If a rune does not have a symbol, the generic currency sign `¤`, also called a scarab, should be used."
-msgstr "Als een rune geen symbool heeft, moet het algemene valutasymbool `¤`, ook wel een scarabee genoemd, worden gebruikt."
+#: src/dunes.md:70
+msgid "If a dune does not have a symbol, the generic currency sign `¤`, also called a scarab, should be used."
+msgstr "Als een dune geen symbool heeft, moet het algemene valutasymbool `¤`, ook wel een scarabee genoemd, worden gebruikt."
 
-#: src/runes.md:73 src/runes/specification.md:290
+#: src/dunes.md:73 src/dunes/specification.md:290
 msgid "Premine"
 msgstr "Premine"
 
-#: src/runes.md:75
-msgid "The etcher of a rune may optionally allocate to themselves units of the rune being etched. This allocation is called a premine."
-msgstr "De graveren van een rune kan naar eigen keuze een aantal eenheden van de rune die wordt gegraveerd aan zichzelf toewijzen. Deze toewijzing wordt een premine genoemd."
+#: src/dunes.md:75
+msgid "The etcher of a dune may optionally allocate to themselves units of the dune being etched. This allocation is called a premine."
+msgstr "De graveren van een dune kan naar eigen keuze een aantal eenheden van de dune die wordt gegraveerd aan zichzelf toewijzen. Deze toewijzing wordt een premine genoemd."
 
-#: src/runes.md:78
+#: src/dunes.md:78
 msgid "Terms"
 msgstr "Voorwaarden"
 
-#: src/runes.md:80
-msgid "A rune may have an open mint, allowing anyone to create and allocate units of that rune for themselves. An open mint is subject to terms, which are set upon etching."
+#: src/dunes.md:80
+msgid "A dune may have an open mint, allowing anyone to create and allocate units of that dune for themselves. An open mint is subject to terms, which are set upon etching."
 msgstr ""
-"Een rune kan een open mint hebben, waardoor iedereen eenheden van die rune voor zichzelf kan creëren en toewijzen. Een open mint is onderworpen aan voorwaarden, die worden "
+"Een dune kan een open mint hebben, waardoor iedereen eenheden van die dune voor zichzelf kan creëren en toewijzen. Een open mint is onderworpen aan voorwaarden, die worden "
 "vastgesteld bij het graveren."
 
-#: src/runes.md:84
+#: src/dunes.md:84
 msgid ""
 "A mint is open while all terms of the mint are satisfied, and closed when any of them are not. For example, a mint may be limited to a starting height, an ending height, and a cap, "
 "and will be open between the starting height and ending height, or until the cap is reached, whichever comes first."
@@ -2018,147 +2018,147 @@ msgstr ""
 "Een mint is open zolang aan alle voorwaarden van de mint wordt voldaan, en gesloten wanneer aan een van deze voorwaarden niet wordt voldaan. Bijvoorbeeld, een mint kan beperkt zijn "
 "tot een starthoogte, een eindhoogte en een limiet, en zal open zijn tussen de starthoogte en de eindhoogte, of totdat de limiet is bereikt, afhankelijk van wat het eerst gebeurt."
 
-#: src/runes.md:89 src/runes/specification.md:294
+#: src/dunes.md:89 src/dunes/specification.md:294
 msgid "Cap"
 msgstr "Limiet"
 
-#: src/runes.md:91
-msgid "The number of times a rune may be minted is its cap. A mint is closed once the cap is reached."
-msgstr "Het aantal keren dat een rune mag worden geslagen is de limiet. Een mint wordt gesloten zodra de limiet is bereikt."
+#: src/dunes.md:91
+msgid "The number of times a dune may be minted is its cap. A mint is closed once the cap is reached."
+msgstr "Het aantal keren dat een dune mag worden geslagen is de limiet. Een mint wordt gesloten zodra de limiet is bereikt."
 
-#: src/runes.md:94 src/runes/specification.md:298
+#: src/dunes.md:94 src/dunes/specification.md:298
 msgid "Amount"
 msgstr "Aantal"
 
-#: src/runes.md:96
-msgid "Each mint transaction creates a fixed amount of new units of a rune."
-msgstr "Elke mint-transactie creëert een vast aantal nieuwe eenheden van een rune."
+#: src/dunes.md:96
+msgid "Each mint transaction creates a fixed amount of new units of a dune."
+msgstr "Elke mint-transactie creëert een vast aantal nieuwe eenheden van een dune."
 
-#: src/runes.md:98
+#: src/dunes.md:98
 msgid "Start Height"
 msgstr "Starthoogte"
 
-#: src/runes.md:100
+#: src/dunes.md:100
 msgid "A mint is open starting in the block with the given start height."
 msgstr "Een mint is open vanaf het blok met de gegeven starthoogte."
 
-#: src/runes.md:102
+#: src/dunes.md:102
 msgid "End Height"
 msgstr "Eindhoogte"
 
-#: src/runes.md:104
-msgid "A rune may not be minted in or after the block with the given end height."
-msgstr "Een rune mag niet worden gemint in of na het blok met de gegeven eindhoogte."
+#: src/dunes.md:104
+msgid "A dune may not be minted in or after the block with the given end height."
+msgstr "Een dune mag niet worden gemint in of na het blok met de gegeven eindhoogte."
 
-#: src/runes.md:106
+#: src/dunes.md:106
 msgid "Start Offset"
 msgstr "Start Offset"
 
-#: src/runes.md:108
-msgid "A mint is open starting in the block whose height is equal to the start offset plus the height of the block in which the rune was etched."
-msgstr "Een mint is open vanaf het blok waarvan de hoogte gelijk is aan de startoffset plus de hoogte van het blok waarin de rune werd gegraveerd."
+#: src/dunes.md:108
+msgid "A mint is open starting in the block whose height is equal to the start offset plus the height of the block in which the dune was etched."
+msgstr "Een mint is open vanaf het blok waarvan de hoogte gelijk is aan de startoffset plus de hoogte van het blok waarin de dune werd gegraveerd."
 
-#: src/runes.md:111
+#: src/dunes.md:111
 msgid "End Offset"
 msgstr "End Offset"
 
-#: src/runes.md:113
-msgid "A rune may not be minted in or after the block whose height is equal to the end offset plus the height of the block in which the rune was etched."
-msgstr "Een rune mag niet worden gemint in of na het blok waarvan de hoogte gelijk is aan de eindoffset plus de hoogte van het blok waarin de rune werd gegraveerd."
+#: src/dunes.md:113
+msgid "A dune may not be minted in or after the block whose height is equal to the end offset plus the height of the block in which the dune was etched."
+msgstr "Een dune mag niet worden gemint in of na het blok waarvan de hoogte gelijk is aan de eindoffset plus de hoogte van het blok waarin de dune werd gegraveerd."
 
-#: src/runes.md:116 src/runes/specification.md:478
+#: src/dunes.md:116 src/dunes/specification.md:478
 msgid "Minting"
 msgstr "Minting"
 
-#: src/runes.md:119
-msgid "While a rune's mint is open, anyone may create a mint transaction that creates a fixed amount of new units of that rune, subject to the terms of the mint."
+#: src/dunes.md:119
+msgid "While a dune's mint is open, anyone may create a mint transaction that creates a fixed amount of new units of that dune, subject to the terms of the mint."
 msgstr ""
-"Zolang de mint van een rune open is, kan iedereen een mint-transactie maken die een vast aantal nieuwe eenheden van die rune creëert, onderhevig aan de voorwaarden van de mint."
+"Zolang de mint van een dune open is, kan iedereen een mint-transactie maken die een vast aantal nieuwe eenheden van die dune creëert, onderhevig aan de voorwaarden van de mint."
 
-#: src/runes.md:122 src/runes/specification.md:490
+#: src/dunes.md:122 src/dunes/specification.md:490
 msgid "Transferring"
 msgstr "Overdragen"
 
-#: src/runes.md:125
+#: src/dunes.md:125
 msgid ""
-"When transaction inputs contain runes, or new runes are created by a premine or mint, those runes are transferred to that transaction's outputs. A transaction's runestone may "
-"change how input runes transfer to outputs."
+"When transaction inputs contain dunes, or new dunes are created by a premine or mint, those dunes are transferred to that transaction's outputs. A transaction's dunestone may "
+"change how input dunes transfer to outputs."
 msgstr ""
-"Wanneer transactie-invoeren runes bevatten, of nieuwe runes worden gecreëerd door een premine of mint, worden die runes overgedragen naar de outputs van die transactie. Een "
-"runestone van een transactie kan beïnvloeden hoe invoerrunes naar outputs worden overgedragen."
+"Wanneer transactie-invoeren dunes bevatten, of nieuwe dunes worden gecreëerd door een premine of mint, worden die dunes overgedragen naar de outputs van die transactie. Een "
+"dunestone van een transactie kan beïnvloeden hoe invoerdunes naar outputs worden overgedragen."
 
-#: src/runes.md:129
+#: src/dunes.md:129
 msgid "Edicts"
 msgstr "Edicten"
 
-#: src/runes.md:131
+#: src/dunes.md:131
 msgid ""
-"A runestone may contain any number of edicts. Edicts consist of a rune ID, an amount, and an output number. Edicts are processed in order, allocating unallocated runes to outputs."
+"A dunestone may contain any number of edicts. Edicts consist of a dune ID, an amount, and an output number. Edicts are processed in order, allocating unallocated dunes to outputs."
 msgstr ""
-"Een runestone kan elk aantal edicten bevatten. Edicten bestaan uit een rune-ID, een hoeveelheid en een outputnummer. Edicten worden in volgorde verwerkt, waarbij niet-toegewezen "
-"runes worden toegewezen aan outputs."
+"Een dunestone kan elk aantal edicten bevatten. Edicten bestaan uit een dune-ID, een hoeveelheid en een outputnummer. Edicten worden in volgorde verwerkt, waarbij niet-toegewezen "
+"dunes worden toegewezen aan outputs."
 
-#: src/runes.md:137
+#: src/dunes.md:137
 msgid ""
-"After all edicts are processed, remaining unallocated runes are transferred to the transaction's first non-`OP_RETURN` output. A runestone may optionally contain a pointer that "
+"After all edicts are processed, remaining unallocated dunes are transferred to the transaction's first non-`OP_RETURN` output. A dunestone may optionally contain a pointer that "
 "specifies an alternative default output."
 msgstr ""
-"Nadat alle edicten zijn verwerkt, worden de resterende niet-toegewezen runes overgedragen naar de eerste non-`OP_RETURN` output van de transactie. Een runestone kan optioneel een "
+"Nadat alle edicten zijn verwerkt, worden de resterende niet-toegewezen dunes overgedragen naar de eerste non-`OP_RETURN` output van de transactie. Een dunestone kan optioneel een "
 "pointer bevatten die een alternatieve standaardoutput specificeert."
 
-#: src/runes.md:141
+#: src/dunes.md:141
 msgid "Burning"
 msgstr "Verbranden"
 
-#: src/runes.md:143
-msgid "Runes may be burned by transferring them to an `OP_RETURN` output with an edict or pointer."
-msgstr "Runes kunnen worden verbrand door ze over te dragen naar een `OP_RETURN` output met een edict of pointer."
+#: src/dunes.md:143
+msgid "Dunes may be burned by transferring them to an `OP_RETURN` output with an edict or pointer."
+msgstr "Dunes kunnen worden verbrand door ze over te dragen naar een `OP_RETURN` output met een edict of pointer."
 
-#: src/runes.md:146 src/runes/specification.md:378
+#: src/dunes.md:146 src/dunes/specification.md:378
 msgid "Cenotaphs"
 msgstr "Cenotaaf"
 
-#: src/runes.md:149
-msgid "Runestones may be malformed for a number of reasons, including non-pushdata opcodes in the runestone `OP_RETURN`, invalid varints, or unrecognized runestone fields."
-msgstr "Runestones kunnen om verschillende redenen defect zijn, waaronder non-pushdata opcodes in de runestone `OP_RETURN`, ongeldige varints of niet-herkende runestone-velden."
+#: src/dunes.md:149
+msgid "Dunestones may be malformed for a number of reasons, including non-pushdata opcodes in the dunestone `OP_RETURN`, invalid varints, or unrecognized dunestone fields."
+msgstr "Dunestones kunnen om verschillende redenen defect zijn, waaronder non-pushdata opcodes in de dunestone `OP_RETURN`, ongeldige varints of niet-herkende dunestone-velden."
 
-#: src/runes.md:153
-msgid "Malformed runestones are termed [cenotaphs](https://en.wikipedia.org/wiki/Cenotaph)."
-msgstr "Defecte runestones worden [cenotaafs](https://en.wikipedia.org/wiki/Cenotaph) genoemd."
+#: src/dunes.md:153
+msgid "Malformed dunestones are termed [cenotaphs](https://en.wikipedia.org/wiki/Cenotaph)."
+msgstr "Defecte dunestones worden [cenotaafs](https://en.wikipedia.org/wiki/Cenotaph) genoemd."
 
-#: src/runes.md:156
+#: src/dunes.md:156
 msgid ""
-"Runes input to a transaction with a cenotaph are burned. Runes etched in a transaction with a cenotaph are set as unmintable. Mints in a transaction with a cenotaph count towards "
-"the mint cap, but the minted runes are burned."
+"Dunes input to a transaction with a cenotaph are burned. Dunes etched in a transaction with a cenotaph are set as unmintable. Mints in a transaction with a cenotaph count towards "
+"the mint cap, but the minted dunes are burned."
 msgstr ""
-"Runes die als invoer worden gebruikt in een transactie met een cenotaaf worden verbrand. Runes die zijn gegraveerd in een transactie met een cenotaaf worden ingesteld als niet-"
-"slaable. Mints in een transactie met een cenotaaf tellen mee voor de mintlimiet, maar de geslagen runes worden verbrand."
+"Dunes die als invoer worden gebruikt in een transactie met een cenotaaf worden verbrand. Dunes die zijn gegraveerd in een transactie met een cenotaaf worden ingesteld als niet-"
+"slaable. Mints in een transactie met een cenotaaf tellen mee voor de mintlimiet, maar de geslagen dunes worden verbrand."
 
-#: src/runes.md:160
+#: src/dunes.md:160
 msgid ""
-"Cenotaphs are an upgrade mechanism, allowing runestones to be given new semantics that change how runes are created and transferred, while not misleading unupgraded clients as to "
-"the location of those runes, as unupgraded clients will see those runes as having been burned."
+"Cenotaphs are an upgrade mechanism, allowing dunestones to be given new semantics that change how dunes are created and transferred, while not misleading unupgraded clients as to "
+"the location of those dunes, as unupgraded clients will see those dunes as having been burned."
 msgstr ""
-"Cenotaafs zijn een upgrade-mechanisme waarmee runestones nieuwe semantiek kunnen krijgen die verandert hoe runes worden gecreëerd en overgedragen, terwijl niet-geüpgradede clients "
-"niet worden misleid over de locatie van die runes. Niet-geüpgradede clients zullen die runes zien als zijnde verbrand."
+"Cenotaafs zijn een upgrade-mechanisme waarmee dunestones nieuwe semantiek kunnen krijgen die verandert hoe dunes worden gecreëerd en overgedragen, terwijl niet-geüpgradede clients "
+"niet worden misleid over de locatie van die dunes. Niet-geüpgradede clients zullen die dunes zien als zijnde verbrand."
 
-#: src/runes/specification.md:1
-msgid "Runes Does Not Have a Specification"
-msgstr "Runes hebben geen specificatie"
+#: src/dunes/specification.md:1
+msgid "Dunes Does Not Have a Specification"
+msgstr "Dunes hebben geen specificatie"
 
-#: src/runes/specification.md:4
-msgid "The Runes reference implementation, `ord`, is the normative specification of the Runes protocol."
-msgstr "De referentie-implementatie van Runes, `ord`, is de normatieve specificatie van het Runes-protocol."
+#: src/dunes/specification.md:4
+msgid "The Dunes reference implementation, `ord`, is the normative specification of the Dunes protocol."
+msgstr "De referentie-implementatie van Dunes, `ord`, is de normatieve specificatie van het Dunes-protocol."
 
-#: src/runes/specification.md:7
+#: src/dunes/specification.md:7
 msgid ""
-"Nothing you read here or elsewhere, aside from the code of `ord`, is a specification. This prose description of the runes protocol is provided as a guide to the behavior of `ord`, "
+"Nothing you read here or elsewhere, aside from the code of `ord`, is a specification. This prose description of the dunes protocol is provided as a guide to the behavior of `ord`, "
 "and the code of `ord` itself should always be consulted to confirm the correctness of any prose description."
 msgstr ""
-"Niets wat je hier of elders leest, behalve de code van `ord`, is een specificatie. Deze prozaïsche beschrijving van het runes-protocol wordt verstrekt als een gids voor het gedrag "
+"Niets wat je hier of elders leest, behalve de code van `ord`, is een specificatie. Deze prozaïsche beschrijving van het dunes-protocol wordt verstrekt als een gids voor het gedrag "
 "van `ord`, en de code van `ord` zelf moet altijd worden geraadpleegd om de juistheid van elke prozaïsche beschrijving te bevestigen."
 
-#: src/runes/specification.md:12
+#: src/dunes/specification.md:12
 msgid ""
 "If, due to a bug in `ord`, this document diverges from the actual behavior of `ord` and it is impractically disruptive to change `ord`'s behavior, this document will be amended to "
 "agree with `ord`'s actual behavior."
@@ -2166,288 +2166,288 @@ msgstr ""
 "Als door een bug in `ord` dit document afwijkt van het daadwerkelijke gedrag van `ord` en het onpraktisch verstorend is om het gedrag van `ord` te wijzigen, zal dit document worden "
 "aangepast om overeen te komen met het werkelijke gedrag van `ord`."
 
-#: src/runes/specification.md:16
+#: src/dunes/specification.md:16
 msgid ""
-"Users of alternative implementations do so at their own risk, and services wishing to integrate Runes are strongly encouraged to use `ord` itself to make Runes transactions, and to "
-"determine the state of runes, mints, and balances."
+"Users of alternative implementations do so at their own risk, and services wishing to integrate Dunes are strongly encouraged to use `ord` itself to make Dunes transactions, and to "
+"determine the state of dunes, mints, and balances."
 msgstr ""
-"Gebruikers van alternatieve implementaties doen dit op eigen risico, en diensten die Runes willen integreren worden sterk aangemoedigd om `ord` zelf te gebruiken voor het uitvoeren "
-"van Runes-transacties en voor het bepalen van de status van runes, mints en saldi."
+"Gebruikers van alternatieve implementaties doen dit op eigen risico, en diensten die Dunes willen integreren worden sterk aangemoedigd om `ord` zelf te gebruiken voor het uitvoeren "
+"van Dunes-transacties en voor het bepalen van de status van dunes, mints en saldi."
 
-#: src/runes/specification.md:23
-msgid "Rune protocol messages are termed \"runestones\"."
-msgstr "Berichten van het rune-protocol worden \"runestones\" genoemd."
+#: src/dunes/specification.md:23
+msgid "Dune protocol messages are termed \"dunestones\"."
+msgstr "Berichten van het dune-protocol worden \"dunestones\" genoemd."
 
-#: src/runes/specification.md:25
-msgid "The Runes protocol activates on block 840,000. Runestones in earlier blocks are ignored."
-msgstr "Het Runes-protocol wordt geactiveerd bij blok 840.000. Runestones in eerdere blokken worden genegeerd."
+#: src/dunes/specification.md:25
+msgid "The Dunes protocol activates on block 840,000. Dunestones in earlier blocks are ignored."
+msgstr "Het Dunes-protocol wordt geactiveerd bij blok 840.000. Dunestones in eerdere blokken worden genegeerd."
 
-#: src/runes/specification.md:28
-msgid "Abstractly, runestones contain the following fields:"
-msgstr "In abstracte termen bevatten runestones de volgende velden:"
+#: src/dunes/specification.md:28
+msgid "Abstractly, dunestones contain the following fields:"
+msgstr "In abstracte termen bevatten dunestones de volgende velden:"
 
-#: src/runes/specification.md:39
-msgid "Runes are created by etchings:"
-msgstr "Runes worden gecreëerd door etchings:"
+#: src/dunes/specification.md:39
+msgid "Dunes are created by etchings:"
+msgstr "Dunes worden gecreëerd door etchings:"
 
-#: src/runes/specification.md:52
+#: src/dunes/specification.md:52
 msgid "Which may contain mint terms:"
 msgstr "Die mint-voorwaarden kunnen bevatten:"
 
-#: src/runes/specification.md:63 src/runes/specification.md:492
-msgid "Runes are transferred by edict:"
-msgstr "Runes worden overgedragen door middel van een edict:"
+#: src/dunes/specification.md:63 src/dunes/specification.md:492
+msgid "Dunes are transferred by edict:"
+msgstr "Dunes worden overgedragen door middel van een edict:"
 
-#: src/runes/specification.md:73
-msgid "Rune IDs are encoded as the block height and transaction index of the transaction in which the rune was etched:"
-msgstr "Rune-ID's worden gecodeerd als de blokhoogte en de transactie-index van de transactie waarin de rune werd geëtched:"
+#: src/dunes/specification.md:73
+msgid "Dune IDs are encoded as the block height and transaction index of the transaction in which the dune was etched:"
+msgstr "Dune-ID's worden gecodeerd als de blokhoogte en de transactie-index van de transactie waarin de dune werd geëtched:"
 
-#: src/runes/specification.md:83
-msgid "Rune IDs are represented in text as `BLOCK:TX`."
-msgstr "Rune-ID's worden in tekst weergegeven als `BLOCK:TX`."
+#: src/dunes/specification.md:83
+msgid "Dune IDs are represented in text as `BLOCK:TX`."
+msgstr "Dune-ID's worden in tekst weergegeven als `BLOCK:TX`."
 
-#: src/runes/specification.md:85
-msgid "Rune names are encoded as modified base-26 integers:"
-msgstr "Rune-namen worden gecodeerd als gemodificeerde base-26 gehele getallen:"
+#: src/dunes/specification.md:85
+msgid "Dune names are encoded as modified base-26 integers:"
+msgstr "Dune-namen worden gecodeerd als gemodificeerde base-26 gehele getallen:"
 
-#: src/runes/specification.md:91
+#: src/dunes/specification.md:91
 msgid "Deciphering"
 msgstr "Ontcijferen"
 
-#: src/runes/specification.md:93
-msgid "Runestones are deciphered from transactions with the following steps:"
-msgstr "Runestones worden ontcijferd uit transacties met de volgende stappen:"
+#: src/dunes/specification.md:93
+msgid "Dunestones are deciphered from transactions with the following steps:"
+msgstr "Dunestones worden ontcijferd uit transacties met de volgende stappen:"
 
-#: src/runes/specification.md:95
+#: src/dunes/specification.md:95
 msgid "Find the first transaction output whose script pubkey begins with `OP_RETURN OP_13`."
 msgstr "Vind de eerste transactie-output waarvan de script pubkey begint met `OP_RETURN OP_13`."
 
-#: src/runes/specification.md:98
+#: src/dunes/specification.md:98
 msgid "Concatenate all following data pushes into a payload buffer."
 msgstr "Concateneer alle volgende data pushes in een payload-buffer."
 
-#: src/runes/specification.md:100
+#: src/dunes/specification.md:100
 msgid "Decode a sequence 128-bit [LEB128](https://en.wikipedia.org/wiki/LEB128) integers from the payload buffer."
 msgstr "Decodeer een reeks van 128-bit [LEB128](https://en.wikipedia.org/wiki/LEB128) gehele getallen uit de payload-buffer."
 
-#: src/runes/specification.md:103
+#: src/dunes/specification.md:103
 msgid "Parse the sequence of integers into an untyped message."
 msgstr "Parse de reeks van gehele getallen in een ongetypeerd bericht."
 
-#: src/runes/specification.md:105
-msgid "Parse the untyped message into a runestone."
-msgstr "Parse het ongetypeerde bericht naar een runestone."
+#: src/dunes/specification.md:105
+msgid "Parse the untyped message into a dunestone."
+msgstr "Parse het ongetypeerde bericht naar een dunestone."
 
-#: src/runes/specification.md:107
-msgid "Deciphering may produce a malformed runestone, termed a [cenotaph](https://en.wikipedia.org/wiki/Cenotaph)."
-msgstr "Decoderen kan een onjuist gevormde runestone opleveren, genoemd een [cenotaph](https://en.wikipedia.org/wiki/Cenotaph)."
+#: src/dunes/specification.md:107
+msgid "Deciphering may produce a malformed dunestone, termed a [cenotaph](https://en.wikipedia.org/wiki/Cenotaph)."
+msgstr "Decoderen kan een onjuist gevormde dunestone opleveren, genoemd een [cenotaph](https://en.wikipedia.org/wiki/Cenotaph)."
 
-#: src/runes/specification.md:110
-msgid "Locating the Runestone Output"
-msgstr "Het vinden van de Runestone-output"
+#: src/dunes/specification.md:110
+msgid "Locating the Dunestone Output"
+msgstr "Het vinden van de Dunestone-output"
 
-#: src/runes/specification.md:112
+#: src/dunes/specification.md:112
 msgid "Outputs are searched for the first script pubkey that beings with `OP_RETURN OP_13`. If deciphering fails, later matching outputs are not considered."
 msgstr "Outputs worden doorzocht naar de eerste script pubkey die begint met `OP_RETURN OP_13`. Als het decoderen mislukt, worden latere overeenkomende outputs niet beschouwd."
 
-#: src/runes/specification.md:115
+#: src/dunes/specification.md:115
 msgid "Assembling the Payload Buffer"
 msgstr "Het payloadbuffer samenstellen"
 
-#: src/runes/specification.md:117
+#: src/dunes/specification.md:117
 msgid "The payload buffer is assembled by concatenating data pushes, after `OP_13`, in the matching script pubkey."
 msgstr "Het payloadbuffer wordt samengesteld door de datastukken na `OP_13` in de overeenkomende script pubkey aan elkaar te koppelen."
 
-#: src/runes/specification.md:120
+#: src/dunes/specification.md:120
 msgid ""
-"Data pushes are opcodes 0 through 78 inclusive. If a non-data push opcode is encountered, i.e., any opcode equal to or greater than opcode 79, the deciphered runestone is a "
+"Data pushes are opcodes 0 through 78 inclusive. If a non-data push opcode is encountered, i.e., any opcode equal to or greater than opcode 79, the deciphered dunestone is a "
 "cenotaph with no etching, mint, or edicts."
 msgstr ""
 "De datastukken zijn opcodes 0 tot en met 78 inclusief. Als een niet-data push opcode wordt aangetroffen, dat wil zeggen een opcode gelijk aan of groter dan opcode 79, dan is de "
-"ontcijferde runestone een cenotaaf zonder etching, mint of edicts."
+"ontcijferde dunestone een cenotaaf zonder etching, mint of edicts."
 
-#: src/runes/specification.md:124
+#: src/dunes/specification.md:124
 msgid "Decoding the Integer Sequence"
 msgstr "Decoderen van de gehele reeks van 128-bit LEB128-getallen uit de payloadbuffer"
 
-#: src/runes/specification.md:126
+#: src/dunes/specification.md:126
 msgid "A sequence of 128-bit integers are decoded from the payload as LEB128 varints."
 msgstr "Een reeks van 128-bit gehele getallen wordt uit de payload gedecodeerd als LEB128 varints."
 
-#: src/runes/specification.md:128
+#: src/dunes/specification.md:128
 msgid "LEB128 varints are encoded as sequence of bytes, each of which has the most-significant bit set, except for the last."
 msgstr "LEB128 varints worden gecodeerd als een reeks bytes, waarvan elke byte het meest significante bit ingesteld heeft, behalve de laatste."
 
-#: src/runes/specification.md:131
+#: src/dunes/specification.md:131
 msgid ""
 "If a LEB128 varint contains more than 18 bytes, would overflow a u128, or is truncated, meaning that the end of the payload buffer is reached before encountering a byte with the "
-"continuation bit not set, the decoded runestone is a cenotaph with no etching, mint, or edicts."
+"continuation bit not set, the decoded dunestone is a cenotaph with no etching, mint, or edicts."
 msgstr ""
 "Als een LEB128 varint meer dan 18 bytes bevat, een `u128` zou overlopen, of wordt afgekapt, wat betekent dat het einde van de payloadbuffer is bereikt voordat een byte met het "
-"voortzettingsbit niet ingesteld is wordt aangetroffen, is de gedecodeerde runestone een cenotaph zonder etching, mint of edicts."
+"voortzettingsbit niet ingesteld is wordt aangetroffen, is de gedecodeerde dunestone een cenotaph zonder etching, mint of edicts."
 
-#: src/runes/specification.md:136
+#: src/dunes/specification.md:136
 msgid "Parsing the Message"
 msgstr "Het ontleden van de boodschap"
 
-#: src/runes/specification.md:138
+#: src/dunes/specification.md:138
 msgid "The integer sequence is parsed into an untyped message:"
 msgstr "De reeks gehele getallen wordt ontleed in een ongetypte boodschap:"
 
-#: src/runes/specification.md:147
+#: src/dunes/specification.md:147
 msgid "The integers are interpreted as a sequence of tag/value pairs, with duplicate tags appending their value to the field value."
 msgstr "De gehele getallen worden geïnterpreteerd als een reeks tag/waarde-paren, waarbij dubbele tags hun waarde toevoegen aan de veldwaarde."
 
-#: src/runes/specification.md:150
+#: src/dunes/specification.md:150
 msgid ""
-"If a tag with value zero is encountered, all following integers are interpreted as a series of four-integer edicts, each consisting of a rune ID block height, rune ID transaction "
+"If a tag with value zero is encountered, all following integers are interpreted as a series of four-integer edicts, each consisting of a dune ID block height, dune ID transaction "
 "index, amount, and output."
 msgstr ""
-"Als een tag met de waarde nul wordt aangetroffen, worden alle volgende gehele getallen geïnterpreteerd als een reeks van vier-integer edicts, elk bestaande uit een rune-ID "
-"blockhoogte, rune-ID transactienummer, hoeveelheid en uitvoer."
+"Als een tag met de waarde nul wordt aangetroffen, worden alle volgende gehele getallen geïnterpreteerd als een reeks van vier-integer edicts, elk bestaande uit een dune-ID "
+"blockhoogte, dune-ID transactienummer, hoeveelheid en uitvoer."
 
-#: src/runes/specification.md:162
-msgid "Rune ID block heights and transaction indices in edicts are delta encoded."
-msgstr "De blockhoogtes en transactienummers van rune-ID's in edicts zijn delta-gecodeerd."
+#: src/dunes/specification.md:162
+msgid "Dune ID block heights and transaction indices in edicts are delta encoded."
+msgstr "De blockhoogtes en transactienummers van dune-ID's in edicts zijn delta-gecodeerd."
 
-#: src/runes/specification.md:164
+#: src/dunes/specification.md:164
 msgid ""
-"Edict rune ID decoding starts with a base block height and transaction index of zero. When decoding each rune ID, first the encoded block height delta is added to the base block "
+"Edict dune ID decoding starts with a base block height and transaction index of zero. When decoding each dune ID, first the encoded block height delta is added to the base block "
 "height. If the block height delta is zero, the next integer is a transaction index delta. If the block height delta is greater than zero, the next integer is instead an absolute "
 "transaction index."
 msgstr ""
-"Decodering van edict rune-ID's begint met een basis blockhoogte en transactienummer van nul. Bij het decoderen van elke rune-ID wordt eerst de gecodeerde blockhoogte-delta bij de "
+"Decodering van edict dune-ID's begint met een basis blockhoogte en transactienummer van nul. Bij het decoderen van elke dune-ID wordt eerst de gecodeerde blockhoogte-delta bij de "
 "basis blockhoogte opgeteld. Als de blockhoogte-delta nul is, is het volgende geheel getal een transactienummer-delta. Als de blockhoogte-delta groter is dan nul, is het volgende "
 "geheel getal in plaats daarvan een absoluut transactienummer."
 
-#: src/runes/specification.md:170
-msgid "This implies that edicts must first be sorted by rune ID before being encoded in a runestone."
-msgstr "Dit houdt in dat edicts eerst gesorteerd moeten worden op rune-ID voordat ze worden gecodeerd in een runestone."
+#: src/dunes/specification.md:170
+msgid "This implies that edicts must first be sorted by dune ID before being encoded in a dunestone."
+msgstr "Dit houdt in dat edicts eerst gesorteerd moeten worden op dune-ID voordat ze worden gecodeerd in een dunestone."
 
-#: src/runes/specification.md:173
+#: src/dunes/specification.md:173
 msgid "For example, to encode the following edicts:"
 msgstr "Bijvoorbeeld, om de volgende edicts te coderen:"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184
+#: src/dunes/specification.md:175 src/dunes/specification.md:184
 msgid "block"
 msgstr "block"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184
+#: src/dunes/specification.md:175 src/dunes/specification.md:184
 msgid "TX"
 msgstr "TX"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184 src/runes/specification.md:193
+#: src/dunes/specification.md:175 src/dunes/specification.md:184 src/dunes/specification.md:193
 msgid "amount"
 msgstr "aantal"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184 src/runes/specification.md:193
+#: src/dunes/specification.md:175 src/dunes/specification.md:184 src/dunes/specification.md:193
 msgid "output"
 msgstr "output"
 
-#: src/runes/specification.md:177 src/runes/specification.md:179 src/runes/specification.md:180 src/runes/specification.md:186 src/runes/specification.md:187
-#: src/runes/specification.md:188 src/runes/specification.md:195 src/runes/specification.md:196
+#: src/dunes/specification.md:177 src/dunes/specification.md:179 src/dunes/specification.md:180 src/dunes/specification.md:186 src/dunes/specification.md:187
+#: src/dunes/specification.md:188 src/dunes/specification.md:195 src/dunes/specification.md:196
 msgid "10"
 msgstr "10"
 
-#: src/runes/specification.md:177 src/runes/specification.md:180 src/runes/specification.md:186 src/runes/specification.md:187 src/runes/specification.md:195
+#: src/dunes/specification.md:177 src/dunes/specification.md:180 src/dunes/specification.md:186 src/dunes/specification.md:187 src/dunes/specification.md:195
 msgid "5"
 msgstr "5"
 
-#: src/runes/specification.md:178 src/runes/specification.md:189 src/runes/specification.md:430
+#: src/dunes/specification.md:178 src/dunes/specification.md:189 src/dunes/specification.md:430
 msgid "50"
 msgstr "50"
 
-#: src/runes/specification.md:178 src/runes/specification.md:189 src/runes/specification.md:198 src/runes/specification.md:426
+#: src/dunes/specification.md:178 src/dunes/specification.md:189 src/dunes/specification.md:198 src/dunes/specification.md:426
 msgid "25"
 msgstr "25"
 
-#: src/runes/specification.md:179 src/runes/specification.md:188
+#: src/dunes/specification.md:179 src/dunes/specification.md:188
 msgid "7"
 msgstr "7"
 
-#: src/runes/specification.md:179 src/runes/specification.md:188 src/runes/specification.md:197
+#: src/dunes/specification.md:179 src/dunes/specification.md:188 src/dunes/specification.md:197
 msgid "8"
 msgstr "8"
 
-#: src/runes/specification.md:182
+#: src/dunes/specification.md:182
 msgid "They are first sorted by block height and transaction index:"
 msgstr "Ze worden eerst gesorteerd op blokhoogte en transactie-index:"
 
-#: src/runes/specification.md:191
+#: src/dunes/specification.md:191
 msgid "And then delta encoded as:"
 msgstr "En daarna delta-gecodeerd als:"
 
-#: src/runes/specification.md:193
+#: src/dunes/specification.md:193
 msgid "block delta"
 msgstr "block delta"
 
-#: src/runes/specification.md:193
+#: src/dunes/specification.md:193
 msgid "TX delta"
 msgstr "TX delta"
 
-#: src/runes/specification.md:198
+#: src/dunes/specification.md:198
 msgid "40"
 msgstr "40"
 
-#: src/runes/specification.md:200
+#: src/dunes/specification.md:200
 msgid ""
-"If an edict output is greater than the number of outputs of the transaction, an edict rune ID is encountered with block zero and nonzero transaction index, or a field is truncated, "
-"meaning a tag is encountered without a value, the decoded runestone is a cenotaph."
+"If an edict output is greater than the number of outputs of the transaction, an edict dune ID is encountered with block zero and nonzero transaction index, or a field is truncated, "
+"meaning a tag is encountered without a value, the decoded dunestone is a cenotaph."
 msgstr ""
-"Als een edictoutput groter is dan het aantal outputs van de transactie, wordt een edict-rune-ID aangetroffen met block nul en een niet-nul transactieverwijzing, of een veld is "
-"afgebroken, wat betekent dat een tag zonder waarde wordt aangetroffen, dan is de gedecodeerde runestone een cenotaaf."
+"Als een edictoutput groter is dan het aantal outputs van de transactie, wordt een edict-dune-ID aangetroffen met block nul en een niet-nul transactieverwijzing, of een veld is "
+"afgebroken, wat betekent dat een tag zonder waarde wordt aangetroffen, dan is de gedecodeerde dunestone een cenotaaf."
 
-#: src/runes/specification.md:205
+#: src/dunes/specification.md:205
 msgid "Note that if a cenotaph is produced here, the cenotaph is not empty, meaning that it contains the fields and edicts, which may include an etching and mint."
 msgstr ""
 "Houd er rekening mee dat als hier een cenotaaf wordt geproduceerd, de cenotaaf niet leeg is, wat betekent dat deze de velden en edicts bevat, die een etching en mint kunnen "
 "omvatten."
 
-#: src/runes/specification.md:208
-msgid "Parsing the Runestone"
-msgstr "Het Ontcijferen van de Runestone"
+#: src/dunes/specification.md:208
+msgid "Parsing the Dunestone"
+msgstr "Het Ontcijferen van de Dunestone"
 
-#: src/runes/specification.md:210
-msgid "The runestone:"
-msgstr "De runestone:"
+#: src/dunes/specification.md:210
+msgid "The dunestone:"
+msgstr "De dunestone:"
 
-#: src/runes/specification.md:221
+#: src/dunes/specification.md:221
 msgid "Is parsed from the unsigned message using the following tags:"
 msgstr "Wordt ontcijferd uit het ongetekende bericht met behulp van de volgende tags:"
 
-#: src/runes/specification.md:246
+#: src/dunes/specification.md:246
 msgid "Note that tags are grouped by parity, i.e., whether they are even or odd. Unrecognized odd tags are ignored. Unrecognized even tags produce a cenotaph."
 msgstr "Let op dat tags worden gegroepeerd op pariteit, d.w.z. of ze even of oneven zijn. Onbekende oneven tags worden genegeerd. Onbekende even tags produceren een cenotaaf."
 
-#: src/runes/specification.md:249
+#: src/dunes/specification.md:249
 msgid "All unused tags are reserved for use by the protocol, may be assigned at any time, and must not be used."
 msgstr "Alle ongebruikte tags zijn gereserveerd voor gebruik door het protocol, kunnen op elk moment worden toegewezen en mogen niet worden gebruikt."
 
-#: src/runes/specification.md:252
+#: src/dunes/specification.md:252
 msgid "Body"
 msgstr "Lichaam (Body)"
 
-#: src/runes/specification.md:254
-msgid "The `Body` tag marks the end of the runestone's fields, causing all following integers to be interpreted as edicts."
-msgstr "The `Body` tag marks the end of the runestone's fields, causing all following integers to be interpreted as edicts."
+#: src/dunes/specification.md:254
+msgid "The `Body` tag marks the end of the dunestone's fields, causing all following integers to be interpreted as edicts."
+msgstr "The `Body` tag marks the end of the dunestone's fields, causing all following integers to be interpreted as edicts."
 
-#: src/runes/specification.md:257
+#: src/dunes/specification.md:257
 msgid "Flags"
 msgstr "Vlag (Flag)"
 
-#: src/runes/specification.md:259
+#: src/dunes/specification.md:259
 msgid "The `Flag` field contains a bitmap of flags, whose position is `1 << FLAG_VALUE`:"
 msgstr "Het `Flag`-veld bevat een bitmap van vlaggen, waarvan de positie `1 << FLAG_VALUE` is:"
 
-#: src/runes/specification.md:271
+#: src/dunes/specification.md:271
 msgid "The `Etching` flag marks this transaction as containing an etching."
 msgstr "De `Etching`-vlag markeert deze transactie als een etching."
 
-#: src/runes/specification.md:273
+#: src/dunes/specification.md:273
 msgid "The `Terms` flag marks this transaction's etching as having open mint terms."
 msgstr "De `Terms`-vlag markeert de etching van deze transactie als het hebben van open mint-voorwaarden."
 
-#: src/runes/specification.md:275
+#: src/dunes/specification.md:275
 msgid ""
 "The `Turbo` flag marks this transaction's etching as opting into future protocol changes. These protocol changes may increase light client validation costs, or just be highly "
 "degenerate."
@@ -2455,39 +2455,39 @@ msgstr ""
 "De `Turbo`-vlag markeert de etching van deze transactie als meewerkend aan toekomstige protocolwijzigingen. Deze protocolwijzigingen kunnen de validatiekosten voor lichte clients "
 "verhogen, of gewoon sterk afwijkend zijn."
 
-#: src/runes/specification.md:279
+#: src/dunes/specification.md:279
 msgid "The `Cenotaph` flag is unrecognized."
 msgstr "De `Cenotaph`-vlag wordt niet herkend."
 
-#: src/runes/specification.md:281
-msgid "If the value of the flags field after removing recognized flags is nonzero, the runestone is a cenotaph."
-msgstr "Als de waarde van het `Flags`-veld, na het verwijderen van erkende vlaggen, niet nul is, wordt de runestone beschouwd als een cenotaaf."
+#: src/dunes/specification.md:281
+msgid "If the value of the flags field after removing recognized flags is nonzero, the dunestone is a cenotaph."
+msgstr "Als de waarde van het `Flags`-veld, na het verwijderen van erkende vlaggen, niet nul is, wordt de dunestone beschouwd als een cenotaaf."
 
-#: src/runes/specification.md:284
-msgid "Rune"
-msgstr "Rune"
+#: src/dunes/specification.md:284
+msgid "Dune"
+msgstr "Dune"
 
-#: src/runes/specification.md:286
-msgid "The `Rune` field contains the name of the rune being etched. If the `Etching` flag is set but the `Rune` field is omitted, a reserved rune name is allocated."
-msgstr "Het `Rune`-veld bevat de naam van de rune die wordt geëtst. Als de `Etching`-vlag is ingesteld maar het `Rune`-veld ontbreekt, wordt een gereserveerde rune-naam toegewezen."
+#: src/dunes/specification.md:286
+msgid "The `Dune` field contains the name of the dune being etched. If the `Etching` flag is set but the `Dune` field is omitted, a reserved dune name is allocated."
+msgstr "Het `Dune`-veld bevat de naam van de dune die wordt geëtst. Als de `Etching`-vlag is ingesteld maar het `Dune`-veld ontbreekt, wordt een gereserveerde dune-naam toegewezen."
 
-#: src/runes/specification.md:292
-msgid "The `Premine` field contains the amount of premined runes."
-msgstr "Het `Premine`-veld bevat het aantal voorgemijnde runes."
+#: src/dunes/specification.md:292
+msgid "The `Premine` field contains the amount of premined dunes."
+msgstr "Het `Premine`-veld bevat het aantal voorgemijnde dunes."
 
-#: src/runes/specification.md:296
+#: src/dunes/specification.md:296
 msgid "The `Cap` field contains the allowed number of mints."
 msgstr "Het `Cap`-veld bevat het toegestane aantal mints."
 
-#: src/runes/specification.md:300
-msgid "The `Amount` field contains the amount of runes each mint transaction receives."
-msgstr "Het `Amount`-veld bevat het aantal runes dat elke mint-transactie ontvangt."
+#: src/dunes/specification.md:300
+msgid "The `Amount` field contains the amount of dunes each mint transaction receives."
+msgstr "Het `Amount`-veld bevat het aantal dunes dat elke mint-transactie ontvangt."
 
-#: src/runes/specification.md:302
+#: src/dunes/specification.md:302
 msgid "HeightStart and HeightEnd"
 msgstr "HeightStart en HeightEnd"
 
-#: src/runes/specification.md:304
+#: src/dunes/specification.md:304
 msgid ""
 "The `HeightStart` and `HeightEnd` fields contain the mint's starting and ending absolute block heights, respectively. The mint is open starting in the block with height "
 "`HeightStart`, and closes in the block with height `HeightEnd`."
@@ -2495,11 +2495,11 @@ msgstr ""
 "De velden `HeightStart` en `HeightEnd` bevatten respectievelijk de absolute blokhoogtes waarop de mint begint en eindigt. De mint is open vanaf het blok met hoogte `HeightStart` en "
 "sluit in het blok met hoogte `HeightEnd`."
 
-#: src/runes/specification.md:308
+#: src/dunes/specification.md:308
 msgid "OffsetStart and OffsetEnd"
 msgstr "OffsetStart en OffsetEnd"
 
-#: src/runes/specification.md:310
+#: src/dunes/specification.md:310
 msgid ""
 "The `OffsetStart` and `OffsetEnd` fields contain the mint's starting and ending block heights, relative to the block in which the etching is mined. The mint is open starting in the "
 "block with height `OffsetStart` + `ETCHING_HEIGHT`, and closes in the block with height `OffsetEnd` + `ETCHING_HEIGHT`."
@@ -2507,374 +2507,374 @@ msgstr ""
 "De velden `OffsetStart` en `OffsetEnd` bevatten de relatieve start- en eindblokhoogtes van de mint, ten opzichte van het blok waarin de etching wordt gemined. De mint is open vanaf "
 "het blok met hoogte `OffsetStart` + `ETCHING_HEIGHT`, en sluit in het blok met hoogte `OffsetEnd` + `ETCHING_HEIGHT`."
 
-#: src/runes/specification.md:315
+#: src/dunes/specification.md:315
 msgid "Mint"
 msgstr "Mint"
 
-#: src/runes/specification.md:317
-msgid "The `Mint` field contains the Rune ID of the rune to be minted in this transaction."
-msgstr "Het veld `Mint` bevat de Rune ID van de rune die in deze transactie gemint moet worden."
+#: src/dunes/specification.md:317
+msgid "The `Mint` field contains the Dune ID of the dune to be minted in this transaction."
+msgstr "Het veld `Mint` bevat de Dune ID van de dune die in deze transactie gemint moet worden."
 
-#: src/runes/specification.md:322
+#: src/dunes/specification.md:322
 msgid ""
-"The `Pointer` field contains the index of the output to which runes unallocated by edicts should be transferred. If the `Pointer` field is absent, unallocated runes are transferred "
+"The `Pointer` field contains the index of the output to which dunes unallocated by edicts should be transferred. If the `Pointer` field is absent, unallocated dunes are transferred "
 "to the first non-`OP_RETURN` output."
 msgstr ""
-"Het veld `Pointer` bevat de index van de output waaraan runes die niet door edicts zijn toegewezen, moeten worden overgedragen. Als het veld `Pointer` ontbreekt, worden niet-"
-"toegewezen runes overgedragen naar de eerste niet-`OP_RETURN` output."
+"Het veld `Pointer` bevat de index van de output waaraan dunes die niet door edicts zijn toegewezen, moeten worden overgedragen. Als het veld `Pointer` ontbreekt, worden niet-"
+"toegewezen dunes overgedragen naar de eerste niet-`OP_RETURN` output."
 
-#: src/runes/specification.md:326
+#: src/dunes/specification.md:326
 msgid "Cenotaph"
 msgstr "Cenotaaf"
 
-#: src/runes/specification.md:328
+#: src/dunes/specification.md:328
 msgid "The `Cenotaph` field is unrecognized."
 msgstr "Het veld `Cenotaph` is niet herkend."
 
-#: src/runes/specification.md:332
-msgid "The `Divisibility` field, raised to the power of ten, is the number of subunits in a super unit of runes."
-msgstr "Het veld `Divisibility`, verheven tot de macht van tien, is het aantal subeenheden in een supereenheid van runes."
+#: src/dunes/specification.md:332
+msgid "The `Divisibility` field, raised to the power of ten, is the number of subunits in a super unit of dunes."
+msgstr "Het veld `Divisibility`, verheven tot de macht van tien, is het aantal subeenheden in een supereenheid van dunes."
 
-#: src/runes/specification.md:335
-msgid "For example, the amount `1234` of different runes with divisibility 0 through 3 is displayed as follows:"
-msgstr "Bijvoorbeeld, het bedrag van `1234` runes met een divisibility van 0 tot 3 wordt als volgt weergegeven:"
+#: src/dunes/specification.md:335
+msgid "For example, the amount `1234` of different dunes with divisibility 0 through 3 is displayed as follows:"
+msgstr "Bijvoorbeeld, het bedrag van `1234` dunes met een divisibility van 0 tot 3 wordt als volgt weergegeven:"
 
-#: src/runes/specification.md:338 src/runes/specification.md:356
+#: src/dunes/specification.md:338 src/dunes/specification.md:356
 msgid "Display"
 msgstr "Weergave"
 
-#: src/runes/specification.md:340
+#: src/dunes/specification.md:340
 msgid "1234"
 msgstr "1234"
 
-#: src/runes/specification.md:341
+#: src/dunes/specification.md:341
 msgid "123.4"
 msgstr "123.4"
 
-#: src/runes/specification.md:342
+#: src/dunes/specification.md:342
 msgid "12.34"
 msgstr "12.34"
 
-#: src/runes/specification.md:343
+#: src/dunes/specification.md:343
 msgid "1.234"
 msgstr "1.234"
 
-#: src/runes/specification.md:345 src/runes/specification.md:356
+#: src/dunes/specification.md:345 src/dunes/specification.md:356
 msgid "Spacers"
 msgstr "Spaties"
 
-#: src/runes/specification.md:347
-msgid "The `Spacers` field is a bitfield of `•` spacers that should be displayed between the letters of the rune's name."
-msgstr "Het veld `Spacers` is een bitveld van `•` spaties die moeten worden weergegeven tussen de letters van de naam van de rune."
+#: src/dunes/specification.md:347
+msgid "The `Spacers` field is a bitfield of `•` spacers that should be displayed between the letters of the dune's name."
+msgstr "Het veld `Spacers` is een bitveld van `•` spaties die moeten worden weergegeven tussen de letters van de naam van de dune."
 
-#: src/runes/specification.md:350
+#: src/dunes/specification.md:350
 msgid ""
 "The Nth field of the bitfield, starting from the least significant, determines whether or not a spacer should be displayed between the Nth and N+1th character, starting from the "
-"left of the rune's name."
+"left of the dune's name."
 msgstr ""
 "Het N-de veld van het bitveld, beginnend bij de minst significante bit, bepaalt of er al dan niet een spatie moet worden weergegeven tussen de N-de en de N+1-de karakter, beginnend "
-"vanaf de linkerkant van de naam van de rune."
+"vanaf de linkerkant van de naam van de dune."
 
-#: src/runes/specification.md:354
-msgid "For example, the rune name `AAAA` rendered with different spacers:"
-msgstr "Bijvoorbeeld, de rune-naam `AAAA` weergegeven met verschillende spaties:"
+#: src/dunes/specification.md:354
+msgid "For example, the dune name `AAAA` rendered with different spacers:"
+msgstr "Bijvoorbeeld, de dune-naam `AAAA` weergegeven met verschillende spaties:"
 
-#: src/runes/specification.md:358
+#: src/dunes/specification.md:358
 msgid "0b1"
 msgstr "0b1"
 
-#: src/runes/specification.md:358
+#: src/dunes/specification.md:358
 msgid "A•AAA"
 msgstr "A•AAA"
 
-#: src/runes/specification.md:359
+#: src/dunes/specification.md:359
 msgid "0b11"
 msgstr "0b11"
 
-#: src/runes/specification.md:359
+#: src/dunes/specification.md:359
 msgid "A•A•AA"
 msgstr "A•A•AA"
 
-#: src/runes/specification.md:360
+#: src/dunes/specification.md:360
 msgid "0b10"
 msgstr "0b10"
 
-#: src/runes/specification.md:360
+#: src/dunes/specification.md:360
 msgid "AA•AA"
 msgstr "AA•AA"
 
-#: src/runes/specification.md:361
+#: src/dunes/specification.md:361
 msgid "0b111"
 msgstr "0b111"
 
-#: src/runes/specification.md:361
+#: src/dunes/specification.md:361
 msgid "A•A•A•A"
 msgstr "A•A•A•A"
 
-#: src/runes/specification.md:363
+#: src/dunes/specification.md:363
 msgid "Trailing spacers are ignored."
 msgstr "Achteraf geplaatste spaties worden genegeerd."
 
-#: src/runes/specification.md:367
+#: src/dunes/specification.md:367
 msgid ""
-"The `Symbol` field is the Unicode codepoint of the Rune's currency symbol, which should be displayed after amounts of that rune. If a rune does not have a currency symbol, the "
+"The `Symbol` field is the Unicode codepoint of the Dune's currency symbol, which should be displayed after amounts of that dune. If a dune does not have a currency symbol, the "
 "generic currency character `¤` should be used."
 msgstr ""
-"Het veld `Symbol` is de Unicode-codepunt van het valuta-symbool van de Rune, dat na de bedragen van die rune moet worden weergegeven. Als een rune geen valuta-symbool heeft, moet "
+"Het veld `Symbol` is de Unicode-codepunt van het valuta-symbool van de Dune, dat na de bedragen van die dune moet worden weergegeven. Als een dune geen valuta-symbool heeft, moet "
 "het algemene valutateken `¤` worden gebruikt."
 
-#: src/runes/specification.md:371
+#: src/dunes/specification.md:371
 msgid "For example, if the `Symbol` is `#` and the divisibility is 2, the amount of `1234` units should be displayed as `12.34 #`."
 msgstr "Bijvoorbeeld, als het `Symbol` `#` is en de deelbaarheid 2 is, zou het bedrag van `1234` eenheden worden weergegeven als `12.34 #`."
 
-#: src/runes/specification.md:374
+#: src/dunes/specification.md:374
 msgid "Nop"
 msgstr "Nop"
 
-#: src/runes/specification.md:376
+#: src/dunes/specification.md:376
 msgid "The `Nop` field is unrecognized."
 msgstr "Het `Nop`-veld is niet herkend."
 
-#: src/runes/specification.md:380
+#: src/dunes/specification.md:380
 msgid "Cenotaphs have the following effects:"
 msgstr "Cenotafen hebben de volgende effecten:"
 
-#: src/runes/specification.md:382
-msgid "All runes input to a transaction containing a cenotaph are burned."
-msgstr "Alle runes die worden ingevoerd in een transactie die een cenotaph bevat, worden verbrand."
+#: src/dunes/specification.md:382
+msgid "All dunes input to a transaction containing a cenotaph are burned."
+msgstr "Alle dunes die worden ingevoerd in een transactie die een cenotaph bevat, worden verbrand."
 
-#: src/runes/specification.md:384
-msgid "If the runestone that produced the cenotaph contained an etching, the etched rune has supply zero and is unmintable."
-msgstr "Als de runestone die de cenotaph heeft geproduceerd een etching bevatte, heeft de geëtste rune een aanbod van nul en kan deze niet worden gemint."
+#: src/dunes/specification.md:384
+msgid "If the dunestone that produced the cenotaph contained an etching, the etched dune has supply zero and is unmintable."
+msgstr "Als de dunestone die de cenotaph heeft geproduceerd een etching bevatte, heeft de geëtste dune een aanbod van nul en kan deze niet worden gemint."
 
-#: src/runes/specification.md:387
-msgid "If the runestone that produced the cenotaph is a mint, the mint counts against the mint cap and the minted runes are burned."
-msgstr "Als de runestone die de cenotaph heeft geproduceerd een mint is, telt de mint mee voor de mint cap en worden de geminte runes verbrand."
+#: src/dunes/specification.md:387
+msgid "If the dunestone that produced the cenotaph is a mint, the mint counts against the mint cap and the minted dunes are burned."
+msgstr "Als de dunestone die de cenotaph heeft geproduceerd een mint is, telt de mint mee voor de mint cap en worden de geminte dunes verbrand."
 
-#: src/runes/specification.md:390
+#: src/dunes/specification.md:390
 msgid ""
-"Cenotaphs may be created if a runestone contains an unrecognized even tag, an unrecognized flag, an edict with an output number greater than the number of inputs, a rune ID with "
-"block zero and nonzero transaction index, a malformed varint, a non-datapush instruction in the runestone output script pubkey, a tag without a following value, or trailing "
+"Cenotaphs may be created if a dunestone contains an unrecognized even tag, an unrecognized flag, an edict with an output number greater than the number of inputs, a dune ID with "
+"block zero and nonzero transaction index, a malformed varint, a non-datapush instruction in the dunestone output script pubkey, a tag without a following value, or trailing "
 "integers not part of an edict."
 msgstr ""
-"Cenotaphs kunnen worden gemaakt als een runestone een niet-herkenbaar even tag bevat, een niet-herkenbaar vlag, een edict met een outputnummer groter dan het aantal inputs, een "
-"rune ID met blok nul en een niet-nul transactienummer, een verkeerd geformatteerde varint, een niet-datapush-instructie in het runestone outputscript pubkey, een tag zonder een "
+"Cenotaphs kunnen worden gemaakt als een dunestone een niet-herkenbaar even tag bevat, een niet-herkenbaar vlag, een edict met een outputnummer groter dan het aantal inputs, een "
+"dune ID met blok nul en een niet-nul transactienummer, een verkeerd geformatteerde varint, een niet-datapush-instructie in het dunestone outputscript pubkey, een tag zonder een "
 "volgende waarde, of achterblijvende gehele getallen die geen deel uitmaken van een edict."
 
-#: src/runes/specification.md:396
-msgid "Executing the Runestone"
-msgstr "Uitvoeren van de Runestone"
+#: src/dunes/specification.md:396
+msgid "Executing the Dunestone"
+msgstr "Uitvoeren van de Dunestone"
 
-#: src/runes/specification.md:398
-msgid "Runestones are executed in the order their transactions are included in blocks."
-msgstr "Runestones worden uitgevoerd in de volgorde waarin hun transacties in blokken zijn opgenomen."
+#: src/dunes/specification.md:398
+msgid "Dunestones are executed in the order their transactions are included in blocks."
+msgstr "Dunestones worden uitgevoerd in de volgorde waarin hun transacties in blokken zijn opgenomen."
 
-#: src/runes/specification.md:400
+#: src/dunes/specification.md:400
 msgid "Etchings"
 msgstr "Etchings"
 
-#: src/runes/specification.md:402
-msgid "A runestone may contain an etching:"
-msgstr "Een runestone kan een etching bevatten:"
+#: src/dunes/specification.md:402
+msgid "A dunestone may contain an etching:"
+msgstr "Een dunestone kan een etching bevatten:"
 
-#: src/runes/specification.md:415
-msgid "`rune` is the name of the rune to be etched, encoded as modified base-26 integer."
-msgstr "`rune` is de naam van de rune die geëtst moet worden, gecodeerd als een gemodificeerde base-26 integer."
+#: src/dunes/specification.md:415
+msgid "`dune` is the name of the dune to be etched, encoded as modified base-26 integer."
+msgstr "`dune` is de naam van de dune die geëtst moet worden, gecodeerd als een gemodificeerde base-26 integer."
 
-#: src/runes/specification.md:418
-msgid "Rune names consist of the letters A through Z, with the following encoding:"
-msgstr "Rune-namen bestaan uit de letters A tot Z, met de volgende codering:"
+#: src/dunes/specification.md:418
+msgid "Dune names consist of the letters A through Z, with the following encoding:"
+msgstr "Dune-namen bestaan uit de letters A tot Z, met de volgende codering:"
 
-#: src/runes/specification.md:420
+#: src/dunes/specification.md:420
 msgid "Encoding"
 msgstr "Codering"
 
-#: src/runes/specification.md:422
+#: src/dunes/specification.md:422
 msgid "A"
 msgstr "A"
 
-#: src/runes/specification.md:423
+#: src/dunes/specification.md:423
 msgid "B"
 msgstr "B"
 
-#: src/runes/specification.md:424 src/runes/specification.md:429
+#: src/dunes/specification.md:424 src/dunes/specification.md:429
 msgid "…"
 msgstr "…"
 
-#: src/runes/specification.md:425
+#: src/dunes/specification.md:425
 msgid "Y"
 msgstr "Y"
 
-#: src/runes/specification.md:425
+#: src/dunes/specification.md:425
 msgid "24"
 msgstr "24"
 
-#: src/runes/specification.md:426
+#: src/dunes/specification.md:426
 msgid "Z"
 msgstr "Z"
 
-#: src/runes/specification.md:427
+#: src/dunes/specification.md:427
 msgid "AA"
 msgstr "AA"
 
-#: src/runes/specification.md:427
+#: src/dunes/specification.md:427
 msgid "26"
 msgstr "26"
 
-#: src/runes/specification.md:428
+#: src/dunes/specification.md:428
 msgid "AB"
 msgstr "AB"
 
-#: src/runes/specification.md:428
+#: src/dunes/specification.md:428
 msgid "27"
 msgstr "27"
 
-#: src/runes/specification.md:430
+#: src/dunes/specification.md:430
 msgid "AY"
 msgstr "AY"
 
-#: src/runes/specification.md:431
+#: src/dunes/specification.md:431
 msgid "AZ"
 msgstr "AZ"
 
-#: src/runes/specification.md:431
+#: src/dunes/specification.md:431
 msgid "51"
 msgstr "51"
 
-#: src/runes/specification.md:432
+#: src/dunes/specification.md:432
 msgid "BA"
 msgstr "BA"
 
-#: src/runes/specification.md:432
+#: src/dunes/specification.md:432
 msgid "52"
 msgstr "52"
 
-#: src/runes/specification.md:434
+#: src/dunes/specification.md:434
 msgid "And so on and so on."
 msgstr "Enzovoort, enzovoort."
 
-#: src/runes/specification.md:436
-msgid "Rune names `AAAAAAAAAAAAAAAAAAAAAAAAAAA` and above are reserved."
-msgstr "Rune-namen `AAAAAAAAAAAAAAAAAAAAAAAAAAA` en hoger zijn gereserveerd."
+#: src/dunes/specification.md:436
+msgid "Dune names `AAAAAAAAAAAAAAAAAAAAAAAAAAA` and above are reserved."
+msgstr "Dune-namen `AAAAAAAAAAAAAAAAAAAAAAAAAAA` en hoger zijn gereserveerd."
 
-#: src/runes/specification.md:438
-msgid "If `rune` is omitted a reserved rune name is allocated as follows:"
-msgstr "Als `rune` wordt weggelaten, wordt een gereserveerde runenaam toegewezen als volgt:"
+#: src/dunes/specification.md:438
+msgid "If `dune` is omitted a reserved dune name is allocated as follows:"
+msgstr "Als `dune` wordt weggelaten, wordt een gereserveerde dunenaam toegewezen als volgt:"
 
-#: src/runes/specification.md:449
-msgid "`6402364363415443603228541259936211926` corresponds to the rune name `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
-msgstr "`6402364363415443603228541259936211926` reageert op de naam van de rune `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
+#: src/dunes/specification.md:449
+msgid "`6402364363415443603228541259936211926` corresponds to the dune name `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
+msgstr "`6402364363415443603228541259936211926` reageert op de naam van de dune `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
 
-#: src/runes/specification.md:452
-msgid "If `rune` is present, it must be unlocked as of the block in which the etching appears."
-msgstr "Als `rune` aanwezig is, moet deze worden ontgrendeld vanaf de block waarin de etching verschijnt."
+#: src/dunes/specification.md:452
+msgid "If `dune` is present, it must be unlocked as of the block in which the etching appears."
+msgstr "Als `dune` aanwezig is, moet deze worden ontgrendeld vanaf de block waarin de etching verschijnt."
 
-#: src/runes/specification.md:455
-msgid "Initially, all rune names of length thirteen and longer, up until the first reserved rune name, are unlocked."
-msgstr "Aanvankelijk worden alle runenamen met een lengte van dertien tekens en langer, tot aan de eerste gereserveerde runenaam, ontgrendeld."
+#: src/dunes/specification.md:455
+msgid "Initially, all dune names of length thirteen and longer, up until the first reserved dune name, are unlocked."
+msgstr "Aanvankelijk worden alle dunenamen met een lengte van dertien tekens en langer, tot aan de eerste gereserveerde dunenaam, ontgrendeld."
 
-#: src/runes/specification.md:458
-msgid "Runes begin unlocking in block 840,000, the block in which the runes protocol activates."
-msgstr "Runen beginnen te ontgrendelen in blok 840.000, het blok waarin het runes-protocol wordt geactiveerd."
+#: src/dunes/specification.md:458
+msgid "Dunes begin unlocking in block 840,000, the block in which the dunes protocol activates."
+msgstr "Dunen beginnen te ontgrendelen in blok 840.000, het blok waarin het dunes-protocol wordt geactiveerd."
 
-#: src/runes/specification.md:461
+#: src/dunes/specification.md:461
 msgid ""
-"Thereafter, every 17,500 block period, the next shortest length of rune names is continuously unlocked. So, between block 840,000 and block 857,500, the twelve-character rune names "
-"are unlocked, between block 857,500 and block 875,000 the eleven character rune names are unlocked, and so on and so on, until the one-character rune names are unlocked between "
+"Thereafter, every 17,500 block period, the next shortest length of dune names is continuously unlocked. So, between block 840,000 and block 857,500, the twelve-character dune names "
+"are unlocked, between block 857,500 and block 875,000 the eleven character dune names are unlocked, and so on and so on, until the one-character dune names are unlocked between "
 "block 1,032,500 and block 1,050,000. See the `ord` codebase for the precise unlocking schedule."
 msgstr ""
-"Daarna wordt in elke periode van 17.500 blokken de volgende kortste lengte van runenamen continu ontgrendeld. Dus, tussen blok 840.000 en blok 857.500 worden de runenamen van "
-"twaalf tekens ontgrendeld, tussen blok 857.500 en blok 875.000 worden de runenamen van elf tekens ontgrendeld, enzovoort, totdat de runenamen van één teken worden ontgrendeld "
+"Daarna wordt in elke periode van 17.500 blokken de volgende kortste lengte van dunenamen continu ontgrendeld. Dus, tussen blok 840.000 en blok 857.500 worden de dunenamen van "
+"twaalf tekens ontgrendeld, tussen blok 857.500 en blok 875.000 worden de dunenamen van elf tekens ontgrendeld, enzovoort, totdat de dunenamen van één teken worden ontgrendeld "
 "tussen blok 1.032.500 en blok 1.050.000. Zie de `ord` codebase voor het exacte ontgrendelingsschema."
 
-#: src/runes/specification.md:468
+#: src/dunes/specification.md:468
 msgid ""
-"To prevent front running an etching that has been broadcast but not mined, if a non-reserved rune name is being etched, the etching transaction must contain a valid commitment to "
+"To prevent front running an etching that has been broadcast but not mined, if a non-reserved dune name is being etched, the etching transaction must contain a valid commitment to "
 "the name being etched."
 msgstr ""
-"Om frontrunning van een etching die is uitgezonden maar nog niet gemined is te voorkomen, moet de etching-transactie, indien een niet-gereserveerde runenaam wordt geëtst, een "
+"Om frontrunning van een etching die is uitgezonden maar nog niet gemined is te voorkomen, moet de etching-transactie, indien een niet-gereserveerde dunenaam wordt geëtst, een "
 "geldige toewijding aan de te etsen naam bevatten."
 
-#: src/runes/specification.md:472
+#: src/dunes/specification.md:472
 msgid ""
-"A commitment consists of a data push of the rune name, encoded as a little-endian integer with trailing zero bytes elided, present in an input witness tapscript where the output "
+"A commitment consists of a data push of the dune name, encoded as a little-endian integer with trailing zero bytes elided, present in an input witness tapscript where the output "
 "being spent has at least six confirmations."
 msgstr ""
-"Een toewijding bestaat uit een datapush van de runenaam, gecodeerd als een little-endian geheel getal waarbij de achteraan geplaatste nullen zijn weggelaten, aanwezig in een input "
+"Een toewijding bestaat uit een datapush van de dunenaam, gecodeerd als een little-endian geheel getal waarbij de achteraan geplaatste nullen zijn weggelaten, aanwezig in een input "
 "witness tapscript waarbij de output die wordt uitgegeven minstens zes bevestigingen heeft."
 
-#: src/runes/specification.md:476
+#: src/dunes/specification.md:476
 msgid "If a valid commitment is not present, the etching is ignored."
 msgstr "Als een geldige toewijding niet aanwezig is, wordt het etsen genegeerd."
 
-#: src/runes/specification.md:480
-msgid "A runestone may mint a rune by including the rune's ID in the `Mint` field."
-msgstr "Een runestone kan een rune slaan door de ID van de rune op te nemen in het `Mint`-veld."
+#: src/dunes/specification.md:480
+msgid "A dunestone may mint a dune by including the dune's ID in the `Mint` field."
+msgstr "Een dunestone kan een dune slaan door de ID van de dune op te nemen in het `Mint`-veld."
 
-#: src/runes/specification.md:482
+#: src/dunes/specification.md:482
 msgid ""
-"If the mint is open, the mint amount is added to the unallocated runes in the transaction's inputs. These runes may be transferred using edicts, and will otherwise be transferred "
+"If the mint is open, the mint amount is added to the unallocated dunes in the transaction's inputs. These dunes may be transferred using edicts, and will otherwise be transferred "
 "to the first non-`OP_RETURN` output, or the output designated by the `Pointer` field."
 msgstr ""
-"Als de mint open is, wordt het mintbedrag toegevoegd aan de niet-toegewezen runes in de inputs van de transactie. Deze runes kunnen worden overgedragen met behulp van edicten en "
+"Als de mint open is, wordt het mintbedrag toegevoegd aan de niet-toegewezen dunes in de inputs van de transactie. Deze dunes kunnen worden overgedragen met behulp van edicten en "
 "worden anders overgedragen naar de eerste niet-`OP_RETURN` output of naar de output die is aangewezen door het `Pointer`-veld."
 
-#: src/runes/specification.md:487
+#: src/dunes/specification.md:487
 msgid "Mints may be made in any transaction after an etching, including in the same block."
 msgstr "Mints kunnen in elke transactie worden uitgevoerd na een etching, inclusief in hetzelfde blok."
 
-#: src/runes/specification.md:502
-msgid "A runestone may contain any number of edicts, which are processed in sequence."
-msgstr "Een runestone kan een onbeperkt aantal edicten bevatten, die in volgorde worden verwerkt."
+#: src/dunes/specification.md:502
+msgid "A dunestone may contain any number of edicts, which are processed in sequence."
+msgstr "Een dunestone kan een onbeperkt aantal edicten bevatten, die in volgorde worden verwerkt."
 
-#: src/runes/specification.md:504
-msgid "Before edicts are processed, input runes, as well as minted or premined runes, if any, are unallocated."
-msgstr "Voordat edicten worden verwerkt, zijn de invoerrunes, evenals geminte of vooraf gemijnde runes, indien aanwezig, niet toegewezen."
+#: src/dunes/specification.md:504
+msgid "Before edicts are processed, input dunes, as well as minted or premined dunes, if any, are unallocated."
+msgstr "Voordat edicten worden verwerkt, zijn de invoerdunes, evenals geminte of vooraf gemijnde dunes, indien aanwezig, niet toegewezen."
 
-#: src/runes/specification.md:507
-msgid "Each edict decrements the unallocated balance of rune `id` and increments the balance allocated to transaction outputs of rune `id`."
-msgstr "Elke edict verlaagt de niet-toegewezen balans van rune `id` en verhoogt de balans die is toegewezen aan de transactievermeldingen van rune `id`."
+#: src/dunes/specification.md:507
+msgid "Each edict decrements the unallocated balance of dune `id` and increments the balance allocated to transaction outputs of dune `id`."
+msgstr "Elke edict verlaagt de niet-toegewezen balans van dune `id` en verhoogt de balans die is toegewezen aan de transactievermeldingen van dune `id`."
 
-#: src/runes/specification.md:510
+#: src/dunes/specification.md:510
 msgid ""
-"If an edict would allocate more runes than are currently unallocated, the `amount` is reduced to the number of currently unallocated runes. In other words, the edict allocates all "
-"remaining unallocated units of rune `id`."
+"If an edict would allocate more dunes than are currently unallocated, the `amount` is reduced to the number of currently unallocated dunes. In other words, the edict allocates all "
+"remaining unallocated units of dune `id`."
 msgstr ""
-"Als een edict meer runes zou toewijzen dan er momenteel niet-toegewezen zijn, wordt het `amount` verlaagd tot het aantal momenteel niet-toegewezen runes. Met andere woorden, de "
-"edict wijst alle resterende niet-toegewezen eenheden van rune `id` toe."
+"Als een edict meer dunes zou toewijzen dan er momenteel niet-toegewezen zijn, wordt het `amount` verlaagd tot het aantal momenteel niet-toegewezen dunes. Met andere woorden, de "
+"edict wijst alle resterende niet-toegewezen eenheden van dune `id` toe."
 
-#: src/runes/specification.md:514
-msgid "Because the ID of an etched rune is not known before it is included in a block, ID `0:0` is used to mean the rune being etched in this transaction, if any."
+#: src/dunes/specification.md:514
+msgid "Because the ID of an etched dune is not known before it is included in a block, ID `0:0` is used to mean the dune being etched in this transaction, if any."
 msgstr ""
-"Omdat de ID van een gegraveerde rune niet bekend is voordat deze in een blok is opgenomen, wordt ID `0:0` gebruikt om de rune aan te duiden die in deze transactie wordt gegraveerd, "
+"Omdat de ID van een gegraveerde dune niet bekend is voordat deze in een blok is opgenomen, wordt ID `0:0` gebruikt om de dune aan te duiden die in deze transactie wordt gegraveerd, "
 "indien aanwezig."
 
-#: src/runes/specification.md:517
-msgid "An edict with `amount` zero allocates all remaining units of rune `id`."
-msgstr "Een edict met een `amount` van nul wijst alle resterende eenheden van rune `id` toe."
+#: src/dunes/specification.md:517
+msgid "An edict with `amount` zero allocates all remaining units of dune `id`."
+msgstr "Een edict met een `amount` van nul wijst alle resterende eenheden van dune `id` toe."
 
-#: src/runes/specification.md:519
-msgid "An edict with `output` equal to the number of transaction outputs allocates `amount` runes to each non-`OP_RETURN` output in order."
-msgstr "Een edict met `output` gelijk aan het aantal transactie-uitgangen wijst `amount` runes toe aan elke niet-`OP_RETURN` uitgang in volgorde."
+#: src/dunes/specification.md:519
+msgid "An edict with `output` equal to the number of transaction outputs allocates `amount` dunes to each non-`OP_RETURN` output in order."
+msgstr "Een edict met `output` gelijk aan het aantal transactie-uitgangen wijst `amount` dunes toe aan elke niet-`OP_RETURN` uitgang in volgorde."
 
-#: src/runes/specification.md:522
+#: src/dunes/specification.md:522
 msgid ""
-"An edict with `amount` zero and `output` equal to the number of transaction outputs divides all unallocated units of rune `id` between each non-`OP_RETURN` output. If the number of "
-"unallocated runes is not divisible by the number of non-`OP_RETURN` outputs, 1 additional rune is assigned to the first `R` non-`OP_RETURN` outputs, where `R` is the remainder "
-"after dividing the balance of unallocated units of rune `id` by the number of non-`OP_RETURN` outputs."
+"An edict with `amount` zero and `output` equal to the number of transaction outputs divides all unallocated units of dune `id` between each non-`OP_RETURN` output. If the number of "
+"unallocated dunes is not divisible by the number of non-`OP_RETURN` outputs, 1 additional dune is assigned to the first `R` non-`OP_RETURN` outputs, where `R` is the remainder "
+"after dividing the balance of unallocated units of dune `id` by the number of non-`OP_RETURN` outputs."
 msgstr ""
-"Een edict met `amount` nul en `output` gelijk aan het aantal transactie-uitgangen verdeelt alle niet-toegewezen eenheden van rune `id` over elke niet-`OP_RETURN` uitgang. Als het "
-"aantal niet-toegewezen runes niet deelbaar is door het aantal niet-`OP_RETURN` uitgangen, wordt 1 extra rune toegewezen aan de eerste `R` niet-`OP_RETURN` uitgangen, waarbij `R` de "
-"rest is na deling van het saldo van niet-toegewezen eenheden van rune `id` door het aantal niet-`OP_RETURN` uitgangen."
+"Een edict met `amount` nul en `output` gelijk aan het aantal transactie-uitgangen verdeelt alle niet-toegewezen eenheden van dune `id` over elke niet-`OP_RETURN` uitgang. Als het "
+"aantal niet-toegewezen dunes niet deelbaar is door het aantal niet-`OP_RETURN` uitgangen, wordt 1 extra dune toegewezen aan de eerste `R` niet-`OP_RETURN` uitgangen, waarbij `R` de "
+"rest is na deling van het saldo van niet-toegewezen eenheden van dune `id` door het aantal niet-`OP_RETURN` uitgangen."
 
-#: src/runes/specification.md:529
+#: src/dunes/specification.md:529
 msgid ""
-"If any edict in a runestone has a rune ID with `block` zero and `tx` greater than zero, or `output` greater than the number of transaction outputs, the runestone is a cenotaph."
-msgstr "Als een edict in een runestone een rune-ID heeft met `block` nul en `tx` groter dan nul, of `output` groter dan het aantal transactie-uitgangen, is de runestone een cenotaph."
+"If any edict in a dunestone has a dune ID with `block` zero and `tx` greater than zero, or `output` greater than the number of transaction outputs, the dunestone is a cenotaph."
+msgstr "Als een edict in een dunestone een dune-ID heeft met `block` nul en `tx` groter dan nul, of `output` groter dan het aantal transactie-uitgangen, is de dunestone een cenotaph."
 
-#: src/runes/specification.md:533
-msgid "Note that edicts in cenotaphs are not processed, and all input runes are burned."
-msgstr "Let op dat edicts in cenotaphs niet worden verwerkt en alle invoerrunes worden verbrand."
+#: src/dunes/specification.md:533
+msgid "Note that edicts in cenotaphs are not processed, and all input dunes are burned."
+msgstr "Let op dat edicts in cenotaphs niet worden verwerkt en alle invoerdunes worden verbrand."
 
 #: src/faq.md:1
 msgid "Ordinal Theory FAQ"
@@ -3605,11 +3605,11 @@ msgstr "Ordinal Explorer"
 #: src/guides/explorer.md:4
 msgid ""
 "The `ord` binary includes a block explorer. We host an instance of the block explorer on mainnet at [ordinals.com](https://ordinals.com), on signet at [signet.ordinals.com](https://"
-"signet.ordinals.com), and on testnet at [testnet.ordinals.com](https://testnet.ordinals.com). As of version 0.16.0 the wallet needs `ord server` running in the background. This is "
+"signet.ordinals.com), and on testnet at [testnet.ordinals.com](https://testnet.ordinals.com). As of version 0.16.0 the wallet needs `dog server` running in the background. This is "
 "analogous to how `bitcoin-cli` needs `bitcoind` running in the background."
 msgstr ""
 "De `ord`-binaire bevat een block explorer. We hosten een instantie van de block explorer op mainnet op [ordinals.com](https://ordinals.com), op signet op [signet.ordinals.com]"
-"(https://signet.ordinals.com), en op testnet op [testnet.ordinals.com](https://testnet.ordinals.com). Sinds versie 0.16.0 moet de wallet `ord server` op de achtergrond draaien. Dit "
+"(https://signet.ordinals.com), en op testnet op [testnet.ordinals.com](https://testnet.ordinals.com). Sinds versie 0.16.0 moet de wallet `dog server` op de achtergrond draaien. Dit "
 "is vergelijkbaar met hoe `bitcoin-cli` `bitcoind` op de achtergrond nodig heeft.]"
 
 #: src/guides/explorer.md:11
@@ -3621,24 +3621,24 @@ msgid "The server can be run locally with:"
 msgstr "De server kan lokaal worden uitgevoerd met:"
 
 #: src/guides/explorer.md:14
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src/guides/explorer.md:16
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Om een poort op te geven, voeg je de `--http-port` vlag toe:"
 
 #: src/guides/explorer.md:18
-msgid "`ord server --http-port 8080`"
-msgstr "` ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "` dog server --http-port 8080`"
 
 #: src/guides/explorer.md:20
 msgid "The JSON-API endpoints are enabled by default, to disable them add the `--disable-json-api` flag (see [here](#json-api) for more info):"
 msgstr "De JSON-API-eindpunten zijn standaard ingeschakeld. Om ze uit te schakelen, voeg je de `--disable-json-api` vlag toe (zie [hier](#json-api) voor meer informatie):"
 
 #: src/guides/explorer.md:23
-msgid "`ord server --disable-json-api`"
-msgstr "`ord server --disable-json-api`"
+msgid "`dog server --disable-json-api`"
+msgstr "`dog server --disable-json-api`"
 
 #: src/guides/explorer.md:25
 msgid "Search"
@@ -3734,10 +3734,10 @@ msgstr "JSON-API"
 
 #: src/guides/explorer.md:78
 msgid ""
-"By default the `ord server` gives access to endpoints that return JSON instead of HTML if you set the HTTP `Accept: application/json` header. The structure of these objects closely "
+"By default the `dog server` gives access to endpoints that return JSON instead of HTML if you set the HTTP `Accept: application/json` header. The structure of these objects closely "
 "follows what is shown in the HTML. These endpoints are:"
 msgstr ""
-"Standaard biedt de `ord server` toegang tot eindpunten die JSON retourneren in plaats van HTML als je de HTTP `Accept: application/json` header instelt. De structuur van deze "
+"Standaard biedt de `dog server` toegang tot eindpunten die JSON retourneren in plaats van HTML als je de HTTP `Accept: application/json` header instelt. De structuur van deze "
 "objecten volgt nauwkeurig wat in de HTML wordt weergegeven. Deze eindpunten zijn:"
 
 #: src/guides/explorer.md:83
@@ -4070,11 +4070,11 @@ msgstr "Een wallet aanmaken"
 
 #: src/guides/wallet.md:164
 msgid ""
-"`ord` uses `bitcoind` to manage private keys, sign transactions, and broadcast transactions to the Bitcoin network. Additionally the `ord wallet` requires [`ord server`](explorer."
+"`ord` uses `bitcoind` to manage private keys, sign transactions, and broadcast transactions to the Bitcoin network. Additionally the `ord wallet` requires [`dog server`](explorer."
 "md) running in the background. Make sure these programs are running:"
 msgstr ""
 "`ord` gebruikt `bitcoind` om privé-sleutels te beheren, transacties te ondertekenen en transacties naar het Bitcoin-netwerk uit te zenden. Bovendien vereist de `ord wallet` dat "
-"[`ord server`](explorer.md) op de achtergrond draait. Zorg ervoor dat deze programma's actief zijn:"
+"[`dog server`](explorer.md) op de achtergrond draait. Zorg ervoor dat deze programma's actief zijn:"
 
 #: src/guides/wallet.md:177
 msgid "To create a wallet named `ord`, the default, for use with `ord wallet`, run:"
@@ -4101,8 +4101,8 @@ msgstr ""
 "```"
 
 #: src/guides/wallet.md:192
-msgid "If you want to specify a different name or use an `ord server` running on a non-default URL you can set these options:"
-msgstr "Als je een andere naam wilt opgeven of een `ord server` wilt gebruiken die draait op een niet-standaard URL, kun je deze opties instellen:"
+msgid "If you want to specify a different name or use an `dog server` running on a non-default URL you can set these options:"
+msgstr "Als je een andere naam wilt opgeven of een `dog server` wilt gebruiken die draait op een niet-standaard URL, kun je deze opties instellen:"
 
 #: src/guides/wallet.md:195
 msgid ""
@@ -4354,19 +4354,19 @@ msgid "Once the send transaction confirms, the recipient can confirm receipt by 
 msgstr "Zodra de verzendtransactie is bevestigd, kan de ontvanger de ontvangst bevestigen door uit te voeren:"
 
 #: src/guides/wallet.md:389
-msgid "Sending Runes"
-msgstr "Runes verzenden"
+msgid "Sending Dunes"
+msgstr "Dunes verzenden"
 
 #: src/guides/wallet.md:398
-msgid "Send the runes by running:"
-msgstr "Stuur de runes door uit te voeren:"
+msgid "Send the dunes by running:"
+msgstr "Stuur de dunes door uit te voeren:"
 
 #: src/guides/wallet.md:404
 msgid ""
-"Where `RUNES_AMOUNT` is the number of runes to send, a `:` character, and the name of the rune. For example if you want to send 1000 of the EXAMPLE rune, you would use `1000:"
+"Where `DUNES_AMOUNT` is the number of dunes to send, a `:` character, and the name of the dune. For example if you want to send 1000 of the EXAMPLE dune, you would use `1000:"
 "EXAMPLE`."
 msgstr ""
-"Waarbij `RUNES_AMOUNT` het aantal runes is dat je wilt verzenden, gevolgd door een `:` karakter en de naam van de rune. Bijvoorbeeld, als je 1000 van de EXAMPLE rune wilt "
+"Waarbij `DUNES_AMOUNT` het aantal dunes is dat je wilt verzenden, gevolgd door een `:` karakter en de naam van de dune. Bijvoorbeeld, als je 1000 van de EXAMPLE dune wilt "
 "verzenden, gebruik je `1000:EXAMPLE`."
 
 #: src/guides/wallet.md:418
@@ -4467,23 +4467,23 @@ msgstr ""
 
 #: src/guides/batch-inscribing.md:41
 msgid ""
-"# rune to etch (optional)\n"
+"# dune to etch (optional)\n"
 "etching"
 msgstr ""
-"# rune om te etchen (optioneel)\n"
+"# dune om te etchen (optioneel)\n"
 "etching"
 
 #: src/guides/batch-inscribing.md:44
 msgid ""
-"# rune name\n"
-"  rune"
+"# dune name\n"
+"  dune"
 msgstr ""
-"# rune naam\n"
-"  rune"
+"# dune naam\n"
+"  dune"
 
 #: src/guides/batch-inscribing.md:45
-msgid "THE•BEST•RUNE"
-msgstr "THE•BEST•RUNE"
+msgid "THE•BEST•DUNE"
+msgstr "THE•BEST•DUNE"
 
 #: src/guides/batch-inscribing.md:46
 msgid ""
@@ -4572,7 +4572,7 @@ msgstr ""
 
 #: src/guides/batch-inscribing.md:68
 msgid ""
-"# future runes protocol changes may be opt-in. this may be for a variety of\n"
+"# future dunes protocol changes may be opt-in. this may be for a variety of\n"
 "  # reasons, including that they make light client validation harder, or simply\n"
 "  # because they are too degenerate.\n"
 "  #\n"
@@ -4580,7 +4580,7 @@ msgid ""
 "  # whatever they may be.\n"
 "  turbo"
 msgstr ""
-"# toekomstige wijzigingen in het runes-protocol kunnen opt-in zijn. Dit kan om verschillende redenen zijn,\n"
+"# toekomstige wijzigingen in het dunes-protocol kunnen opt-in zijn. Dit kan om verschillende redenen zijn,\n"
 "  # zoals dat ze het moeilijker maken voor lichte clients om te valideren, of simpelweg\n"
 "  # omdat ze te afwijkend zijn.\n"
 "  #\n"
@@ -5229,8 +5229,8 @@ msgid "![](images/troubleshooting_02.png)"
 msgstr "![](images/troubleshooting_02.png)"
 
 #: src/guides/moderation.md:4
-msgid "`ord` includes a block explorer, which you can run locally with `ord server`."
-msgstr "`ord` bevat een blokverkenner die je lokaal kunt uitvoeren met `ord server`."
+msgid "`ord` includes a block explorer, which you can run locally with `dog server`."
+msgstr "`ord` bevat een blokverkenner die je lokaal kunt uitvoeren met `dog server`."
 
 #: src/guides/moderation.md:6
 msgid "The block explorer allows viewing inscriptions. Inscriptions are user-generated content, which may be objectionable or unlawful."
@@ -5287,9 +5287,9 @@ msgid "`ordinals.com`"
 msgstr "`ordinals.com`"
 
 #: src/guides/moderation.md:40
-msgid "The `ordinals.com` instances use `systemd` to run the `ord server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
+msgid "The `ordinals.com` instances use `systemd` to run the `dog server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
-"De `ordinals.com`-instanties gebruiken `systemd` om de `ord server`-service te draaien, die `ord` heet, met een configuratiebestand dat zich bevindt op `/var/lib/ord/ord.yaml`."
+"De `ordinals.com`-instanties gebruiken `systemd` om de `dog server`-service te draaien, die `ord` heet, met een configuratiebestand dat zich bevindt op `/var/lib/ord/ord.yaml`."
 
 #: src/guides/moderation.md:43
 msgid "To hide an inscription on `ordinals.com`:"
@@ -5317,11 +5317,11 @@ msgstr "Momenteel is `ord` traag om opnieuw op te starten, dus de site zal niet 
 
 #: src/guides/reindexing.md:4
 msgid ""
-"Sometimes the `ord` database must be reindexed, which means deleting the database and restarting the indexing process with either `ord index update` or `ord server`. Reasons to "
+"Sometimes the `ord` database must be reindexed, which means deleting the database and restarting the indexing process with either `ord index update` or `dog server`. Reasons to "
 "reindex are:"
 msgstr ""
 "Soms moet de `ord` database opnieuw geïndexeerd worden, wat betekent dat je de database moet verwijderen en het indexeringsproces opnieuw moet starten met `ord index update` of "
-"`ord server`. Redenen om opnieuw te indexeren zijn:"
+"`dog server`. Redenen om opnieuw te indexeren zijn:"
 
 #: src/guides/reindexing.md:8
 msgid "A new major release of ord, which changes the database scheme"
@@ -5815,8 +5815,8 @@ msgid "index_cache_size"
 msgstr "index_cache_size"
 
 #: src/guides/settings.md:57
-msgid "index_runes"
-msgstr "index_runes"
+msgid "index_dunes"
+msgstr "index_dunes"
 
 #: src/guides/settings.md:58
 msgid "index_sats"
@@ -5859,8 +5859,8 @@ msgid "Hiding Inscription Content"
 msgstr "Inscriptie-inhoud verbergen"
 
 #: src/guides/settings.md:72
-msgid "Inscription content can be selectively prevented from being served by `ord server`."
-msgstr "Inscriptie-inhoud kan selectief worden verhinderd om te worden aangeboden door `ord server`."
+msgid "Inscription content can be selectively prevented from being served by `dog server`."
+msgstr "Inscriptie-inhoud kan selectief worden verhinderd om te worden aangeboden door `dog server`."
 
 #: src/guides/settings.md:75
 msgid "Unlike other settings, this can only be configured with the configuration file or environment variables."
@@ -5946,11 +5946,11 @@ msgstr "Test Omgeving"
 
 #: src/guides/testing.md:7
 msgid ""
-"`ord env <DIRECTORY>` creates a test environment in `<DIRECTORY>`, spins up `bitcoind` and `ord server` instances, prints example commands for interacting with the test `bitcoind` "
-"and `ord server` instances, waits for `CTRL-C`, and then shuts down `bitcoind` and `ord server`."
+"`ord env <DIRECTORY>` creates a test environment in `<DIRECTORY>`, spins up `bitcoind` and `dog server` instances, prints example commands for interacting with the test `bitcoind` "
+"and `dog server` instances, waits for `CTRL-C`, and then shuts down `bitcoind` and `dog server`."
 msgstr ""
-"`ord env <DIRECTORY>` maakt een testomgeving aan in `<DIRECTORY>`, start `bitcoind`- en `ord server`-instellingen op, drukt voorbeeldcommando's af voor interactie met de test-"
-"`bitcoind`- en `ord server`-instellingen, wacht op `CTRL-C`, en schakelt vervolgens `bitcoind` en `ord server` uit."
+"`ord env <DIRECTORY>` maakt een testomgeving aan in `<DIRECTORY>`, start `bitcoind`- en `dog server`-instellingen op, drukt voorbeeldcommando's af voor interactie met de test-"
+"`bitcoind`- en `dog server`-instellingen, wacht op `CTRL-C`, en schakelt vervolgens `bitcoind` en `dog server` uit."
 
 #: src/guides/testing.md:12
 msgid "`ord env` tries to use port 9000 for `bitcoind`'s RPC interface, and port `9001` for `ord`'s RPC interface, but will fall back to random unused ports."
@@ -5964,8 +5964,8 @@ msgstr ""
 "Binnen de env-directory schrijft `ord env` de configuratie van `bitcoind` naar `bitcoin.conf`, de configuratie van `ord` naar `ord.yaml`, en de env-configuratie naar `env.json`."
 
 #: src/guides/testing.md:19
-msgid "`env.json` contains the commands needed to invoke `bitcoin-cli` and `ord wallet`, as well as the ports `bitcoind` and `ord server` are listening on."
-msgstr "`env.json` bevat de commando's die nodig zijn om `bitcoin-cli` en `ord wallet` aan te roepen, evenals de poorten waarop `bitcoind` en `ord server` luisteren."
+msgid "`env.json` contains the commands needed to invoke `bitcoin-cli` and `ord wallet`, as well as the ports `bitcoind` and `dog server` are listening on."
+msgstr "`env.json` bevat de commando's die nodig zijn om `bitcoin-cli` en `ord wallet` aan te roepen, evenals de poorten waarop `bitcoind` en `dog server` luisteren."
 
 #: src/guides/testing.md:22
 msgid "These can be extracted into shell commands using `jq`:"
@@ -6054,8 +6054,8 @@ msgid "Run `bitcoind` in regtest with:"
 msgstr "Voer `bitcoind` uit in regtest met:"
 
 #: src/guides/testing.md:72
-msgid "Run `ord server` in regtest with:"
-msgstr "Voer `ord server` uit in regtest met:"
+msgid "Run `dog server` in regtest with:"
+msgstr "Voer `dog server` uit in regtest met:"
 
 #: src/guides/testing.md:78
 msgid "Create a wallet in regtest with:"
@@ -6115,14 +6115,14 @@ msgstr "Mainnet Afhankelijkheden"
 
 #: src/guides/testing.md:146
 msgid ""
-"To avoid having to change dependency inscription IDs to mainnet inscription IDs, you may utilize a content proxy when testing. `ord server` accepts a `--proxy` option, which takes "
-"the URL of a another `ord server` instance. When making a request to `/content/<INSCRIPTION_ID>` when a content proxy is set and the inscription is not found, `ord server` will "
-"forward the request to the content proxy. This allows you to run a test `ord server` instance with a mainnet content proxy. You can then use mainnet inscription IDs in your test "
+"To avoid having to change dependency inscription IDs to mainnet inscription IDs, you may utilize a content proxy when testing. `dog server` accepts a `--proxy` option, which takes "
+"the URL of a another `dog server` instance. When making a request to `/content/<INSCRIPTION_ID>` when a content proxy is set and the inscription is not found, `dog server` will "
+"forward the request to the content proxy. This allows you to run a test `dog server` instance with a mainnet content proxy. You can then use mainnet inscription IDs in your test "
 "inscription, which will then return the content of the mainnet inscriptions."
 msgstr ""
-"Om te voorkomen dat je afhankelijkheidsinscriptie-ID's naar mainnet-inscriptie-ID's moet wijzigen, kun je een contentproxy gebruiken tijdens het testen. `ord server` accepteert een "
-"`--proxy` optie, die de URL van een andere `ord server`-instantie vereist. Wanneer je een verzoek indient bij `/content/<INSCRIPTION_ID>` met een ingestelde contentproxy en de "
-"inscriptie niet wordt gevonden, zal `ord server` het verzoek doorsturen naar de contentproxy. Dit stelt je in staat om een test-`ord server`-instantie te draaien met een mainnet "
+"Om te voorkomen dat je afhankelijkheidsinscriptie-ID's naar mainnet-inscriptie-ID's moet wijzigen, kun je een contentproxy gebruiken tijdens het testen. `dog server` accepteert een "
+"`--proxy` optie, die de URL van een andere `dog server`-instantie vereist. Wanneer je een verzoek indient bij `/content/<INSCRIPTION_ID>` met een ingestelde contentproxy en de "
+"inscriptie niet wordt gevonden, zal `dog server` het verzoek doorsturen naar de contentproxy. Dit stelt je in staat om een test-`dog server`-instantie te draaien met een mainnet "
 "contentproxy. Je kunt dan mainnet-inscriptie-ID's gebruiken in je testinscriptie, wat de inhoud van de mainnet-inscripties zal retourneren."
 
 #: src/guides/testing.md:156

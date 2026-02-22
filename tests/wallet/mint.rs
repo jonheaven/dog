@@ -1,7 +1,7 @@
 use {super::*, dog::decimal::Decimal, dog::subcommand::wallet::mint};
 
 #[test]
-fn minting_rune_and_fails_if_after_end() {
+fn minting_dune_and_fails_if_after_end() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -17,7 +17,7 @@ fn minting_rune_and_fails_if_after_end() {
       etching: Some(batch::Etching {
         divisibility: 1,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "0".parse().unwrap(),
@@ -44,7 +44,7 @@ fn minting_rune_and_fails_if_after_end() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -90,7 +90,7 @@ fn minting_rune_and_fails_if_after_end() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -100,7 +100,7 @@ fn minting_rune_and_fails_if_after_end() {
 }
 
 #[test]
-fn minting_rune_fails_if_not_mintable() {
+fn minting_dune_fails_if_not_mintable() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -114,7 +114,7 @@ fn minting_rune_fails_if_not_mintable() {
       etching: Some(batch::Etching {
         divisibility: 1,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         supply: "1000".parse().unwrap(),
@@ -133,7 +133,7 @@ fn minting_rune_fails_if_not_mintable() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -143,7 +143,7 @@ fn minting_rune_fails_if_not_mintable() {
 }
 
 #[test]
-fn minting_rune_with_no_rune_index_fails() {
+fn minting_dune_with_no_dune_index_fails() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
@@ -154,7 +154,7 @@ fn minting_rune_with_no_rune_index_fails() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -164,7 +164,7 @@ fn minting_rune_with_no_rune_index_fails() {
 }
 
 #[test]
-fn minting_rune_and_then_sending_works() {
+fn minting_dune_and_then_sending_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -180,7 +180,7 @@ fn minting_rune_and_then_sending_works() {
       etching: Some(batch::Etching {
         divisibility: 0,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "111".parse().unwrap(),
@@ -222,7 +222,7 @@ fn minting_rune_and_then_sending_works() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -256,7 +256,7 @@ fn minting_rune_and_then_sending_works() {
 
   CommandBuilder::new(format!(
     "--regtest --index-dunes wallet send bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 5:{} --fee-rate 1",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -264,7 +264,7 @@ fn minting_rune_and_then_sending_works() {
 }
 
 #[test]
-fn minting_rune_with_destination() {
+fn minting_dune_with_destination() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -280,7 +280,7 @@ fn minting_rune_with_destination() {
       etching: Some(batch::Etching {
         divisibility: 0,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "0".parse().unwrap(),
@@ -311,7 +311,7 @@ fn minting_rune_with_destination() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {} --destination {}",
-    Dune(RUNE),
+    Dune(DUNE),
     destination.clone().assume_checked()
   ))
   .core(&core)
@@ -347,7 +347,7 @@ fn minting_rune_with_destination() {
       .run_and_deserialize_output::<dog::subcommand::balances::Output>(),
     dog::subcommand::balances::Output {
       dunes: vec![(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         vec![(
           OutPoint {
             txid: output.mint,
@@ -369,7 +369,7 @@ fn minting_rune_with_destination() {
 }
 
 #[test]
-fn minting_rune_with_postage() {
+fn minting_dune_with_postage() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -385,7 +385,7 @@ fn minting_rune_with_postage() {
       etching: Some(batch::Etching {
         divisibility: 0,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "0".parse().unwrap(),
@@ -412,7 +412,7 @@ fn minting_rune_with_postage() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {} --postage 2222sat",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -438,7 +438,7 @@ fn minting_rune_with_postage() {
 }
 
 #[test]
-fn minting_rune_with_postage_dust() {
+fn minting_dune_with_postage_dust() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -454,7 +454,7 @@ fn minting_rune_with_postage_dust() {
       etching: Some(batch::Etching {
         divisibility: 0,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "0".parse().unwrap(),
@@ -481,7 +481,7 @@ fn minting_rune_with_postage_dust() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {} --postage 300sat",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -507,7 +507,7 @@ fn minting_is_allowed_when_mint_begins_next_block() {
       etching: Some(batch::Etching {
         divisibility: 1,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "0".parse().unwrap(),
@@ -534,7 +534,7 @@ fn minting_is_allowed_when_mint_begins_next_block() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 1 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)

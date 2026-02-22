@@ -17,7 +17,7 @@ pub(crate) struct Send {
   #[arg(
     help = "Outgoing asset formatted as a bitcoin amount, dune amount, sat name, satpoint, or \
     inscription ID. Bitcoin amounts are `DECIMAL UNIT` where `UNIT` is one of \
-    `bit btc cbtc mbtc msat nbtc pbtc sat koinu ubtc`. Dune amounts are `DECIMAL:RUNE` and \
+    `bit btc cbtc mbtc msat nbtc pbtc sat koinu ubtc`. Dune amounts are `DECIMAL:DUNE` and \
     respect divisibility"
   )]
   asset: Outgoing,
@@ -42,7 +42,7 @@ impl Send {
       Outgoing::Amount(amount) => {
         wallet.create_unsigned_send_amount_transaction(address, amount, self.fee_rate)?
       }
-      Outgoing::Dune { decimal, dune } => wallet.create_unsigned_send_or_burn_runes_transaction(
+      Outgoing::Dune { decimal, dune } => wallet.create_unsigned_send_or_burn_dunes_transaction(
         Some(address),
         dune,
         decimal,

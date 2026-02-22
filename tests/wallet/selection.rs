@@ -8,7 +8,7 @@ fn inscribe_does_not_select_runic_utxos() {
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   drain(&core, &dog);
 
@@ -29,7 +29,7 @@ fn send_amount_does_not_select_runic_utxos() {
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   drain(&core, &dog);
 
@@ -51,7 +51,7 @@ fn send_satpoint_does_not_send_runic_utxos() {
 
   core.mine_blocks_with_subsidy(1, 10000);
 
-  let etched = etch(&core, &dog, Dune(RUNE));
+  let etched = etch(&core, &dog, Dune(DUNE));
 
   CommandBuilder::new(format!(
     "
@@ -80,7 +80,7 @@ fn send_inscription_does_not_select_runic_utxos() {
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let (id, _) = inscribe(&core, &dog);
 
@@ -120,7 +120,7 @@ fn mint_does_not_select_inscription() {
       etching: Some(batch::Etching {
         divisibility: 1,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         premine: "1000".parse().unwrap(),
@@ -146,7 +146,7 @@ fn mint_does_not_select_inscription() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet mint --fee-rate 0 --dune {}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -156,7 +156,7 @@ fn mint_does_not_select_inscription() {
 }
 
 #[test]
-fn sending_rune_does_not_send_inscription() {
+fn sending_dune_does_not_send_inscription() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -165,7 +165,7 @@ fn sending_rune_does_not_send_inscription() {
 
   core.mine_blocks_with_subsidy(1, 10000);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   CommandBuilder::new("--chain regtest --index-dunes wallet inscribe --fee-rate 0 --file foo.txt")
     .write("foo.txt", "FOO")
@@ -219,11 +219,11 @@ fn split_does_not_select_inscribed_or_runic_utxos() {
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   etch(&core, &dog, dune);
 
-  etch(&core, &dog, Dune(RUNE + 1));
+  etch(&core, &dog, Dune(DUNE + 1));
 
   drain(&core, &dog);
 
@@ -241,7 +241,7 @@ fn split_does_not_select_inscribed_or_runic_utxos() {
           (SpacedDune { dune, spacers: 0 }, "1000".parse().unwrap()),
           (
             SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0
             },
             "1000".parse().unwrap()
@@ -281,7 +281,7 @@ fn offer_create_does_not_select_non_cardinal_utxos() {
 
   create_wallet(&core, &dog);
 
-  let etch = etch(&core, &dog, Dune(RUNE));
+  let etch = etch(&core, &dog, Dune(DUNE));
 
   let inscription = etch.output.inscriptions[0].id;
 

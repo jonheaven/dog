@@ -635,7 +635,7 @@ mod tests {
   }
 
   #[test]
-  fn rune_entry() {
+  fn dune_entry() {
     let entry = DuneEntry {
       block: 12,
       burned: 1,

@@ -46,9 +46,9 @@ impl WalletConstructor {
   pub(crate) fn build(self) -> Result<Wallet> {
     let database = Wallet::open_database(&self.name, &self.settings)?;
 
-    let bitcoin_client = {
+    let dogecoin_client = {
       let client =
-        Wallet::check_version(self.settings.bitcoin_rpc_client(Some(self.name.clone()))?)?;
+        Wallet::check_version(self.settings.dogecoin_rpc_client(Some(self.name.clone()))?)?;
 
       if !client.list_wallets()?.contains(&self.name) {
         loop {
@@ -96,19 +96,19 @@ impl WalletConstructor {
       client
     };
 
-    let bitcoin_block_count = bitcoin_client.get_block_count().unwrap() + 1;
+    let bitcoin_block_count = dogecoin_client.get_block_count().unwrap() + 1;
 
     if !self.no_sync {
       for i in 0.. {
         let ord_block_count = self.get("/blockcount")?.text()?.parse::<u64>().expect(
-          "wallet failed to retrieve block count from server. Make sure `ord server` is running.",
+          "wallet failed to retrieve block count from server. Make sure `dog server` is running.",
         );
 
         if ord_block_count >= bitcoin_block_count {
           break;
         } else if i == 20 {
           bail!(
-            "`ord server` {} blocks behind `bitcoind`, consider using `--no-sync` to ignore this error",
+            "`dog server` {} blocks behind Dogecoin Core, consider using `--no-sync` to ignore this error",
             bitcoin_block_count - ord_block_count
           );
         }
@@ -116,8 +116,8 @@ impl WalletConstructor {
       }
     }
 
-    let mut utxos = Self::get_utxos(&bitcoin_client)?;
-    let locked_utxos = Self::get_locked_utxos(&bitcoin_client)?;
+    let mut utxos = Self::get_utxos(&dogecoin_client)?;
+    let locked_utxos = Self::get_locked_utxos(&dogecoin_client)?;
     utxos.extend(locked_utxos.clone());
 
     let output_info = self.get_output_info(utxos.clone().into_keys().collect())?;
@@ -132,9 +132,9 @@ impl WalletConstructor {
     let status = self.get_server_status()?;
 
     Ok(Wallet {
-      bitcoin_client,
+      dogecoin_client,
       database,
-      has_rune_index: status.rune_index,
+      has_dune_index: status.dune_index,
       has_sat_index: status.sat_index,
       inscription_info,
       inscriptions,
@@ -166,7 +166,7 @@ impl WalletConstructor {
 
     for (output, info) in &output_info {
       if !info.indexed {
-        bail!("output in wallet but not in ord server: {output}");
+        bail!("output in wallet but not in dog server: {output}");
       }
     }
 
@@ -200,9 +200,9 @@ impl WalletConstructor {
     Ok((inscriptions, inscription_infos))
   }
 
-  fn get_utxos(bitcoin_client: &Client) -> Result<BTreeMap<OutPoint, TxOut>> {
+  fn get_utxos(dogecoin_client: &Client) -> Result<BTreeMap<OutPoint, TxOut>> {
     Ok(
-      bitcoin_client
+      dogecoin_client
         .list_unspent(None, None, None, None, None)?
         .into_iter()
         .map(|utxo| {
@@ -218,19 +218,19 @@ impl WalletConstructor {
     )
   }
 
-  fn get_locked_utxos(bitcoin_client: &Client) -> Result<BTreeMap<OutPoint, TxOut>> {
+  fn get_locked_utxos(dogecoin_client: &Client) -> Result<BTreeMap<OutPoint, TxOut>> {
     #[derive(Deserialize)]
     pub(crate) struct JsonOutPoint {
       txid: Txid,
       vout: u32,
     }
 
-    let outpoints = bitcoin_client.call::<Vec<JsonOutPoint>>("listlockunspent", &[])?;
+    let outpoints = dogecoin_client.call::<Vec<JsonOutPoint>>("listlockunspent", &[])?;
 
     let mut utxos = BTreeMap::new();
 
     for outpoint in outpoints {
-      let Some(tx_out) = bitcoin_client.get_tx_out(&outpoint.txid, outpoint.vout, Some(false))?
+      let Some(tx_out) = dogecoin_client.get_tx_out(&outpoint.txid, outpoint.vout, Some(false))?
       else {
         continue;
       };

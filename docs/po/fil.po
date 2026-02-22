@@ -2703,16 +2703,16 @@ msgid "The server can be run locally with:"
 msgstr "Ang server ay maaring i-run sa iyong computer gamit ang:"
 
 #: src/guides/explorer.md:11
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src/guides/explorer.md:13
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Para mag specify ng port i-add ang `--http-port` na flag:"
 
 #: src/guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
-msgstr "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "`dog server --http-port 8080`"
 
 #: src/guides/explorer.md:17
 msgid ""
@@ -4878,10 +4878,10 @@ msgstr ""
 
 #: src/guides/moderation.md:4
 msgid ""
-"`ord` includes a block explorer, which you can run locally with `ord server`."
+"`ord` includes a block explorer, which you can run locally with `dog server`."
 msgstr ""
 "Ang `ord` ay may kasamang block explorer, na maaari mong patakbuhin sa local "
-"gamit ang `ord server`."
+"gamit ang `dog server`."
 
 #: src/guides/moderation.md:6
 msgid ""
@@ -4957,11 +4957,11 @@ msgstr "`ordinals.com`"
 
 #: src/guides/moderation.md:40
 msgid ""
-"The `ordinals.com` instances use `systemd` to run the `ord server` service, "
+"The `ordinals.com` instances use `systemd` to run the `dog server` service, "
 "which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
 "Ang instance ng ordinals.com ay gumagamit ng `systemd` upang patakbuhin ang "
-"service ng `ord server`, na tinatawag na `ord`, na may configuration file na "
+"service ng `dog server`, na tinatawag na `ord`, na may configuration file na "
 "matatagpuan sa `/var/lib/ord/ord.yaml`."
 
 #: src/guides/moderation.md:43
@@ -4996,11 +4996,11 @@ msgstr ""
 msgid ""
 "Sometimes the `ord` database must be reindexed, which means deleting the "
 "database and restarting the indexing process with either `ord index update` "
-"or `ord server`. Reasons to reindex are:"
+"or `dog server`. Reasons to reindex are:"
 msgstr ""
 "Minsan ang database ng `ord` ay dapat na i-reindex, na nangangahulugan ng "
 "pagtanggal ng database at i-restart ang proseso ng pag-index gamit ang "
-"alinman sa `ord index update` o `ord server`. Ang mga dahilan para muling i-"
+"alinman sa `ord index update` o `dog server`. Ang mga dahilan para muling i-"
 "index ay:"
 
 #: src/guides/reindexing.md:8

@@ -26,19 +26,19 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
   let mut runic = 0;
 
   for (output, txout) in unspent_outputs {
-    let rune_balances = wallet
-      .get_runes_balances_in_output(output)?
+    let dune_balances = wallet
+      .get_dunes_balances_in_output(output)?
       .unwrap_or_default();
 
     let is_ordinal = inscription_outputs.contains(output);
-    let is_runic = !rune_balances.is_empty();
+    let is_runic = !dune_balances.is_empty();
 
     if is_ordinal {
       ordinal += txout.value.to_sat();
     }
 
     if is_runic {
-      for (spaced_dune, pile) in rune_balances {
+      for (spaced_dune, pile) in dune_balances {
         dunes
           .entry(spaced_dune)
           .and_modify(|decimal: &mut Decimal| {
@@ -65,8 +65,8 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
   Ok(Some(Box::new(Output {
     cardinal,
     ordinal,
-    dunes: wallet.has_rune_index().then_some(dunes),
-    runic: wallet.has_rune_index().then_some(runic),
+    dunes: wallet.has_dune_index().then_some(dunes),
+    runic: wallet.has_dune_index().then_some(runic),
     total: cardinal + ordinal + runic,
   })))
 }
@@ -76,7 +76,7 @@ mod tests {
   use super::*;
 
   #[test]
-  fn runes_and_runic_fields_are_not_present_if_none() {
+  fn dunes_and_runic_fields_are_not_present_if_none() {
     assert_eq!(
       serde_json::to_string(&Output {
         cardinal: 0,

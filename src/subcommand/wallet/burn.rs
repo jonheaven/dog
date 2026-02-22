@@ -24,7 +24,7 @@ pub struct Burn {
     long,
     alias = "nolimit",
     help = "Allow OP_RETURN greater than 83 bytes. Transactions over this limit are nonstandard \
-    and will not be relayed by bitcoind in its default configuration. Do not use this flag unless \
+    and will not be relayed by Dogecoin Core in its default configuration. Do not use this flag unless \
     you understand the implications."
   )]
   no_limit: bool,
@@ -101,7 +101,7 @@ impl Burn {
         );
 
         (
-          wallet.create_unsigned_send_or_burn_runes_transaction(
+          wallet.create_unsigned_send_or_burn_dunes_transaction(
             None,
             dune,
             decimal,

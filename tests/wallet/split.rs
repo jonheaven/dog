@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn requires_rune_index() {
+fn requires_dune_index() {
   let core = mockcore::spawn();
 
   let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
@@ -56,14 +56,14 @@ outputs:
 }
 
 #[test]
-fn cannot_split_un_etched_runes() {
+fn cannot_split_un_etched_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   CommandBuilder::new("--regtest wallet split --fee-rate 1 --splits splits.yaml")
     .core(&core)
@@ -92,7 +92,7 @@ fn simple_split() {
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
   let spaced_dune = SpacedDune { dune, spacers: 1 };
 
   batch(
@@ -213,7 +213,7 @@ fn oversize_op_returns_are_allowed_with_flag() {
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   let spaced_dune = SpacedDune { dune, spacers: 1 };
 

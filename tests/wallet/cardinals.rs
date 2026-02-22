@@ -46,7 +46,7 @@ fn cardinals_does_not_show_runic_outputs() {
         terms: None,
         premine: "1000".parse().unwrap(),
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         symbol: '¢',

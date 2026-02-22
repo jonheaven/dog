@@ -19,7 +19,7 @@ fn wallet_pending() {
     etching: Some(batch::Etching {
       divisibility: 0,
       dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       supply: "1000".parse().unwrap(),
@@ -86,5 +86,5 @@ fn wallet_pending() {
     .dog(&dog)
     .run_and_deserialize_output::<Vec<dog::subcommand::wallet::pending::PendingOutput>>();
 
-  assert_eq!(output.first().unwrap().dune.dune, Dune(RUNE));
+  assert_eq!(output.first().unwrap().dune.dune, Dune(DUNE));
 }

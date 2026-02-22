@@ -1,18 +1,12 @@
-# Shibes
+> **Note:** Dogecoin has more reorgs than Bitcoin due to its 1-minute block
+> times. Periodically back up your redb index so you can restore from a
+> checkpoint. See [reindexing](docs/src/guides/reindexing.md).
 
-You should periodically create checkpoints of the redb database that you can restore from. Dogecoin has more reorgs than bitcoin due to its 1 minute block times and casey/ord does not handle reorgs. There is an open issue [here](https://github.com/casey/ord/issues/148).
-
-<h1 align=center><code>ord</code></h1>
+<h1 align=center><code>dog</code></h1>
 
 <div align=center>
-  <a href=https://crates.io/crates/ord>
-    <img src=https://img.shields.io/crates/v/ord.svg alt="crates.io version">
-  </a>
-  <a href=https://github.com/doginals/ord/actions/workflows/ci.yaml>
-    <img src=https://github.com/doginals/ord/actions/workflows/ci.yaml/badge.svg alt="build status">
-  </a>
-  <a href=https://github.com/doginals/ord/releases>
-    <img src=https://img.shields.io/github/downloads/doginals/ord/total.svg alt=downloads>
+  <a href=https://github.com/jonheaven/dog/actions>
+    <img src=https://img.shields.io/github/actions/workflow/status/jonheaven/dog/ci.yaml?branch=master alt="build status">
   </a>
   <a href=https://discord.gg/doginals>
     <img src=https://img.shields.io/discord/987504378242007100?logo=discord alt="chat on discord">
@@ -20,335 +14,257 @@ You should periodically create checkpoints of the redb database that you can res
 </div>
 <br>
 
-`ord` is an index, block explorer, and command-line wallet. It is experimental
-software with no warranty. See [LICENSE](LICENSE) for more details.
+`dog` is a Dogecoin ordinals indexer, block explorer, and command-line wallet.
+It is experimental software with no warranty. See [LICENSE](LICENSE) for
+details.
 
-Doginal theory imbues satoshis with numismatic value, allowing them to
-be collected and traded as curios.
+Doginals (Dogecoin inscriptions) imbue koinus with numismatic value, allowing
+them to be collected and traded as curios.
 
-Doginal numbers are serial numbers for satoshis, assigned in the order in which
-they are mined, and preserved across transactions.
+---
 
-See [the docs](https://docs.doginals.com) for documentation and guides.
+## Features
 
-See [the BIP](bip.mediawiki) for a technical description of the assignment and
-transfer algorithm.
+### Core indexing
 
-See [the project board](https://github.com/orgs/doginals/projects/1) for
-currently prioritized issues.
+| Command | Description |
+|---------|-------------|
+| `dog index update` | Index the chain (inscriptions, Dunes, sat ranges) |
+| `dog server` | Run the block explorer web UI |
 
-Join [the Discord server](https://discord.gg/87cjuz4FYg) to chat with fellow
-ordinal degenerates.
+### Dogecoin-specific
 
-Donate
-------
+| Command | Description |
+|---------|-------------|
+| `dog scan` | **Scan a block range for inscriptions — no prior indexing needed** |
+| `dog dns resolve <name>` | Resolve a Dogecoin Name System (.doge) name |
+| `dog dns list` | List all registered DNS names |
+| `dog dns config <name>` | Show DNS configuration for a name |
+| `dog drc20 tokens` | List all deployed DRC-20 tokens |
+| `dog drc20 token <tick>` | Show info for a single DRC-20 token |
+| `dog drc20 balance <address>` | Show DRC-20 balances for an address |
 
-BTC: [bc1qguzk63exy7h5uygg8m2tcenca094a8t464jfyvrmr0s6wkt74wls3zr5m3](https://mempool.space/address/bc1qguzk63exy7h5uygg8m2tcenca094a8t464jfyvrmr0s6wkt74wls3zr5m3)
+### Fast sync (direct .blk file reads)
 
-DOGE: DFundmtrigBGH6Q2MFAibzSq6NxsxMPMjB
-
-Thank you for donating!
-
-Wallet
-------
-
-`ord` relies on Bitcoin Core for private key management and transaction signing.
-This has a number of implications that you must understand in order to use
-`ord` wallet commands safely:
-
-- Bitcoin Core is not aware of inscriptions and does not perform sat
-  control. Using `bitcoin-cli` commands and RPC calls with `ord` wallets may
-  lead to loss of inscriptions.
-
-- `ord wallet` commands automatically load the `ord` wallet given by the
-  `--name` option, which defaults to 'ord'. Keep in mind that after running
-  an `ord wallet` command, an `ord` wallet may be loaded.
-
-- Because `ord` has access to your Bitcoin Core wallets, `ord` should not be
-  used with wallets that contain a material amount of funds. Keep ordinal and
-  cardinal wallets segregated.
-
-Security
---------
-
-The `ord server` explorer hosts untrusted HTML and JavaScript. This creates
-potential security vulnerabilities, including cross-site scripting and spoofing
-attacks. You are solely responsible for understanding and mitigating these
-attacks. See the [documentation](docs/src/security.md) for more details.
-
-Installation
-------------
-
-`ord` is written in Rust and can be built from
-[source](https://github.com/doginals/ord). Pre-built binaries are available on the
-[releases page](https://github.com/doginals/ord/releases).
-
-You can install the latest pre-built binary from the command line with:
-
-```sh
-curl --proto '=https' --tlsv1.2 -fsLS https://doginals.com/install.sh | bash -s
-```
-
-Once `ord` is installed, you should be able to run `ord --version` on the
-command line.
-
-Building
---------
-
-On Linux, `ord` requires `libssl-dev` when building from source.
-
-On Debian-derived Linux distributions, including Ubuntu:
+`dog` can read blocks directly from Dogecoin Core's binary `.blk` files,
+bypassing JSON-RPC entirely — typically **5-20x faster** for initial indexing.
 
 ```
-sudo apt-get install pkg-config libssl-dev build-essential
+# Build a shadow copy of Core's block index (safe while Core is running)
+dog --dogecoin-data-dir F:\DogecoinData index refresh-blk-index
+
+# Then index at full disk speed (stop Core first for maximum speed)
+dog --dogecoin-data-dir F:\DogecoinData index update
 ```
 
-On Red Hat-derived Linux distributions:
+The shadow copy lives at `<dog-data-dir>/blk-index/` and is refreshed
+automatically on every `dog index update` run.
+
+---
+
+## Quick Start
+
+### 1. Configure your data directory
+
+Copy `.env.example` to `.env` and set `DOGECOIN_DATA_DIR`:
 
 ```
-yum install -y pkgconfig openssl-devel
-yum groupinstall "Development Tools"
+DOGECOIN_DATA_DIR=F:\DogecoinData   # wherever your Core data lives
 ```
 
-You'll also need Rust:
+Or pass it on every command:
+
+```
+dog --dogecoin-data-dir F:\DogecoinData index update
+```
+
+### 2. (Optional) Build the block index shadow copy
+
+```
+dog index refresh-blk-index
+```
+
+This copies Core's LevelDB block index to dog's data dir so fast `.blk`
+file reads work even while Core is running.
+
+### 3. Index the chain
+
+```
+dog index update
+```
+
+### 4. Run the explorer
+
+```
+dog server
+```
+
+---
+
+## `dog scan` — inspect inscriptions without a full index
+
+Scan any block range for inscriptions right now, with no prior indexing:
+
+```
+# Find all inscriptions between two heights
+dog scan --from 4609000 --to 4620000
+
+# Verify a specific inscription exists
+dog scan --from 4609000 --to 4700000 \
+  --txid bdfeeeacab95d0a230e1124f0635ac9a47925fef4bb1d41a0a0c6e8d8232af7a
+
+# Export all inscriptions owned by your address to disk
+dog scan --from 4609000 --to 5000000 \
+  --address DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc \
+  --out ./my-inscriptions
+
+# JSON output
+dog scan --from 4609000 --to 4620000 --json
+```
+
+With `--out`, each inscription is saved as:
+```
+<out>/
+  <height>_<txid>i<n>/
+    content.<ext>   ← the actual image / text / audio
+    info.json       ← height, txid, content_type, recipient, size
+```
+
+See [docs/src/scanning.md](docs/src/scanning.md) for full details.
+
+---
+
+## DRC-20 tokens
+
+```
+dog drc20 tokens                             # list all tokens
+dog drc20 token dogi                         # info for $DOGI
+dog drc20 balance DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc          # all balances
+dog drc20 balance DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc --tick dogi  # single token
+dog drc20 balance DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc --json
+```
+
+See [docs/src/drc20.md](docs/src/drc20.md) for details.
+
+---
+
+## Dogecoin Name System (DNS)
+
+`.doge` and other Dogecoin namespaces, resolved from Doginal inscriptions:
+
+```
+dog dns resolve satoshi.doge
+dog dns resolve jon.doge
+dog dns list --namespace doge
+dog dns list --namespace doge --json
+dog dns config satoshi.doge
+```
+
+See [docs/src/dns.md](docs/src/dns.md) for details.
+
+---
+
+## Installation
+
+### Build from source
+
+Linux dependencies:
+
+```
+sudo apt-get install pkg-config libssl-dev build-essential   # Debian/Ubuntu
+yum install -y pkgconfig openssl-devel && yum groupinstall "Development Tools"  # RHEL
+```
+
+Rust (if not installed):
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-Clone the `ord` repo:
+Clone and build:
 
 ```
-git clone https://github.com/doginals/ord.git
-cd ord
-```
-
-To build a specific version of `ord`, first checkout that version:
-
-```
-git checkout <VERSION>
-```
-
-And finally to actually build `ord`:
-
-```
+git clone https://github.com/jonheaven/dog.git
+cd dog
 cargo build --release
+# binary: ./target/release/dog
 ```
 
-Once built, the `ord` binary can be found at `./target/release/ord`.
+`dog` requires rustc ≥ 1.89.0. Run `rustc --version` to check; `rustup update`
+to upgrade.
 
-`ord` requires `rustc` version 1.79.0 or later. Run `rustc --version` to ensure
-you have this version. Run `rustup update` to get the latest stable release.
+---
 
-### Docker
+## Connecting to Dogecoin Core
 
-A Docker image can be built with:
+`dog` communicates with Dogecoin Core via RPC. By default it finds Core
+automatically by reading the `.cookie` file from the Core data directory.
 
-```
-docker build -t doginals/ord .
-```
-
-### Homebrew
-
-`ord` is available in [Homebrew](https://brew.sh/):
+### Custom data directory
 
 ```
-brew install ord
+dog --dogecoin-data-dir /path/to/dogecoin/data index update
 ```
 
-### Debian Package
+Or set `DOGECOIN_DATA_DIR` in your environment / `.env` file.
 
-To build a `.deb` package:
+### RPC authentication
 
+Cookie file (default, auto-detected):
 ```
-cargo install cargo-deb
-cargo deb
-```
-
-Contributing
-------------
-
-If you wish to contribute there are a couple things that are helpful to know. We
-put a lot of emphasis on proper testing in the code base, with three broad
-categories of tests: unit, integration and fuzz. Unit tests can usually be found at
-the bottom of a file in a mod block called `tests`. If you add or modify a
-function please also add a corresponding test. Integration tests try to test
-end-to-end functionality by executing a subcommand of the binary. Those can be
-found in the [tests](tests) directory. We don't have a lot of fuzzing but the
-basic structure of how we do it can be found in the [fuzz](fuzz) directory.
-
-We strongly recommend installing [just](https://github.com/casey/just) to make
-running the tests easier. To run our CI test suite you would do:
-
-```
-just ci
+dog --cookie-file /path/to/.cookie server
 ```
 
-This corresponds to the commands:
-
+Username/password:
 ```
-cargo fmt -- --check
-cargo test --all
-cargo test --all -- --ignored
+dog --dogecoin-rpc-username foo --dogecoin-rpc-password bar server
 ```
 
-Have a look at the [justfile](justfile) to see some more helpful recipes
-(commands). Here are a couple more good ones:
-
+Environment variables:
 ```
-just fmt
-just fuzz
-just doc
-just watch ltest --all
+export DOGECOIN_RPC_USERNAME=foo
+export DOGECOIN_RPC_PASSWORD=bar
+dog server
 ```
 
-If the tests are failing or hanging, you might need to increase the maximum
-number of open files by running `ulimit -n 1024` in your shell before you run
-the tests, or in your shell configuration.
+### Default ports
 
-We also try to follow a TDD (Test-Driven-Development) approach, which means we
-use tests as a way to get visibility into the code. Tests have to run fast for that
-reason so that the feedback loop between making a change, running the test and
-seeing the result is small. To facilitate that we created a mocked Bitcoin Core
-instance in [mockcore](./crates/mockcore)
+| Network | Port |
+|---------|------|
+| Dogecoin mainnet | 22555 |
+| Dogecoin testnet | 44555 |
+| Dogecoin regtest | 18444 |
 
-Syncing
--------
+---
 
-`ord` requires a synced `bitcoind` node with `-txindex` to build the index of
-satoshi locations. `ord` communicates with `bitcoind` via RPC.
+## Wallet
 
-If `bitcoind` is run locally by the same user, without additional
-configuration, `ord` should find it automatically by reading the `.cookie` file
-from `bitcoind`'s datadir, and connecting using the default RPC port.
+`dog` relies on Dogecoin Core for key management and signing:
 
-If `bitcoind` is not on mainnet, is not run by the same user, has a non-default
-datadir, or a non-default port, you'll need to pass additional flags to `ord`.
-See `ord --help` for details.
+- Dogecoin Core is **not** inscription-aware — do not use `dogecoin-cli`
+  commands on wallets that hold inscriptions.
+- `dog wallet` commands load the wallet named `dog` by default.
+- Keep inscription wallets and spending wallets separate.
 
-`bitcoind` RPC Authentication
------------------------------
+---
 
-`ord` makes RPC calls to `bitcoind`, which usually requires a username and
-password.
+## Security
 
-By default, `ord` looks a username and password in the cookie file created by
-`bitcoind`.
+`dog server` hosts untrusted HTML and JavaScript, creating potential XSS and
+spoofing vulnerabilities. You are solely responsible for mitigation. See
+[docs/src/security.md](docs/src/security.md) for details.
 
-The cookie file path can be configured using `--cookie-file`:
+---
+
+## Logging
 
 ```
-ord --cookie-file /path/to/cookie/file server
+RUST_LOG=info dog index update        # info-level logs
+RUST_LOG=debug RUST_BACKTRACE=1 dog server   # full debug + backtrace
 ```
 
-Alternatively, `ord` can be supplied with a username and password on the
-command line:
+---
 
-```
-ord --bitcoin-rpc-username foo --bitcoin-rpc-password bar server
-```
+## Donate
 
-Using environment variables:
-
-```
-export ORD_BITCOIN_RPC_USERNAME=foo
-export ORD_BITCOIN_RPC_PASSWORD=bar
-ord server
-```
-
-Or in the config file:
-
-```yaml
-bitcoin_rpc_username: foo
-bitcoin_rpc_password: bar
-```
-
-Logging
---------
-
-`ord` uses [env_logger](https://docs.rs/env_logger/latest/env_logger/). Set the
-`RUST_LOG` environment variable in order to turn on logging. For example, run
-the server and show `info`-level log messages and above:
-
-```
-$ RUST_LOG=info cargo run server
-```
-
-Set the `RUST_BACKTRACE` environment variable in order to turn on full rust
-backtrace. For example, run the server and turn on debugging and full backtrace:
-
-```
-$ RUST_BACKTRACE=1 RUST_LOG=debug ord server
-```
-
-New Releases
-------------
-
-Release commit messages use the following template:
-
-```
-Release x.y.z
-
-- Bump version: x.y.z → x.y.z
-- Update changelog
-- Update changelog contributor credits
-- Update dependencies
-```
-
-Translations
-------------
-
-To translate [the docs](https://docs.doginals.com) we use
-[mdBook i18n helper](https://github.com/google/mdbook-i18n-helpers).
-
-See
-[mdbook-i18n-helpers usage guide](https://github.com/google/mdbook-i18n-helpers/blob/main/i18n-helpers/USAGE.md)
-for help.
-
-Adding a new translations is somewhat involved, so feel free to start
-translation and open a pull request, even if your translation is incomplete.
-
-Take a look at
-[this commit](https://github.com/doginals/ord/commit/329f31bf6dac207dad001507dd6f18c87fdef355)
-for an example of adding a new translation. A maintainer will help you integrate it
-into our build system.
-
-To start a new translation:
-
-1. Install `mdbook`, `mdbook-i18n-helpers`, and `mdbook-linkcheck`:
-
-   ```
-   cargo install mdbook mdbook-i18n-helpers mdbook-linkcheck
-   ```
-
-2. Generate a new `pot` file named `messages.pot`:
-
-   ```
-   MDBOOK_OUTPUT='{"xgettext": {"pot-file": "messages.pot"}}'
-   mdbook build -d po
-   ```
-
-3. Run `msgmerge` on `XX.po` where `XX` is the two-letter
-   [ISO-639](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code for
-   the language you are translating into. This will update the `po` file with
-   the text of the most recent English version:
-
-   ```
-   msgmerge --update po/XX.po po/messages.pot
-   ```
-
-4. Untranslated sections are marked with `#, fuzzy` in `XX.po`. Edit the
-   `msgstr` string with the translated text.
-
-5. Execute the `mdbook` command to rebuild the docs. For Chinese, whose
-   two-letter ISO-639 code is `zh`:
-
-   ```
-   mdbook build docs -d build
-   MDBOOK_BOOK__LANGUAGE=zh mdbook build docs -d build/zh
-   mv docs/build/zh/html docs/build/html/zh
-   python3 -m http.server --directory docs/build/html --bind 127.0.0.1 8080
-   ```
-
-6. If everything looks good, commit `XX.po` and open a pull request on GitHub.
-   Other changed files should be omitted from the pull request.
+DOGE: `DFundmtrigBGH6Q2MFAibzSq6NxsxMPMjB`

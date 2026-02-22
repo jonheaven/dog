@@ -23,7 +23,7 @@
   <dt>initial sync time</dt>
   <dd>{{ humantime::format_duration(self.initial_sync_time) }}</dd>
   <dt>minimum dune for next block</dt>
-  <dd>{{ self.minimum_rune_for_next_block }}</dd>
+  <dd>{{ self.minimum_dune_for_next_block }}</dd>
   <dt>version</dt>
   <dd>{{ env!("CARGO_PKG_VERSION") }}</dd>
   <dt>unrecoverably reorged</dt>
@@ -33,7 +33,7 @@
   <dt>inscription index</dt>
   <dd>{{ self.inscription_index }}</dd>
   <dt>dune index</dt>
-  <dd>{{ self.rune_index }}</dd>
+  <dd>{{ self.dune_index }}</dd>
   <dt>koinu index</dt>
   <dd>{{ self.sat_index }}</dd>
   <dt>transaction index</dt>

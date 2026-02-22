@@ -1,16 +1,16 @@
 use super::*;
 
 #[derive(Boilerplate, Debug, PartialEq, Serialize, Deserialize)]
-pub struct RunesHtml {
+pub struct DunesHtml {
   pub entries: Vec<(DuneId, DuneEntry)>,
   pub more: bool,
   pub prev: Option<usize>,
   pub next: Option<usize>,
 }
 
-impl PageContent for RunesHtml {
+impl PageContent for DunesHtml {
   fn title(&self) -> String {
-    "Runes".to_string()
+    "Dunes".to_string()
   }
 }
 
@@ -21,7 +21,7 @@ mod tests {
   #[test]
   fn display() {
     assert_eq!(
-      RunesHtml {
+      DunesHtml {
         entries: vec![(
           DuneId { block: 0, tx: 0 },
           DuneEntry {
@@ -37,7 +37,7 @@ mod tests {
         next: None,
       }
       .to_string(),
-      "<h1>Runes</h1>
+      "<h1>Dunes</h1>
 <ul>
   <li><a href=/dune/A•A>A•A</a></li>
 </ul>
@@ -51,7 +51,7 @@ mod tests {
   #[test]
   fn with_prev_and_next() {
     assert_eq!(
-      RunesHtml {
+      DunesHtml {
         entries: vec![
           (
             DuneId { block: 0, tx: 0 },
@@ -79,7 +79,7 @@ mod tests {
         more: true,
       }
       .to_string(),
-      "<h1>Runes</h1>
+      "<h1>Dunes</h1>
 <ul>
   <li><a href=/dune/A>A</a></li>
   <li><a href=/dune/C>C</a></li>

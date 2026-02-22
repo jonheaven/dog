@@ -8,7 +8,7 @@
 %% }
   </dd>
 %% }
-%% if let Some(runes) = self.dunes.as_ref().filter(|runes| !runes.is_empty()) {
+%% if let Some(dunes) = self.dunes.as_ref().filter(|dunes| !dunes.is_empty()) {
   <dt>dunes</dt>
   <dd>
     <table>
@@ -16,9 +16,9 @@
         <th>dune</th>
         <th>balance</th>
       </tr>
-%% for (rune, balance) in runes {
+%% for (dune, balance) in dunes {
       <tr>
-        <td><a href=/dune/{{ rune }}>{{ rune }}</a></td>
+        <td><a href=/dune/{{ dune }}>{{ dune }}</a></td>
         <td>{{ balance }}</td>
       </tr>
 %% }

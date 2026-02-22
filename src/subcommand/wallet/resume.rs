@@ -8,7 +8,7 @@ pub struct ResumeOutput {
 pub(crate) struct Resume {
   #[arg(long, help = "Don't broadcast transactions.")]
   pub(crate) dry_run: bool,
-  #[arg(long, help = "Pending <RUNE> etching to resume.")]
+  #[arg(long, help = "Pending <DUNE> etching to resume.")]
   pub(crate) dune: Option<SpacedDune>,
 }
 

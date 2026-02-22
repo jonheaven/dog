@@ -81,7 +81,7 @@ pub(crate) struct Split {
     long,
     alias = "nolimit",
     help = "Allow OP_RETURN greater than 83 bytes. Transactions over this limit are nonstandard \
-    and will not be relayed by bitcoind in its default configuration. Do not use this flag unless \
+    and will not be relayed by Dogecoin Core in its default configuration. Do not use this flag unless \
     you understand the implications."
   )]
   pub(crate) no_limit: bool,
@@ -97,7 +97,7 @@ pub struct Output {
 impl Split {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
-      wallet.has_rune_index(),
+      wallet.has_dune_index(),
       "`ord wallet split` requires index created with `--index-dunes`",
     );
 
@@ -117,7 +117,7 @@ impl Split {
       .into_iter()
       .filter(|output| !inscribed_outputs.contains(output))
       .map(|output| {
-        wallet.get_runes_balances_in_output(&output).map(|balance| {
+        wallet.get_dunes_balances_in_output(&output).map(|balance| {
           (
             output,
             balance
@@ -139,7 +139,7 @@ impl Split {
     )?;
 
     let unsigned_transaction = fund_raw_transaction(
-      wallet.bitcoin_client(),
+      wallet.dogecoin_client(),
       self.fee_rate,
       &unfunded_transaction,
       None,
@@ -177,28 +177,28 @@ impl Split {
       });
     }
 
-    let mut input_runes_required = BTreeMap::<Dune, u128>::new();
+    let mut input_dunes_required = BTreeMap::<Dune, u128>::new();
 
     for (i, output) in splits.outputs.iter().enumerate() {
       for (&dune, &amount) in &output.dunes {
         if amount == 0 {
           return Err(Error::ZeroValue {
-            dune: splits.rune_info[&dune].spaced_dune,
+            dune: splits.dune_info[&dune].spaced_dune,
             output: i,
           });
         }
-        let required = input_runes_required.entry(dune).or_default();
+        let required = input_dunes_required.entry(dune).or_default();
         *required = (*required).checked_add(amount).unwrap();
       }
     }
 
-    let mut input_rune_balances: BTreeMap<Dune, u128> = BTreeMap::new();
+    let mut input_dune_balances: BTreeMap<Dune, u128> = BTreeMap::new();
 
     let mut inputs = Vec::new();
 
     for (output, dunes) in balances {
-      for (dune, required) in &input_runes_required {
-        if input_rune_balances.get(dune).copied().unwrap_or_default() >= *required {
+      for (dune, required) in &input_dunes_required {
+        if input_dune_balances.get(dune).copied().unwrap_or_default() >= *required {
           continue;
         }
 
@@ -207,7 +207,7 @@ impl Split {
         }
 
         for (dune, balance) in &dunes {
-          *input_rune_balances.entry(*dune).or_default() += balance;
+          *input_dune_balances.entry(*dune).or_default() += balance;
         }
 
         inputs.push(output);
@@ -216,10 +216,10 @@ impl Split {
       }
     }
 
-    for (&dune, &need) in &input_runes_required {
-      let have = input_rune_balances.get(&dune).copied().unwrap_or_default();
+    for (&dune, &need) in &input_dunes_required {
+      let have = input_dune_balances.get(&dune).copied().unwrap_or_default();
       if have < need {
-        let info = splits.rune_info[&dune];
+        let info = splits.dune_info[&dune];
         return Err(Error::Shortfall {
           dune: info.spaced_dune,
           have: Pile {
@@ -236,21 +236,21 @@ impl Split {
       }
     }
 
-    let mut need_rune_change_output = false;
-    for (dune, input) in input_rune_balances {
-      if input > input_runes_required.get(&dune).copied().unwrap_or_default() {
-        need_rune_change_output = true;
+    let mut need_dune_change_output = false;
+    for (dune, input) in input_dune_balances {
+      if input > input_dunes_required.get(&dune).copied().unwrap_or_default() {
+        need_dune_change_output = true;
       }
     }
 
     let mut edicts = Vec::new();
 
-    let base = if need_rune_change_output { 2 } else { 1 };
+    let base = if need_dune_change_output { 2 } else { 1 };
 
     for (i, output) in splits.outputs.iter().enumerate() {
       for (dune, amount) in &output.dunes {
         edicts.push(Edict {
-          id: splits.rune_info.get(dune).unwrap().id,
+          id: splits.dune_info.get(dune).unwrap().id,
           amount: *amount,
           output: (i + base).try_into().unwrap(),
         });
@@ -276,7 +276,7 @@ impl Split {
       value: Amount::from_sat(0),
     });
 
-    if need_rune_change_output {
+    if need_dune_change_output {
       output.push(TxOut {
         script_pubkey: change_script_pubkey,
         value: postage,
@@ -330,7 +330,7 @@ impl Split {
 
 #[cfg(test)]
 mod tests {
-  use {super::*, splitfile::RuneInfo};
+  use {super::*, splitfile::DuneInfo};
 
   #[test]
   fn splits_must_have_at_least_one_output() {
@@ -342,7 +342,7 @@ mod tests {
         None,
         &Splitfile {
           outputs: Vec::new(),
-          rune_info: BTreeMap::new(),
+          dune_info: BTreeMap::new(),
         },
       )
       .unwrap_err(),
@@ -364,7 +364,7 @@ mod tests {
             dunes: [(Dune(0), 1000)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
-          rune_info: BTreeMap::new(),
+          dune_info: BTreeMap::new(),
         },
       )
       .unwrap_err(),
@@ -376,7 +376,7 @@ mod tests {
   }
 
   #[test]
-  fn output_rune_value_may_not_be_zero() {
+  fn output_dune_value_may_not_be_zero() {
     assert_eq!(
       Split::build_transaction(
         false,
@@ -389,9 +389,9 @@ mod tests {
             dunes: [(Dune(0), 0)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
-          rune_info: [(
+          dune_info: [(
             Dune(0),
-            RuneInfo {
+            DuneInfo {
               id: DuneId { block: 1, tx: 1 },
               divisibility: 10,
               symbol: Some('@'),
@@ -433,9 +433,9 @@ mod tests {
               value: Some(Amount::from_sat(1000)),
             },
           ],
-          rune_info: [(
+          dune_info: [(
             Dune(0),
-            RuneInfo {
+            DuneInfo {
               id: DuneId { block: 1, tx: 1 },
               divisibility: 10,
               symbol: Some('@'),
@@ -460,7 +460,7 @@ mod tests {
   }
 
   #[test]
-  fn wallet_must_have_enough_runes() {
+  fn wallet_must_have_enough_dunes() {
     assert_eq!(
       Split::build_transaction(
         false,
@@ -473,9 +473,9 @@ mod tests {
             dunes: [(Dune(0), 1000)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
-          rune_info: [(
+          dune_info: [(
             Dune(0),
-            RuneInfo {
+            DuneInfo {
               id: DuneId { block: 1, tx: 1 },
               divisibility: 10,
               symbol: Some('@'),
@@ -519,9 +519,9 @@ mod tests {
             dunes: [(Dune(0), 2000)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
-          rune_info: [(
+          dune_info: [(
             Dune(0),
-            RuneInfo {
+            DuneInfo {
               id: DuneId { block: 1, tx: 1 },
               divisibility: 2,
               symbol: Some('x'),
@@ -568,9 +568,9 @@ mod tests {
             dunes: [(Dune(0), 1000)].into(),
             value: Some(Amount::from_sat(1)),
           }],
-          rune_info: [(
+          dune_info: [(
             Dune(0),
-            RuneInfo {
+            DuneInfo {
               id: DuneId { block: 1, tx: 1 },
               divisibility: 0,
               symbol: None,
@@ -610,9 +610,9 @@ mod tests {
               value: Some(Amount::from_sat(10)),
             },
           ],
-          rune_info: [(
+          dune_info: [(
             Dune(0),
-            RuneInfo {
+            DuneInfo {
               id: DuneId { block: 1, tx: 1 },
               divisibility: 0,
               symbol: None,
@@ -649,9 +649,9 @@ mod tests {
         dunes: [(dune, 1000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -702,7 +702,7 @@ mod tests {
   }
 
   #[test]
-  fn one_output_with_change_for_outgoing_rune_with_default_postage() {
+  fn one_output_with_change_for_outgoing_dune_with_default_postage() {
     let address = address(0);
     let output = outpoint(0);
     let dune = Dune(0);
@@ -717,9 +717,9 @@ mod tests {
         dunes: [(dune, 1000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -774,7 +774,7 @@ mod tests {
   }
 
   #[test]
-  fn one_output_with_change_for_outgoing_rune_with_non_default_postage() {
+  fn one_output_with_change_for_outgoing_dune_with_non_default_postage() {
     let address = address(0);
     let output = outpoint(0);
     let dune = Dune(0);
@@ -789,9 +789,9 @@ mod tests {
         dunes: [(dune, 1000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -853,7 +853,7 @@ mod tests {
   }
 
   #[test]
-  fn one_output_with_change_for_non_outgoing_rune() {
+  fn one_output_with_change_for_non_outgoing_dune() {
     let address = address(0);
     let output = outpoint(0);
     let change = change(0);
@@ -866,9 +866,9 @@ mod tests {
         dunes: [(Dune(0), 1000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         Dune(0),
-        RuneInfo {
+        DuneInfo {
           id: dune_id(0),
           divisibility: 0,
           symbol: None,
@@ -940,9 +940,9 @@ mod tests {
         dunes: [(dune, 1000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -1011,9 +1011,9 @@ mod tests {
         dunes: [(dune, 1000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -1081,9 +1081,9 @@ mod tests {
         dunes: [(dune, 2000)].into(),
         value: None,
       }],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -1162,9 +1162,9 @@ mod tests {
           value: None,
         },
       ],
-      rune_info: [(
+      dune_info: [(
         dune,
-        RuneInfo {
+        DuneInfo {
           id,
           divisibility: 0,
           symbol: None,
@@ -1226,7 +1226,7 @@ mod tests {
   }
 
   #[test]
-  fn outputs_may_receive_multiple_runes() {
+  fn outputs_may_receive_multiple_dunes() {
     let address = address(0);
 
     let balances = [
@@ -1241,10 +1241,10 @@ mod tests {
         dunes: [(Dune(0), 1000), (Dune(1), 2000)].into(),
         value: None,
       }],
-      rune_info: [
+      dune_info: [
         (
           Dune(0),
-          RuneInfo {
+          DuneInfo {
             id: dune_id(0),
             divisibility: 0,
             symbol: None,
@@ -1256,7 +1256,7 @@ mod tests {
         ),
         (
           Dune(1),
-          RuneInfo {
+          DuneInfo {
             id: dune_id(1),
             divisibility: 0,
             symbol: None,
@@ -1334,9 +1334,9 @@ mod tests {
           value: None,
         })
         .collect(),
-      rune_info: [(
+      dune_info: [(
         Dune(0),
-        RuneInfo {
+        DuneInfo {
           id: dune_id(0),
           divisibility: 0,
           symbol: None,
@@ -1367,9 +1367,9 @@ mod tests {
           value: None,
         })
         .collect(),
-      rune_info: [(
+      dune_info: [(
         Dune(0),
-        RuneInfo {
+        DuneInfo {
           id: dune_id(0),
           divisibility: 0,
           symbol: None,

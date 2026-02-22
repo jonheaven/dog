@@ -181,7 +181,7 @@ mod tests {
   }
 
   #[test]
-  fn with_runes() {
+  fn with_dunes() {
     assert_regex_match!(
       OutputHtml {
         chain: Chain::Dogecoin,

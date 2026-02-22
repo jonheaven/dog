@@ -68,7 +68,7 @@ mod tests {
         prev
         next
         .*
-        <h2>0 Runes</h2>
+        <h2>0 Dunes</h2>
         <h2>0 Inscriptions</h2>
         <div class=thumbnails>
         </div>

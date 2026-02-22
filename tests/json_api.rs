@@ -636,8 +636,8 @@ fn get_status() {
       inscriptions: 1,
       json_api: true,
       lost_koinu: 0,
-      minimum_rune_for_next_block: Dune(99218849511960410),
-      rune_index: true,
+      minimum_dune_for_next_block: Dune(99218849511960410),
+      dune_index: true,
       dunes: 0,
       sat_index: true,
       started: dummy_started,
@@ -649,7 +649,7 @@ fn get_status() {
 }
 
 #[test]
-fn get_runes() {
+fn get_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -658,19 +658,19 @@ fn get_runes() {
 
   core.mine_blocks(3);
 
-  let a = etch(&core, &dog, Dune(RUNE));
-  let b = etch(&core, &dog, Dune(RUNE + 1));
-  let c = etch(&core, &dog, Dune(RUNE + 2));
+  let a = etch(&core, &dog, Dune(DUNE));
+  let b = etch(&core, &dog, Dune(DUNE + 1));
+  let c = etch(&core, &dog, Dune(DUNE + 2));
 
   core.mine_blocks(1);
 
   let response = dog.json_request(format!("/dune/{}", a.output.dune.unwrap().dune));
   assert_eq!(response.status(), StatusCode::OK);
 
-  let rune_json: api::Dune = serde_json::from_str(&response.text().unwrap()).unwrap();
+  let dune_json: api::Dune = serde_json::from_str(&response.text().unwrap()).unwrap();
 
   pretty_assert_eq!(
-    rune_json,
+    dune_json,
     api::Dune {
       entry: DuneEntry {
         block: a.id.block,
@@ -682,7 +682,7 @@ fn get_runes() {
         number: 0,
         premine: 1000,
         spaced_dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0
         },
         symbol: Some('¢'),
@@ -702,11 +702,11 @@ fn get_runes() {
 
   assert_eq!(response.status(), StatusCode::OK);
 
-  let runes_json: api::Runes = serde_json::from_str(&response.text().unwrap()).unwrap();
+  let dunes_json: api::Dunes = serde_json::from_str(&response.text().unwrap()).unwrap();
 
   pretty_assert_eq!(
-    runes_json,
-    api::Runes {
+    dunes_json,
+    api::Dunes {
       entries: vec![
         (
           DuneId { block: 24, tx: 1 },
@@ -720,7 +720,7 @@ fn get_runes() {
             number: 2,
             premine: 1000,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 2),
+              dune: Dune(DUNE + 2),
               spacers: 0
             },
             symbol: Some('¢'),
@@ -740,7 +740,7 @@ fn get_runes() {
             number: 1,
             premine: 1000,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE + 1),
+              dune: Dune(DUNE + 1),
               spacers: 0
             },
             symbol: Some('¢'),
@@ -760,7 +760,7 @@ fn get_runes() {
             number: 0,
             premine: 1000,
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0
             },
             symbol: Some('¢'),
@@ -841,11 +841,11 @@ fn outputs_address() {
 
   core.mine_blocks(1);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
-  let rune_send = CommandBuilder::new(format!(
+  let dune_send = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 {address} 1000:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -895,17 +895,17 @@ fn outputs_address() {
     }]
   );
 
-  let runes_response = dog.json_request(format!("/outputs/{address}?type=runic"));
+  let dunes_response = dog.json_request(format!("/outputs/{address}?type=runic"));
 
-  assert_eq!(runes_response.status(), StatusCode::OK);
+  assert_eq!(dunes_response.status(), StatusCode::OK);
 
-  let runes_json: Vec<api::Output> = serde_json::from_str(&runes_response.text().unwrap()).unwrap();
+  let dunes_json: Vec<api::Output> = serde_json::from_str(&dunes_response.text().unwrap()).unwrap();
 
-  let mut expected_runes = BTreeMap::new();
+  let mut expected_dunes = BTreeMap::new();
 
-  expected_runes.insert(
+  expected_dunes.insert(
     SpacedDune {
-      dune: Dune(RUNE),
+      dune: Dune(DUNE),
       spacers: 0,
     },
     Pile {
@@ -916,17 +916,17 @@ fn outputs_address() {
   );
 
   pretty_assert_eq!(
-    runes_json,
+    dunes_json,
     vec![api::Output {
       address: Some(address.parse().unwrap()),
       confirmations: 7,
       inscriptions: Some(vec![]),
       outpoint: OutPoint {
-        txid: rune_send.txid,
+        txid: dune_send.txid,
         vout: 0
       },
       indexed: true,
-      dunes: Some(expected_runes),
+      dunes: Some(expected_dunes),
       koinu_ranges: None,
       script_pubkey: ScriptBuf::from(
         address
@@ -935,7 +935,7 @@ fn outputs_address() {
           .assume_checked()
       ),
       spent: false,
-      transaction: rune_send.txid,
+      transaction: dune_send.txid,
       value: 10000,
     }]
   );
@@ -1027,15 +1027,15 @@ fn outputs_address_returns_400_for_missing_indices() {
   let inscriptions_response = dog.json_request(format!("/outputs/{address}?type=inscribed"));
   assert_eq!(inscriptions_response.status(), StatusCode::BAD_REQUEST);
 
-  let runes_response = dog.json_request(format!("/outputs/{address}?type=runic"));
-  assert_eq!(runes_response.status(), StatusCode::BAD_REQUEST);
+  let dunes_response = dog.json_request(format!("/outputs/{address}?type=runic"));
+  assert_eq!(dunes_response.status(), StatusCode::BAD_REQUEST);
 
   let cardinal_response = dog.json_request(format!("/outputs/{address}?type=runic"));
   assert_eq!(cardinal_response.status(), StatusCode::BAD_REQUEST);
 }
 
 #[test]
-fn outputs_address_returns_400_for_missing_rune_index() {
+fn outputs_address_returns_400_for_missing_dune_index() {
   let core = mockcore::builder().network(Network::Regtest).build();
   let dog = TestServer::spawn_with_args(&core, &["--index-addresses", "--regtest"]);
 
@@ -1044,8 +1044,8 @@ fn outputs_address_returns_400_for_missing_rune_index() {
   let inscriptions_response = dog.json_request(format!("/outputs/{address}?type=inscribed"));
   assert_eq!(inscriptions_response.status(), StatusCode::BAD_REQUEST);
 
-  let runes_response = dog.json_request(format!("/outputs/{address}?type=runic"));
-  assert_eq!(runes_response.status(), StatusCode::BAD_REQUEST);
+  let dunes_response = dog.json_request(format!("/outputs/{address}?type=runic"));
+  assert_eq!(dunes_response.status(), StatusCode::BAD_REQUEST);
 
   let cardinal_response = dog.json_request(format!("/outputs/{address}?type=runic"));
   assert_eq!(cardinal_response.status(), StatusCode::BAD_REQUEST);

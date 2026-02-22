@@ -1,6 +1,6 @@
 # JSON-API
 
-By default, the `ord server` gives access to endpoints that return JSON instead of HTML if you set the HTTP `Accept: application/json` header. The structure of these objects closely follows what is shown in the HTML.  These endpoints are:
+By default, the `dog server` gives access to endpoints that return JSON instead of HTML if you set the HTTP `Accept: application/json` header. The structure of these objects closely follows what is shown in the HTML.  These endpoints are:
 
 ## Endpoints
 
@@ -59,7 +59,7 @@ curl -s -H "Accept: application/json" \
     "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0"
   ],
   "sat_balance": 22635,
-  "runes_balances": [
+  "dunes_balances": [
     [
       "RSIC•AUBERGINE",
       "1100000000",
@@ -2069,7 +2069,7 @@ curl -s -H "Accept: application/json" \
 <details>
   <summary>
     <code>GET</code>
-    <code><b>/dune/&lt;RUNE&gt;</b></code>
+    <code><b>/dune/&lt;DUNE&gt;</b></code>
   </summary>
 
 ### Description
@@ -5177,8 +5177,8 @@ curl -s -H "Accept: application/json" \
   },
   "inscriptions": 76804684,
   "lost_sats": 0,
-  "minimum_rune_for_next_block": "PVHGFEDCAZZ",
-  "rune_index": true,
+  "minimum_dune_for_next_block": "PVHGFEDCAZZ",
+  "dune_index": true,
   "dunes": 119811,
   "sat_index": false,
   "started": "2024-09-27T17:43:39.291876400Z",

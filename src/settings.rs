@@ -4,10 +4,10 @@ use {super::*, bitcoincore_rpc::Auth};
 #[serde(default, deny_unknown_fields)]
 pub struct Settings {
   dogecoin_data_dir: Option<PathBuf>,
-  bitcoin_rpc_limit: Option<u32>,
-  bitcoin_rpc_password: Option<String>,
-  bitcoin_rpc_url: Option<String>,
-  bitcoin_rpc_username: Option<String>,
+  dogecoin_rpc_limit: Option<u32>,
+  dogecoin_rpc_password: Option<String>,
+  dogecoin_rpc_url: Option<String>,
+  dogecoin_rpc_username: Option<String>,
   chain: Option<Chain>,
   commit_interval: Option<usize>,
   config: Option<PathBuf>,
@@ -20,7 +20,7 @@ pub struct Settings {
   index: Option<PathBuf>,
   index_addresses: bool,
   index_cache_size: Option<usize>,
-  index_runes: bool,
+  index_dunes: bool,
   index_sats: bool,
   index_transactions: bool,
   integration_test: bool,
@@ -91,8 +91,8 @@ impl Settings {
     let settings = settings.or(config).or_defaults()?;
 
     match (
-      &settings.bitcoin_rpc_username,
-      &settings.bitcoin_rpc_password,
+      &settings.dogecoin_rpc_username,
+      &settings.dogecoin_rpc_password,
     ) {
       (None, Some(_rpc_pass)) => bail!("no bitcoin RPC username specified"),
       (Some(_rpc_user), None) => bail!("no bitcoin RPC password specified"),
@@ -111,10 +111,10 @@ impl Settings {
   pub fn or(self, source: Settings) -> Self {
     Self {
       dogecoin_data_dir: self.dogecoin_data_dir.or(source.dogecoin_data_dir),
-      bitcoin_rpc_limit: self.bitcoin_rpc_limit.or(source.bitcoin_rpc_limit),
-      bitcoin_rpc_password: self.bitcoin_rpc_password.or(source.bitcoin_rpc_password),
-      bitcoin_rpc_url: self.bitcoin_rpc_url.or(source.bitcoin_rpc_url),
-      bitcoin_rpc_username: self.bitcoin_rpc_username.or(source.bitcoin_rpc_username),
+      dogecoin_rpc_limit: self.dogecoin_rpc_limit.or(source.dogecoin_rpc_limit),
+      dogecoin_rpc_password: self.dogecoin_rpc_password.or(source.dogecoin_rpc_password),
+      dogecoin_rpc_url: self.dogecoin_rpc_url.or(source.dogecoin_rpc_url),
+      dogecoin_rpc_username: self.dogecoin_rpc_username.or(source.dogecoin_rpc_username),
       chain: self.chain.or(source.chain),
       commit_interval: self.commit_interval.or(source.commit_interval),
       config: self.config.or(source.config),
@@ -135,7 +135,7 @@ impl Settings {
       index: self.index.or(source.index),
       index_addresses: self.index_addresses || source.index_addresses,
       index_cache_size: self.index_cache_size.or(source.index_cache_size),
-      index_runes: self.index_runes || source.index_runes,
+      index_dunes: self.index_dunes || source.index_dunes,
       index_sats: self.index_sats || source.index_sats,
       index_transactions: self.index_transactions || source.index_transactions,
       integration_test: self.integration_test || source.integration_test,
@@ -151,10 +151,10 @@ impl Settings {
   pub fn from_options(options: Options) -> Self {
     Self {
       dogecoin_data_dir: options.dogecoin_data_dir,
-      bitcoin_rpc_limit: options.bitcoin_rpc_limit,
-      bitcoin_rpc_password: options.bitcoin_rpc_password,
-      bitcoin_rpc_url: options.bitcoin_rpc_url,
-      bitcoin_rpc_username: options.bitcoin_rpc_username,
+      dogecoin_rpc_limit: options.dogecoin_rpc_limit,
+      dogecoin_rpc_password: options.dogecoin_rpc_password,
+      dogecoin_rpc_url: options.dogecoin_rpc_url,
+      dogecoin_rpc_username: options.dogecoin_rpc_username,
       chain: options
         .regtest
         .then_some(Chain::DogecoinRegtest)
@@ -171,7 +171,7 @@ impl Settings {
       index: options.index,
       index_addresses: options.index_addresses,
       index_cache_size: options.index_cache_size,
-      index_runes: options.index_runes,
+      index_dunes: options.index_dunes,
       index_sats: options.index_sats,
       index_transactions: options.index_transactions,
       integration_test: options.integration_test,
@@ -245,10 +245,10 @@ impl Settings {
 
     Ok(Self {
       dogecoin_data_dir: get_path("DOGECOIN_DATA_DIR"),
-      bitcoin_rpc_limit: get_u32("BITCOIN_RPC_LIMIT")?,
-      bitcoin_rpc_password: get_string("BITCOIN_RPC_PASSWORD"),
-      bitcoin_rpc_url: get_string("BITCOIN_RPC_URL"),
-      bitcoin_rpc_username: get_string("BITCOIN_RPC_USERNAME"),
+      dogecoin_rpc_limit: get_u32("DOGECOIN_RPC_LIMIT")?,
+      dogecoin_rpc_password: get_string("DOGECOIN_RPC_PASSWORD"),
+      dogecoin_rpc_url: get_string("DOGECOIN_RPC_URL"),
+      dogecoin_rpc_username: get_string("DOGECOIN_RPC_USERNAME"),
       chain: get_chain("CHAIN")?,
       commit_interval: get_usize("COMMIT_INTERVAL")?,
       config: get_path("CONFIG"),
@@ -261,7 +261,7 @@ impl Settings {
       index: get_path("INDEX"),
       index_addresses: get_bool("INDEX_ADDRESSES"),
       index_cache_size: get_usize("INDEX_CACHE_SIZE")?,
-      index_runes: get_bool("INDEX_RUNES"),
+      index_dunes: get_bool("INDEX_DUNES"),
       index_sats: get_bool("INDEX_SATS"),
       index_transactions: get_bool("INDEX_TRANSACTIONS"),
       integration_test: get_bool("INTEGRATION_TEST"),
@@ -277,10 +277,10 @@ impl Settings {
   pub fn for_env(dir: &Path, rpc_url: &str, server_url: &str) -> Self {
     Self {
       dogecoin_data_dir: Some(dir.into()),
-      bitcoin_rpc_limit: None,
-      bitcoin_rpc_password: None,
-      bitcoin_rpc_url: Some(rpc_url.into()),
-      bitcoin_rpc_username: None,
+      dogecoin_rpc_limit: None,
+      dogecoin_rpc_password: None,
+      dogecoin_rpc_url: Some(rpc_url.into()),
+      dogecoin_rpc_username: None,
       chain: Some(Chain::DogecoinRegtest),
       commit_interval: None,
       config: None,
@@ -293,7 +293,7 @@ impl Settings {
       index: None,
       index_addresses: true,
       index_cache_size: None,
-      index_runes: true,
+      index_dunes: true,
       index_sats: true,
       index_transactions: false,
       integration_test: false,
@@ -341,15 +341,15 @@ impl Settings {
 
     Ok(Self {
       dogecoin_data_dir: Some(dogecoin_data_dir),
-      bitcoin_rpc_limit: Some(self.bitcoin_rpc_limit.unwrap_or(12)),
-      bitcoin_rpc_password: self.bitcoin_rpc_password,
-      bitcoin_rpc_url: Some(
+      dogecoin_rpc_limit: Some(self.dogecoin_rpc_limit.unwrap_or(12)),
+      dogecoin_rpc_password: self.dogecoin_rpc_password,
+      dogecoin_rpc_url: Some(
         self
-          .bitcoin_rpc_url
+          .dogecoin_rpc_url
           .clone()
           .unwrap_or_else(|| format!("127.0.0.1:{}", chain.default_rpc_port())),
       ),
-      bitcoin_rpc_username: self.bitcoin_rpc_username,
+      dogecoin_rpc_username: self.dogecoin_rpc_username,
       chain: Some(chain),
       commit_interval: Some(self.commit_interval.unwrap_or(5000)),
       config: None,
@@ -369,7 +369,7 @@ impl Settings {
           usize::try_from(sys.total_memory() / 4)?
         }
       }),
-      index_runes: self.index_runes,
+      index_dunes: self.index_dunes,
       index_sats: self.index_sats,
       index_transactions: self.index_transactions,
       integration_test: self.integration_test,
@@ -390,11 +390,11 @@ impl Settings {
     )
   }
 
-  pub fn bitcoin_credentials(&self) -> Result<Auth> {
+  pub fn dogecoin_credentials(&self) -> Result<Auth> {
     if let Some((user, pass)) = &self
-      .bitcoin_rpc_username
+      .dogecoin_rpc_username
       .as_ref()
-      .zip(self.bitcoin_rpc_password.as_ref())
+      .zip(self.dogecoin_rpc_password.as_ref())
     {
       Ok(Auth::UserPass((*user).clone(), (*pass).clone()))
     } else {
@@ -402,17 +402,17 @@ impl Settings {
     }
   }
 
-  pub fn bitcoin_rpc_client(&self, wallet: Option<String>) -> Result<Client> {
-    let rpc_url = self.bitcoin_rpc_url(wallet);
+  pub fn dogecoin_rpc_client(&self, wallet: Option<String>) -> Result<Client> {
+    let rpc_url = self.dogecoin_rpc_url(wallet);
 
-    let bitcoin_credentials = self.bitcoin_credentials()?;
+    let dogecoin_credentials = self.dogecoin_credentials()?;
 
     log::trace!(
       "Connecting to Dogecoin Core at {}",
-      self.bitcoin_rpc_url(None)
+      self.dogecoin_rpc_url(None)
     );
 
-    if let Auth::CookieFile(cookie_file) = &bitcoin_credentials {
+    if let Auth::CookieFile(cookie_file) = &dogecoin_credentials {
       log::trace!(
         "Using credentials from cookie file at `{}`",
         cookie_file.display()
@@ -425,10 +425,10 @@ impl Settings {
       );
     }
 
-    let client = Client::new(&rpc_url, bitcoin_credentials.clone()).with_context(|| {
+    let client = Client::new(&rpc_url, dogecoin_credentials.clone()).with_context(|| {
       format!(
         "failed to connect to Dogecoin Core RPC at `{rpc_url}` with {}",
-        match bitcoin_credentials {
+        match dogecoin_credentials {
           Auth::None => "no credentials".into(),
           Auth::UserPass(_, _) => "username and password".into(),
           Auth::CookieFile(cookie_file) => format!("cookie file at {}", cookie_file.display()),
@@ -547,11 +547,11 @@ impl Settings {
     }
   }
 
-  pub fn first_rune_height(&self) -> u32 {
+  pub fn first_dune_height(&self) -> u32 {
     if self.integration_test {
       0
     } else {
-      self.chain.unwrap().first_rune_height()
+      self.chain.unwrap().first_dune_height()
     }
   }
 
@@ -571,8 +571,8 @@ impl Settings {
     !self.no_index_inscriptions
   }
 
-  pub fn index_runes_raw(&self) -> bool {
-    self.index_runes
+  pub fn index_dunes_raw(&self) -> bool {
+    self.index_dunes
   }
 
   pub fn index_cache_size(&self) -> usize {
@@ -599,16 +599,16 @@ impl Settings {
       .unwrap_or_default()
   }
 
-  pub fn bitcoin_rpc_url(&self, wallet_name: Option<String>) -> String {
-    let base_url = self.bitcoin_rpc_url.as_ref().unwrap();
+  pub fn dogecoin_rpc_url(&self, wallet_name: Option<String>) -> String {
+    let base_url = self.dogecoin_rpc_url.as_ref().unwrap();
     match wallet_name {
       Some(wallet_name) => format!("{base_url}/wallet/{wallet_name}"),
       None => format!("{base_url}/"),
     }
   }
 
-  pub fn bitcoin_rpc_limit(&self) -> u32 {
-    self.bitcoin_rpc_limit.unwrap()
+  pub fn dogecoin_rpc_limit(&self) -> u32 {
+    self.dogecoin_rpc_limit.unwrap()
   }
 
   pub fn server_url(&self) -> Option<&str> {
@@ -649,7 +649,7 @@ mod tests {
     assert_eq!(
       Settings::merge(
         Options {
-          bitcoin_rpc_username: Some("foo".into()),
+          dogecoin_rpc_username: Some("foo".into()),
           ..default()
         },
         Default::default(),
@@ -665,7 +665,7 @@ mod tests {
     assert_eq!(
       Settings::merge(
         Options {
-          bitcoin_rpc_password: Some("foo".into()),
+          dogecoin_rpc_password: Some("foo".into()),
           ..default()
         },
         Default::default(),
@@ -679,8 +679,8 @@ mod tests {
   #[test]
   fn auth_with_user_and_pass() {
     assert_eq!(
-      parse(&["--bitcoin-rpc-username=foo", "--bitcoin-rpc-password=bar"])
-        .bitcoin_credentials()
+      parse(&["--dogecoin-rpc-username=foo", "--dogecoin-rpc-password=bar"])
+        .dogecoin_credentials()
         .unwrap(),
       Auth::UserPass("foo".into(), "bar".into())
     );
@@ -690,7 +690,7 @@ mod tests {
   fn auth_with_cookie_file() {
     assert_eq!(
       parse(&["--cookie-file=/var/lib/Dogecoin/.cookie"])
-        .bitcoin_credentials()
+        .dogecoin_credentials()
         .unwrap(),
       Auth::CookieFile("/var/lib/Dogecoin/.cookie".into())
     );
@@ -700,7 +700,7 @@ mod tests {
   fn cookie_file_does_not_exist_error() {
     assert_eq!(
       parse(&["--cookie-file=/foo/bar/baz/qux/.cookie"])
-        .bitcoin_rpc_client(None)
+        .dogecoin_rpc_client(None)
         .err()
         .unwrap()
         .to_string(),
@@ -717,12 +717,12 @@ mod tests {
     let settings = parse(&[
       "--cookie-file",
       core.cookie_file().to_str().unwrap(),
-      "--bitcoin-rpc-url",
+      "--dogecoin-rpc-url",
       &core.url(),
     ]);
 
     assert_eq!(
-      settings.bitcoin_rpc_client(None).unwrap_err().to_string(),
+      settings.dogecoin_rpc_client(None).unwrap_err().to_string(),
       "RPC server is on dogecoin-regtest but dog is on dogecoin"
     );
   }
@@ -730,8 +730,8 @@ mod tests {
   #[test]
   fn rpc_url_overrides_network() {
     assert_eq!(
-      parse(&["--bitcoin-rpc-url=127.0.0.1:1234", "--chain=dogecoin-testnet"])
-        .bitcoin_rpc_url(None),
+      parse(&["--dogecoin-rpc-url=127.0.0.1:1234", "--chain=dogecoin-testnet"])
+        .dogecoin_rpc_url(None),
       "127.0.0.1:1234/"
     );
   }
@@ -750,7 +750,7 @@ mod tests {
   fn use_default_network() {
     let settings = parse(&[]);
 
-    assert_eq!(settings.bitcoin_rpc_url(None), "127.0.0.1:22555/");
+    assert_eq!(settings.dogecoin_rpc_url(None), "127.0.0.1:22555/");
 
     assert!(settings.cookie_file().unwrap().ends_with(".cookie"));
   }
@@ -759,7 +759,7 @@ mod tests {
   fn uses_network_defaults() {
     let settings = parse(&["--chain=dogecoin-testnet"]);
 
-    assert_eq!(settings.bitcoin_rpc_url(None), "127.0.0.1:44555/");
+    assert_eq!(settings.dogecoin_rpc_url(None), "127.0.0.1:44555/");
 
     assert!(
       settings
@@ -946,7 +946,7 @@ mod tests {
     let (settings, _) = wallet("dog wallet --name foo balance");
 
     assert_eq!(
-      settings.bitcoin_rpc_url(Some("foo".into())),
+      settings.dogecoin_rpc_url(Some("foo".into())),
       "127.0.0.1:22555/wallet/foo"
     );
   }
@@ -982,17 +982,17 @@ mod tests {
   }
 
   #[test]
-  fn index_runes() {
-    assert!(parse(&["--chain=dogecoin-testnet", "--index-dunes"]).index_runes_raw());
-    assert!(parse(&["--index-dunes"]).index_runes_raw());
-    assert!(!parse(&[]).index_runes_raw());
+  fn index_dunes() {
+    assert!(parse(&["--chain=dogecoin-testnet", "--index-dunes"]).index_dunes_raw());
+    assert!(parse(&["--index-dunes"]).index_dunes_raw());
+    assert!(!parse(&[]).index_dunes_raw());
   }
 
   #[test]
-  fn bitcoin_rpc_and_pass_setting() {
+  fn dogecoin_rpc_and_pass_setting() {
     let config = Settings {
-      bitcoin_rpc_username: Some("config_user".into()),
-      bitcoin_rpc_password: Some("config_pass".into()),
+      dogecoin_rpc_username: Some("config_user".into()),
+      dogecoin_rpc_password: Some("config_pass".into()),
       ..default()
     };
 
@@ -1005,20 +1005,20 @@ mod tests {
     assert_eq!(
       Settings::merge(
         Options {
-          bitcoin_rpc_username: Some("option_user".into()),
-          bitcoin_rpc_password: Some("option_pass".into()),
+          dogecoin_rpc_username: Some("option_user".into()),
+          dogecoin_rpc_password: Some("option_pass".into()),
           config: Some(config_path.clone()),
           ..default()
         },
         vec![
-          ("BITCOIN_RPC_USERNAME".into(), "env_user".into()),
-          ("BITCOIN_RPC_PASSWORD".into(), "env_pass".into()),
+          ("DOGECOIN_RPC_USERNAME".into(), "env_user".into()),
+          ("DOGECOIN_RPC_PASSWORD".into(), "env_pass".into()),
         ]
         .into_iter()
         .collect(),
       )
       .unwrap()
-      .bitcoin_credentials()
+      .dogecoin_credentials()
       .unwrap(),
       Auth::UserPass("option_user".into(), "option_pass".into()),
     );
@@ -1030,14 +1030,14 @@ mod tests {
           ..default()
         },
         vec![
-          ("BITCOIN_RPC_USERNAME".into(), "env_user".into()),
-          ("BITCOIN_RPC_PASSWORD".into(), "env_pass".into()),
+          ("DOGECOIN_RPC_USERNAME".into(), "env_user".into()),
+          ("DOGECOIN_RPC_PASSWORD".into(), "env_pass".into()),
         ]
         .into_iter()
         .collect(),
       )
       .unwrap()
-      .bitcoin_credentials()
+      .dogecoin_credentials()
       .unwrap(),
       Auth::UserPass("env_user".into(), "env_pass".into()),
     );
@@ -1051,7 +1051,7 @@ mod tests {
         Default::default(),
       )
       .unwrap()
-      .bitcoin_credentials()
+      .dogecoin_credentials()
       .unwrap(),
       Auth::UserPass("config_user".into(), "config_pass".into()),
     );
@@ -1059,7 +1059,7 @@ mod tests {
     assert_matches!(
       Settings::merge(Default::default(), Default::default())
         .unwrap()
-        .bitcoin_credentials()
+        .dogecoin_credentials()
         .unwrap(),
       Auth::CookieFile(_),
     );
@@ -1074,10 +1074,10 @@ mod tests {
   fn from_env() {
     let env = vec![
       ("DOGECOIN_DATA_DIR", "/dogecoin/data/dir"),
-      ("BITCOIN_RPC_LIMIT", "12"),
-      ("BITCOIN_RPC_PASSWORD", "dogecoin password"),
-      ("BITCOIN_RPC_URL", "url"),
-      ("BITCOIN_RPC_USERNAME", "dogecoin username"),
+      ("DOGECOIN_RPC_LIMIT", "12"),
+      ("DOGECOIN_RPC_PASSWORD", "dogecoin password"),
+      ("DOGECOIN_RPC_URL", "url"),
+      ("DOGECOIN_RPC_USERNAME", "dogecoin username"),
       ("CHAIN", "dogecoin-testnet"),
       ("COMMIT_INTERVAL", "1"),
       ("CONFIG", "config"),
@@ -1090,7 +1090,7 @@ mod tests {
       ("INDEX", "index"),
       ("INDEX_ADDRESSES", "1"),
       ("INDEX_CACHE_SIZE", "4"),
-      ("INDEX_RUNES", "1"),
+      ("INDEX_DUNES", "1"),
       ("INDEX_SATS", "1"),
       ("INDEX_TRANSACTIONS", "1"),
       ("INTEGRATION_TEST", "1"),
@@ -1109,10 +1109,10 @@ mod tests {
       Settings::from_env(env).unwrap(),
       Settings {
         dogecoin_data_dir: Some("/dogecoin/data/dir".into()),
-        bitcoin_rpc_limit: Some(12),
-        bitcoin_rpc_password: Some("dogecoin password".into()),
-        bitcoin_rpc_url: Some("url".into()),
-        bitcoin_rpc_username: Some("dogecoin username".into()),
+        dogecoin_rpc_limit: Some(12),
+        dogecoin_rpc_password: Some("dogecoin password".into()),
+        dogecoin_rpc_url: Some("url".into()),
+        dogecoin_rpc_username: Some("dogecoin username".into()),
         chain: Some(Chain::DogecoinTestnet),
         commit_interval: Some(1),
         savepoint_interval: Some(10),
@@ -1138,7 +1138,7 @@ mod tests {
         index: Some("index".into()),
         index_addresses: true,
         index_cache_size: Some(4),
-        index_runes: true,
+        index_dunes: true,
         index_sats: true,
         index_transactions: true,
         integration_test: true,
@@ -1157,10 +1157,10 @@ mod tests {
         Options::try_parse_from([
           "dog",
           "--dogecoin-data-dir=/dogecoin/data/dir",
-          "--bitcoin-rpc-limit=12",
-          "--bitcoin-rpc-password=dogecoin password",
-          "--bitcoin-rpc-url=url",
-          "--bitcoin-rpc-username=dogecoin username",
+          "--dogecoin-rpc-limit=12",
+          "--dogecoin-rpc-password=dogecoin password",
+          "--dogecoin-rpc-url=url",
+          "--dogecoin-rpc-username=dogecoin username",
           "--chain=dogecoin-testnet",
           "--commit-interval=1",
           "--savepoint-interval=10",
@@ -1185,10 +1185,10 @@ mod tests {
       ),
       Settings {
         dogecoin_data_dir: Some("/dogecoin/data/dir".into()),
-        bitcoin_rpc_limit: Some(12),
-        bitcoin_rpc_password: Some("dogecoin password".into()),
-        bitcoin_rpc_url: Some("url".into()),
-        bitcoin_rpc_username: Some("dogecoin username".into()),
+        dogecoin_rpc_limit: Some(12),
+        dogecoin_rpc_password: Some("dogecoin password".into()),
+        dogecoin_rpc_url: Some("url".into()),
+        dogecoin_rpc_username: Some("dogecoin username".into()),
         chain: Some(Chain::DogecoinTestnet),
         commit_interval: Some(1),
         savepoint_interval: Some(10),
@@ -1203,7 +1203,7 @@ mod tests {
         index: Some("index".into()),
         index_addresses: true,
         index_cache_size: Some(4),
-        index_runes: true,
+        index_dunes: true,
         index_sats: true,
         index_transactions: true,
         integration_test: true,

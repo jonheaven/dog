@@ -7,7 +7,7 @@ use {
     Transaction, TxOut,
   },
   libfuzzer_sys::fuzz_target,
-  ordinals::Runestone,
+  ordinals::Dunestone,
 };
 
 fuzz_target!(|input: Vec<Vec<u8>>| {
@@ -32,5 +32,5 @@ fuzz_target!(|input: Vec<Vec<u8>>| {
     version: 2,
   };
 
-  Runestone::decipher(&tx);
+  Dunestone::decipher(&tx);
 });

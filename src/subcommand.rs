@@ -32,7 +32,7 @@ pub(crate) enum Subcommand {
   Dns(dns::DnsCommand),
   #[command(about = "DRC-20 token commands")]
   Drc20(drc20::Drc20Command),
-  #[command(about = "Start a regtest ord and bitcoind instance")]
+  #[command(about = "Start a regtest dog and Dogecoin Core instance")]
   Env(env::Env),
   #[command(about = "List the first koinus of each reward epoch")]
   Epochs,
@@ -45,7 +45,7 @@ pub(crate) enum Subcommand {
   #[command(about = "Parse a koinu from ordinal notation")]
   Parse(parse::Parse),
   #[command(about = "List all dunes")]
-  Runes,
+  Dunes,
   #[command(about = "Scan a block range for inscriptions (no full index required)")]
   Scan(scan::ScanCommand),
   #[command(about = "Run the explorer server")]
@@ -81,7 +81,7 @@ impl Subcommand {
       Self::Index(index) => index.run(settings),
       Self::List(list) => list.run(settings),
       Self::Parse(parse) => parse.run(),
-      Self::Runes => dunes::run(settings),
+      Self::Dunes => dunes::run(settings),
       Self::Scan(scan) => scan.run(settings),
       Self::Server(server) => {
         let index = Arc::new(Index::open(&settings)?);

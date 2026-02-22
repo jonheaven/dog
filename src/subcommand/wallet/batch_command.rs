@@ -95,12 +95,12 @@ impl Batch {
     );
 
     ensure!(
-      wallet.has_rune_index(),
+      wallet.has_dune_index(),
       "etching dunes requires index created with `--index-dunes`",
     );
 
     ensure!(
-      wallet.get_rune(dune)?.is_none(),
+      wallet.get_dune(dune)?.is_none(),
       "dune `{dune}` has already been etched",
     );
 
@@ -129,17 +129,17 @@ impl Batch {
 
     ensure!(supply > 0, "`supply` must be greater than zero");
 
-    let bitcoin_client = wallet.bitcoin_client();
+    let dogecoin_client = wallet.dogecoin_client();
 
-    let current_height = u32::try_from(bitcoin_client.get_block_count()?).unwrap();
+    let current_height = u32::try_from(dogecoin_client.get_block_count()?).unwrap();
 
     let reveal_height = current_height + u32::from(Dunestone::COMMIT_CONFIRMATIONS);
 
-    let first_rune_height = Dune::first_rune_height(wallet.chain().into());
+    let first_dune_height = Dune::first_dune_height(wallet.chain().into());
 
     ensure!(
-      reveal_height >= first_rune_height,
-      "dune reveal height below dune activation height: {reveal_height} < {first_rune_height}",
+      reveal_height >= first_dune_height,
+      "dune reveal height below dune activation height: {reveal_height} < {first_dune_height}",
     );
 
     if let Some(terms) = etching.terms {

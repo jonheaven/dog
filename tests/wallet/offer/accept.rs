@@ -407,14 +407,14 @@ inscriptions:
 }
 
 #[test]
-fn outgoing_does_not_contain_runes() {
+fn outgoing_does_not_contain_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  let a = etch(&core, &dog, Dune(RUNE));
+  let a = etch(&core, &dog, Dune(DUNE));
 
   let (block, tx) = core.tx_index(a.output.reveal);
 

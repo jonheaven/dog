@@ -74,7 +74,7 @@ is now available for Doginals:
 | Correct koinu numbering | Partial | Yes | **Yes** |
 | scriptSig inscription parser | Yes | Yes | **Yes (rewritten)** |
 | Dogecoin address encoding | Basic | Basic | **Full P2PKH + P2SH** |
-| Dunes (Dogecoin Runes) protocol | No | No | **Stubbed & ready** |
+| Dunes (Dogecoin Dunes) protocol | No | No | **Stubbed & ready** |
 | Wallet subcommands | Basic | Basic | **Full (inscribe, send, receive, batch, burn, split, sweep…)** |
 | Explorer / server | Basic | Basic | **Full with collections, galleries, attributes** |
 | JSON API | Partial | Partial | **Complete** |
@@ -96,7 +96,7 @@ container rather than Bitcoin's taproot witness.
 The codebase was fully renamed to reflect Dogecoin's own terminology:
 
 - Binary: `ord` → `dog`
-- Runes → **Dunes** (Dogecoin's equivalent protocol)
+- Dunes → **Dunes** (Dogecoin's equivalent protocol)
 - Satoshis/Sats → **Koinu** (Dogecoin's smallest unit)
 - Ordinals → **Doginals**
 - Bitcoin chains removed; only `dogecoin`, `dogecoin-testnet`,

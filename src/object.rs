@@ -44,7 +44,7 @@ impl FromStr for Object {
           .snafu_context(error::OutPointParse { input })?,
       )),
       Dune => Ok(Self::Dune(
-        input.parse().snafu_context(error::RuneParse { input })?,
+        input.parse().snafu_context(error::DuneParse { input })?,
       )),
       KoinuPoint => Ok(Self::KoinuPoint(
         input

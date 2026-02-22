@@ -17,11 +17,11 @@ pub(crate) static INSCRIPTION_NUMBER: LazyLock<Regex> = re!(r"-?[0-9]{1,63}");
 pub(crate) static ORDINALS_SATSCARD_URL: LazyLock<Regex> =
   re!(r"https://ordinals.com/koinucard\?(?<query>.*)");
 pub(crate) static OUTPOINT: LazyLock<Regex> = re!(r"[[:xdigit:]]{64}:\d+");
-pub(crate) static RUNE_ID: LazyLock<Regex> = re!(r"[0-9]{1,63}:[0-9]+");
-pub(crate) static RUNE_NUMBER: LazyLock<Regex> = re!(r"-?[0-9]+");
+pub(crate) static DUNE_ID: LazyLock<Regex> = re!(r"[0-9]{1,63}:[0-9]+");
+pub(crate) static DUNE_NUMBER: LazyLock<Regex> = re!(r"-?[0-9]+");
 pub(crate) static SATPOINT: LazyLock<Regex> = re!(r"[[:xdigit:]]{64}:\d+:\d+");
 pub(crate) static SAT_NAME: LazyLock<Regex> = re!(r"[a-z]{1,11}");
-pub(crate) static SPACED_RUNE: LazyLock<Regex> = re!(r"[A-Z•.]+");
+pub(crate) static SPACED_DUNE: LazyLock<Regex> = re!(r"[A-Z•.]+");
 
 #[cfg(test)]
 mod tests {

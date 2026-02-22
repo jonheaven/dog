@@ -43,7 +43,7 @@ impl Chain {
     }
   }
 
-  pub(crate) fn first_rune_height(self) -> u32 {
+  pub(crate) fn first_dune_height(self) -> u32 {
     // "Dunes" (Dogecoin Dunes protocol) — use u32::MAX until activated
     u32::MAX
   }

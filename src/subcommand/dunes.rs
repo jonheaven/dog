@@ -2,11 +2,11 @@ use super::*;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Output {
-  pub dunes: BTreeMap<Dune, RuneInfo>,
+  pub dunes: BTreeMap<Dune, DuneInfo>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct RuneInfo {
+pub struct DuneInfo {
   pub block: u64,
   pub burned: u128,
   pub divisibility: u8,
@@ -28,7 +28,7 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
   let index = Index::open(&settings)?;
 
   ensure!(
-    index.has_rune_index(),
+    index.has_dune_index(),
     "`ord dunes` requires index created with `--index-dunes` flag",
   );
 
@@ -58,7 +58,7 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
         )| {
           (
             spaced_dune.dune,
-            RuneInfo {
+            DuneInfo {
               block,
               burned,
               divisibility,
@@ -78,6 +78,6 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
           )
         },
       )
-      .collect::<BTreeMap<Dune, RuneInfo>>(),
+      .collect::<BTreeMap<Dune, DuneInfo>>(),
   })))
 }

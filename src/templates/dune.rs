@@ -1,14 +1,14 @@
 use super::*;
 
 #[derive(Boilerplate, Debug, PartialEq, Serialize, Deserialize)]
-pub struct RuneHtml {
+pub struct DuneHtml {
   pub entry: DuneEntry,
   pub id: DuneId,
   pub mintable: bool,
   pub parent: Option<InscriptionId>,
 }
 
-impl RuneHtml {
+impl DuneHtml {
   fn mint_progress(&self) -> Option<Decimal> {
     if !self.mintable {
       return None;
@@ -30,7 +30,7 @@ impl RuneHtml {
   }
 }
 
-impl PageContent for RuneHtml {
+impl PageContent for DuneHtml {
   fn title(&self) -> String {
     format!("Dune {}", self.entry.spaced_dune)
   }
@@ -43,7 +43,7 @@ mod tests {
   #[test]
   fn display() {
     assert_regex_match!(
-      RuneHtml {
+      DuneHtml {
         entry: DuneEntry {
           block: 1,
           burned: 123456789123456789,
@@ -133,7 +133,7 @@ mod tests {
   #[test]
   fn display_no_mint() {
     assert_regex_match!(
-      RuneHtml {
+      DuneHtml {
         entry: DuneEntry {
           block: 0,
           burned: 123456789123456789,
@@ -167,7 +167,7 @@ mod tests {
   #[test]
   fn display_no_turbo() {
     assert_regex_match!(
-      RuneHtml {
+      DuneHtml {
         entry: DuneEntry {
           block: 0,
           burned: 123456789123456789,
@@ -201,7 +201,7 @@ mod tests {
   #[test]
   fn display_empty_mint() {
     assert_regex_match!(
-      RuneHtml {
+      DuneHtml {
         entry: DuneEntry {
           block: 0,
           burned: 123456789123456789,
@@ -257,7 +257,7 @@ mod tests {
   #[test]
   fn mint_progress() {
     assert_regex_match!(
-      RuneHtml {
+      DuneHtml {
         entry: DuneEntry {
           block: 0,
           burned: 0,
@@ -294,7 +294,7 @@ mod tests {
     );
 
     assert_regex_match!(
-      RuneHtml {
+      DuneHtml {
         entry: DuneEntry {
           block: 0,
           burned: 0,

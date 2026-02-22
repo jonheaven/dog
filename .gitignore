@@ -13,3 +13,6 @@
 /test-times.txt
 /tmp
 ref/
+
+# Local environment file (contains credentials)
+.env

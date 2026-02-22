@@ -2081,16 +2081,16 @@ msgid "The server can be run locally with:"
 msgstr "Сервер может быть запущен локально с помощью команды:"
 
 #: src/guides/explorer.md:11
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src/guides/explorer.md:13
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Для указания порта добавьте `--http-port` flag:"
 
 #: src/guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
-msgstr "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "`dog server --http-port 8080`"
 
 #: src/guides/explorer.md:17
 msgid "To enable the JSON-API endpoints add the `--enable-json-api` or `-e` flag:"
@@ -3845,8 +3845,8 @@ msgstr ""
 "```"
 
 #: src/guides/moderation.md:4
-msgid "`ord` includes a block explorer, which you can run locally with `ord server`."
-msgstr "В состав `ord` входит обозреватель блоков, который можно запустить локально с помощью `ord server`."
+msgid "`ord` includes a block explorer, which you can run locally with `dog server`."
+msgstr "В состав `ord` входит обозреватель блоков, который можно запустить локально с помощью `dog server`."
 
 #: src/guides/moderation.md:6
 msgid "The block explorer allows viewing inscriptions. Inscriptions are user-generated content, which may be objectionable or unlawful."
@@ -3909,9 +3909,9 @@ msgid "`ordinals.com`"
 msgstr "`ordinals.com`"
 
 #: src/guides/moderation.md:40
-msgid "The `ordinals.com` instances use `systemd` to run the `ord server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
+msgid "The `ordinals.com` instances use `systemd` to run the `dog server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
-"Экземпляры `ordinals.com` используют `systemd` для запуска службы `ord server`, которая называется `ord`, с файлом конфига, расположенным по адресу `/var/lib/"
+"Экземпляры `ordinals.com` используют `systemd` для запуска службы `dog server`, которая называется `ord`, с файлом конфига, расположенным по адресу `/var/lib/"
 "ord/ord.yaml`."
 
 #: src/guides/moderation.md:43
@@ -3944,7 +3944,7 @@ msgid ""
 "server`. Reasons to reindex are:"
 msgstr ""
 "Иногда базу данных `ord` необходимо переиндексировать, что означает удаление базы данных и повторный запуск процесса индексирования с помощью `ord index run` "
-"или `ord server`. Причинами для переиндексации являются:"
+"или `dog server`. Причинами для переиндексации являются:"
 
 #: src/guides/reindexing.md:8
 msgid "A new major release of ord, which changes the database scheme"

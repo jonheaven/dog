@@ -8,16 +8,16 @@ pub struct Options {
     long,
     help = "Authenticate to Dogecoin Core RPC with <DOGECOIN_RPC_PASSWORD>."
   )]
-  pub(crate) bitcoin_rpc_password: Option<String>,
+  pub(crate) dogecoin_rpc_password: Option<String>,
   #[arg(long, help = "Connect to Dogecoin Core RPC at <DOGECOIN_RPC_URL>.")]
-  pub(crate) bitcoin_rpc_url: Option<String>,
+  pub(crate) dogecoin_rpc_url: Option<String>,
   #[arg(
     long,
     help = "Authenticate to Dogecoin Core RPC as <DOGECOIN_RPC_USERNAME>."
   )]
-  pub(crate) bitcoin_rpc_username: Option<String>,
+  pub(crate) dogecoin_rpc_username: Option<String>,
   #[arg(long, help = "Max <N> requests in flight. [default: 12]")]
-  pub(crate) bitcoin_rpc_limit: Option<u32>,
+  pub(crate) dogecoin_rpc_limit: Option<u32>,
   #[arg(long = "chain", value_enum, help = "Use <CHAIN>. [default: dogecoin]")]
   pub(crate) chain_argument: Option<Chain>,
   #[arg(
@@ -52,7 +52,7 @@ pub struct Options {
   )]
   pub(crate) index_cache_size: Option<usize>,
   #[arg(long, help = "Track location of dunes.")]
-  pub(crate) index_runes: bool,
+  pub(crate) index_dunes: bool,
   #[arg(long, help = "Track location of all koinu.")]
   pub(crate) index_sats: bool,
   #[arg(long, help = "Store transactions in index.")]

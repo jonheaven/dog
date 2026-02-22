@@ -27,7 +27,7 @@ pub mod wallet_constructor;
 
 const SCHEMA_VERSION: u64 = 1;
 
-define_table! { RUNE_TO_ETCHING, u128, EtchingEntryValue }
+define_table! { DUNE_TO_ETCHING, u128, EtchingEntryValue }
 define_table! { STATISTICS, u64, u64 }
 
 #[derive(Copy, Clone)]
@@ -73,9 +73,9 @@ pub(crate) enum Maturity {
 }
 
 pub(crate) struct Wallet {
-  bitcoin_client: Client,
+  dogecoin_client: Client,
   database: Database,
-  has_rune_index: bool,
+  has_dune_index: bool,
   has_sat_index: bool,
   rpc_url: Url,
   utxos: BTreeMap<OutPoint, TxOut>,
@@ -99,7 +99,7 @@ impl Wallet {
       if let Some(koinu_ranges) = &info.koinu_ranges {
         output_sat_ranges.push((*output, koinu_ranges.clone()));
       } else {
-        bail!("output {output} in wallet but is spent according to ord server");
+        bail!("output {output} in wallet but is spent according to dog server");
       }
     }
 
@@ -116,7 +116,7 @@ impl Wallet {
       if let Some(koinu_ranges) = &info.koinu_ranges {
         Ok(koinu_ranges.clone())
       } else {
-        bail!("output {output} in wallet but is spent according to ord server");
+        bail!("output {output} in wallet but is spent according to dog server");
       }
     } else {
       bail!("output {output} not found in wallet");
@@ -151,8 +151,8 @@ impl Wallet {
     )))
   }
 
-  pub(crate) fn bitcoin_client(&self) -> &Client {
-    &self.bitcoin_client
+  pub(crate) fn dogecoin_client(&self) -> &Client {
+    &self.dogecoin_client
   }
 
   pub(crate) fn utxos(&self) -> &BTreeMap<OutPoint, TxOut> {
@@ -185,7 +185,7 @@ impl Wallet {
       .filter(|utxo| !locked.contains(utxo))
       .collect::<Vec<OutPoint>>();
 
-    if !self.bitcoin_client().lock_unspent(&outputs)? {
+    if !self.dogecoin_client().lock_unspent(&outputs)? {
       bail!("failed to lock UTXOs");
     }
 
@@ -293,7 +293,7 @@ impl Wallet {
     Ok(Some(runic_outputs))
   }
 
-  pub(crate) fn get_runes_balances_in_output(
+  pub(crate) fn get_dunes_balances_in_output(
     &self,
     output: &OutPoint,
   ) -> Result<Option<BTreeMap<SpacedDune, Pile>>> {
@@ -307,7 +307,7 @@ impl Wallet {
     )
   }
 
-  pub(crate) fn get_rune(
+  pub(crate) fn get_dune(
     &self,
     dune: Dune,
   ) -> Result<Option<(DuneId, DuneEntry, Option<InscriptionId>)>> {
@@ -327,15 +327,15 @@ impl Wallet {
 
     let response = response.error_for_status()?;
 
-    let rune_json: api::Dune = serde_json::from_str(&response.text()?)?;
+    let dune_json: api::Dune = serde_json::from_str(&response.text()?)?;
 
-    Ok(Some((rune_json.id, rune_json.entry, rune_json.parent)))
+    Ok(Some((dune_json.id, dune_json.entry, dune_json.parent)))
   }
 
   pub(crate) fn get_change_address(&self) -> Result<Address> {
     Ok(
       self
-        .bitcoin_client
+        .dogecoin_client
         .call::<Address<NetworkUnchecked>>("getrawchangeaddress", &["bech32m".into()])
         .context("could not get change addresses from wallet")?
         .require_network(self.chain().network())?,
@@ -345,7 +345,7 @@ impl Wallet {
   pub(crate) fn get_receive_address(&self) -> Result<Address> {
     Ok(
       self
-        .bitcoin_client
+        .dogecoin_client
         .get_new_address(None, Some(bitcoincore_rpc::json::AddressType::Bech32m))
         .context("could not get receive addresses from wallet")?
         .require_network(self.chain().network())?,
@@ -356,8 +356,8 @@ impl Wallet {
     self.has_sat_index
   }
 
-  pub(crate) fn has_rune_index(&self) -> bool {
-    self.has_rune_index
+  pub(crate) fn has_dune_index(&self) -> bool {
+    self.has_dune_index
   }
 
   pub(crate) fn chain(&self) -> Chain {
@@ -373,7 +373,7 @@ impl Wallet {
       dune
         >= Dune::minimum_at_height(
           self.chain().network(),
-          Height(u32::try_from(self.bitcoin_client().get_block_count()? + 1).unwrap()),
+          Height(u32::try_from(self.dogecoin_client().get_block_count()? + 1).unwrap()),
         ),
     )
   }
@@ -381,19 +381,19 @@ impl Wallet {
   pub(crate) fn check_maturity(&self, dune: Dune, commit: &Transaction) -> Result<Maturity> {
     Ok(
       if let Some(commit_tx) = self
-        .bitcoin_client()
+        .dogecoin_client()
         .get_transaction(&commit.compute_txid(), Some(true))
         .into_option()?
       {
         let current_confirmations = u32::try_from(commit_tx.info.confirmations)?;
         if self
-          .bitcoin_client()
+          .dogecoin_client()
           .get_tx_out(&commit.compute_txid(), 0, Some(true))?
           .is_none()
         {
           Maturity::CommitSpent(commit_tx.info.txid)
         } else if !self.is_above_minimum_at_height(dune)? {
-          Maturity::BelowMinimumHeight(self.bitcoin_client().get_block_count()? + 1)
+          Maturity::BelowMinimumHeight(self.dogecoin_client().get_block_count()? + 1)
         } else if current_confirmations + 1 < u32::from(Dunestone::COMMIT_CONFIRMATIONS) {
           Maturity::ConfirmationsPending(
             u32::from(Dunestone::COMMIT_CONFIRMATIONS) - current_confirmations - 1,
@@ -460,7 +460,7 @@ impl Wallet {
   }
 
   pub(crate) fn send_etching(&self, dune: Dune, entry: &EtchingEntry) -> Result<batch::Output> {
-    match self.bitcoin_client().send_raw_transaction(&entry.reveal) {
+    match self.dogecoin_client().send_raw_transaction(&entry.reveal) {
       Ok(txid) => txid,
       Err(err) => {
         return Err(anyhow!(
@@ -504,7 +504,7 @@ impl Wallet {
     settings: &Settings,
     descriptors: Vec<Descriptor>,
   ) -> Result {
-    let client = Self::check_version(settings.bitcoin_rpc_client(Some(name.clone()))?)?;
+    let client = Self::check_version(settings.dogecoin_rpc_client(Some(name.clone()))?)?;
 
     let descriptors = Self::check_descriptors(&name, descriptors)?;
 
@@ -541,7 +541,7 @@ impl Wallet {
     seed: [u8; 64],
     timestamp: bitcoincore_rpc::json::Timestamp,
   ) -> Result {
-    Self::check_version(settings.bitcoin_rpc_client(None)?)?.create_wallet(
+    Self::check_version(settings.dogecoin_rpc_client(None)?)?.create_wallet(
       &name,
       None,
       Some(true),
@@ -594,7 +594,7 @@ impl Wallet {
     }
 
     match settings
-      .bitcoin_rpc_client(Some(name.clone()))?
+      .dogecoin_rpc_client(Some(name.clone()))?
       .call::<serde_json::Value>(
         "importdescriptors",
         &[serde_json::to_value(descriptors.clone())?],
@@ -720,7 +720,7 @@ impl Wallet {
         let mut tx = database.begin_write()?;
         tx.set_quick_repair(true);
 
-        tx.open_table(RUNE_TO_ETCHING)?;
+        tx.open_table(DUNE_TO_ETCHING)?;
 
         tx.open_table(STATISTICS)?
           .insert(&Statistic::Schema.key(), &SCHEMA_VERSION)?;
@@ -745,7 +745,7 @@ impl Wallet {
     let mut wtx = self.database.begin_write()?;
     wtx.set_quick_repair(true);
 
-    wtx.open_table(RUNE_TO_ETCHING)?.insert(
+    wtx.open_table(DUNE_TO_ETCHING)?.insert(
       dune.0,
       EtchingEntry {
         commit: commit.clone(),
@@ -765,7 +765,7 @@ impl Wallet {
 
     Ok(
       rtx
-        .open_table(RUNE_TO_ETCHING)?
+        .open_table(DUNE_TO_ETCHING)?
         .get(dune.0)?
         .map(|result| EtchingEntry::load(result.value())),
     )
@@ -775,7 +775,7 @@ impl Wallet {
     let mut wtx = self.database.begin_write()?;
     wtx.set_quick_repair(true);
 
-    wtx.open_table(RUNE_TO_ETCHING)?.remove(dune.0)?;
+    wtx.open_table(DUNE_TO_ETCHING)?.remove(dune.0)?;
     wtx.commit()?;
 
     Ok(())
@@ -786,7 +786,7 @@ impl Wallet {
 
     Ok(
       rtx
-        .open_table(RUNE_TO_ETCHING)?
+        .open_table(DUNE_TO_ETCHING)?
         .iter()?
         .map(|result| {
           result.map(|(key, value)| (Dune(key.value()), EtchingEntry::load(value.value())))
@@ -805,7 +805,7 @@ impl Wallet {
 
     let (txid, psbt) = if dry_run {
       let psbt = self
-        .bitcoin_client()
+        .dogecoin_client()
         .wallet_process_psbt(
           &base64_encode(&Psbt::from_unsigned_tx(unsigned_transaction.clone())?.serialize()),
           Some(false),
@@ -817,7 +817,7 @@ impl Wallet {
       (unsigned_transaction.compute_txid(), psbt)
     } else {
       let psbt = self
-        .bitcoin_client()
+        .dogecoin_client()
         .wallet_process_psbt(
           &base64_encode(&Psbt::from_unsigned_tx(unsigned_transaction.clone())?.serialize()),
           Some(true),
@@ -827,7 +827,7 @@ impl Wallet {
         .psbt;
 
       let signed_tx = self
-        .bitcoin_client()
+        .dogecoin_client()
         .finalize_psbt(&psbt, None)?
         .hex
         .ok_or_else(|| anyhow!("unable to sign transaction"))?;
@@ -864,7 +864,7 @@ impl Wallet {
 
     Ok(
       self
-        .bitcoin_client()
+        .dogecoin_client()
         .call("sendrawtransaction", &arguments)?,
     )
   }
@@ -888,7 +888,7 @@ impl Wallet {
     };
 
     let unsigned_transaction = consensus::encode::deserialize(&fund_raw_transaction(
-      self.bitcoin_client(),
+      self.dogecoin_client(),
       fee_rate,
       &unfunded_transaction,
       None,
@@ -945,7 +945,7 @@ impl Wallet {
     )
   }
 
-  pub fn create_unsigned_send_or_burn_runes_transaction(
+  pub fn create_unsigned_send_or_burn_dunes_transaction(
     &self,
     destination: Option<Address>,
     spaced_dune: SpacedDune,
@@ -954,14 +954,14 @@ impl Wallet {
     fee_rate: FeeRate,
   ) -> Result<Transaction> {
     ensure!(
-      self.has_rune_index(),
+      self.has_dune_index(),
       "sending dunes with `ord send` requires index created with `--index-dunes` flag",
     );
 
     self.lock_non_cardinal_outputs()?;
 
     let (id, entry, _parent) = self
-      .get_rune(spaced_dune.dune)?
+      .get_dune(spaced_dune.dune)?
       .with_context(|| format!("dune `{}` has not been etched", spaced_dune.dune))?;
 
     let amount = decimal.to_integer(entry.divisibility)?;
@@ -978,7 +978,7 @@ impl Wallet {
       .into_iter()
       .filter(|output| !inscribed_outputs.contains(output))
       .map(|output| {
-        self.get_runes_balances_in_output(&output).map(|balance| {
+        self.get_dunes_balances_in_output(&output).map(|balance| {
           (
             output,
             balance
@@ -992,19 +992,19 @@ impl Wallet {
       .collect::<Result<BTreeMap<OutPoint, BTreeMap<Dune, u128>>>>()?;
 
     let mut inputs = Vec::new();
-    let mut input_rune_balances: BTreeMap<Dune, u128> = BTreeMap::new();
+    let mut input_dune_balances: BTreeMap<Dune, u128> = BTreeMap::new();
 
     for (output, dunes) in balances {
       if let Some(balance) = dunes.get(&spaced_dune.dune)
         && *balance > 0
       {
         for (dune, balance) in dunes {
-          *input_rune_balances.entry(dune).or_default() += balance;
+          *input_dune_balances.entry(dune).or_default() += balance;
         }
 
         inputs.push(output);
 
-        if input_rune_balances
+        if input_dune_balances
           .get(&spaced_dune.dune)
           .cloned()
           .unwrap_or_default()
@@ -1015,19 +1015,19 @@ impl Wallet {
       }
     }
 
-    let input_rune_balance = input_rune_balances
+    let input_dune_balance = input_dune_balances
       .get(&spaced_dune.dune)
       .cloned()
       .unwrap_or_default();
 
-    let needs_runes_change_output = input_rune_balance > amount || input_rune_balances.len() > 1;
+    let needs_dunes_change_output = input_dune_balance > amount || input_dune_balances.len() > 1;
 
     ensure! {
-      input_rune_balance >= amount,
+      input_dune_balance >= amount,
       "insufficient `{}` balance, only {} in wallet",
       spaced_dune,
       Pile {
-        amount: input_rune_balance,
+        amount: input_dune_balance,
         divisibility: entry.divisibility,
         symbol: entry.symbol
       },
@@ -1058,7 +1058,7 @@ impl Wallet {
             witness: Witness::new(),
           })
           .collect(),
-        output: if needs_runes_change_output {
+        output: if needs_dunes_change_output {
           vec![
             TxOut {
               script_pubkey: dunestone.encipher(),
@@ -1102,7 +1102,7 @@ impl Wallet {
             witness: Witness::new(),
           })
           .collect(),
-        output: if needs_runes_change_output {
+        output: if needs_dunes_change_output {
           vec![
             TxOut {
               script_pubkey: dunestone.encipher(),
@@ -1123,11 +1123,11 @@ impl Wallet {
     };
 
     let unsigned_transaction =
-      fund_raw_transaction(self.bitcoin_client(), fee_rate, &unfunded_transaction, None)?;
+      fund_raw_transaction(self.dogecoin_client(), fee_rate, &unfunded_transaction, None)?;
 
     let unsigned_transaction = consensus::encode::deserialize(&unsigned_transaction)?;
 
-    if needs_runes_change_output {
+    if needs_dunes_change_output {
       assert_eq!(
         Dunestone::decipher(&unsigned_transaction),
         Some(Artifact::Dunestone(dunestone)),
@@ -1146,7 +1146,7 @@ impl Wallet {
 
     Ok(
       self
-        .bitcoin_client()
+        .dogecoin_client()
         .call::<SimulateRawTransactionResult>(
           "simulaterawtransaction",
           &[

@@ -16,7 +16,7 @@ struct OutputUnchecked {
 
 pub(crate) struct Splitfile {
   pub(crate) outputs: Vec<Output>,
-  pub(crate) rune_info: BTreeMap<Dune, RuneInfo>,
+  pub(crate) dune_info: BTreeMap<Dune, DuneInfo>,
 }
 
 pub(crate) struct Output {
@@ -26,7 +26,7 @@ pub(crate) struct Output {
 }
 
 #[derive(Clone, Copy)]
-pub(crate) struct RuneInfo {
+pub(crate) struct DuneInfo {
   pub(crate) divisibility: u8,
   pub(crate) id: DuneId,
   pub(crate) spaced_dune: SpacedDune,
@@ -39,7 +39,7 @@ impl Splitfile {
 
     let unchecked = Self::load_unchecked(path)?;
 
-    let mut rune_info = BTreeMap::<Dune, RuneInfo>::new();
+    let mut dune_info = BTreeMap::<Dune, DuneInfo>::new();
 
     let mut outputs = Vec::new();
 
@@ -47,22 +47,22 @@ impl Splitfile {
       let mut dunes = BTreeMap::new();
 
       for (spaced_dune, decimal) in output.dunes {
-        let info = if let Some(info) = rune_info.get(&spaced_dune.dune) {
+        let info = if let Some(info) = dune_info.get(&spaced_dune.dune) {
           info
         } else {
           let (id, entry, _parent) = wallet
-            .get_rune(spaced_dune.dune)?
+            .get_dune(spaced_dune.dune)?
             .with_context(|| format!("dune `{}` has not been etched", spaced_dune.dune))?;
-          rune_info.insert(
+          dune_info.insert(
             spaced_dune.dune,
-            RuneInfo {
+            DuneInfo {
               divisibility: entry.divisibility,
               id,
               spaced_dune: entry.spaced_dune,
               symbol: entry.symbol,
             },
           );
-          rune_info.get(&spaced_dune.dune).unwrap()
+          dune_info.get(&spaced_dune.dune).unwrap()
         };
 
         let amount = decimal.to_integer(info.divisibility)?;
@@ -77,7 +77,7 @@ impl Splitfile {
       });
     }
 
-    Ok(Self { outputs, rune_info })
+    Ok(Self { outputs, dune_info })
   }
 
   fn load_unchecked(path: &Path) -> Result<SplitfileUnchecked> {

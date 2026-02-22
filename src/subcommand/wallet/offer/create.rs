@@ -72,18 +72,18 @@ impl Create {
 
     wallet.lock_non_cardinal_outputs()?;
 
-    let tx = fund_raw_transaction(wallet.bitcoin_client(), self.fee_rate, &tx, None)?;
+    let tx = fund_raw_transaction(wallet.dogecoin_client(), self.fee_rate, &tx, None)?;
 
     let tx = consensus::encode::deserialize::<Transaction>(&tx)?;
 
     let psbt = Psbt::from_unsigned_tx(tx)?;
 
     let result = wallet
-      .bitcoin_client()
+      .dogecoin_client()
       .call::<String>("utxoupdatepsbt", &[base64_encode(&psbt.serialize()).into()])?;
 
     let result = wallet
-      .bitcoin_client()
+      .dogecoin_client()
       .wallet_process_psbt(&result, Some(true), None, None)?;
 
     ensure! {

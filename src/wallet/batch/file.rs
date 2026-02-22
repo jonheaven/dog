@@ -403,7 +403,7 @@ inscriptions:
         sat: None,
         satpoint: None,
         etching: Some(Etching {
-          dune: "THE•BEST•RUNE".parse().unwrap(),
+          dune: "THE•BEST•DUNE".parse().unwrap(),
           divisibility: 2,
           premine: "1000.00".parse().unwrap(),
           supply: "10000.00".parse().unwrap(),

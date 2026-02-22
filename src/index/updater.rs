@@ -164,7 +164,7 @@ impl Updater<'_> {
 
     let height_limit = index.height_limit;
 
-    let client = index.settings.bitcoin_rpc_client(None)?;
+    let client = index.settings.dogecoin_rpc_client(None)?;
 
     // Try to open a direct .blk file reader for fast initial sync.
     // The shadow copy lives in the dog data dir so it never conflicts with Core's LevelDB lock.
@@ -286,10 +286,10 @@ impl Updater<'_> {
 
     let (txout_sender, txout_receiver) = broadcast::channel::<TxOut>(CHANNEL_BUFFER_SIZE);
 
-    // Default rpcworkqueue in bitcoind is 16, meaning more than 16 concurrent requests will be rejected.
+    // Default rpcworkqueue in Dogecoin Core is 16, meaning more than 16 concurrent requests will be rejected.
     // Since we are already requesting blocks on a separate thread, and we don't want to break if anything
     // else runs a request, we keep this to 12.
-    let parallel_requests: usize = index.settings.bitcoin_rpc_limit().try_into().unwrap();
+    let parallel_requests: usize = index.settings.dogecoin_rpc_limit().try_into().unwrap();
 
     thread::spawn(move || {
       let rt = tokio::runtime::Builder::new_multi_thread()
@@ -386,15 +386,15 @@ impl Updater<'_> {
       )?;
     }
 
-    if self.index.index_runes && self.height >= self.index.settings.first_rune_height() {
-      let mut outpoint_to_rune_balances = wtx.open_table(OUTPOINT_TO_RUNE_BALANCES)?;
-      let mut dune_id_to_rune_entry = wtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-      let mut rune_to_dune_id = wtx.open_table(RUNE_TO_RUNE_ID)?;
-      let mut sequence_number_to_dune_id = wtx.open_table(SEQUENCE_NUMBER_TO_RUNE_ID)?;
-      let mut transaction_id_to_rune = wtx.open_table(TRANSACTION_ID_TO_RUNE)?;
+    if self.index.index_dunes && self.height >= self.index.settings.first_dune_height() {
+      let mut outpoint_to_dune_balances = wtx.open_table(OUTPOINT_TO_DUNE_BALANCES)?;
+      let mut dune_id_to_dune_entry = wtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
+      let mut dune_to_dune_id = wtx.open_table(DUNE_TO_DUNE_ID)?;
+      let mut sequence_number_to_dune_id = wtx.open_table(SEQUENCE_NUMBER_TO_DUNE_ID)?;
+      let mut transaction_id_to_dune = wtx.open_table(TRANSACTION_ID_TO_DUNE)?;
 
       let dunes = statistic_to_count
-        .get(&Statistic::Runes.into())?
+        .get(&Statistic::Dunes.into())?
         .map(|x| x.value())
         .unwrap_or(0);
 
@@ -404,22 +404,22 @@ impl Updater<'_> {
         burned: HashMap::new(),
         client: &self.index.client,
         height: self.height,
-        id_to_entry: &mut dune_id_to_rune_entry,
+        id_to_entry: &mut dune_id_to_dune_entry,
         inscription_id_to_sequence_number: &mut inscription_id_to_sequence_number,
         minimum: Dune::minimum_at_height(
           self.index.settings.chain().network(),
           Height(self.height),
         ),
-        outpoint_to_balances: &mut outpoint_to_rune_balances,
-        rune_to_id: &mut rune_to_dune_id,
+        outpoint_to_balances: &mut outpoint_to_dune_balances,
+        dune_to_id: &mut dune_to_dune_id,
         dunes,
         sequence_number_to_dune_id: &mut sequence_number_to_dune_id,
         statistic_to_count: &mut statistic_to_count,
-        transaction_id_to_rune: &mut transaction_id_to_rune,
+        transaction_id_to_dune: &mut transaction_id_to_dune,
       };
 
       for (i, (tx, txid)) in block.txdata.iter().enumerate() {
-        dune_updater.index_runes(u32::try_from(i).unwrap(), tx, *txid)?;
+        dune_updater.index_dunes(u32::try_from(i).unwrap(), tx, *txid)?;
       }
 
       dune_updater.update()?;

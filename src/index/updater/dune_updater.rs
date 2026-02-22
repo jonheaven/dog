@@ -10,15 +10,15 @@ pub(super) struct DuneUpdater<'a, 'tx, 'client> {
   pub(super) inscription_id_to_sequence_number: &'a Table<'tx, InscriptionIdValue, u32>,
   pub(super) minimum: Dune,
   pub(super) outpoint_to_balances: &'a mut Table<'tx, &'static OutPointValue, &'static [u8]>,
-  pub(super) rune_to_id: &'a mut Table<'tx, u128, DuneIdValue>,
+  pub(super) dune_to_id: &'a mut Table<'tx, u128, DuneIdValue>,
   pub(super) dunes: u64,
   pub(super) sequence_number_to_dune_id: &'a mut Table<'tx, u32, DuneIdValue>,
   pub(super) statistic_to_count: &'a mut Table<'tx, u64, u64>,
-  pub(super) transaction_id_to_rune: &'a mut Table<'tx, &'static TxidValue, u128>,
+  pub(super) transaction_id_to_dune: &'a mut Table<'tx, &'static TxidValue, u128>,
 }
 
 impl DuneUpdater<'_, '_, '_> {
-  pub(super) fn index_runes(&mut self, tx_index: u32, tx: &Transaction, txid: Txid) -> Result<()> {
+  pub(super) fn index_dunes(&mut self, tx_index: u32, tx: &Transaction, txid: Txid) -> Result<()> {
     let artifact = Dunestone::decipher(tx);
 
     let mut unallocated = self.unallocated(tx)?;
@@ -32,7 +32,7 @@ impl DuneUpdater<'_, '_, '_> {
         *unallocated.entry(id).or_default() += amount;
 
         if let Some(sender) = self.event_sender {
-          sender.blocking_send(Event::RuneMinted {
+          sender.blocking_send(Event::DuneMinted {
             block_height: self.height,
             txid,
             dune_id: id,
@@ -123,7 +123,7 @@ impl DuneUpdater<'_, '_, '_> {
       }
 
       if let Some((id, dune)) = etched {
-        self.create_rune_entry(txid, artifact, id, dune)?;
+        self.create_dune_entry(txid, artifact, id, dune)?;
       }
     }
 
@@ -196,10 +196,10 @@ impl DuneUpdater<'_, '_, '_> {
       };
 
       for (id, balance) in balances {
-        Index::encode_rune_balance(id, balance.n(), &mut buffer);
+        Index::encode_dune_balance(id, balance.n(), &mut buffer);
 
         if let Some(sender) = self.event_sender {
-          sender.blocking_send(Event::RuneTransferred {
+          sender.blocking_send(Event::DuneTransferred {
             outpoint,
             block_height: self.height,
             txid,
@@ -219,7 +219,7 @@ impl DuneUpdater<'_, '_, '_> {
       *self.burned.entry(id).or_default() += amount;
 
       if let Some(sender) = self.event_sender {
-        sender.blocking_send(Event::RuneBurned {
+        sender.blocking_send(Event::DuneBurned {
           block_height: self.height,
           txid,
           dune_id: id,
@@ -241,16 +241,16 @@ impl DuneUpdater<'_, '_, '_> {
     Ok(())
   }
 
-  fn create_rune_entry(
+  fn create_dune_entry(
     &mut self,
     txid: Txid,
     artifact: &Artifact,
     id: DuneId,
     dune: Dune,
   ) -> Result {
-    self.rune_to_id.insert(dune.store(), id.store())?;
+    self.dune_to_id.insert(dune.store(), id.store())?;
     self
-      .transaction_id_to_rune
+      .transaction_id_to_dune
       .insert(&txid.store(), dune.store())?;
 
     let number = self.dunes;
@@ -258,7 +258,7 @@ impl DuneUpdater<'_, '_, '_> {
 
     self
       .statistic_to_count
-      .insert(&Statistic::Runes.into(), self.dunes)?;
+      .insert(&Statistic::Dunes.into(), self.dunes)?;
 
     let entry = match artifact {
       Artifact::Cenotaph(_) => DuneEntry {
@@ -309,7 +309,7 @@ impl DuneUpdater<'_, '_, '_> {
     self.id_to_entry.insert(id.store(), entry.store())?;
 
     if let Some(sender) = self.event_sender {
-      sender.blocking_send(Event::RuneEtched {
+      sender.blocking_send(Event::DuneEtched {
         block_height: self.height,
         txid,
         dune_id: id,
@@ -350,22 +350,22 @@ impl DuneUpdater<'_, '_, '_> {
     let dune = if let Some(dune) = dune {
       if dune < self.minimum
         || dune.is_reserved()
-        || self.rune_to_id.get(dune.0)?.is_some()
-        || !self.tx_commits_to_rune(tx, dune)?
+        || self.dune_to_id.get(dune.0)?.is_some()
+        || !self.tx_commits_to_dune(tx, dune)?
       {
         return Ok(None);
       }
       dune
     } else {
-      let reserved_runes = self
+      let reserved_dunes = self
         .statistic_to_count
-        .get(&Statistic::ReservedRunes.into())?
+        .get(&Statistic::ReservedDunes.into())?
         .map(|entry| entry.value())
         .unwrap_or_default();
 
       self
         .statistic_to_count
-        .insert(&Statistic::ReservedRunes.into(), reserved_runes + 1)?;
+        .insert(&Statistic::ReservedDunes.into(), reserved_dunes + 1)?;
 
       Dune::reserved(self.height.into(), tx_index)
     };
@@ -384,22 +384,22 @@ impl DuneUpdater<'_, '_, '_> {
       return Ok(None);
     };
 
-    let mut rune_entry = DuneEntry::load(entry.value());
+    let mut dune_entry = DuneEntry::load(entry.value());
 
-    let Ok(amount) = rune_entry.mintable(self.height.into()) else {
+    let Ok(amount) = dune_entry.mintable(self.height.into()) else {
       return Ok(None);
     };
 
     drop(entry);
 
-    rune_entry.mints += 1;
+    dune_entry.mints += 1;
 
-    self.id_to_entry.insert(&id.store(), rune_entry.store())?;
+    self.id_to_entry.insert(&id.store(), dune_entry.store())?;
 
     Ok(Some(Lot(amount)))
   }
 
-  fn tx_commits_to_rune(&self, tx: &Transaction, dune: Dune) -> Result<bool> {
+  fn tx_commits_to_dune(&self, tx: &Transaction, dune: Dune) -> Result<bool> {
     let commitment = dune.commitment();
 
     for input in &tx.input {
@@ -479,7 +479,7 @@ impl DuneUpdater<'_, '_, '_> {
         let buffer = guard.value();
         let mut i = 0;
         while i < buffer.len() {
-          let ((id, balance), len) = Index::decode_rune_balance(&buffer[i..]).unwrap();
+          let ((id, balance), len) = Index::decode_dune_balance(&buffer[i..]).unwrap();
           i += len;
           *unallocated.entry(id).or_default() += balance;
         }

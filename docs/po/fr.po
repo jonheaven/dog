@@ -2759,16 +2759,16 @@ msgid "The server can be run locally with:"
 msgstr "Le serveur peut être exécuté localement avec :"
 
 #: src\guides/explorer.md:11
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src\guides/explorer.md:13
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Pour spécifier un port, ajoutez le drapeau `--http-port` :"
 
 #: src\guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
-msgstr "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "`dog server --http-port 8080`"
 
 #: src\guides/explorer.md:17
 msgid ""
@@ -4989,10 +4989,10 @@ msgstr "Enfin, vous devrez miner quelques blocs et démarrer le serveur :"
 
 #: src\guides/moderation.md:4
 msgid ""
-"`ord` includes a block explorer, which you can run locally with `ord server`."
+"`ord` includes a block explorer, which you can run locally with `dog server`."
 msgstr ""
 "`ord` comprend un explorateur de blocs, que vous pouvez exécuter localement "
-"avec `ord server`."
+"avec `dog server`."
 
 #: src\guides/moderation.md:6
 msgid ""
@@ -5070,11 +5070,11 @@ msgstr "`ordinals.com`"
 
 #: src\guides/moderation.md:40
 msgid ""
-"The `ordinals.com` instances use `systemd` to run the `ord server` service, "
+"The `ordinals.com` instances use `systemd` to run the `dog server` service, "
 "which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
 "Les instances de `ordinals.com` utilisent `systemd` pour exécuter le service "
-"`ord server`, appelé `ord`, avec un fichier de configuration situé dans `/"
+"`dog server`, appelé `ord`, avec un fichier de configuration situé dans `/"
 "var/lib/ord/ord.yaml`."
 
 #: src\guides/moderation.md:43
@@ -5109,11 +5109,11 @@ msgstr ""
 msgid ""
 "Sometimes the `ord` database must be reindexed, which means deleting the "
 "database and restarting the indexing process with either `ord index update` "
-"or `ord server`. Reasons to reindex are:"
+"or `dog server`. Reasons to reindex are:"
 msgstr ""
 "Parfois, la base de données `ord` doit être réindexée, ce qui signifie qu'il "
 "faut supprimer la base de données et relancer le processus d'indexation, "
-"soit avec `ord index update` , soit avec `ord server`. Les raisons qui "
+"soit avec `ord index update` , soit avec `dog server`. Les raisons qui "
 "justifient la réindexation sont les suivantes :"
 
 #: src\guides/reindexing.md:8

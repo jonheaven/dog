@@ -40,7 +40,7 @@ msgstr "Delegado"
 msgid "Metadata"
 msgstr "Metadatos"
 
-#: src/SUMMARY.md:10 src/inscriptions/pointer.md:1 src/runes.md:135 src/runes/specification.md:320
+#: src/SUMMARY.md:10 src/inscriptions/pointer.md:1 src/dunes.md:135 src/dunes/specification.md:320
 msgid "Pointer"
 msgstr "Puntero"
 
@@ -56,8 +56,8 @@ msgstr "Recursión"
 msgid "Rendering"
 msgstr "Renderizado"
 
-#: src/SUMMARY.md:14 src/runes.md:1
-msgid "Runes"
+#: src/SUMMARY.md:14 src/dunes.md:1
+msgid "Dunes"
 msgstr "Runas"
 
 #: src/SUMMARY.md:15 src/inscriptions/delegate.md:9 src/inscriptions/provenance.md:14
@@ -867,11 +867,11 @@ msgstr "Conteo de Inscripciones"
 msgid "Indices"
 msgstr "Índice"
 
-#: src/inscriptions.md:121 src/inscriptions.md:124 src/runes/specification.md:196 src/runes/specification.md:197 src/runes/specification.md:340 src/runes/specification.md:422
+#: src/inscriptions.md:121 src/inscriptions.md:124 src/dunes/specification.md:196 src/dunes/specification.md:197 src/dunes/specification.md:340 src/dunes/specification.md:422
 msgid "0"
 msgstr "0"
 
-#: src/inscriptions.md:121 src/inscriptions.md:123 src/runes/specification.md:197 src/runes/specification.md:342
+#: src/inscriptions.md:121 src/inscriptions.md:123 src/dunes/specification.md:197 src/dunes/specification.md:342
 msgid "2"
 msgstr "2"
 
@@ -879,9 +879,9 @@ msgstr "2"
 msgid "i0, i1"
 msgstr "i0, il"
 
-#: src/inscriptions.md:122 src/inscriptions.md:125 src/runes/specification.md:177 src/runes/specification.md:178 src/runes/specification.md:179 src/runes/specification.md:186
-#: src/runes/specification.md:188 src/runes/specification.md:189 src/runes/specification.md:195 src/runes/specification.md:197 src/runes/specification.md:198
-#: src/runes/specification.md:341 src/runes/specification.md:423
+#: src/inscriptions.md:122 src/inscriptions.md:125 src/dunes/specification.md:177 src/dunes/specification.md:178 src/dunes/specification.md:179 src/dunes/specification.md:186
+#: src/dunes/specification.md:188 src/dunes/specification.md:189 src/dunes/specification.md:195 src/dunes/specification.md:197 src/dunes/specification.md:198
+#: src/dunes/specification.md:341 src/dunes/specification.md:423
 msgid "1"
 msgstr "1"
 
@@ -889,7 +889,7 @@ msgstr "1"
 msgid "i2"
 msgstr "i2"
 
-#: src/inscriptions.md:123 src/inscriptions.md:124 src/runes/specification.md:180 src/runes/specification.md:187 src/runes/specification.md:196 src/runes/specification.md:343
+#: src/inscriptions.md:123 src/inscriptions.md:124 src/dunes/specification.md:180 src/dunes/specification.md:187 src/dunes/specification.md:196 src/dunes/specification.md:343
 msgid "3"
 msgstr "3"
 
@@ -897,7 +897,7 @@ msgstr "3"
 msgid "i3, i4, i5"
 msgstr "i3, i4, i5"
 
-#: src/inscriptions.md:125 src/runes/specification.md:178 src/runes/specification.md:189 src/runes/specification.md:198
+#: src/inscriptions.md:125 src/dunes/specification.md:178 src/dunes/specification.md:189 src/dunes/specification.md:198
 msgid "4"
 msgstr "4"
 
@@ -1418,7 +1418,7 @@ msgstr ""
 
 #: src/inscriptions/recursion.md:8
 msgid ""
-"Since changes to recursive endpoints might break inscriptions that rely on them, recursive endpoints have backwards-compatibility guarantees not shared by `ord server`'s other "
+"Since changes to recursive endpoints might break inscriptions that rely on them, recursive endpoints have backwards-compatibility guarantees not shared by `dog server`'s other "
 "endpoints. In particular:"
 msgstr ""
 "Dado que los cambios en los endpoints recursivos podrían romper inscripciones que dependen de ellos, los endpoints recursivos tienen compatibilidad retroactiva que no comparten "
@@ -1909,130 +1909,130 @@ msgstr ""
 "Al ampliar inscripciones en formatos AVIF y JPEG XL, se debe usar `image-rendering: auto`. Esto permite que los inscriptores opten por una ampliación no pixelada para "
 "inscripciones que no sean arte de píxeles. Hasta que JPEG XL sea ampliamente compatible con los navegadores, no se recomienda utilizarlos como formato de imagen."
 
-#: src/runes.md:4
-msgid "Runes allow Bitcoin transactions to etch, mint, and transfer Bitcoin-native digital commodities."
+#: src/dunes.md:4
+msgid "Dunes allow Bitcoin transactions to etch, mint, and transfer Bitcoin-native digital commodities."
 msgstr "Las runas permiten que las transacciones de Bitcoin graben, minteen y transfieran productos digitales nativos de Bitcoin."
 
-#: src/runes.md:7
-msgid "Whereas every inscription is unique, every unit of a rune is the same. They are interchangeable tokens, fit for a variety of purposes."
+#: src/dunes.md:7
+msgid "Whereas every inscription is unique, every unit of a dune is the same. They are interchangeable tokens, fit for a variety of purposes."
 msgstr "Mientras que cada inscripción es única y diferente, una unidad de runa es idéntica. Son tokens intercambiables, hechos para servir una variedad de propósitos."
 
-#: src/runes.md:10 src/runes/specification.md:20
-msgid "Runestones"
-msgstr "Piedras Rúnicas (Runestones)"
+#: src/dunes.md:10 src/dunes/specification.md:20
+msgid "Dunestones"
+msgstr "Piedras Rúnicas (Dunestones)"
 
-#: src/runes.md:13
-msgid "Rune protocol messages, called runestones, are stored in Bitcoin transaction outputs."
+#: src/dunes.md:13
+msgid "Dune protocol messages, called dunestones, are stored in Bitcoin transaction outputs."
 msgstr "Los mensajes del protocolo de runas, llamados piedras rúnicas, se almacenan en las salidas de las transacciones de Bitcoin."
 
-#: src/runes.md:16
+#: src/dunes.md:16
 msgid ""
-"A runestone output's script pubkey begins with an `OP_RETURN`, followed by `OP_13`, followed by zero or more data pushes. These data pushes are concatenated and decoded into a "
-"sequence of 128-bit integers, and finally parsed into a runestone."
+"A dunestone output's script pubkey begins with an `OP_RETURN`, followed by `OP_13`, followed by zero or more data pushes. These data pushes are concatenated and decoded into a "
+"sequence of 128-bit integers, and finally parsed into a dunestone."
 msgstr ""
 "El pubkey del script de salida de una piedra rúnica comienza con un `OP_RETURN`, seguido por `OP_13`, seguido por cero o más pushes de datos. Estos push de datos se concatenan y "
 "decodifican en una secuencia de enteros de 128 bits, finalmente estos se analizan y se convierten en una piedra rúnica."
 
-#: src/runes.md:21
-msgid "A transaction may have at most one runestone."
+#: src/dunes.md:21
+msgid "A transaction may have at most one dunestone."
 msgstr "Una transacción puede tener como máximo una piedra rúnica."
 
-#: src/runes.md:23
-msgid "A runestone may etch a new rune, mint an existing rune, and transfer runes from a transaction's inputs to its outputs."
+#: src/dunes.md:23
+msgid "A dunestone may etch a new dune, mint an existing dune, and transfer dunes from a transaction's inputs to its outputs."
 msgstr "Una piedra rúnica puede grabar una runa nueva, mintear una runa existente y transferir runas de las entradas de una transacción a sus salidas."
 
-#: src/runes.md:26
-msgid "A transaction output may hold balances of any number of runes."
+#: src/dunes.md:26
+msgid "A transaction output may hold balances of any number of dunes."
 msgstr "La salida de una transacción puede contener saldos de cualquier cantidad de runas."
 
-#: src/runes.md:28
+#: src/dunes.md:28
 msgid ""
-"Runes are identified by IDs, which consist of the block in which a rune was etched and the index of the etching transaction within that block, represented in text as `BLOCK:TX`. "
-"For example, the ID of the rune etched in the 20th transaction of the 500th block is `500:20`."
+"Dunes are identified by IDs, which consist of the block in which a dune was etched and the index of the etching transaction within that block, represented in text as `BLOCK:TX`. "
+"For example, the ID of the dune etched in the 20th transaction of the 500th block is `500:20`."
 msgstr ""
 "Las runas se identifican por ID, las cuales consisten en el bloque en el que se grabó una runa y el índice de la transacción de grabado dentro de ese bloque, su representación "
 "textual sería `BLOQUE:TX`. Por ejemplo, el ID de la runa grabada en la transacción 20 del bloque 500 es `500:20`."
 
-#: src/runes.md:33
+#: src/dunes.md:33
 msgid "Etching"
 msgstr "Grabado"
 
-#: src/runes.md:36
-msgid "Runes come into existence by being etched. Etching creates a rune and sets its properties. Once set, these properties are immutable, even to its etcher."
+#: src/dunes.md:36
+msgid "Dunes come into existence by being etched. Etching creates a dune and sets its properties. Once set, these properties are immutable, even to its etcher."
 msgstr ""
 "Las runas cobran vida al ser grabadas. El grabado crea una runa y establece sus propiedades. Una vez establecidas, estas propiedades son inmutables, incluso para quien las grabó."
 
-#: src/runes.md:39 src/runes/specification.md:420
+#: src/dunes.md:39 src/dunes/specification.md:420
 msgid "Name"
 msgstr "Nombre"
 
-#: src/runes.md:41
-msgid "Names consist of the letters A through Z and are between one and twenty-six letters long. For example `UNCOMMONGOODS` is a rune name."
+#: src/dunes.md:41
+msgid "Names consist of the letters A through Z and are between one and twenty-six letters long. For example `UNCOMMONGOODS` is a dune name."
 msgstr "Los nombres consisten en letras de la A a la Z y tienen entre una y veintiséis letras. Por ejemplo, `UNCOMMONGOODS` es un nombre de runa."
 
-#: src/runes.md:44
+#: src/dunes.md:44
 msgid "Names may contain spacers, represented as bullets, to aid readability. `UNCOMMONGOODS` might be etched as `UNCOMMON•GOODS`."
 msgstr "Los nombres pueden tener separadores, representados como un punto en medio, para facilitar su lectura. `UNCOMMONGOODS` podría ser grabado como `UNCOMMON•GOODS`."
 
-#: src/runes.md:47
-msgid "The uniqueness of a name does not depend on spacers. Thus, a rune may not be etched with the same sequence of letters as an existing rune, even if it has different spacers."
+#: src/dunes.md:47
+msgid "The uniqueness of a name does not depend on spacers. Thus, a dune may not be etched with the same sequence of letters as an existing dune, even if it has different spacers."
 msgstr ""
 "La exclusividad de un nombre no depende de los separadores. Por lo tanto, una runa no puede ser grabada con la misma secuencia de letras a la de una runa existente, incluso si "
 "tiene diferentes separadores."
 
-#: src/runes.md:51
+#: src/dunes.md:51
 msgid "Spacers can only be placed between two letters. Finally, spacers do not count towards the letter count."
 msgstr "Los separadores solo pueden colocarse entre dos letras. Finalmente, los separadores no cuentan como letras."
 
-#: src/runes.md:54 src/runes/specification.md:330 src/runes/specification.md:338
+#: src/dunes.md:54 src/dunes/specification.md:330 src/dunes/specification.md:338
 msgid "Divisibility"
 msgstr "Divisibilidad"
 
-#: src/runes.md:56
+#: src/dunes.md:56
 msgid ""
-"A rune's divisibility is how finely it may be divided into its atomic units. Divisibility is expressed as the number of digits permissible after the decimal point in an amount of "
-"runes. A rune with divisibility 0 may not be divided. A unit of a rune with divisibility 1 may be divided into ten sub-units, a rune with divisibility 2 may be divided into a "
+"A dune's divisibility is how finely it may be divided into its atomic units. Divisibility is expressed as the number of digits permissible after the decimal point in an amount of "
+"dunes. A dune with divisibility 0 may not be divided. A unit of a dune with divisibility 1 may be divided into ten sub-units, a dune with divisibility 2 may be divided into a "
 "hundred, and so on."
 msgstr ""
 "La divisibilidad de una runa es la capacidad de dividirse en unidades. La divisibilidad se expresa como el número de dígitos permitidos después del punto decimal en una cantidad "
 "de runas. Una runa con divisibilidad 0 no puede dividirse. Una unidad de una runa con divisibilidad 1 puede dividirse en diez subunidades, una runa con divisibilidad 2 puede "
 "dividirse en cien, y así sucesivamente."
 
-#: src/runes.md:62 src/runes/specification.md:365
+#: src/dunes.md:62 src/dunes/specification.md:365
 msgid "Symbol"
 msgstr "Símbolo"
 
-#: src/runes.md:64
-msgid "A rune's currency symbol is a single Unicode code point, for example `$`, `⧉`, or `🧿`, displayed after quantities of that rune."
+#: src/dunes.md:64
+msgid "A dune's currency symbol is a single Unicode code point, for example `$`, `⧉`, or `🧿`, displayed after quantities of that dune."
 msgstr "El símbolo de una runa es un punto de código Unicode, por ejemplo, `$`, `⧉`o `🧿`, que se muestra después de las cantidades de esa runa."
 
-#: src/runes.md:67
-msgid "101 atomic units of a rune with divisibility 2 and symbol `🧿` would be rendered as `1.01 🧿`."
+#: src/dunes.md:67
+msgid "101 atomic units of a dune with divisibility 2 and symbol `🧿` would be rendered as `1.01 🧿`."
 msgstr "101 unidades de una runa con divisibilidad 2 y el símbolo `🧿` se representarían como `1.01 🧿`."
 
-#: src/runes.md:70
-msgid "If a rune does not have a symbol, the generic currency sign `¤`, also called a scarab, should be used."
+#: src/dunes.md:70
+msgid "If a dune does not have a symbol, the generic currency sign `¤`, also called a scarab, should be used."
 msgstr "Si una runa no tiene símbolo, se debe usar el signo de moneda genérico `¤`, también llamado escarabajo."
 
-#: src/runes.md:73 src/runes/specification.md:290
+#: src/dunes.md:73 src/dunes/specification.md:290
 msgid "Premine"
 msgstr "Premina"
 
-#: src/runes.md:75
-msgid "The etcher of a rune may optionally allocate to themselves units of the rune being etched. This allocation is called a premine."
+#: src/dunes.md:75
+msgid "The etcher of a dune may optionally allocate to themselves units of the dune being etched. This allocation is called a premine."
 msgstr "El grabador de una runa puede asignarse a sí mismo unidades de la runa que está grabando. Esta asignación se llama premina."
 
-#: src/runes.md:78
+#: src/dunes.md:78
 msgid "Terms"
 msgstr "Términos"
 
-#: src/runes.md:80
-msgid "A rune may have an open mint, allowing anyone to create and allocate units of that rune for themselves. An open mint is subject to terms, which are set upon etching."
+#: src/dunes.md:80
+msgid "A dune may have an open mint, allowing anyone to create and allocate units of that dune for themselves. An open mint is subject to terms, which are set upon etching."
 msgstr ""
 "Una runa puede tener un minteo abierto, permitiendo que cualquiera cree y asigne unidades de esa runa para sí mismo. Un minteo abierto está sujeto a términos, los cuales se "
 "establecen al grabar."
 
-#: src/runes.md:84
+#: src/dunes.md:84
 msgid ""
 "A mint is open while all terms of the mint are satisfied, and closed when any of them are not. For example, a mint may be limited to a starting height, an ending height, and a "
 "cap, and will be open between the starting height and ending height, or until the cap is reached, whichever comes first."
@@ -2040,148 +2040,148 @@ msgstr ""
 "Un minteo está abierto mientras se cumplan todos los términos, y se cierra cuando alguno de ellos no se cumple. Por ejemplo, un minteo puede estar limitado a una altura inicial, "
 "una altura final y un límite, y estará abierto entre la altura inicial y la altura final, o hasta que se alcance el límite, cual sea que ocurra primero."
 
-#: src/runes.md:89 src/runes/specification.md:294
+#: src/dunes.md:89 src/dunes/specification.md:294
 msgid "Cap"
 msgstr "Tope"
 
-#: src/runes.md:91
-msgid "The number of times a rune may be minted is its cap. A mint is closed once the cap is reached."
+#: src/dunes.md:91
+msgid "The number of times a dune may be minted is its cap. A mint is closed once the cap is reached."
 msgstr "El tope es la cantidad de veces que se puede mintear una runa. El minteo termina una vez que se alcance el tope."
 
-#: src/runes.md:94 src/runes/specification.md:298
+#: src/dunes.md:94 src/dunes/specification.md:298
 msgid "Amount"
 msgstr "Cantidad"
 
-#: src/runes.md:96
-msgid "Each mint transaction creates a fixed amount of new units of a rune."
+#: src/dunes.md:96
+msgid "Each mint transaction creates a fixed amount of new units of a dune."
 msgstr "Cada vez que se realiza una transacción de minteo, se produce una cantidad fija de nuevas unidades de una runa."
 
-#: src/runes.md:98
+#: src/dunes.md:98
 msgid "Start Height"
 msgstr "Altura Inicial"
 
-#: src/runes.md:100
+#: src/dunes.md:100
 msgid "A mint is open starting in the block with the given start height."
 msgstr "Un minteo comienza en el bloque de la altura inicial dada."
 
-#: src/runes.md:102
+#: src/dunes.md:102
 msgid "End Height"
 msgstr "Altura Final"
 
-#: src/runes.md:104
-msgid "A rune may not be minted in or after the block with the given end height."
+#: src/dunes.md:104
+msgid "A dune may not be minted in or after the block with the given end height."
 msgstr "Una runa no puede ser minteada en o después del bloque de la altura final especificada."
 
-#: src/runes.md:106
+#: src/dunes.md:106
 msgid "Start Offset"
 msgstr "Desplazamiento Inicial"
 
-#: src/runes.md:108
-msgid "A mint is open starting in the block whose height is equal to the start offset plus the height of the block in which the rune was etched."
+#: src/dunes.md:108
+msgid "A mint is open starting in the block whose height is equal to the start offset plus the height of the block in which the dune was etched."
 msgstr "Un minteo se abre comenzando en el bloque cuya altura es igual al desplazamiento inicial más la altura del bloque en el que se grabó la runa."
 
-#: src/runes.md:111
+#: src/dunes.md:111
 msgid "End Offset"
 msgstr "Desplazamiento Final"
 
-#: src/runes.md:113
-msgid "A rune may not be minted in or after the block whose height is equal to the end offset plus the height of the block in which the rune was etched."
+#: src/dunes.md:113
+msgid "A dune may not be minted in or after the block whose height is equal to the end offset plus the height of the block in which the dune was etched."
 msgstr "Una runa no puede ser minteada en o después del bloque cuya altura es igual al desplazamiento final más la altura del bloque en el que se grabó la runa."
 
-#: src/runes.md:116 src/runes/specification.md:478
+#: src/dunes.md:116 src/dunes/specification.md:478
 msgid "Minting"
 msgstr "Minteo"
 
-#: src/runes.md:119
-msgid "While a rune's mint is open, anyone may create a mint transaction that creates a fixed amount of new units of that rune, subject to the terms of the mint."
+#: src/dunes.md:119
+msgid "While a dune's mint is open, anyone may create a mint transaction that creates a fixed amount of new units of that dune, subject to the terms of the mint."
 msgstr ""
 "Mientras que el minteo de una runa esté abierto, cualquiera puede crear una transacción de minteo que genere una cantidad fija de nuevas unidades de esa runa, sujeta a los "
 "términos del minteo."
 
-#: src/runes.md:122 src/runes/specification.md:490
+#: src/dunes.md:122 src/dunes/specification.md:490
 msgid "Transferring"
 msgstr "Transferencia"
 
-#: src/runes.md:125
+#: src/dunes.md:125
 msgid ""
-"When transaction inputs contain runes, or new runes are created by a premine or mint, those runes are transferred to that transaction's outputs. A transaction's runestone may "
-"change how input runes transfer to outputs."
+"When transaction inputs contain dunes, or new dunes are created by a premine or mint, those dunes are transferred to that transaction's outputs. A transaction's dunestone may "
+"change how input dunes transfer to outputs."
 msgstr ""
 "Cuando las entradas de una transacción contienen runas, o se crean nuevas runas mediante una premina o minteo, esas runas se transfieren a las salidas de esa transacción. La runa "
 "de una transacción puede modificar cómo las runas de entrada se transfieren a las salidas."
 
-#: src/runes.md:129
+#: src/dunes.md:129
 msgid "Edicts"
 msgstr "Edictos (Edicts)"
 
-#: src/runes.md:131
+#: src/dunes.md:131
 msgid ""
-"A runestone may contain any number of edicts. Edicts consist of a rune ID, an amount, and an output number. Edicts are processed in order, allocating unallocated runes to outputs."
+"A dunestone may contain any number of edicts. Edicts consist of a dune ID, an amount, and an output number. Edicts are processed in order, allocating unallocated dunes to outputs."
 msgstr ""
 "Una runa puede contener cualquier cantidad de edictos. Los edictos consisten en un ID de runa, una cantidad y un número de salida. Los edictos se procesan en orden, asignando "
 "runas que no han sido asignadas a las salidas."
 
-#: src/runes.md:137
+#: src/dunes.md:137
 msgid ""
-"After all edicts are processed, remaining unallocated runes are transferred to the transaction's first non-`OP_RETURN` output. A runestone may optionally contain a pointer that "
+"After all edicts are processed, remaining unallocated dunes are transferred to the transaction's first non-`OP_RETURN` output. A dunestone may optionally contain a pointer that "
 "specifies an alternative default output."
 msgstr ""
 "Una vez procesados todos los edictos, las runas no asignadas se transfieren a la primera salida de la transacción que no sea `OP_RETURN`. De manera opcional, una runa puede "
 "incluir un puntero que indique una salida predeterminada diferente."
 
-#: src/runes.md:141
+#: src/dunes.md:141
 msgid "Burning"
 msgstr "Quemar"
 
-#: src/runes.md:143
-msgid "Runes may be burned by transferring them to an `OP_RETURN` output with an edict or pointer."
+#: src/dunes.md:143
+msgid "Dunes may be burned by transferring them to an `OP_RETURN` output with an edict or pointer."
 msgstr "Las runas pueden ser quemadas transfiriéndolas a una salida `OP_RETURN` que tenga un edicto o puntero."
 
-#: src/runes.md:146 src/runes/specification.md:378
+#: src/dunes.md:146 src/dunes/specification.md:378
 msgid "Cenotaphs"
 msgstr "Cenotafios"
 
-#: src/runes.md:149
-msgid "Runestones may be malformed for a number of reasons, including non-pushdata opcodes in the runestone `OP_RETURN`, invalid varints, or unrecognized runestone fields."
+#: src/dunes.md:149
+msgid "Dunestones may be malformed for a number of reasons, including non-pushdata opcodes in the dunestone `OP_RETURN`, invalid varints, or unrecognized dunestone fields."
 msgstr "Las runas pueden estar mal formadas por varias razones, incluyendo opcodes no pushdata en el `OP_RETURN` de la runa, varints inválidos o campos de runas no reconocidos."
 
-#: src/runes.md:153
-msgid "Malformed runestones are termed [cenotaphs](https://en.wikipedia.org/wiki/Cenotaph)."
+#: src/dunes.md:153
+msgid "Malformed dunestones are termed [cenotaphs](https://en.wikipedia.org/wiki/Cenotaph)."
 msgstr "Las runas mal formadas se denominan [cenotafios](https://es.wikipedia.org/wiki/Cenotafio)."
 
-#: src/runes.md:156
+#: src/dunes.md:156
 msgid ""
-"Runes input to a transaction with a cenotaph are burned. Runes etched in a transaction with a cenotaph are set as unmintable. Mints in a transaction with a cenotaph count towards "
-"the mint cap, but the minted runes are burned."
+"Dunes input to a transaction with a cenotaph are burned. Dunes etched in a transaction with a cenotaph are set as unmintable. Mints in a transaction with a cenotaph count towards "
+"the mint cap, but the minted dunes are burned."
 msgstr ""
 "Las runas ingresadas a una transacción con un cenotafio se queman. Las runas grabadas en una transacción con un cenotafio se consideran no minteables. Los minteos en una "
 "transacción con un cenotafio cuentan para el tope del minteo, pero las runas creadas se queman."
 
-#: src/runes.md:160
+#: src/dunes.md:160
 msgid ""
-"Cenotaphs are an upgrade mechanism, allowing runestones to be given new semantics that change how runes are created and transferred, while not misleading unupgraded clients as to "
-"the location of those runes, as unupgraded clients will see those runes as having been burned."
+"Cenotaphs are an upgrade mechanism, allowing dunestones to be given new semantics that change how dunes are created and transferred, while not misleading unupgraded clients as to "
+"the location of those dunes, as unupgraded clients will see those dunes as having been burned."
 msgstr ""
 "Los cenotafios actúan como un mecanismo de actualización, permitiendo que las runas adopten nuevas semánticas que modifiquen cómo se crean y transfieren. Esto se logra sin "
 "confundir a los clientes desactualizados acerca de la ubicación de las runas, ya que dichos clientes las percibirán como si hubieran sido quemadas."
 
-#: src/runes/specification.md:1
-msgid "Runes Does Not Have a Specification"
+#: src/dunes/specification.md:1
+msgid "Dunes Does Not Have a Specification"
 msgstr "Las Runas No Tienen una Especificación Formal"
 
-#: src/runes/specification.md:4
-msgid "The Runes reference implementation, `ord`, is the normative specification of the Runes protocol."
+#: src/dunes/specification.md:4
+msgid "The Dunes reference implementation, `ord`, is the normative specification of the Dunes protocol."
 msgstr "`ord` es la implementación de referencia de las Runas y constituye la especificación normativa del protocolo de Runas."
 
-#: src/runes/specification.md:7
+#: src/dunes/specification.md:7
 msgid ""
-"Nothing you read here or elsewhere, aside from the code of `ord`, is a specification. This prose description of the runes protocol is provided as a guide to the behavior of "
+"Nothing you read here or elsewhere, aside from the code of `ord`, is a specification. This prose description of the dunes protocol is provided as a guide to the behavior of "
 "`ord`, and the code of `ord` itself should always be consulted to confirm the correctness of any prose description."
 msgstr ""
 "Nada de lo que leas aquí o en cualquier otro lugar, aparte del código de `ord`, constituye una especificación oficial. Esta descripción en prosa del protocolo de Runas se "
 "proporciona como una guía sobre el comportamiento de `ord`, y siempre se debe consultar el código de `ord` para confirmar la exactitud de cualquier descripción en prosa."
 
-#: src/runes/specification.md:12
+#: src/dunes/specification.md:12
 msgid ""
 "If, due to a bug in `ord`, this document diverges from the actual behavior of `ord` and it is impractically disruptive to change `ord`'s behavior, this document will be amended "
 "to agree with `ord`'s actual behavior."
@@ -2189,155 +2189,155 @@ msgstr ""
 "Si, debido a un error o bug en `ord`, este documento se desvía del comportamiento real de `ord` y resulta poco práctico modificar el comportamiento de `ord`, este documento se "
 "actualizará para reflejar el comportamiento real de `ord`."
 
-#: src/runes/specification.md:16
+#: src/dunes/specification.md:16
 msgid ""
-"Users of alternative implementations do so at their own risk, and services wishing to integrate Runes are strongly encouraged to use `ord` itself to make Runes transactions, and "
-"to determine the state of runes, mints, and balances."
+"Users of alternative implementations do so at their own risk, and services wishing to integrate Dunes are strongly encouraged to use `ord` itself to make Dunes transactions, and "
+"to determine the state of dunes, mints, and balances."
 msgstr ""
 "Los usuarios que vayan a utilizar implementaciones alternativas lo hacen bajo su propio riesgo. Se recomienda encarecidamente a los servicios que deseen integrar Runas que "
 "utilicen `ord` para realizar transacciones de Runas y para determinar el estado de las runas, los minteos y los saldos."
 
-#: src/runes/specification.md:23
-msgid "Rune protocol messages are termed \"runestones\"."
-msgstr "Los mensajes del protocolo de Runas se denominan \"runestones\"."
+#: src/dunes/specification.md:23
+msgid "Dune protocol messages are termed \"dunestones\"."
+msgstr "Los mensajes del protocolo de Runas se denominan \"dunestones\"."
 
-#: src/runes/specification.md:25
-msgid "The Runes protocol activates on block 840,000. Runestones in earlier blocks are ignored."
-msgstr "El protocolo de Runas se activa en el bloque 840,000, y las runestones en bloques anteriores se ignoran."
+#: src/dunes/specification.md:25
+msgid "The Dunes protocol activates on block 840,000. Dunestones in earlier blocks are ignored."
+msgstr "El protocolo de Runas se activa en el bloque 840,000, y las dunestones en bloques anteriores se ignoran."
 
-#: src/runes/specification.md:28
-msgid "Abstractly, runestones contain the following fields:"
-msgstr "En términos abstractos, los runestones contienen los siguientes campos:"
+#: src/dunes/specification.md:28
+msgid "Abstractly, dunestones contain the following fields:"
+msgstr "En términos abstractos, los dunestones contienen los siguientes campos:"
 
-#: src/runes/specification.md:39
-msgid "Runes are created by etchings:"
+#: src/dunes/specification.md:39
+msgid "Dunes are created by etchings:"
 msgstr "Las Runas se crean mediante grabados (etchings):"
 
-#: src/runes/specification.md:52
+#: src/dunes/specification.md:52
 msgid "Which may contain mint terms:"
 msgstr "Los cuales pueden tener estos términos de minteo:"
 
-#: src/runes/specification.md:63 src/runes/specification.md:492
-msgid "Runes are transferred by edict:"
+#: src/dunes/specification.md:63 src/dunes/specification.md:492
+msgid "Dunes are transferred by edict:"
 msgstr "Las runas se transfieren por medio de edictos (edict):"
 
-#: src/runes/specification.md:73
-msgid "Rune IDs are encoded as the block height and transaction index of the transaction in which the rune was etched:"
+#: src/dunes/specification.md:73
+msgid "Dune IDs are encoded as the block height and transaction index of the transaction in which the dune was etched:"
 msgstr "Los IDs de las runas están codificados con la altura del bloque y el índice de transacción de la transacción en la cual la runa fue grabada:"
 
-#: src/runes/specification.md:83
-msgid "Rune IDs are represented in text as `BLOCK:TX`."
+#: src/dunes/specification.md:83
+msgid "Dune IDs are represented in text as `BLOCK:TX`."
 msgstr "Los ID de las Runas son representados textualmente como `BLOCK:TX`."
 
-#: src/runes/specification.md:85
-msgid "Rune names are encoded as modified base-26 integers:"
+#: src/dunes/specification.md:85
+msgid "Dune names are encoded as modified base-26 integers:"
 msgstr "Los nombres de las runas se codifican como enteros modificados en base 26:"
 
-#: src/runes/specification.md:91
+#: src/dunes/specification.md:91
 msgid "Deciphering"
 msgstr "Descifrado"
 
-#: src/runes/specification.md:93
-msgid "Runestones are deciphered from transactions with the following steps:"
+#: src/dunes/specification.md:93
+msgid "Dunestones are deciphered from transactions with the following steps:"
 msgstr "Las piedras rúnicas se descifran  basándose en las las transacciones con los siguientes pasos:"
 
-#: src/runes/specification.md:95
+#: src/dunes/specification.md:95
 msgid "Find the first transaction output whose script pubkey begins with `OP_RETURN OP_13`."
 msgstr "Encuentra la primera salida de transacción cuyo script pubkey comience con `OP_RETURN OP_13`."
 
-#: src/runes/specification.md:98
+#: src/dunes/specification.md:98
 msgid "Concatenate all following data pushes into a payload buffer."
 msgstr "Concatenar todos los siguientes pushes de datos en un búfer."
 
-#: src/runes/specification.md:100
+#: src/dunes/specification.md:100
 msgid "Decode a sequence 128-bit [LEB128](https://en.wikipedia.org/wiki/LEB128) integers from the payload buffer."
 msgstr "Decodificar del búfer la secuencia de enteros de 128 bits [LEB128](https://en.wikipedia.org/wiki/LEB128)."
 
-#: src/runes/specification.md:103
+#: src/dunes/specification.md:103
 msgid "Parse the sequence of integers into an untyped message."
 msgstr "Analizar y convertir la secuencia de enteros en un mensaje sin tipo (untyped)."
 
-#: src/runes/specification.md:105
-msgid "Parse the untyped message into a runestone."
+#: src/dunes/specification.md:105
+msgid "Parse the untyped message into a dunestone."
 msgstr "Analizar y convertir el mensaje sin tipo (untyped) en una piedra rúnica."
 
-#: src/runes/specification.md:107
-msgid "Deciphering may produce a malformed runestone, termed a [cenotaph](https://en.wikipedia.org/wiki/Cenotaph)."
+#: src/dunes/specification.md:107
+msgid "Deciphering may produce a malformed dunestone, termed a [cenotaph](https://en.wikipedia.org/wiki/Cenotaph)."
 msgstr "El descifrado puede producir una piedra rúnica mal formada, denominada [cenotafio](https://es.wikipedia.org/wiki/Cenotafio)."
 
-#: src/runes/specification.md:110
-msgid "Locating the Runestone Output"
+#: src/dunes/specification.md:110
+msgid "Locating the Dunestone Output"
 msgstr "Localizando la Salida de la Piedra Rúnica"
 
-#: src/runes/specification.md:112
+#: src/dunes/specification.md:112
 msgid "Outputs are searched for the first script pubkey that beings with `OP_RETURN OP_13`. If deciphering fails, later matching outputs are not considered."
 msgstr ""
 "Se examinan las salidas para identificar el primer script pubkey que comienza con `OP_RETURN OP_13`. Si el descifrado no tiene éxito, no se tomarán en cuenta las salidas "
 "coincidentes siguientes."
 
-#: src/runes/specification.md:115
+#: src/dunes/specification.md:115
 msgid "Assembling the Payload Buffer"
 msgstr "Creación del Búfer"
 
-#: src/runes/specification.md:117
+#: src/dunes/specification.md:117
 msgid "The payload buffer is assembled by concatenating data pushes, after `OP_13`, in the matching script pubkey."
 msgstr "El búfer se ensambla concatenando los pushes de datos que vienen después de `OP_13`, en el script pubkey correspondiente."
 
-#: src/runes/specification.md:120
+#: src/dunes/specification.md:120
 msgid ""
-"Data pushes are opcodes 0 through 78 inclusive. If a non-data push opcode is encountered, i.e., any opcode equal to or greater than opcode 79, the deciphered runestone is a "
+"Data pushes are opcodes 0 through 78 inclusive. If a non-data push opcode is encountered, i.e., any opcode equal to or greater than opcode 79, the deciphered dunestone is a "
 "cenotaph with no etching, mint, or edicts."
 msgstr ""
 "Los pushes de datos abarcan los opcodes del 0 al 78, el 78 incluido. Si se encuentra un opcode distinto, es decir, cualquier opcode igual o superior al 79, la piedra rúnica "
 "descifrada resultará ser un cenotafio sin grabado, minteo ni edictos."
 
-#: src/runes/specification.md:124
+#: src/dunes/specification.md:124
 msgid "Decoding the Integer Sequence"
 msgstr "Decodificación la Secuencia de Enteros"
 
-#: src/runes/specification.md:126
+#: src/dunes/specification.md:126
 msgid "A sequence of 128-bit integers are decoded from the payload as LEB128 varints."
 msgstr "Del búfer se extrae y decodifica una secuencia de enteros de 128 bits como varints LEB128."
 
-#: src/runes/specification.md:128
+#: src/dunes/specification.md:128
 msgid "LEB128 varints are encoded as sequence of bytes, each of which has the most-significant bit set, except for the last."
 msgstr "Los varints LEB128 se codifican como una serie de bytes, cada uno con el bit más significativo establecido, excepto el último."
 
-#: src/runes/specification.md:131
+#: src/dunes/specification.md:131
 msgid ""
 "If a LEB128 varint contains more than 18 bytes, would overflow a u128, or is truncated, meaning that the end of the payload buffer is reached before encountering a byte with the "
-"continuation bit not set, the decoded runestone is a cenotaph with no etching, mint, or edicts."
+"continuation bit not set, the decoded dunestone is a cenotaph with no etching, mint, or edicts."
 msgstr ""
 "La piedra rúnica decodificada será un cenotafio sin grabado, minteo ni edictos si un varint LEB128 contiene más de 18 bytes, desborda (overflow) un u128, o está truncado. Esto "
 "significaría que se alcanza el final del búfer de carga útil antes de encontrar un byte con el bit de continuación que no se ha establecido."
 
-#: src/runes/specification.md:136
+#: src/dunes/specification.md:136
 msgid "Parsing the Message"
 msgstr "Análisis y Conversión del Mensaje"
 
-#: src/runes/specification.md:138
+#: src/dunes/specification.md:138
 msgid "The integer sequence is parsed into an untyped message:"
 msgstr "La secuencia de enteros se analiza y se convierte en un mensaje sin tipo (untyped):"
 
-#: src/runes/specification.md:147
+#: src/dunes/specification.md:147
 msgid "The integers are interpreted as a sequence of tag/value pairs, with duplicate tags appending their value to the field value."
 msgstr "Los enteros se interpretan como una secuencia de pares de etiqueta/valor (tag/value), en donde las etiquetas duplicadas añaden su valor al valor del campo."
 
-#: src/runes/specification.md:150
+#: src/dunes/specification.md:150
 msgid ""
-"If a tag with value zero is encountered, all following integers are interpreted as a series of four-integer edicts, each consisting of a rune ID block height, rune ID transaction "
+"If a tag with value zero is encountered, all following integers are interpreted as a series of four-integer edicts, each consisting of a dune ID block height, dune ID transaction "
 "index, amount, and output."
 msgstr ""
 "Si se encuentra una etiqueta con valor cero, todos los enteros siguientes se interpretan como una serie de edictos de cuatro enteros, cada uno compuesto por la altura de bloque "
 "de ID de la runa, un índice de transacción de ID de la runa, la cantidad y salida."
 
-#: src/runes/specification.md:162
-msgid "Rune ID block heights and transaction indices in edicts are delta encoded."
+#: src/dunes/specification.md:162
+msgid "Dune ID block heights and transaction indices in edicts are delta encoded."
 msgstr "Las alturas de bloque de ID de runa y los índices de transacción en los edictos son en codificación delta."
 
-#: src/runes/specification.md:164
+#: src/dunes/specification.md:164
 msgid ""
-"Edict rune ID decoding starts with a base block height and transaction index of zero. When decoding each rune ID, first the encoded block height delta is added to the base block "
+"Edict dune ID decoding starts with a base block height and transaction index of zero. When decoding each dune ID, first the encoded block height delta is added to the base block "
 "height. If the block height delta is zero, the next integer is a transaction index delta. If the block height delta is greater than zero, the next integer is instead an absolute "
 "transaction index."
 msgstr ""
@@ -2345,135 +2345,135 @@ msgstr ""
 "delta de la altura del bloque codificado a la altura del bloque base. Si el delta de la altura del bloque es cero, el siguiente entero es un delta del índice de transacción. Si "
 "el delta de la altura del bloque es mayor a cero, el siguiente entero es un índice de transacción absoluto."
 
-#: src/runes/specification.md:170
-msgid "This implies that edicts must first be sorted by rune ID before being encoded in a runestone."
+#: src/dunes/specification.md:170
+msgid "This implies that edicts must first be sorted by dune ID before being encoded in a dunestone."
 msgstr "Esto significa que los edictos deben ordenarse primero por ID de runa antes de ser codificados en una piedra rúnica."
 
-#: src/runes/specification.md:173
+#: src/dunes/specification.md:173
 msgid "For example, to encode the following edicts:"
 msgstr "Por ejemplo, para codificar los siguientes edictos:"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184
+#: src/dunes/specification.md:175 src/dunes/specification.md:184
 msgid "block"
 msgstr "bloque"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184
+#: src/dunes/specification.md:175 src/dunes/specification.md:184
 msgid "TX"
 msgstr "TX"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184 src/runes/specification.md:193
+#: src/dunes/specification.md:175 src/dunes/specification.md:184 src/dunes/specification.md:193
 msgid "amount"
 msgstr "cantidad"
 
-#: src/runes/specification.md:175 src/runes/specification.md:184 src/runes/specification.md:193
+#: src/dunes/specification.md:175 src/dunes/specification.md:184 src/dunes/specification.md:193
 msgid "output"
 msgstr "salida"
 
-#: src/runes/specification.md:177 src/runes/specification.md:179 src/runes/specification.md:180 src/runes/specification.md:186 src/runes/specification.md:187
-#: src/runes/specification.md:188 src/runes/specification.md:195 src/runes/specification.md:196
+#: src/dunes/specification.md:177 src/dunes/specification.md:179 src/dunes/specification.md:180 src/dunes/specification.md:186 src/dunes/specification.md:187
+#: src/dunes/specification.md:188 src/dunes/specification.md:195 src/dunes/specification.md:196
 msgid "10"
 msgstr "10"
 
-#: src/runes/specification.md:177 src/runes/specification.md:180 src/runes/specification.md:186 src/runes/specification.md:187 src/runes/specification.md:195
+#: src/dunes/specification.md:177 src/dunes/specification.md:180 src/dunes/specification.md:186 src/dunes/specification.md:187 src/dunes/specification.md:195
 msgid "5"
 msgstr "5"
 
-#: src/runes/specification.md:178 src/runes/specification.md:189 src/runes/specification.md:430
+#: src/dunes/specification.md:178 src/dunes/specification.md:189 src/dunes/specification.md:430
 msgid "50"
 msgstr "50"
 
-#: src/runes/specification.md:178 src/runes/specification.md:189 src/runes/specification.md:198 src/runes/specification.md:426
+#: src/dunes/specification.md:178 src/dunes/specification.md:189 src/dunes/specification.md:198 src/dunes/specification.md:426
 msgid "25"
 msgstr "25"
 
-#: src/runes/specification.md:179 src/runes/specification.md:188
+#: src/dunes/specification.md:179 src/dunes/specification.md:188
 msgid "7"
 msgstr "7"
 
-#: src/runes/specification.md:179 src/runes/specification.md:188 src/runes/specification.md:197
+#: src/dunes/specification.md:179 src/dunes/specification.md:188 src/dunes/specification.md:197
 msgid "8"
 msgstr "8"
 
-#: src/runes/specification.md:182
+#: src/dunes/specification.md:182
 msgid "They are first sorted by block height and transaction index:"
 msgstr "Primero se ordenan por altura de bloque e índice de transacción:"
 
-#: src/runes/specification.md:191
+#: src/dunes/specification.md:191
 msgid "And then delta encoded as:"
 msgstr "Y luego el delta codificado como:"
 
-#: src/runes/specification.md:193
+#: src/dunes/specification.md:193
 msgid "block delta"
 msgstr "delta del bloque"
 
-#: src/runes/specification.md:193
+#: src/dunes/specification.md:193
 msgid "TX delta"
 msgstr "delta de TX"
 
-#: src/runes/specification.md:198
+#: src/dunes/specification.md:198
 msgid "40"
 msgstr "40"
 
-#: src/runes/specification.md:200
+#: src/dunes/specification.md:200
 msgid ""
-"If an edict output is greater than the number of outputs of the transaction, an edict rune ID is encountered with block zero and nonzero transaction index, or a field is "
-"truncated, meaning a tag is encountered without a value, the decoded runestone is a cenotaph."
+"If an edict output is greater than the number of outputs of the transaction, an edict dune ID is encountered with block zero and nonzero transaction index, or a field is "
+"truncated, meaning a tag is encountered without a value, the decoded dunestone is a cenotaph."
 msgstr ""
 "La piedra rúnica decodificada es un cenotafio si la salida de un edicto supera el número de salidas de la transacción, si se encuentra un ID de runa de edicto con bloque cero y "
 "un índice de transacción distinto de cero, o si un campo está truncado lo cual significa que una etiqueta se encuentra sin valor."
 
-#: src/runes/specification.md:205
+#: src/dunes/specification.md:205
 msgid "Note that if a cenotaph is produced here, the cenotaph is not empty, meaning that it contains the fields and edicts, which may include an etching and mint."
 msgstr ""
 "Cabe señalar que si se produce un cenotafio en este caso, el cenotafio no estará vacío, lo que significa que tiene los campos y edictos, que pueden incluir un grabado y un minteo."
 
-#: src/runes/specification.md:208
-msgid "Parsing the Runestone"
-msgstr "Análisis y Conversión de la Piedra Rúnica (Runestone)"
+#: src/dunes/specification.md:208
+msgid "Parsing the Dunestone"
+msgstr "Análisis y Conversión de la Piedra Rúnica (Dunestone)"
 
-#: src/runes/specification.md:210
-msgid "The runestone:"
+#: src/dunes/specification.md:210
+msgid "The dunestone:"
 msgstr "La piedra rúnica:"
 
-#: src/runes/specification.md:221
+#: src/dunes/specification.md:221
 msgid "Is parsed from the unsigned message using the following tags:"
 msgstr "Se analiza a partir del mensaje sin firmar utilizando las siguientes etiquetas:"
 
-#: src/runes/specification.md:246
+#: src/dunes/specification.md:246
 msgid "Note that tags are grouped by parity, i.e., whether they are even or odd. Unrecognized odd tags are ignored. Unrecognized even tags produce a cenotaph."
 msgstr ""
 "Ten en cuenta que las etiquetas se agrupan por paridad, es decir, si son pares o impares.\n"
 "Las etiquetas impares que no son reconocidas se ignoran. Las etiquetas pares que no son reconocidas producen un cenotafio."
 
-#: src/runes/specification.md:249
+#: src/dunes/specification.md:249
 msgid "All unused tags are reserved for use by the protocol, may be assigned at any time, and must not be used."
 msgstr "Todas las etiquetas que no han sido utilizadas están reservadas para uso del protocolo, pueden asignarse en cualquier momento y no deben ser usadas."
 
-#: src/runes/specification.md:252
+#: src/dunes/specification.md:252
 msgid "Body"
 msgstr "Cuerpo (Body)"
 
-#: src/runes/specification.md:254
-msgid "The `Body` tag marks the end of the runestone's fields, causing all following integers to be interpreted as edicts."
+#: src/dunes/specification.md:254
+msgid "The `Body` tag marks the end of the dunestone's fields, causing all following integers to be interpreted as edicts."
 msgstr "La etiqueta `Body` indica el final de los campos de la piedra rúnica, causando que todos los enteros posteriores se interpreten como edictos."
 
-#: src/runes/specification.md:257
+#: src/dunes/specification.md:257
 msgid "Flags"
 msgstr "Banderas (Flag)"
 
-#: src/runes/specification.md:259
+#: src/dunes/specification.md:259
 msgid "The `Flag` field contains a bitmap of flags, whose position is `1 << FLAG_VALUE`:"
 msgstr "El campo `Flag` contiene un mapa de bits de banderas, cuya posición es `1 << FLAG_VALUE`:"
 
-#: src/runes/specification.md:271
+#: src/dunes/specification.md:271
 msgid "The `Etching` flag marks this transaction as containing an etching."
 msgstr "La bandera `Etching` indica que esta transacción contiene un grabado."
 
-#: src/runes/specification.md:273
+#: src/dunes/specification.md:273
 msgid "The `Terms` flag marks this transaction's etching as having open mint terms."
 msgstr "La bandera `Terms` indica que el grabado de esta transacción tiene términos de minteo abiertos."
 
-#: src/runes/specification.md:275
+#: src/dunes/specification.md:275
 msgid ""
 "The `Turbo` flag marks this transaction's etching as opting into future protocol changes. These protocol changes may increase light client validation costs, or just be highly "
 "degenerate."
@@ -2481,40 +2481,40 @@ msgstr ""
 "La bandera `Turbo` indica que el grabado de esta transacción opta por futuros cambios en el protocolo. Estos cambios pueden aumentar los costos de validación para clientes "
 "ligeros o ser altamente degenerados."
 
-#: src/runes/specification.md:279
+#: src/dunes/specification.md:279
 msgid "The `Cenotaph` flag is unrecognized."
 msgstr "La bandera `Cenotaph` no es reconocida."
 
-#: src/runes/specification.md:281
-msgid "If the value of the flags field after removing recognized flags is nonzero, the runestone is a cenotaph."
+#: src/dunes/specification.md:281
+msgid "If the value of the flags field after removing recognized flags is nonzero, the dunestone is a cenotaph."
 msgstr "Si después de eliminar las banderas reconocidas, el valor del campo de banderas es distinto de cero, la piedra rúnica se considera un cenotafio."
 
-#: src/runes/specification.md:284
-msgid "Rune"
+#: src/dunes/specification.md:284
+msgid "Dune"
 msgstr "Runa"
 
-#: src/runes/specification.md:286
-msgid "The `Rune` field contains the name of the rune being etched. If the `Etching` flag is set but the `Rune` field is omitted, a reserved rune name is allocated."
+#: src/dunes/specification.md:286
+msgid "The `Dune` field contains the name of the dune being etched. If the `Etching` flag is set but the `Dune` field is omitted, a reserved dune name is allocated."
 msgstr ""
-"El campo `Rune` especifica el nombre de la runa que se está grabando. Si la bandera `Etching` está activa pero el campo `Rune` se omite, se asigna un nombre de runa reservado."
+"El campo `Dune` especifica el nombre de la runa que se está grabando. Si la bandera `Etching` está activa pero el campo `Dune` se omite, se asigna un nombre de runa reservado."
 
-#: src/runes/specification.md:292
-msgid "The `Premine` field contains the amount of premined runes."
+#: src/dunes/specification.md:292
+msgid "The `Premine` field contains the amount of premined dunes."
 msgstr "El campo `Premine` especifica la cantidad de runas preminadas."
 
-#: src/runes/specification.md:296
+#: src/dunes/specification.md:296
 msgid "The `Cap` field contains the allowed number of mints."
 msgstr "El campo `Cap` especifica el número de minteos permitidos."
 
-#: src/runes/specification.md:300
-msgid "The `Amount` field contains the amount of runes each mint transaction receives."
+#: src/dunes/specification.md:300
+msgid "The `Amount` field contains the amount of dunes each mint transaction receives."
 msgstr "El campo `Amount` especifica la cantidad de runas que recibe cada transacción de minteo."
 
-#: src/runes/specification.md:302
+#: src/dunes/specification.md:302
 msgid "HeightStart and HeightEnd"
 msgstr "HeightStart y HeightEnd"
 
-#: src/runes/specification.md:304
+#: src/dunes/specification.md:304
 msgid ""
 "The `HeightStart` and `HeightEnd` fields contain the mint's starting and ending absolute block heights, respectively. The mint is open starting in the block with height "
 "`HeightStart`, and closes in the block with height `HeightEnd`."
@@ -2522,11 +2522,11 @@ msgstr ""
 "Los campos `HeightStart` y `HeightEnd` especifican las alturas de bloque absolutas de inicio y fin del minteo. El minteo comienza en el bloque con altura `HeightStart` y finaliza "
 "en el bloque con altura `HeightEnd`."
 
-#: src/runes/specification.md:308
+#: src/dunes/specification.md:308
 msgid "OffsetStart and OffsetEnd"
 msgstr "OffsetStart y OffsetEnd"
 
-#: src/runes/specification.md:310
+#: src/dunes/specification.md:310
 msgid ""
 "The `OffsetStart` and `OffsetEnd` fields contain the mint's starting and ending block heights, relative to the block in which the etching is mined. The mint is open starting in "
 "the block with height `OffsetStart` + `ETCHING_HEIGHT`, and closes in the block with height `OffsetEnd` + `ETCHING_HEIGHT`."
@@ -2534,376 +2534,376 @@ msgstr ""
 "Los campos `OffsetStart` y `OffsetEnd` especifican las alturas de bloque de inicio y fin del minteo, relativas al bloque en el que se extrae el grabado. El minteo comienza en el "
 "bloque con altura `OffsetStart + ETCHING_HEIGHT` y termina en el bloque con altura `OffsetEnd` + `ETCHING_HEIGHT`."
 
-#: src/runes/specification.md:315
+#: src/dunes/specification.md:315
 msgid "Mint"
 msgstr "Minteo"
 
-#: src/runes/specification.md:317
-msgid "The `Mint` field contains the Rune ID of the rune to be minted in this transaction."
+#: src/dunes/specification.md:317
+msgid "The `Mint` field contains the Dune ID of the dune to be minted in this transaction."
 msgstr "El campo `Mint` especifica el ID de la runa que se minteara en dicha transacción."
 
-#: src/runes/specification.md:322
+#: src/dunes/specification.md:322
 msgid ""
-"The `Pointer` field contains the index of the output to which runes unallocated by edicts should be transferred. If the `Pointer` field is absent, unallocated runes are "
+"The `Pointer` field contains the index of the output to which dunes unallocated by edicts should be transferred. If the `Pointer` field is absent, unallocated dunes are "
 "transferred to the first non-`OP_RETURN` output."
 msgstr ""
 "El campo `Pointer` indica el índice de la salida a la que deben transferirse las runas no asignadas por los edictos. Si el campo `Pointer` no está presente, las runas no "
 "asignadas se transfieren a la primera salida que no sea `OP_RETURN`."
 
-#: src/runes/specification.md:326
+#: src/dunes/specification.md:326
 msgid "Cenotaph"
 msgstr "Cenotafio"
 
-#: src/runes/specification.md:328
+#: src/dunes/specification.md:328
 msgid "The `Cenotaph` field is unrecognized."
 msgstr "El campo `Cenotaph` no es reconocido."
 
-#: src/runes/specification.md:332
-msgid "The `Divisibility` field, raised to the power of ten, is the number of subunits in a super unit of runes."
+#: src/dunes/specification.md:332
+msgid "The `Divisibility` field, raised to the power of ten, is the number of subunits in a super unit of dunes."
 msgstr "El campo `Divisibility`, elevado a la potencia de diez, determina el número de subunidades en una unidad de runas."
 
-#: src/runes/specification.md:335
-msgid "For example, the amount `1234` of different runes with divisibility 0 through 3 is displayed as follows:"
+#: src/dunes/specification.md:335
+msgid "For example, the amount `1234` of different dunes with divisibility 0 through 3 is displayed as follows:"
 msgstr "Por ejemplo, aca se observa la cantidad `1234` de diferentes runas con divisibilidad de 0 a 3:"
 
-#: src/runes/specification.md:338 src/runes/specification.md:356
+#: src/dunes/specification.md:338 src/dunes/specification.md:356
 msgid "Display"
 msgstr "Aparece"
 
-#: src/runes/specification.md:340
+#: src/dunes/specification.md:340
 msgid "1234"
 msgstr "1234"
 
-#: src/runes/specification.md:341
+#: src/dunes/specification.md:341
 msgid "123.4"
 msgstr "123.4"
 
-#: src/runes/specification.md:342
+#: src/dunes/specification.md:342
 msgid "12.34"
 msgstr "12.34"
 
-#: src/runes/specification.md:343
+#: src/dunes/specification.md:343
 msgid "1.234"
 msgstr "1.234"
 
-#: src/runes/specification.md:345 src/runes/specification.md:356
+#: src/dunes/specification.md:345 src/dunes/specification.md:356
 msgid "Spacers"
 msgstr "Separadores"
 
-#: src/runes/specification.md:347
-msgid "The `Spacers` field is a bitfield of `•` spacers that should be displayed between the letters of the rune's name."
+#: src/dunes/specification.md:347
+msgid "The `Spacers` field is a bitfield of `•` spacers that should be displayed between the letters of the dune's name."
 msgstr "El campo `Spacers` es un mapa de bits de separadores `•` que deben mostrarse entre las letras del nombre de una runa."
 
-#: src/runes/specification.md:350
+#: src/dunes/specification.md:350
 msgid ""
 "The Nth field of the bitfield, starting from the least significant, determines whether or not a spacer should be displayed between the Nth and N+1th character, starting from the "
-"left of the rune's name."
+"left of the dune's name."
 msgstr ""
 "El campo N del mapa de bits, comenzando desde el menos significativo,  determina si debe mostrarse un separador entre los caracteres N y N+1, comenzando desde la izquierda del "
 "nombre de la runa."
 
-#: src/runes/specification.md:354
-msgid "For example, the rune name `AAAA` rendered with different spacers:"
+#: src/dunes/specification.md:354
+msgid "For example, the dune name `AAAA` rendered with different spacers:"
 msgstr "Por ejemplo, el nombre de la runa `AAAA` representado con diferentes separadores:"
 
-#: src/runes/specification.md:358
+#: src/dunes/specification.md:358
 msgid "0b1"
 msgstr "0b1"
 
-#: src/runes/specification.md:358
+#: src/dunes/specification.md:358
 msgid "A•AAA"
 msgstr "A•AAA"
 
-#: src/runes/specification.md:359
+#: src/dunes/specification.md:359
 msgid "0b11"
 msgstr "0b11"
 
-#: src/runes/specification.md:359
+#: src/dunes/specification.md:359
 msgid "A•A•AA"
 msgstr "A•A•AA"
 
-#: src/runes/specification.md:360
+#: src/dunes/specification.md:360
 msgid "0b10"
 msgstr "0b10"
 
-#: src/runes/specification.md:360
+#: src/dunes/specification.md:360
 msgid "AA•AA"
 msgstr "AA•AA"
 
-#: src/runes/specification.md:361
+#: src/dunes/specification.md:361
 msgid "0b111"
 msgstr "0b111"
 
-#: src/runes/specification.md:361
+#: src/dunes/specification.md:361
 msgid "A•A•A•A"
 msgstr "A•A•A•A"
 
-#: src/runes/specification.md:363
+#: src/dunes/specification.md:363
 msgid "Trailing spacers are ignored."
 msgstr "Los separadores al final del nombre son ignorados."
 
-#: src/runes/specification.md:367
+#: src/dunes/specification.md:367
 msgid ""
-"The `Symbol` field is the Unicode codepoint of the Rune's currency symbol, which should be displayed after amounts of that rune. If a rune does not have a currency symbol, the "
+"The `Symbol` field is the Unicode codepoint of the Dune's currency symbol, which should be displayed after amounts of that dune. If a dune does not have a currency symbol, the "
 "generic currency character `¤` should be used."
 msgstr ""
 "El campo `Symbol` representa el punto de código Unicode del símbolo de la runa, el cual debe aparecer después de las cantidades de esa runa. Si una runa no tiene un símbolo "
 "específico, se debe utilizar el carácter de moneda genérico `¤`."
 
-#: src/runes/specification.md:371
+#: src/dunes/specification.md:371
 msgid "For example, if the `Symbol` is `#` and the divisibility is 2, the amount of `1234` units should be displayed as `12.34 #`."
 msgstr "Por ejemplo, si el `Symbol` es `#` y la divisibilidad es 2, la cantidad de `1234` unidades debe aparecer como `12.34 #`."
 
-#: src/runes/specification.md:374
+#: src/dunes/specification.md:374
 msgid "Nop"
 msgstr "Nop"
 
-#: src/runes/specification.md:376
+#: src/dunes/specification.md:376
 msgid "The `Nop` field is unrecognized."
 msgstr "El campo `Nop` no es reconocido."
 
-#: src/runes/specification.md:380
+#: src/dunes/specification.md:380
 msgid "Cenotaphs have the following effects:"
 msgstr "Los cenotafios tienen los siguientes efectos:"
 
-#: src/runes/specification.md:382
-msgid "All runes input to a transaction containing a cenotaph are burned."
+#: src/dunes/specification.md:382
+msgid "All dunes input to a transaction containing a cenotaph are burned."
 msgstr "Todas las runas ingresadas a una transacción que contiene un cenotafio se queman."
 
-#: src/runes/specification.md:384
-msgid "If the runestone that produced the cenotaph contained an etching, the etched rune has supply zero and is unmintable."
+#: src/dunes/specification.md:384
+msgid "If the dunestone that produced the cenotaph contained an etching, the etched dune has supply zero and is unmintable."
 msgstr "Si la piedra rúnica que produjo el cenotafio contenía un grabado, la runa grabada tiene un suministro de cero y no se puede mintear."
 
-#: src/runes/specification.md:387
-msgid "If the runestone that produced the cenotaph is a mint, the mint counts against the mint cap and the minted runes are burned."
+#: src/dunes/specification.md:387
+msgid "If the dunestone that produced the cenotaph is a mint, the mint counts against the mint cap and the minted dunes are burned."
 msgstr "Si la piedra rúnica que produjo el cenotafio es un minteo, esta se contabiliza contra el límite de minteos y las runas minteadas se queman."
 
-#: src/runes/specification.md:390
+#: src/dunes/specification.md:390
 msgid ""
-"Cenotaphs may be created if a runestone contains an unrecognized even tag, an unrecognized flag, an edict with an output number greater than the number of inputs, a rune ID with "
-"block zero and nonzero transaction index, a malformed varint, a non-datapush instruction in the runestone output script pubkey, a tag without a following value, or trailing "
+"Cenotaphs may be created if a dunestone contains an unrecognized even tag, an unrecognized flag, an edict with an output number greater than the number of inputs, a dune ID with "
+"block zero and nonzero transaction index, a malformed varint, a non-datapush instruction in the dunestone output script pubkey, a tag without a following value, or trailing "
 "integers not part of an edict."
 msgstr ""
 "Los cenotafios pueden generarse si una piedra rúnica contiene una etiqueta par no reconocida, una bandera no reconocida, un edicto con un número de salida mayor al número de "
 "entradas, un ID de runa con bloque cero y un índice de transacción distinto a cero, un varint malformado, una instrucción que no es push de datos en el script pubkey de la salida "
 "de la piedra rúnica, una etiqueta sin valor posterior o enteros al final que no formen parte de un edicto."
 
-#: src/runes/specification.md:396
-msgid "Executing the Runestone"
+#: src/dunes/specification.md:396
+msgid "Executing the Dunestone"
 msgstr "Ejecución de la Piedra Rúnica"
 
-#: src/runes/specification.md:398
-msgid "Runestones are executed in the order their transactions are included in blocks."
+#: src/dunes/specification.md:398
+msgid "Dunestones are executed in the order their transactions are included in blocks."
 msgstr "Las piedras rúnicas se ejecutan en el orden en que sus transacciones se incluyan en los bloques."
 
-#: src/runes/specification.md:400
+#: src/dunes/specification.md:400
 msgid "Etchings"
 msgstr "Grabados"
 
-#: src/runes/specification.md:402
-msgid "A runestone may contain an etching:"
+#: src/dunes/specification.md:402
+msgid "A dunestone may contain an etching:"
 msgstr "Una piedra rúnica puede contener este grabado:"
 
-#: src/runes/specification.md:415
-msgid "`rune` is the name of the rune to be etched, encoded as modified base-26 integer."
-msgstr "`rune` es el nombre de la runa que sera grabada, codificada como un entero modificado de base-26."
+#: src/dunes/specification.md:415
+msgid "`dune` is the name of the dune to be etched, encoded as modified base-26 integer."
+msgstr "`dune` es el nombre de la runa que sera grabada, codificada como un entero modificado de base-26."
 
-#: src/runes/specification.md:418
-msgid "Rune names consist of the letters A through Z, with the following encoding:"
+#: src/dunes/specification.md:418
+msgid "Dune names consist of the letters A through Z, with the following encoding:"
 msgstr "Los nombres de runas consisten en las letras de la A a la Z, con la siguiente codificación:"
 
-#: src/runes/specification.md:420
+#: src/dunes/specification.md:420
 msgid "Encoding"
 msgstr "Codificación"
 
-#: src/runes/specification.md:422
+#: src/dunes/specification.md:422
 msgid "A"
 msgstr "A"
 
-#: src/runes/specification.md:423
+#: src/dunes/specification.md:423
 msgid "B"
 msgstr "B"
 
-#: src/runes/specification.md:424 src/runes/specification.md:429
+#: src/dunes/specification.md:424 src/dunes/specification.md:429
 msgid "…"
 msgstr "…"
 
-#: src/runes/specification.md:425
+#: src/dunes/specification.md:425
 msgid "Y"
 msgstr "Y"
 
-#: src/runes/specification.md:425
+#: src/dunes/specification.md:425
 msgid "24"
 msgstr "24"
 
-#: src/runes/specification.md:426
+#: src/dunes/specification.md:426
 msgid "Z"
 msgstr "Z"
 
-#: src/runes/specification.md:427
+#: src/dunes/specification.md:427
 msgid "AA"
 msgstr "AA"
 
-#: src/runes/specification.md:427
+#: src/dunes/specification.md:427
 msgid "26"
 msgstr "26"
 
-#: src/runes/specification.md:428
+#: src/dunes/specification.md:428
 msgid "AB"
 msgstr "AB"
 
-#: src/runes/specification.md:428
+#: src/dunes/specification.md:428
 msgid "27"
 msgstr "27"
 
-#: src/runes/specification.md:430
+#: src/dunes/specification.md:430
 msgid "AY"
 msgstr "AY"
 
-#: src/runes/specification.md:431
+#: src/dunes/specification.md:431
 msgid "AZ"
 msgstr "AZ"
 
-#: src/runes/specification.md:431
+#: src/dunes/specification.md:431
 msgid "51"
 msgstr "51"
 
-#: src/runes/specification.md:432
+#: src/dunes/specification.md:432
 msgid "BA"
 msgstr "BA"
 
-#: src/runes/specification.md:432
+#: src/dunes/specification.md:432
 msgid "52"
 msgstr "52"
 
-#: src/runes/specification.md:434
+#: src/dunes/specification.md:434
 msgid "And so on and so on."
 msgstr "Y así sucesivamente."
 
-#: src/runes/specification.md:436
-msgid "Rune names `AAAAAAAAAAAAAAAAAAAAAAAAAAA` and above are reserved."
+#: src/dunes/specification.md:436
+msgid "Dune names `AAAAAAAAAAAAAAAAAAAAAAAAAAA` and above are reserved."
 msgstr "Los nombres de runas `AAAAAAAAAAAAAAAAAAAAAAAAAAA` y superiores están reservados."
 
-#: src/runes/specification.md:438
-msgid "If `rune` is omitted a reserved rune name is allocated as follows:"
-msgstr "Si `rune` se omite, se asigna un nombre de runa reservado de la siguiente manera:"
+#: src/dunes/specification.md:438
+msgid "If `dune` is omitted a reserved dune name is allocated as follows:"
+msgstr "Si `dune` se omite, se asigna un nombre de runa reservado de la siguiente manera:"
 
-#: src/runes/specification.md:449
-msgid "`6402364363415443603228541259936211926` corresponds to the rune name `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
+#: src/dunes/specification.md:449
+msgid "`6402364363415443603228541259936211926` corresponds to the dune name `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
 msgstr "`6402364363415443603228541259936211926` corresponde al nombre de runa `AAAAAAAAAAAAAAAAAAAAAAAAAAA`."
 
-#: src/runes/specification.md:452
-msgid "If `rune` is present, it must be unlocked as of the block in which the etching appears."
-msgstr "Si `rune` está presente, debe desbloquearse a partir del bloque en el que aparece el grabado."
+#: src/dunes/specification.md:452
+msgid "If `dune` is present, it must be unlocked as of the block in which the etching appears."
+msgstr "Si `dune` está presente, debe desbloquearse a partir del bloque en el que aparece el grabado."
 
-#: src/runes/specification.md:455
-msgid "Initially, all rune names of length thirteen and longer, up until the first reserved rune name, are unlocked."
+#: src/dunes/specification.md:455
+msgid "Initially, all dune names of length thirteen and longer, up until the first reserved dune name, are unlocked."
 msgstr "Inicialmente, todos los nombres de runas de trece caracteres o más, hasta el primer nombre de runa reservado, están desbloqueados."
 
-#: src/runes/specification.md:458
-msgid "Runes begin unlocking in block 840,000, the block in which the runes protocol activates."
+#: src/dunes/specification.md:458
+msgid "Dunes begin unlocking in block 840,000, the block in which the dunes protocol activates."
 msgstr "Las runas comienzan a desbloquearse en el bloque 840,000, el bloque en el que se activa el protocolo de runas."
 
-#: src/runes/specification.md:461
+#: src/dunes/specification.md:461
 msgid ""
-"Thereafter, every 17,500 block period, the next shortest length of rune names is continuously unlocked. So, between block 840,000 and block 857,500, the twelve-character rune "
-"names are unlocked, between block 857,500 and block 875,000 the eleven character rune names are unlocked, and so on and so on, until the one-character rune names are unlocked "
+"Thereafter, every 17,500 block period, the next shortest length of dune names is continuously unlocked. So, between block 840,000 and block 857,500, the twelve-character dune "
+"names are unlocked, between block 857,500 and block 875,000 the eleven character dune names are unlocked, and so on and so on, until the one-character dune names are unlocked "
 "between block 1,032,500 and block 1,050,000. See the `ord` codebase for the precise unlocking schedule."
 msgstr ""
 "A partir de entonces, cada período de 17,500 bloques, se desbloquea continuamente la siguiente longitud más corta de nombres de runas. Entre el bloque 840,000 y el 857,500, se "
 "desbloquean los nombres de runas de doce caracteres, entre el bloque 857,500 y el 875,000 se desbloquean los nombres de runas de once caracteres, y así sucesivamente, hasta que "
 "los nombres de runas de un solo carácter se desbloqueen entre el bloque 1,032,500 y el bloque 1,050,000. Consulte la base de código `ord` para el calendario preciso de desbloqueo."
 
-#: src/runes/specification.md:468
+#: src/dunes/specification.md:468
 msgid ""
-"To prevent front running an etching that has been broadcast but not mined, if a non-reserved rune name is being etched, the etching transaction must contain a valid commitment to "
+"To prevent front running an etching that has been broadcast but not mined, if a non-reserved dune name is being etched, the etching transaction must contain a valid commitment to "
 "the name being etched."
 msgstr ""
 "Para evitar el front running de un grabado que ha sido transmitido pero no minado, si se está grabando un nombre de runa no reservado, la transacción de grabado debe contener un "
 "compromiso válido con el nombre que se está grabando."
 
-#: src/runes/specification.md:472
+#: src/dunes/specification.md:472
 msgid ""
-"A commitment consists of a data push of the rune name, encoded as a little-endian integer with trailing zero bytes elided, present in an input witness tapscript where the output "
+"A commitment consists of a data push of the dune name, encoded as a little-endian integer with trailing zero bytes elided, present in an input witness tapscript where the output "
 "being spent has at least six confirmations."
 msgstr ""
 "Un compromiso consiste en un push de datos del nombre de la runa, codificado como un entero little-endian con los bytes de cero al final eliminados, presente en el testigo de "
 "entrada tapscript donde la salida que se gasta tiene al menos seis confirmaciones."
 
-#: src/runes/specification.md:476
+#: src/dunes/specification.md:476
 msgid "If a valid commitment is not present, the etching is ignored."
 msgstr "Si no hay un compromiso válido, se ignora el grabado."
 
-#: src/runes/specification.md:480
-msgid "A runestone may mint a rune by including the rune's ID in the `Mint` field."
+#: src/dunes/specification.md:480
+msgid "A dunestone may mint a dune by including the dune's ID in the `Mint` field."
 msgstr "Una piedra rúnica puede mintear una runa incluyendo el ID de la runa en el campo `Mint`."
 
-#: src/runes/specification.md:482
+#: src/dunes/specification.md:482
 msgid ""
-"If the mint is open, the mint amount is added to the unallocated runes in the transaction's inputs. These runes may be transferred using edicts, and will otherwise be transferred "
+"If the mint is open, the mint amount is added to the unallocated dunes in the transaction's inputs. These dunes may be transferred using edicts, and will otherwise be transferred "
 "to the first non-`OP_RETURN` output, or the output designated by the `Pointer` field."
 msgstr ""
 "Si el minteo está abierto, la cantidad minteada se añade a las runas no asignadas en las entradas de la transacción. Estas runas pueden ser transferidas usando edictos, y de lo "
 "contrario, se transferirán a la primera salida que no sea `OP_RETURN`, o a la salida designada por el campo `Pointer`."
 
-#: src/runes/specification.md:487
+#: src/dunes/specification.md:487
 msgid "Mints may be made in any transaction after an etching, including in the same block."
 msgstr "Los minteos pueden realizarse en cualquier transacción despues del grabado, incluso en el mismo bloque."
 
-#: src/runes/specification.md:502
-msgid "A runestone may contain any number of edicts, which are processed in sequence."
+#: src/dunes/specification.md:502
+msgid "A dunestone may contain any number of edicts, which are processed in sequence."
 msgstr "Una piedra rúnica puede contener cualquier número de edictos, los cuales se procesan en secuencia."
 
-#: src/runes/specification.md:504
-msgid "Before edicts are processed, input runes, as well as minted or premined runes, if any, are unallocated."
+#: src/dunes/specification.md:504
+msgid "Before edicts are processed, input dunes, as well as minted or premined dunes, if any, are unallocated."
 msgstr "Antes de procesar los edictos, las runas de entrada, así como las runas minteadas o preminadas, si las hay, no están asignadas."
 
-#: src/runes/specification.md:507
-msgid "Each edict decrements the unallocated balance of rune `id` and increments the balance allocated to transaction outputs of rune `id`."
+#: src/dunes/specification.md:507
+msgid "Each edict decrements the unallocated balance of dune `id` and increments the balance allocated to transaction outputs of dune `id`."
 msgstr "Cada edicto reduce el saldo que no ha sido asignado de la runa `id` e incrementa el saldo asignado a las salidas de transacción de la runa `id`."
 
-#: src/runes/specification.md:510
+#: src/dunes/specification.md:510
 msgid ""
-"If an edict would allocate more runes than are currently unallocated, the `amount` is reduced to the number of currently unallocated runes. In other words, the edict allocates "
-"all remaining unallocated units of rune `id`."
+"If an edict would allocate more dunes than are currently unallocated, the `amount` is reduced to the number of currently unallocated dunes. In other words, the edict allocates "
+"all remaining unallocated units of dune `id`."
 msgstr ""
 "Si un edicto asignara más runas de las que no están asignadas, `amount` se reduce al número de runas que no estan asignadas. En otras palabras, el edicto asigna todas las "
 "unidades restantes que no han sido asignadas de la runa `id`."
 
-#: src/runes/specification.md:514
-msgid "Because the ID of an etched rune is not known before it is included in a block, ID `0:0` is used to mean the rune being etched in this transaction, if any."
+#: src/dunes/specification.md:514
+msgid "Because the ID of an etched dune is not known before it is included in a block, ID `0:0` is used to mean the dune being etched in this transaction, if any."
 msgstr ""
 "Dado que el ID de una runa grabada no se conoce antes de que se incluya en un bloque, se usa el `ID 0:0` para referirse a la runa que se está grabando en esta transacción, si la "
 "hay."
 
-#: src/runes/specification.md:517
-msgid "An edict with `amount` zero allocates all remaining units of rune `id`."
+#: src/dunes/specification.md:517
+msgid "An edict with `amount` zero allocates all remaining units of dune `id`."
 msgstr "Un edicto con con el valor `amount` igual a cero asigna todas las unidades restantes de la runa `id`."
 
-#: src/runes/specification.md:519
-msgid "An edict with `output` equal to the number of transaction outputs allocates `amount` runes to each non-`OP_RETURN` output in order."
+#: src/dunes/specification.md:519
+msgid "An edict with `output` equal to the number of transaction outputs allocates `amount` dunes to each non-`OP_RETURN` output in order."
 msgstr "Un edicto con `output` igual al número de salidas de la transacción asigna `amount` de runas a cada salida que no sea OP_RETURN en orden."
 
-#: src/runes/specification.md:522
+#: src/dunes/specification.md:522
 msgid ""
-"An edict with `amount` zero and `output` equal to the number of transaction outputs divides all unallocated units of rune `id` between each non-`OP_RETURN` output. If the number "
-"of unallocated runes is not divisible by the number of non-`OP_RETURN` outputs, 1 additional rune is assigned to the first `R` non-`OP_RETURN` outputs, where `R` is the remainder "
-"after dividing the balance of unallocated units of rune `id` by the number of non-`OP_RETURN` outputs."
+"An edict with `amount` zero and `output` equal to the number of transaction outputs divides all unallocated units of dune `id` between each non-`OP_RETURN` output. If the number "
+"of unallocated dunes is not divisible by the number of non-`OP_RETURN` outputs, 1 additional dune is assigned to the first `R` non-`OP_RETURN` outputs, where `R` is the remainder "
+"after dividing the balance of unallocated units of dune `id` by the number of non-`OP_RETURN` outputs."
 msgstr ""
 "Un edicto con el valor de `amount` igual a cero y `output` igual al número de salidas de la transacción distribuye todas las unidades no asignadas de la runa `id` entre cada "
 "salida que no sea `OP_RETURN`. Si la cantidad de runas no asignadas no se puede dividir equitativamente entre las salidas que no son `OP_RETURN`, se asigna una runa adicional a "
 "las primeras `R` salidas que no son `OP_RETURN`, donde `R` es el residuo que queda después de dividir el balance de unidades no asignadas de la runa `id` por el número de salidas "
 "que no son `OP_RETURN`."
 
-#: src/runes/specification.md:529
+#: src/dunes/specification.md:529
 msgid ""
-"If any edict in a runestone has a rune ID with `block` zero and `tx` greater than zero, or `output` greater than the number of transaction outputs, the runestone is a cenotaph."
+"If any edict in a dunestone has a dune ID with `block` zero and `tx` greater than zero, or `output` greater than the number of transaction outputs, the dunestone is a cenotaph."
 msgstr ""
 "La piedra rúnica se convierte en un cenotafio si algún edicto en una piedra rúnica tiene un ID de runa con `block` igual a cero y `tx` mayor que cero, o `output` mayor que el "
 "número de salidas de la transacción."
 
-#: src/runes/specification.md:533
-msgid "Note that edicts in cenotaphs are not processed, and all input runes are burned."
+#: src/dunes/specification.md:533
+msgid "Note that edicts in cenotaphs are not processed, and all input dunes are burned."
 msgstr "Se debe tener en cuenta que los edictos en los cenotafios no se procesan, y todas las runas de entrada se queman."
 
 #: src/faq.md:1
@@ -3653,7 +3653,7 @@ msgstr "Explorador Ordinal"
 #: src/guides/explorer.md:4
 msgid ""
 "The `ord` binary includes a block explorer. We host an instance of the block explorer on mainnet at [ordinals.com](https://ordinals.com), on signet at [signet.ordinals.com]"
-"(https://signet.ordinals.com), and on testnet at [testnet.ordinals.com](https://testnet.ordinals.com). As of version 0.16.0 the wallet needs `ord server` running in the "
+"(https://signet.ordinals.com), and on testnet at [testnet.ordinals.com](https://testnet.ordinals.com). As of version 0.16.0 the wallet needs `dog server` running in the "
 "background. This is analogous to how `bitcoin-cli` needs `bitcoind` running in the background."
 msgstr ""
 "El ejecutable de `ord` incluye un explorador de bloques. Alojamos una instancia del explorador de bloques en mainnet en [ordinals.com](https://ordinals.com), en signet en [signet."
@@ -3668,16 +3668,16 @@ msgid "The server can be run locally with:"
 msgstr "El servidor puede ser ejecutado localmente utilizando:"
 
 #: src/guides/explorer.md:14
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src/guides/explorer.md:16
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Para especificar un puerto agrega la bandera (flag) `--http-port`:"
 
 #: src/guides/explorer.md:18
-msgid "`ord server --http-port 8080`"
-msgstr "` ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "` dog server --http-port 8080`"
 
 #: src/guides/explorer.md:20
 msgid "The JSON-API endpoints are enabled by default, to disable them add the `--disable-json-api` flag (see [here](#json-api) for more info):"
@@ -3686,8 +3686,8 @@ msgstr ""
 "información):"
 
 #: src/guides/explorer.md:23
-msgid "`ord server --disable-json-api`"
-msgstr "`ord server --disable-json-api`"
+msgid "`dog server --disable-json-api`"
+msgstr "`dog server --disable-json-api`"
 
 #: src/guides/explorer.md:25
 msgid "Search"
@@ -3783,10 +3783,10 @@ msgstr "API JASON"
 
 #: src/guides/explorer.md:78
 msgid ""
-"By default the `ord server` gives access to endpoints that return JSON instead of HTML if you set the HTTP `Accept: application/json` header. The structure of these objects "
+"By default the `dog server` gives access to endpoints that return JSON instead of HTML if you set the HTTP `Accept: application/json` header. The structure of these objects "
 "closely follows what is shown in the HTML. These endpoints are:"
 msgstr ""
-"Por defecto, el `ord server` permite acceder a endpoints que devuelven JSON en lugar de HTML si se configura el encabezado HTTP `Accept: application/json`. La estructura de estos "
+"Por defecto, el `dog server` permite acceder a endpoints que devuelven JSON en lugar de HTML si se configura el encabezado HTTP `Accept: application/json`. La estructura de estos "
 "objetos es muy similar a la que se muestra en el HTML. Los endpoints disponibles son:"
 
 #: src/guides/explorer.md:83
@@ -4136,10 +4136,10 @@ msgstr "Creando un Monedero"
 
 #: src/guides/wallet.md:164
 msgid ""
-"`ord` uses `bitcoind` to manage private keys, sign transactions, and broadcast transactions to the Bitcoin network. Additionally the `ord wallet` requires [`ord server`](explorer."
+"`ord` uses `bitcoind` to manage private keys, sign transactions, and broadcast transactions to the Bitcoin network. Additionally the `ord wallet` requires [`dog server`](explorer."
 "md) running in the background. Make sure these programs are running:"
 msgstr ""
-"`ord` utiliza `bitcoind` para manejar claves privadas, firmar transacciones y transmitir transacciones a la red de Bitcoin. Además, el `monedero ord` requiere que [`ord server`]"
+"`ord` utiliza `bitcoind` para manejar claves privadas, firmar transacciones y transmitir transacciones a la red de Bitcoin. Además, el `monedero ord` requiere que [`dog server`]"
 "(explorer.md) esté ejecutándose en segundo plano. Asegúrate de que estos programas estén en funcionamiento:"
 
 #: src/guides/wallet.md:177
@@ -4167,7 +4167,7 @@ msgstr ""
 "```"
 
 #: src/guides/wallet.md:192
-msgid "If you want to specify a different name or use an `ord server` running on a non-default URL you can set these options:"
+msgid "If you want to specify a different name or use an `dog server` running on a non-default URL you can set these options:"
 msgstr "Si deseas especificar un nombre diferente o utilizar un `servidor de ord` que se esté ejecutando en una URL no predeterminada, puedes configurar estas opciones:"
 
 #: src/guides/wallet.md:195
@@ -4428,19 +4428,19 @@ msgid "Once the send transaction confirms, the recipient can confirm receipt by 
 msgstr "Una vez que la transacción de envío haya sido confirmada, el destinatario podrá verificarlo ejecutando:"
 
 #: src/guides/wallet.md:389
-msgid "Sending Runes"
+msgid "Sending Dunes"
 msgstr "Envíar Runas"
 
 #: src/guides/wallet.md:398
-msgid "Send the runes by running:"
+msgid "Send the dunes by running:"
 msgstr "Para envíar las runas ejecuta:"
 
 #: src/guides/wallet.md:404
 msgid ""
-"Where `RUNES_AMOUNT` is the number of runes to send, a `:` character, and the name of the rune. For example if you want to send 1000 of the EXAMPLE rune, you would use `1000:"
+"Where `DUNES_AMOUNT` is the number of dunes to send, a `:` character, and the name of the dune. For example if you want to send 1000 of the EXAMPLE dune, you would use `1000:"
 "EXAMPLE`."
 msgstr ""
-"En donde `RUNES_AMOUNT` es la cantidad de runas a enviar, seguida por dos puntos `:` y el nombre de la runa. Por ejemplo, si deseas enviar 1000 runas EXAMPLE, usarías `1000:"
+"En donde `DUNES_AMOUNT` es la cantidad de runas a enviar, seguida por dos puntos `:` y el nombre de la runa. Por ejemplo, si deseas enviar 1000 runas EXAMPLE, usarías `1000:"
 "EXAMPLE`."
 
 #: src/guides/wallet.md:418
@@ -4541,7 +4541,7 @@ msgstr ""
 
 #: src/guides/batch-inscribing.md:41
 msgid ""
-"# rune to etch (optional)\n"
+"# dune to etch (optional)\n"
 "etching"
 msgstr ""
 "# runa a grabar (opcional)\n"
@@ -4549,15 +4549,15 @@ msgstr ""
 
 #: src/guides/batch-inscribing.md:44
 msgid ""
-"# rune name\n"
-"  rune"
+"# dune name\n"
+"  dune"
 msgstr ""
 "# nombre de la runa\n"
 "  runa"
 
 #: src/guides/batch-inscribing.md:45
-msgid "THE•BEST•RUNE"
-msgstr "THE•BEST•RUNE"
+msgid "THE•BEST•DUNE"
+msgstr "THE•BEST•DUNE"
 
 #: src/guides/batch-inscribing.md:46
 msgid ""
@@ -4645,7 +4645,7 @@ msgstr ""
 
 #: src/guides/batch-inscribing.md:68
 msgid ""
-"# future runes protocol changes may be opt-in. this may be for a variety of\n"
+"# future dunes protocol changes may be opt-in. this may be for a variety of\n"
 "  # reasons, including that they make light client validation harder, or simply\n"
 "  # because they are too degenerate.\n"
 "  #\n"
@@ -5316,8 +5316,8 @@ msgid "![](images/troubleshooting_02.png)"
 msgstr "![](images/troubleshooting_02.png)"
 
 #: src/guides/moderation.md:4
-msgid "`ord` includes a block explorer, which you can run locally with `ord server`."
-msgstr "ord incluye un explorador de bloques, el cual puedes ejecutar localmente utilizando `ord server`."
+msgid "`ord` includes a block explorer, which you can run locally with `dog server`."
+msgstr "ord incluye un explorador de bloques, el cual puedes ejecutar localmente utilizando `dog server`."
 
 #: src/guides/moderation.md:6
 msgid "The block explorer allows viewing inscriptions. Inscriptions are user-generated content, which may be objectionable or unlawful."
@@ -5375,7 +5375,7 @@ msgid "`ordinals.com`"
 msgstr "`ordinals.com`"
 
 #: src/guides/moderation.md:40
-msgid "The `ordinals.com` instances use `systemd` to run the `ord server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
+msgid "The `ordinals.com` instances use `systemd` to run the `dog server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
 "Las instancias de `ordinals.com` utilizan `system` para ejecutar el servicio del `servidor ord`, que se llama `ord`, con un archivo de configuración situado en `/var/lib/ord/ord."
 "yaml`."
@@ -5406,7 +5406,7 @@ msgstr "Actualmente, `ord` tarda en reiniciarse, por lo que el sitio no volverá
 
 #: src/guides/reindexing.md:4
 msgid ""
-"Sometimes the `ord` database must be reindexed, which means deleting the database and restarting the indexing process with either `ord index update` or `ord server`. Reasons to "
+"Sometimes the `ord` database must be reindexed, which means deleting the database and restarting the indexing process with either `ord index update` or `dog server`. Reasons to "
 "reindex are:"
 msgstr ""
 "En ocasiones, la base de datos de ord debe ser reindexada, esto implica eliminar la base de datos y reiniciar el proceso de indexación con el comando `ord index` update u `ord "
@@ -5912,8 +5912,8 @@ msgid "index_cache_size"
 msgstr "index_cache_size"
 
 #: src/guides/settings.md:57
-msgid "index_runes"
-msgstr "index_runes"
+msgid "index_dunes"
+msgstr "index_dunes"
 
 #: src/guides/settings.md:58
 msgid "index_sats"
@@ -5956,7 +5956,7 @@ msgid "Hiding Inscription Content"
 msgstr "Ocultar el Contenido de Inscripciones"
 
 #: src/guides/settings.md:72
-msgid "Inscription content can be selectively prevented from being served by `ord server`."
+msgid "Inscription content can be selectively prevented from being served by `dog server`."
 msgstr "El contenido de las inscripciones puede ocultarse selectivamente para no ser servido por el `servidor de ord`."
 
 #: src/guides/settings.md:75
@@ -6048,11 +6048,11 @@ msgstr "Entorno de Pruebas"
 
 #: src/guides/testing.md:7
 msgid ""
-"`ord env <DIRECTORY>` creates a test environment in `<DIRECTORY>`, spins up `bitcoind` and `ord server` instances, prints example commands for interacting with the test "
-"`bitcoind` and `ord server` instances, waits for `CTRL-C`, and then shuts down `bitcoind` and `ord server`."
+"`ord env <DIRECTORY>` creates a test environment in `<DIRECTORY>`, spins up `bitcoind` and `dog server` instances, prints example commands for interacting with the test "
+"`bitcoind` and `dog server` instances, waits for `CTRL-C`, and then shuts down `bitcoind` and `dog server`."
 msgstr ""
-"El comando `ord env <DIRECTORIO>` crea un entorno de pruebas en `<DIRECTORIO>`, inicia instancias de `bitcoind` y `ord server`, imprime comandos de ejemplo para interactuar con "
-"las instancias de prueba de `bitcoind` y `ord server`, espera a `CTRL-C`, y luego apaga `bitcoind` y `ord server`."
+"El comando `ord env <DIRECTORIO>` crea un entorno de pruebas en `<DIRECTORIO>`, inicia instancias de `bitcoind` y `dog server`, imprime comandos de ejemplo para interactuar con "
+"las instancias de prueba de `bitcoind` y `dog server`, espera a `CTRL-C`, y luego apaga `bitcoind` y `dog server`."
 
 #: src/guides/testing.md:12
 msgid "`ord env` tries to use port 9000 for `bitcoind`'s RPC interface, and port `9001` for `ord`'s RPC interface, but will fall back to random unused ports."
@@ -6067,8 +6067,8 @@ msgstr ""
 "json`."
 
 #: src/guides/testing.md:19
-msgid "`env.json` contains the commands needed to invoke `bitcoin-cli` and `ord wallet`, as well as the ports `bitcoind` and `ord server` are listening on."
-msgstr "`env.json` incluye los comandos necesarios para invocar `bitcoin-cli` y `ord wallet`, así como los puertos en los que `bitcoind` y `ord server` están activos."
+msgid "`env.json` contains the commands needed to invoke `bitcoin-cli` and `ord wallet`, as well as the ports `bitcoind` and `dog server` are listening on."
+msgstr "`env.json` incluye los comandos necesarios para invocar `bitcoin-cli` y `ord wallet`, así como los puertos en los que `bitcoind` y `dog server` están activos."
 
 #: src/guides/testing.md:22
 msgid "These can be extracted into shell commands using `jq`:"
@@ -6157,8 +6157,8 @@ msgid "Run `bitcoind` in regtest with:"
 msgstr "Ejecuta `bitcoind` en regtest con:"
 
 #: src/guides/testing.md:72
-msgid "Run `ord server` in regtest with:"
-msgstr "Ejecuta `ord server` en regtest con:"
+msgid "Run `dog server` in regtest with:"
+msgstr "Ejecuta `dog server` en regtest con:"
 
 #: src/guides/testing.md:78
 msgid "Create a wallet in regtest with:"
@@ -6218,15 +6218,15 @@ msgstr "Dependencias en Mainnet"
 
 #: src/guides/testing.md:146
 msgid ""
-"To avoid having to change dependency inscription IDs to mainnet inscription IDs, you may utilize a content proxy when testing. `ord server` accepts a `--proxy` option, which "
-"takes the URL of a another `ord server` instance. When making a request to `/content/<INSCRIPTION_ID>` when a content proxy is set and the inscription is not found, `ord server` "
-"will forward the request to the content proxy. This allows you to run a test `ord server` instance with a mainnet content proxy. You can then use mainnet inscription IDs in your "
+"To avoid having to change dependency inscription IDs to mainnet inscription IDs, you may utilize a content proxy when testing. `dog server` accepts a `--proxy` option, which "
+"takes the URL of a another `dog server` instance. When making a request to `/content/<INSCRIPTION_ID>` when a content proxy is set and the inscription is not found, `dog server` "
+"will forward the request to the content proxy. This allows you to run a test `dog server` instance with a mainnet content proxy. You can then use mainnet inscription IDs in your "
 "test inscription, which will then return the content of the mainnet inscriptions."
 msgstr ""
 "Para evitar tener que cambiar los IDs de inscripción de dependencias a los IDs \n"
-"de inscripción de mainnet, puedes utilizar un proxy de contenido. `ord server` acepta una \n"
-"opción `--proxy`, que toma la URL de otra instancia de `ord server`. Al hacer una solicitud a `/content/<ID_DE_INSCRIPCIÓN>` cuando se establece un proxy de contenido \n"
-"y no se encuentra la inscripción, `ord server` reenviará la solicitud al proxy de contenido. Esto te permite ejecutar una instancia de prueba de `ord server` con un proxy de \n"
+"de inscripción de mainnet, puedes utilizar un proxy de contenido. `dog server` acepta una \n"
+"opción `--proxy`, que toma la URL de otra instancia de `dog server`. Al hacer una solicitud a `/content/<ID_DE_INSCRIPCIÓN>` cuando se establece un proxy de contenido \n"
+"y no se encuentra la inscripción, `dog server` reenviará la solicitud al proxy de contenido. Esto te permite ejecutar una instancia de prueba de `dog server` con un proxy de \n"
 "contenido de mainnet. Luego puedes usar ID de inscripciónes de mainnet en tu inscripción de prueba, lo cual retornará el contenido de las inscripciones en mainnet."
 
 #: src/guides/testing.md:156

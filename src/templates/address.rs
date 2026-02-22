@@ -6,7 +6,7 @@ pub(crate) struct AddressHtml {
   pub(crate) header: bool,
   pub(crate) inscriptions: Option<Vec<InscriptionId>>,
   pub(crate) outputs: Vec<OutPoint>,
-  pub(crate) runes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
+  pub(crate) dunes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
   pub(crate) sat_balance: u64,
 }
 
@@ -30,10 +30,10 @@ mod tests {
       outputs: vec![outpoint(1), outpoint(2)],
       inscriptions: Some(vec![inscription_id(1)]),
       sat_balance: 99,
-      runes_balances: Some(vec![
+      dunes_balances: Some(vec![
         (
           SpacedDune {
-            dune: Dune::from_str("TEEEEEEEEESTRUNE").unwrap(),
+            dune: Dune::from_str("TEEEEEEEEESTDUNE").unwrap(),
             spacers: 0,
           },
           Decimal {
@@ -44,7 +44,7 @@ mod tests {
         ),
         (
           SpacedDune {
-            dune: Dune::from_str("ANOTHERTEESTRUNE").unwrap(),
+            dune: Dune::from_str("ANOTHERTEESTDUNE").unwrap(),
             spacers: 0,
           },
           Decimal {
@@ -80,9 +80,9 @@ mod tests {
   }
 
   #[test]
-  fn test_runes_balances_rendering() {
+  fn test_dunes_balances_rendering() {
     let address_html = setup();
-    let expected_pattern = r#".*<dt>dune balances</dt>\n\s*<dd><a class=monospace href=/dune/TEEEEEEEEESTRUNE>TEEEEEEEEESTRUNE</a>: 20000R</dd>\n\s*<dd><a class=monospace href=/dune/ANOTHERTEESTRUNE>ANOTHERTEESTRUNE</a>: 10000F</dd>.*"#;
+    let expected_pattern = r#".*<dt>dune balances</dt>\n\s*<dd><a class=monospace href=/dune/TEEEEEEEEESTDUNE>TEEEEEEEEESTDUNE</a>: 20000R</dd>\n\s*<dd><a class=monospace href=/dune/ANOTHERTEESTDUNE>ANOTHERTEESTDUNE</a>: 10000F</dd>.*"#;
     assert_regex_match!(address_html, expected_pattern);
   }
 

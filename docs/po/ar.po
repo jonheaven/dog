@@ -1484,7 +1484,7 @@ msgid "The server can be run locally with:"
 msgstr "يمكن تشغيل المتصفح محليا على:"
 
 #: src\guides/explorer.md:11
-msgid "`ord server`"
+msgid "`dog server`"
 msgstr ""
 
 #: src\guides/explorer.md:13
@@ -1492,7 +1492,7 @@ msgid "To specify a port add the `--http-port` flag:"
 msgstr "لتحديد البورت `http-port-- `حدد:"
 
 #: src\guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
 msgstr ""
 
 #: src\guides/explorer.md:17
@@ -2858,8 +2858,8 @@ msgid ""
 msgstr ""
 
 #: src\guides/moderation.md:4
-msgid "`ord` includes a block explorer, which you can run locally with `ord server`."
-msgstr "أورد `ord` يتضمن مستكشف كتل يمكنك تشغيله محليًا باستخدام الأمر `ord server`."
+msgid "`ord` includes a block explorer, which you can run locally with `dog server`."
+msgstr "أورد `ord` يتضمن مستكشف كتل يمكنك تشغيله محليًا باستخدام الأمر `dog server`."
 
 #: src\guides/moderation.md:6
 msgid "The block explorer allows viewing inscriptions. Inscriptions are user-generated content, which may be objectionable or unlawful."
@@ -2910,8 +2910,8 @@ msgid "`ordinals.com`"
 msgstr ""
 
 #: src\guides/moderation.md:40
-msgid "The `ordinals.com` instances use `systemd` to run the `ord server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
-msgstr "تستخدم `ordinals.com` لتشغيل خدمة `ord server`، والتي تسمى `ord`، باستخدام ملف تكوين يقع في المسار `var/lib/ord/ord.yaml/`."
+msgid "The `ordinals.com` instances use `systemd` to run the `dog server` service, which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
+msgstr "تستخدم `ordinals.com` لتشغيل خدمة `dog server`، والتي تسمى `ord`، باستخدام ملف تكوين يقع في المسار `var/lib/ord/ord.yaml/`."
 
 #: src\guides/moderation.md:43
 msgid "To hide an inscription on `ordinals.com`:"
@@ -2938,8 +2938,8 @@ msgid "Currently, `ord` is slow to restart, so the site will not come back onlin
 msgstr "حاليًا، يستغرق إعادة تشغيل `ord` وقتًا طويلاً، لذا قد لا يعود الموقع اونلاين فورا."
 
 #: src\guides/reindexing.md:4
-msgid "Sometimes the `ord` database must be reindexed, which means deleting the database and restarting the indexing process with either `ord index run` or `ord server`. Reasons to reindex are:"
-msgstr "أحيانًا يجب إعادة فهرسة قاعدة البيانات `ord`، مما يعني حذف قاعدة البيانات وإعادة بدء عملية الفهرسة مرة أخرى باستخدام إما `ord index run` أو `ord server`. الأسباب التي تستدعي القيام بعملية إعادة الفهرسة تشمل:"
+msgid "Sometimes the `ord` database must be reindexed, which means deleting the database and restarting the indexing process with either `ord index run` or `dog server`. Reasons to reindex are:"
+msgstr "أحيانًا يجب إعادة فهرسة قاعدة البيانات `ord`، مما يعني حذف قاعدة البيانات وإعادة بدء عملية الفهرسة مرة أخرى باستخدام إما `ord index run` أو `dog server`. الأسباب التي تستدعي القيام بعملية إعادة الفهرسة تشمل:"
 
 #: src\guides/reindexing.md:8
 msgid "A new major release of ord, which changes the database scheme"

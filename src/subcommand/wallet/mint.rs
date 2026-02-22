@@ -4,7 +4,7 @@ use super::*;
 pub(crate) struct Mint {
   #[clap(long, help = "Use <FEE_RATE> koinu/vbyte for mint transaction.")]
   fee_rate: FeeRate,
-  #[clap(long, help = "Mint <RUNE>. May contain `.` or `•`as spacers.")]
+  #[clap(long, help = "Mint <DUNE>. May contain `.` or `•`as spacers.")]
   dune: SpacedDune,
   #[clap(
     long,
@@ -25,23 +25,23 @@ pub struct Output {
 impl Mint {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
-      wallet.has_rune_index(),
+      wallet.has_dune_index(),
       "`ord wallet mint` requires index created with `--index-dunes` flag",
     );
 
     let dune = self.dune.dune;
 
-    let bitcoin_client = wallet.bitcoin_client();
+    let dogecoin_client = wallet.dogecoin_client();
 
-    let block_height = bitcoin_client.get_block_count()?;
+    let block_height = dogecoin_client.get_block_count()?;
 
-    let Some((id, rune_entry, _)) = wallet.get_rune(dune)? else {
+    let Some((id, dune_entry, _)) = wallet.get_dune(dune)? else {
       bail!("dune {dune} has not been etched");
     };
 
     let postage = self.postage.unwrap_or(TARGET_POSTAGE);
 
-    let amount = rune_entry
+    let amount = dune_entry
       .mintable(block_height + 1)
       .map_err(|err| anyhow!("dune {dune} {err}"))?;
 
@@ -91,9 +91,9 @@ impl Mint {
     wallet.lock_non_cardinal_outputs()?;
 
     let unsigned_transaction =
-      fund_raw_transaction(bitcoin_client, self.fee_rate, &unfunded_transaction, None)?;
+      fund_raw_transaction(dogecoin_client, self.fee_rate, &unfunded_transaction, None)?;
 
-    let signed_transaction = bitcoin_client
+    let signed_transaction = dogecoin_client
       .sign_raw_transaction_with_wallet(&unsigned_transaction, None, None)?
       .hex;
 
@@ -104,14 +104,14 @@ impl Mint {
       Some(Artifact::Dunestone(dunestone)),
     );
 
-    let transaction = bitcoin_client.send_raw_transaction(&signed_transaction)?;
+    let transaction = dogecoin_client.send_raw_transaction(&signed_transaction)?;
 
     Ok(Some(Box::new(Output {
       dune: self.dune,
       pile: Pile {
         amount,
-        divisibility: rune_entry.divisibility,
-        symbol: rune_entry.symbol,
+        divisibility: dune_entry.divisibility,
+        symbol: dune_entry.symbol,
       },
       mint: transaction,
     })))

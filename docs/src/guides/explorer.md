@@ -5,22 +5,22 @@ The `ord` binary includes a block explorer. We host an instance of the block
 explorer on mainnet at [doginals.com](https://doginals.com), on signet at
 [signet.doginals.com](https://signet.doginals.com), and on testnet at
 [testnet.doginals.com](https://testnet.doginals.com). As of version 0.16.0 the
-wallet needs `ord server` running in the background. This is analogous to how
+wallet needs `dog server` running in the background. This is analogous to how
 `bitcoin-cli` needs `bitcoind` running in the background.
 
 ### Running The Explorer
 The server can be run locally with:
 
-`ord server`
+`dog server`
 
 To specify a port add the `--http-port` flag:
 
-`ord server --http-port 8080`
+`dog server --http-port 8080`
 
 The JSON-API endpoints are enabled by default, to disable them add the
 `--disable-json-api` flag (see [here](api.md) for more info):
 
-`ord server --disable-json-api`
+`dog server --disable-json-api`
 
 Search
 ------

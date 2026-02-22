@@ -668,7 +668,7 @@ fn send_dry_run() {
 }
 
 #[test]
-fn sending_rune_that_has_not_been_etched_is_an_error() {
+fn sending_dune_that_has_not_been_etched_is_an_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -689,18 +689,18 @@ fn sending_rune_that_has_not_been_etched_is_an_error() {
 }
 
 #[test]
-fn sending_rune_with_excessive_precision_is_an_error() {
+fn sending_dune_with_excessive_precision_is_an_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1.1:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
     .dog(&dog)
@@ -710,18 +710,18 @@ fn sending_rune_with_excessive_precision_is_an_error() {
 }
 
 #[test]
-fn sending_rune_with_insufficient_balance_is_an_error() {
+fn sending_dune_with_insufficient_balance_is_an_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1001:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
     .dog(&dog)
@@ -731,18 +731,18 @@ fn sending_rune_with_insufficient_balance_is_an_error() {
 }
 
 #[test]
-fn sending_rune_works() {
+fn sending_dune_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
     .dog(&dog)
@@ -759,7 +759,7 @@ fn sending_rune_works() {
     balances,
     dog::subcommand::balances::Output {
       dunes: vec![(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         vec![(
           OutPoint {
             txid: output.txid,
@@ -781,18 +781,18 @@ fn sending_rune_works() {
 }
 
 #[test]
-fn sending_rune_with_change_works() {
+fn sending_dune_with_change_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --postage 1234sat --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 777:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -814,7 +814,7 @@ fn sending_rune_with_change_works() {
     balances,
     dog::subcommand::balances::Output {
       dunes: [(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         [
           (
             OutPoint {
@@ -847,15 +847,15 @@ fn sending_rune_with_change_works() {
 }
 
 #[test]
-fn sending_rune_creates_change_output_for_non_outgoing_runes() {
+fn sending_dune_creates_change_output_for_non_outgoing_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  let a = etch(&core, &dog, Dune(RUNE));
-  let b = etch(&core, &dog, Dune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(DUNE));
+  let b = etch(&core, &dog, Dune(DUNE + 1));
 
   let (a_block, a_tx) = core.tx_index(a.output.reveal);
   let (b_block, b_tx) = core.tx_index(b.output.reveal);
@@ -889,7 +889,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
     dog::subcommand::balances::Output {
       dunes: [
         (
-          SpacedDune::new(Dune(RUNE), 0),
+          SpacedDune::new(Dune(DUNE), 0),
           [(
             OutPoint {
               txid: merge,
@@ -904,7 +904,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
           .into()
         ),
         (
-          SpacedDune::new(Dune(RUNE + 1), 0),
+          SpacedDune::new(Dune(DUNE + 1), 0),
           [(
             OutPoint {
               txid: merge,
@@ -925,7 +925,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
     .dog(&dog)
@@ -943,7 +943,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
     dog::subcommand::balances::Output {
       dunes: [
         (
-          SpacedDune::new(Dune(RUNE), 0),
+          SpacedDune::new(Dune(DUNE), 0),
           [(
             OutPoint {
               txid: output.txid,
@@ -958,7 +958,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
           .into()
         ),
         (
-          SpacedDune::new(Dune(RUNE + 1), 0),
+          SpacedDune::new(Dune(DUNE + 1), 0),
           [(
             OutPoint {
               txid: output.txid,
@@ -985,7 +985,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
     Balance {
       cardinal: 84999960000,
       ordinal: 20000,
-      dunes: Some([(SpacedDune::new(Dune(RUNE + 1), 0), "1000".parse().unwrap())].into()),
+      dunes: Some([(SpacedDune::new(Dune(DUNE + 1), 0), "1000".parse().unwrap())].into()),
       runic: Some(10000),
       total: 84999990000,
     }
@@ -1000,7 +1000,7 @@ fn sending_spaced_dune_works_with_no_change() {
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let output = CommandBuilder::new(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:A•AAAAAAAAAAAA",
@@ -1024,7 +1024,7 @@ fn sending_spaced_dune_works_with_no_change() {
     balances,
     dog::subcommand::balances::Output {
       dunes: vec![(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         vec![(
           OutPoint {
             txid: output.txid,
@@ -1046,7 +1046,7 @@ fn sending_spaced_dune_works_with_no_change() {
 }
 
 #[test]
-fn sending_rune_with_divisibility_works() {
+fn sending_dune_with_divisibility_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
@@ -1055,7 +1055,7 @@ fn sending_rune_with_divisibility_works() {
 
   core.mine_blocks(1);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   batch(
     &core,
@@ -1096,7 +1096,7 @@ fn sending_rune_with_divisibility_works() {
     balances,
     dog::subcommand::balances::Output {
       dunes: vec![(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         vec![
           (
             OutPoint {
@@ -1131,18 +1131,18 @@ fn sending_rune_with_divisibility_works() {
 }
 
 #[test]
-fn sending_rune_leaves_unspent_runes_in_wallet() {
+fn sending_dune_leaves_unspent_dunes_in_wallet() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 750:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
     .dog(&dog)
@@ -1159,7 +1159,7 @@ fn sending_rune_leaves_unspent_runes_in_wallet() {
     balances,
     dog::subcommand::balances::Output {
       dunes: vec![(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         vec![
           (
             OutPoint {
@@ -1200,14 +1200,14 @@ fn sending_rune_leaves_unspent_runes_in_wallet() {
 }
 
 #[test]
-fn sending_rune_creates_transaction_with_expected_dunestone() {
+fn sending_dune_creates_transaction_with_expected_dunestone() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  let etch = etch(&core, &dog, Dune(RUNE));
+  let etch = etch(&core, &dog, Dune(DUNE));
 
   let output = CommandBuilder::new(format!(
     "
@@ -1218,7 +1218,7 @@ fn sending_rune_creates_transaction_with_expected_dunestone() {
       --fee-rate 1
       bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 750:{}
     ",
-    Dune(RUNE),
+    Dune(DUNE),
   ))
   .core(&core)
   .dog(&dog)
@@ -1235,7 +1235,7 @@ fn sending_rune_creates_transaction_with_expected_dunestone() {
     balances,
     dog::subcommand::balances::Output {
       dunes: vec![(
-        SpacedDune::new(Dune(RUNE), 0),
+        SpacedDune::new(Dune(DUNE), 0),
         vec![
           (
             OutPoint {
@@ -1293,7 +1293,7 @@ fn error_messages_use_spaced_dunes() {
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   CommandBuilder::new(
     "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1001:A•AAAAAAAAAAAA",

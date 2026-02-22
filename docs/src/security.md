@@ -1,7 +1,7 @@
 Security
 ========
 
-Anyone can publish inscriptions, including arbitrary HTML, which `ord server`
+Anyone can publish inscriptions, including arbitrary HTML, which `dog server`
 will serve at `/content/<INSCRIPTION_ID>`,
 `/r/undelegated-content/<INSCRIPTION_ID>`, and
 `/r/sat/<SAT_NUMBER>/at/<INDEX>/content`.
@@ -9,7 +9,7 @@ will serve at `/content/<INSCRIPTION_ID>`,
 This creates potential security vulnerabilities, including cross-site scripting
 and spoofing attacks.
 
-Without mitigations, a domain hosting an `ord server` explorer instance should
+Without mitigations, a domain hosting an `dog server` explorer instance should
 be considered to be completely untrusted.
 
 ### Cross-site Scripting
@@ -22,18 +22,18 @@ as any other script from that website.
 Such a script could access private site resources or perform privileged actions
 on the user's behalf, since it would be making requests on behalf of the user.
 
-Cross-site scripting is *not* a concern for a vanilla `ord server` instance.
-`ord server` does not serve any private resources or allow privileged actions
+Cross-site scripting is *not* a concern for a vanilla `dog server` instance.
+`dog server` does not serve any private resources or allow privileged actions
 to be taken via the web interface, so although JavaScript can be injected using
 an inscription, it does not run with any meaningful permissions.
 
-However, if you serve requests to `ord server` from a domain which *also*
+However, if you serve requests to `dog server` from a domain which *also*
 serves private resources or allow privileged actions, you may be vulnerable to
 cross-site scripting attacks.
 
 #### Example
 
-- `ord server` is run under `https://example.com/ord`.
+- `dog server` is run under `https://example.com/ord`.
 
 - A bitcoin exchange is run under `https://example.com/exchange`.
 
@@ -49,12 +49,12 @@ cross-site scripting attacks.
   the user's behalf with the request including the user's session cookie, the
   server sends the user's bitcoin to the attacker.
 
-To prevent this, do not make `ord server` available on the same domain and port
+To prevent this, do not make `dog server` available on the same domain and port
 as another web service which is vulnerable to cross-site scripting.
 
 ### Spoofing
 
-If `ord server` is run at a well known domain, for example, `doginals.com`, an
+If `dog server` is run at a well known domain, for example, `doginals.com`, an
 attacker could publish a malicious inscription that attempts to trick users
 into thinking that it represents the owners of the domain. For example, by
 publishing a mint page to induce users to send bitcoin. Additionally, the
@@ -65,7 +65,7 @@ site owners.
 
 #### Example
 
-- `ord server` is run at `https://example.com`, by popular and well-respected
+- `dog server` is run at `https://example.com`, by popular and well-respected
   Example Corporation.
 
 - An attacker publishes a malicious HTML inscription with ID `XYZ` which

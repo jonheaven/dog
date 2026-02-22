@@ -78,7 +78,7 @@ mod tests {
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
-            runes_balances: None,
+            dunes_balances: None,
             sat_balance: 0,
           })
         )),
@@ -136,7 +136,7 @@ mod tests {
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
-            runes_balances: None,
+            dunes_balances: None,
             sat_balance: 0,
           })
         )),
@@ -164,7 +164,7 @@ mod tests {
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
-            runes_balances: None,
+            dunes_balances: None,
             sat_balance: 0,
           })
         )),

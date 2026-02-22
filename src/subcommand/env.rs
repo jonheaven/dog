@@ -30,15 +30,15 @@ pub(crate) struct Env {
 
 #[derive(Serialize)]
 struct Info {
-  bitcoin_cli_command: Vec<String>,
-  bitcoind_port: u16,
+  dogecoin_cli_command: Vec<String>,
+  core_port: u16,
   ord_port: u16,
   ord_wallet_command: Vec<String>,
 }
 
 impl Env {
   pub(crate) fn run(self) -> SubcommandResult {
-    let bitcoind_port = TcpListener::bind("127.0.0.1:9000")
+    let core_port = TcpListener::bind("127.0.0.1:9000")
       .ok()
       .map(|listener| listener.local_addr().unwrap().port());
 
@@ -46,8 +46,8 @@ impl Env {
       .ok()
       .map(|listener| listener.local_addr().unwrap().port());
 
-    let (bitcoind_port, ord_port) = (
-      bitcoind_port.unwrap_or(TcpListener::bind("127.0.0.1:0")?.local_addr()?.port()),
+    let (core_port, ord_port) = (
+      core_port.unwrap_or(TcpListener::bind("127.0.0.1:0")?.local_addr()?.port()),
       ord_port.unwrap_or(TcpListener::bind("127.0.0.1:0")?.local_addr()?.port()),
     );
 
@@ -59,11 +59,11 @@ impl Env {
 
     fs::create_dir_all(&absolute)?;
 
-    let bitcoin_conf = absolute.join("bitcoin.conf");
+    let dogecoin_conf = absolute.join("dogecoin.conf");
 
-    if !bitcoin_conf.try_exists()? {
+    if !dogecoin_conf.try_exists()? {
       fs::write(
-        bitcoin_conf,
+        dogecoin_conf,
         format!(
           "datacarriersize=1000000
 regtest=1
@@ -71,7 +71,7 @@ datadir={absolute_str}
 listen=0
 txindex=1
 [regtest]
-rpcport={bitcoind_port}
+rpcport={core_port}
 ",
         ),
       )?;
@@ -107,12 +107,12 @@ rpcport={bitcoind_port}
       fs::write(absolute.join("batch.yaml"), yaml)?;
     }
 
-    let _bitcoind = KillOnDrop(
-      Command::new("bitcoind")
-        .arg(format!("-conf={}", absolute.join("bitcoin.conf").display()))
+    let _core_daemon = KillOnDrop(
+      Command::new("dogecoind")
+        .arg(format!("-conf={}", absolute.join("dogecoin.conf").display()))
         .stdout(Stdio::null())
         .spawn()
-        .expect("failed to start bitcoind"),
+        .expect("failed to start dogecoind"),
     );
 
     loop {
@@ -121,7 +121,7 @@ rpcport={bitcoind_port}
       }
     }
 
-    let rpc_url = format!("http://localhost:{bitcoind_port}");
+    let rpc_url = format!("http://localhost:{core_port}");
 
     let server_url = format!("http://127.0.0.1:{ord_port}");
 
@@ -184,7 +184,7 @@ rpcport={bitcoind_port}
 
       let receive = serde_json::from_slice::<wallet::receive::Output>(&output.stdout)?;
 
-      let status = Command::new("bitcoin-cli")
+      let status = Command::new("dogecoin-cli")
         .arg(format!("-datadir={relative}"))
         .arg("generatetoaddress")
         .arg("200")
@@ -205,9 +205,9 @@ rpcport={bitcoind_port}
     serde_json::to_writer_pretty(
       File::create(self.directory.join("env.json"))?,
       &Info {
-        bitcoind_port,
+        core_port,
         ord_port,
-        bitcoin_cli_command: vec!["bitcoin-cli".into(), format!("-datadir={relative}")],
+        dogecoin_cli_command: vec!["dogecoin-cli".into(), format!("-datadir={relative}")],
         ord_wallet_command: vec![
           dog.to_str().unwrap().into(),
           "--datadir".into(),
@@ -230,11 +230,11 @@ rpcport={bitcoind_port}
       "{}
 {server_url}
 {}
-bitcoin-cli -datadir={datadir} getblockchaininfo
+dogecoin-cli -datadir={datadir} getblockchaininfo
 {}
 {} --datadir {datadir} wallet balance",
       "`dog` server URL:".blue().bold(),
-      "Example `bitcoin-cli` command:".blue().bold(),
+      "Example `dogecoin-cli` command:".blue().bold(),
       "Example `dog` command:".blue().bold(),
       dog.display(),
     );

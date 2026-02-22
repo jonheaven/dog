@@ -1,12 +1,12 @@
 use super::*;
 
 #[derive(Boilerplate, Debug, PartialEq, Serialize)]
-pub struct RuneNotFoundHtml {
+pub struct DuneNotFoundHtml {
   pub dune: Dune,
   pub unlock: Option<(Height, Blocktime)>,
 }
 
-impl PageContent for RuneNotFoundHtml {
+impl PageContent for DuneNotFoundHtml {
   fn title(&self) -> String {
     format!("Dune {}", self.dune)
   }
@@ -19,7 +19,7 @@ mod tests {
   #[test]
   fn display_expected() {
     assert_regex_match!(
-      RuneNotFoundHtml {
+      DuneNotFoundHtml {
         dune: Dune(u128::MAX),
         unlock: Some((Height(111), Blocktime::Expected(DateTime::default()))),
       },
@@ -39,7 +39,7 @@ mod tests {
   #[test]
   fn display_confirmed() {
     assert_regex_match!(
-      RuneNotFoundHtml {
+      DuneNotFoundHtml {
         dune: Dune(u128::MAX),
         unlock: Some((Height(111), Blocktime::Confirmed(DateTime::default()))),
       },
@@ -59,7 +59,7 @@ mod tests {
   #[test]
   fn display_reserved() {
     assert_regex_match!(
-      RuneNotFoundHtml {
+      DuneNotFoundHtml {
         dune: Dune(Dune::RESERVED),
         unlock: None,
       },

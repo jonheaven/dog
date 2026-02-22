@@ -12,7 +12,7 @@ fn flag_is_required() {
 }
 
 #[test]
-fn no_runes() {
+fn no_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let output = CommandBuilder::new("--regtest --index-dunes balances")
@@ -28,15 +28,15 @@ fn no_runes() {
 }
 
 #[test]
-fn with_runes() {
+fn with_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  let a = etch(&core, &dog, Dune(RUNE));
-  let b = etch(&core, &dog, Dune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(DUNE));
+  let b = etch(&core, &dog, Dune(DUNE + 1));
 
   let output = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
@@ -47,7 +47,7 @@ fn with_runes() {
     Balances {
       dunes: [
         (
-          SpacedDune::new(Dune(RUNE), 0),
+          SpacedDune::new(Dune(DUNE), 0),
           [(
             OutPoint {
               txid: a.output.reveal,
@@ -62,7 +62,7 @@ fn with_runes() {
           .into()
         ),
         (
-          SpacedDune::new(Dune(RUNE + 1), 0),
+          SpacedDune::new(Dune(DUNE + 1), 0),
           [(
             OutPoint {
               txid: b.output.reveal,

@@ -32,15 +32,15 @@ impl Fetcher {
   pub(crate) fn new(settings: &Settings) -> Result<Self> {
     let client = Client::builder(TokioExecutor::new()).build_http();
 
-    let url = if settings.bitcoin_rpc_url(None).starts_with("http://") {
-      settings.bitcoin_rpc_url(None)
+    let url = if settings.dogecoin_rpc_url(None).starts_with("http://") {
+      settings.dogecoin_rpc_url(None)
     } else {
-      "http://".to_string() + &settings.bitcoin_rpc_url(None)
+      "http://".to_string() + &settings.dogecoin_rpc_url(None)
     };
 
     let url = Uri::try_from(&url).map_err(|e| anyhow!("Invalid rpc url {url}: {e}"))?;
 
-    let (user, password) = settings.bitcoin_credentials()?.get_user_pass()?;
+    let (user, password) = settings.dogecoin_credentials()?.get_user_pass()?;
     let auth = format!("{}:{}", user.unwrap(), password.unwrap());
     let auth = format!("Basic {}", &base64_encode(auth.as_bytes()));
     Ok(Fetcher { client, url, auth })

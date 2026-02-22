@@ -55,10 +55,10 @@ impl Api for Server {
       initial_block_download: false,
       chain_work: Vec::new(),
       size_on_disk: 0,
-      pruned: false,
-      prune_height: None,
+      pduned: false,
+      pdune_height: None,
       automatic_pruning: None,
-      prune_target_size: None,
+      pdune_target_size: None,
       softforks: HashMap::new(),
       warnings: StringOrStringArray::String(String::new()),
     })

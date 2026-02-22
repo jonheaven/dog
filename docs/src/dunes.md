@@ -1,7 +1,7 @@
-Runes
+Dunes
 =====
 
-Runes allow Bitcoin transactions to etch, mint, and transfer Bitcoin-native
+Dunes allow Dogecoin transactions to etch, mint, and transfer Dogecoin-native
 digital commodities.
 
 Whereas every inscription is unique, every unit of a dune is the same. They are
@@ -10,7 +10,7 @@ interchangeable tokens, fit for a variety of purposes.
 Dunestones
 ----------
 
-Dune protocol messages, called dunestones, are stored in Bitcoin transaction
+Dune protocol messages, called dunestones, are stored in Dogecoin transaction
 outputs.
 
 A dunestone output's script pubkey begins with an `OP_RETURN`, followed by
@@ -25,7 +25,7 @@ a transaction's inputs to its outputs.
 
 A transaction output may hold balances of any number of dunes.
 
-Runes are identified by IDs, which consist of the block in which a dune was
+Dunes are identified by IDs, which consist of the block in which a dune was
 etched and the index of the etching transaction within that block, represented
 in text as `BLOCK:TX`. For example, the ID of the dune etched in the 20th
 transaction of the 500th block is `500:20`.
@@ -33,7 +33,7 @@ transaction of the 500th block is `500:20`.
 Etching
 -------
 
-Runes come into existence by being etched. Etching creates a dune and sets its
+Dunes come into existence by being etched. Etching creates a dune and sets its
 properties. Once set, these properties are immutable, even to its etcher.
 
 ### Name
@@ -140,7 +140,7 @@ contain a pointer that specifies an alternative default output.
 
 ### Burning
 
-Runes may be burned by transferring them to an `OP_RETURN` output with an edict
+Dunes may be burned by transferring them to an `OP_RETURN` output with an edict
 or pointer.
 
 Cenotaphs
@@ -153,7 +153,7 @@ dunestone fields.
 Malformed dunestones are termed
 [cenotaphs](https://en.wikipedia.org/wiki/Cenotaph).
 
-Runes input to a transaction with a cenotaph are burned. Runes etched in a
+Dunes input to a transaction with a cenotaph are burned. Dunes etched in a
 transaction with a cenotaph are set as unmintable. Mints in a transaction with
 a cenotaph count towards the mint cap, but the minted dunes are burned.
 

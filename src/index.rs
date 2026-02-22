@@ -68,16 +68,16 @@ define_table! { HOME_INSCRIPTIONS, u32, InscriptionIdValue }
 define_table! { INSCRIPTION_ID_TO_SEQUENCE_NUMBER, InscriptionIdValue, u32 }
 define_table! { INSCRIPTION_NUMBER_TO_SEQUENCE_NUMBER, i32, u32 }
 define_table! { NUMBER_TO_OFFER, u64, &[u8] }
-define_table! { OUTPOINT_TO_RUNE_BALANCES, &OutPointValue, &[u8] }
+define_table! { OUTPOINT_TO_DUNE_BALANCES, &OutPointValue, &[u8] }
 define_table! { OUTPOINT_TO_UTXO_ENTRY, &OutPointValue, &UtxoEntry }
-define_table! { RUNE_ID_TO_RUNE_ENTRY, DuneIdValue, DuneEntryValue }
-define_table! { RUNE_TO_RUNE_ID, u128, DuneIdValue }
+define_table! { DUNE_ID_TO_DUNE_ENTRY, DuneIdValue, DuneEntryValue }
+define_table! { DUNE_TO_DUNE_ID, u128, DuneIdValue }
 define_table! { SAT_TO_SATPOINT, u64, &KoinuPointValue }
 define_table! { SEQUENCE_NUMBER_TO_INSCRIPTION_ENTRY, u32, InscriptionEntryValue }
-define_table! { SEQUENCE_NUMBER_TO_RUNE_ID, u32, DuneIdValue }
+define_table! { SEQUENCE_NUMBER_TO_DUNE_ID, u32, DuneIdValue }
 define_table! { SEQUENCE_NUMBER_TO_SATPOINT, u32, &KoinuPointValue }
 define_table! { STATISTIC_TO_COUNT, u64, u64 }
-define_table! { TRANSACTION_ID_TO_RUNE, &TxidValue, u128 }
+define_table! { TRANSACTION_ID_TO_DUNE, &TxidValue, u128 }
 define_table! { TRANSACTION_ID_TO_TRANSACTION, &TxidValue, &[u8] }
 define_table! { WRITE_TRANSACTION_STARTING_BLOCK_COUNT_TO_TIMESTAMP, u32, u128 }
 
@@ -101,14 +101,14 @@ pub(crate) enum Statistic {
   CursedInscriptions = 3,
   IndexAddresses = 4,
   IndexInscriptions = 5,
-  IndexRunes = 6,
+  IndexDunes = 6,
   IndexSats = 7,
   IndexTransactions = 8,
   InitialSyncTime = 9,
   LostSats = 10,
   OutputsTraversed = 11,
-  ReservedRunes = 12,
-  Runes = 13,
+  ReservedDunes = 12,
+  Dunes = 13,
   SatRanges = 14,
   UnboundInscriptions = 16,
   LastSavepointHeight = 17,
@@ -223,7 +223,7 @@ pub struct Index {
   height_limit: Option<u32>,
   index_addresses: bool,
   index_inscriptions: bool,
-  index_runes: bool,
+  index_dunes: bool,
   index_sats: bool,
   index_transactions: bool,
   path: PathBuf,
@@ -242,7 +242,7 @@ impl Index {
     settings: &Settings,
     event_sender: Option<tokio::sync::mpsc::Sender<Event>>,
   ) -> Result<Self> {
-    let client = settings.bitcoin_rpc_client(None)?;
+    let client = settings.dogecoin_rpc_client(None)?;
 
     let path = settings.index().to_owned();
 
@@ -345,15 +345,15 @@ impl Index {
         tx.open_table(INSCRIPTION_ID_TO_SEQUENCE_NUMBER)?;
         tx.open_table(INSCRIPTION_NUMBER_TO_SEQUENCE_NUMBER)?;
         tx.open_table(NUMBER_TO_OFFER)?;
-        tx.open_table(OUTPOINT_TO_RUNE_BALANCES)?;
+        tx.open_table(OUTPOINT_TO_DUNE_BALANCES)?;
         tx.open_table(OUTPOINT_TO_UTXO_ENTRY)?;
-        tx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-        tx.open_table(RUNE_TO_RUNE_ID)?;
+        tx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
+        tx.open_table(DUNE_TO_DUNE_ID)?;
         tx.open_table(SAT_TO_SATPOINT)?;
         tx.open_table(SEQUENCE_NUMBER_TO_INSCRIPTION_ENTRY)?;
-        tx.open_table(SEQUENCE_NUMBER_TO_RUNE_ID)?;
+        tx.open_table(SEQUENCE_NUMBER_TO_DUNE_ID)?;
         tx.open_table(SEQUENCE_NUMBER_TO_SATPOINT)?;
-        tx.open_table(TRANSACTION_ID_TO_RUNE)?;
+        tx.open_table(TRANSACTION_ID_TO_DUNE)?;
         tx.open_table(WRITE_TRANSACTION_STARTING_BLOCK_COUNT_TO_TIMESTAMP)?;
 
         {
@@ -373,8 +373,8 @@ impl Index {
 
           Self::set_statistic(
             &mut statistics,
-            Statistic::IndexRunes,
-            u64::from(settings.index_runes_raw()),
+            Statistic::IndexDunes,
+            u64::from(settings.index_dunes_raw()),
           )?;
 
           Self::set_statistic(
@@ -392,20 +392,20 @@ impl Index {
           Self::set_statistic(&mut statistics, Statistic::Schema, SCHEMA_VERSION)?;
         }
 
-        if settings.index_runes_raw() && settings.chain() == Chain::Dogecoin {
+        if settings.index_dunes_raw() && settings.chain() == Chain::Dogecoin {
           let dune = Dune(2055900680524219742);
 
           let id = DuneId { block: 1, tx: 0 };
           let etching = Txid::all_zeros();
 
-          tx.open_table(RUNE_TO_RUNE_ID)?
+          tx.open_table(DUNE_TO_DUNE_ID)?
             .insert(dune.store(), id.store())?;
 
           let mut statistics = tx.open_table(STATISTIC_TO_COUNT)?;
 
-          Self::set_statistic(&mut statistics, Statistic::Runes, 1)?;
+          Self::set_statistic(&mut statistics, Statistic::Dunes, 1)?;
 
-          tx.open_table(RUNE_ID_TO_RUNE_ENTRY)?.insert(
+          tx.open_table(DUNE_ID_TO_DUNE_ENTRY)?.insert(
             id.store(),
             DuneEntry {
               block: id.block,
@@ -432,7 +432,7 @@ impl Index {
             .store(),
           )?;
 
-          tx.open_table(TRANSACTION_ID_TO_RUNE)?
+          tx.open_table(TRANSACTION_ID_TO_DUNE)?
             .insert(&etching.store(), dune.store())?;
         }
 
@@ -444,7 +444,7 @@ impl Index {
     };
 
     let index_addresses;
-    let index_runes;
+    let index_dunes;
     let index_sats;
     let index_transactions;
     let index_inscriptions;
@@ -454,7 +454,7 @@ impl Index {
       let statistics = tx.open_table(STATISTIC_TO_COUNT)?;
       index_addresses = Self::is_statistic_set(&statistics, Statistic::IndexAddresses)?;
       index_inscriptions = Self::is_statistic_set(&statistics, Statistic::IndexInscriptions)?;
-      index_runes = Self::is_statistic_set(&statistics, Statistic::IndexRunes)?;
+      index_dunes = Self::is_statistic_set(&statistics, Statistic::IndexDunes)?;
       index_sats = Self::is_statistic_set(&statistics, Statistic::IndexSats)?;
       index_transactions = Self::is_statistic_set(&statistics, Statistic::IndexTransactions)?;
     }
@@ -466,8 +466,8 @@ impl Index {
       0
     } else if index_inscriptions {
       settings.first_inscription_height()
-    } else if index_runes {
-      settings.first_rune_height()
+    } else if index_dunes {
+      settings.first_dune_height()
     } else {
       u32::MAX
     };
@@ -482,7 +482,7 @@ impl Index {
       genesis_block_coinbase_transaction,
       height_limit: settings.height_limit(),
       index_addresses,
-      index_runes,
+      index_dunes,
       index_sats,
       index_transactions,
       index_inscriptions,
@@ -535,8 +535,8 @@ impl Index {
     self.index_inscriptions
   }
 
-  pub fn has_rune_index(&self) -> bool {
-    self.index_runes
+  pub fn has_dune_index(&self) -> bool {
+    self.index_dunes
   }
 
   pub fn has_sat_index(&self) -> bool {
@@ -581,12 +581,12 @@ impl Index {
       inscriptions: blessed_inscriptions + cursed_inscriptions,
       json_api,
       lost_koinu: statistic(Statistic::LostSats)?,
-      minimum_rune_for_next_block: Dune::minimum_at_height(
+      minimum_dune_for_next_block: Dune::minimum_at_height(
         self.settings.chain().network(),
         Height(next_height),
       ),
-      rune_index: self.has_rune_index(),
-      dunes: statistic(Statistic::Runes)?,
+      dune_index: self.has_dune_index(),
+      dunes: statistic(Statistic::Dunes)?,
       sat_index: self.has_sat_index(),
       started: self.started,
       transaction_index: statistic(Statistic::IndexTransactions)? != 0,
@@ -1113,29 +1113,29 @@ impl Index {
     )
   }
 
-  pub fn get_rune_by_id(&self, id: DuneId) -> Result<Option<Dune>> {
+  pub fn get_dune_by_id(&self, id: DuneId) -> Result<Option<Dune>> {
     Ok(
       self
         .database
         .begin_read()?
-        .open_table(RUNE_ID_TO_RUNE_ENTRY)?
+        .open_table(DUNE_ID_TO_DUNE_ENTRY)?
         .get(&id.store())?
         .map(|entry| DuneEntry::load(entry.value()).spaced_dune.dune),
     )
   }
 
-  pub fn get_rune_by_number(&self, number: usize) -> Result<Option<Dune>> {
+  pub fn get_dune_by_number(&self, number: usize) -> Result<Option<Dune>> {
     match self
       .database
       .begin_read()?
-      .open_table(RUNE_ID_TO_RUNE_ENTRY)?
+      .open_table(DUNE_ID_TO_DUNE_ENTRY)?
       .iter()?
       .nth(number)
     {
       Some(result) => {
-        let rune_result =
+        let dune_result =
           result.map(|(_id, entry)| DuneEntry::load(entry.value()).spaced_dune.dune);
-        Ok(rune_result.ok())
+        Ok(dune_result.ok())
       }
       None => Ok(None),
     }
@@ -1145,7 +1145,7 @@ impl Index {
     let rtx = self.database.begin_read()?;
 
     let Some(id) = rtx
-      .open_table(RUNE_TO_RUNE_ID)?
+      .open_table(DUNE_TO_DUNE_ID)?
       .get(dune.0)?
       .map(|guard| guard.value())
     else {
@@ -1154,7 +1154,7 @@ impl Index {
 
     let entry = DuneEntry::load(
       rtx
-        .open_table(RUNE_ID_TO_RUNE_ENTRY)?
+        .open_table(DUNE_ID_TO_DUNE_ENTRY)?
         .get(id)?
         .unwrap()
         .value(),
@@ -1180,7 +1180,7 @@ impl Index {
     for result in self
       .database
       .begin_read()?
-      .open_table(RUNE_ID_TO_RUNE_ENTRY)?
+      .open_table(DUNE_ID_TO_DUNE_ENTRY)?
       .iter()?
     {
       let (id, entry) = result?;
@@ -1190,7 +1190,7 @@ impl Index {
     Ok(entries)
   }
 
-  pub fn runes_paginated(
+  pub fn dunes_paginated(
     &self,
     page_size: usize,
     page_index: usize,
@@ -1200,7 +1200,7 @@ impl Index {
     for result in self
       .database
       .begin_read()?
-      .open_table(RUNE_ID_TO_RUNE_ENTRY)?
+      .open_table(DUNE_ID_TO_DUNE_ENTRY)?
       .iter()?
       .rev()
       .skip(page_index.saturating_mul(page_size))
@@ -1215,13 +1215,13 @@ impl Index {
     Ok((entries, more))
   }
 
-  pub fn encode_rune_balance(id: DuneId, balance: u128, buffer: &mut Vec<u8>) {
+  pub fn encode_dune_balance(id: DuneId, balance: u128, buffer: &mut Vec<u8>) {
     varint::encode_to_vec(id.block.into(), buffer);
     varint::encode_to_vec(id.tx.into(), buffer);
     varint::encode_to_vec(balance, buffer);
   }
 
-  pub fn decode_rune_balance(buffer: &[u8]) -> Result<((DuneId, u128), usize)> {
+  pub fn decode_dune_balance(buffer: &[u8]) -> Result<((DuneId, u128), usize)> {
     let mut len = 0;
     let (block, block_len) = varint::decode(&buffer[len..])?;
     len += block_len;
@@ -1236,19 +1236,19 @@ impl Index {
     Ok(((id, balance), len))
   }
 
-  pub fn get_rune_balances_for_output(
+  pub fn get_dune_balances_for_output(
     &self,
     outpoint: OutPoint,
   ) -> Result<Option<BTreeMap<SpacedDune, Pile>>> {
-    if !self.index_runes {
+    if !self.index_dunes {
       return Ok(None);
     }
 
     let rtx = self.database.begin_read()?;
 
-    let outpoint_to_balances = rtx.open_table(OUTPOINT_TO_RUNE_BALANCES)?;
+    let outpoint_to_balances = rtx.open_table(OUTPOINT_TO_DUNE_BALANCES)?;
 
-    let id_to_rune_entries = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+    let id_to_dune_entries = rtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
 
     let Some(balances) = outpoint_to_balances.get(&outpoint.store())? else {
       return Ok(Some(BTreeMap::new()));
@@ -1259,10 +1259,10 @@ impl Index {
     let mut balances = BTreeMap::new();
     let mut i = 0;
     while i < balances_buffer.len() {
-      let ((id, amount), length) = Index::decode_rune_balance(&balances_buffer[i..]).unwrap();
+      let ((id, amount), length) = Index::decode_dune_balance(&balances_buffer[i..]).unwrap();
       i += length;
 
-      let entry = DuneEntry::load(id_to_rune_entries.get(id.store())?.unwrap().value());
+      let entry = DuneEntry::load(id_to_dune_entries.get(id.store())?.unwrap().value());
 
       balances.insert(
         entry.spaced_dune,
@@ -1277,18 +1277,18 @@ impl Index {
     Ok(Some(balances))
   }
 
-  pub fn get_rune_balance_map(&self) -> Result<BTreeMap<SpacedDune, BTreeMap<OutPoint, Pile>>> {
-    let outpoint_balances = self.get_rune_balances()?;
+  pub fn get_dune_balance_map(&self) -> Result<BTreeMap<SpacedDune, BTreeMap<OutPoint, Pile>>> {
+    let outpoint_balances = self.get_dune_balances()?;
 
     let rtx = self.database.begin_read()?;
 
-    let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+    let dune_id_to_dune_entry = rtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
 
-    let mut rune_balances_by_id: BTreeMap<DuneId, BTreeMap<OutPoint, u128>> = BTreeMap::new();
+    let mut dune_balances_by_id: BTreeMap<DuneId, BTreeMap<OutPoint, u128>> = BTreeMap::new();
 
     for (outpoint, balances) in outpoint_balances {
       for (dune_id, amount) in balances {
-        *rune_balances_by_id
+        *dune_balances_by_id
           .entry(dune_id)
           .or_default()
           .entry(outpoint)
@@ -1296,22 +1296,22 @@ impl Index {
       }
     }
 
-    let mut rune_balances = BTreeMap::new();
+    let mut dune_balances = BTreeMap::new();
 
-    for (dune_id, balances) in rune_balances_by_id {
+    for (dune_id, balances) in dune_balances_by_id {
       let DuneEntry {
         divisibility,
         spaced_dune,
         symbol,
         ..
       } = DuneEntry::load(
-        dune_id_to_rune_entry
+        dune_id_to_dune_entry
           .get(&dune_id.store())?
           .unwrap()
           .value(),
       );
 
-      rune_balances.insert(
+      dune_balances.insert(
         spaced_dune,
         balances
           .into_iter()
@@ -1329,16 +1329,16 @@ impl Index {
       );
     }
 
-    Ok(rune_balances)
+    Ok(dune_balances)
   }
 
-  pub fn get_rune_balances(&self) -> Result<Vec<(OutPoint, Vec<(DuneId, u128)>)>> {
+  pub fn get_dune_balances(&self) -> Result<Vec<(OutPoint, Vec<(DuneId, u128)>)>> {
     let mut result = Vec::new();
 
     for entry in self
       .database
       .begin_read()?
-      .open_table(OUTPOINT_TO_RUNE_BALANCES)?
+      .open_table(OUTPOINT_TO_DUNE_BALANCES)?
       .iter()?
     {
       let (outpoint, balances_buffer) = entry?;
@@ -1348,7 +1348,7 @@ impl Index {
       let mut balances = Vec::new();
       let mut i = 0;
       while i < balances_buffer.len() {
-        let ((id, balance), length) = Index::decode_rune_balance(&balances_buffer[i..]).unwrap();
+        let ((id, balance), length) = Index::decode_dune_balance(&balances_buffer[i..]).unwrap();
         i += length;
         balances.push((id, balance));
       }
@@ -1622,16 +1622,16 @@ impl Index {
   pub fn get_etching(&self, txid: Txid) -> Result<Option<SpacedDune>> {
     let rtx = self.database.begin_read()?;
 
-    let transaction_id_to_rune = rtx.open_table(TRANSACTION_ID_TO_RUNE)?;
-    let Some(dune) = transaction_id_to_rune.get(&txid.store())? else {
+    let transaction_id_to_dune = rtx.open_table(TRANSACTION_ID_TO_DUNE)?;
+    let Some(dune) = transaction_id_to_dune.get(&txid.store())? else {
       return Ok(None);
     };
 
-    let rune_to_dune_id = rtx.open_table(RUNE_TO_RUNE_ID)?;
-    let id = rune_to_dune_id.get(dune.value())?.unwrap();
+    let dune_to_dune_id = rtx.open_table(DUNE_TO_DUNE_ID)?;
+    let id = dune_to_dune_id.get(dune.value())?.unwrap();
 
-    let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-    let entry = dune_id_to_rune_entry.get(&id.value())?.unwrap();
+    let dune_id_to_dune_entry = rtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
+    let entry = dune_id_to_dune_entry.get(&id.value())?.unwrap();
 
     Ok(Some(DuneEntry::load(entry.value()).spaced_dune))
   }
@@ -2250,10 +2250,10 @@ impl Index {
       .collect::<Result<Vec<InscriptionId>>>()
   }
 
-  pub fn get_runes_in_block(&self, block_height: u64) -> Result<Vec<SpacedDune>> {
+  pub fn get_dunes_in_block(&self, block_height: u64) -> Result<Vec<SpacedDune>> {
     let rtx = self.database.begin_read()?;
 
-    let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+    let dune_id_to_dune_entry = rtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
 
     let min_id = DuneId {
       block: block_height,
@@ -2265,7 +2265,7 @@ impl Index {
       tx: u32::MAX,
     };
 
-    let dunes = dune_id_to_rune_entry
+    let dunes = dune_id_to_dune_entry
       .range(min_id.store()..=max_id.store())?
       .map(|result| result.map(|(_, entry)| DuneEntry::load(entry.value()).spaced_dune))
       .collect::<Result<Vec<SpacedDune>, StorageError>>()?;
@@ -2459,11 +2459,11 @@ impl Index {
       .collect::<Result<Vec<InscriptionId>>>()?;
 
     let dune = if let Some(dune_id) = rtx
-      .open_table(SEQUENCE_NUMBER_TO_RUNE_ID)?
+      .open_table(SEQUENCE_NUMBER_TO_DUNE_ID)?
       .get(sequence_number)?
     {
-      let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-      let entry = dune_id_to_rune_entry.get(&dune_id.value())?.unwrap();
+      let dune_id_to_dune_entry = rtx.open_table(DUNE_ID_TO_DUNE_ENTRY)?;
+      let entry = dune_id_to_dune_entry.get(&dune_id.value())?.unwrap();
       Some(DuneEntry::load(entry.value()).spaced_dune)
     } else {
       None
@@ -2694,18 +2694,18 @@ impl Index {
       .collect()
   }
 
-  pub(crate) fn get_aggregated_rune_balances_for_outputs(
+  pub(crate) fn get_aggregated_dune_balances_for_outputs(
     &self,
     outputs: &Vec<OutPoint>,
   ) -> Result<Option<Vec<(SpacedDune, Decimal, Option<char>)>>> {
     let mut dunes = BTreeMap::new();
 
     for output in outputs {
-      let Some(rune_balances) = self.get_rune_balances_for_output(*output)? else {
+      let Some(dune_balances) = self.get_dune_balances_for_output(*output)? else {
         return Ok(None);
       };
 
-      for (spaced_dune, pile) in rune_balances {
+      for (spaced_dune, pile) in dune_balances {
         dunes
           .entry(spaced_dune)
           .and_modify(|(decimal, _symbol): &mut (Decimal, Option<char>)| {
@@ -2761,7 +2761,7 @@ impl Index {
 
     Ok(Some(api::UtxoRecursive {
       inscriptions: self.get_inscriptions_for_output(outpoint)?,
-      dunes: self.get_rune_balances_for_output(outpoint)?,
+      dunes: self.get_dune_balances_for_output(outpoint)?,
       koinu_ranges: self.list(outpoint)?,
       value: utxo_entry.value().parse(self).total_value(),
     }))
@@ -2821,7 +2821,7 @@ impl Index {
 
     let inscriptions = self.get_inscriptions_for_output(outpoint)?;
 
-    let dunes = self.get_rune_balances_for_output(outpoint)?;
+    let dunes = self.get_dune_balances_for_output(outpoint)?;
 
     Ok(Some((
       api::Output::new(
@@ -6921,8 +6921,8 @@ mod tests {
   }
 
   #[test]
-  fn rune_event_sender_channel() {
-    const RUNE: u128 = 99246114928149462;
+  fn dune_event_sender_channel() {
+    const DUNE: u128 = 99246114928149462;
 
     let (event_sender, mut event_receiver) = tokio::sync::mpsc::channel(1024);
     let context = Context::builder()
@@ -6933,7 +6933,7 @@ mod tests {
     let (txid0, id) = context.etch(
       Dunestone {
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -6946,14 +6946,14 @@ mod tests {
       1,
     );
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: id.block,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -6971,7 +6971,7 @@ mod tests {
 
     assert_eq!(
       event_receiver.blocking_recv().unwrap(),
-      Event::RuneEtched {
+      Event::DuneEtched {
         block_height: 8,
         txid: txid0,
         dune_id: id,
@@ -6992,7 +6992,7 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
@@ -7005,7 +7005,7 @@ mod tests {
           }),
           mints: 1,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           premine: 0,
@@ -7024,7 +7024,7 @@ mod tests {
 
     assert_eq!(
       event_receiver.blocking_recv().unwrap(),
-      Event::RuneMinted {
+      Event::DuneMinted {
         block_height: 9,
         txid: txid1,
         dune_id: id,
@@ -7050,14 +7050,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: 8,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             ..default()
           },
           terms: Some(Terms {
@@ -7083,7 +7083,7 @@ mod tests {
 
     pretty_assert_eq!(
       event_receiver.blocking_recv().unwrap(),
-      Event::RuneTransferred {
+      Event::DuneTransferred {
         block_height: 10,
         txid: txid2,
         dune_id: id,
@@ -7114,14 +7114,14 @@ mod tests {
 
     context.mine_blocks(1);
 
-    context.assert_runes(
+    context.assert_dunes(
       [(
         id,
         DuneEntry {
           block: 8,
           etching: txid0,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             ..default()
           },
           terms: Some(Terms {
@@ -7148,7 +7148,7 @@ mod tests {
 
     pretty_assert_eq!(
       event_receiver.blocking_recv().unwrap(),
-      Event::RuneBurned {
+      Event::DuneBurned {
         block_height: 11,
         txid: txid3,
         amount: 111,

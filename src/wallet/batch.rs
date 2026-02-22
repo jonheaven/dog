@@ -37,7 +37,7 @@ pub struct Output {
   pub reveal: Txid,
   pub reveal_broadcast: bool,
   pub reveal_psbt: Option<String>,
-  pub dune: Option<RuneInfo>,
+  pub dune: Option<DuneInfo>,
   pub total_fees: u64,
 }
 
@@ -49,7 +49,7 @@ pub struct InscriptionInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-pub struct RuneInfo {
+pub struct DuneInfo {
   pub destination: Option<Address<NetworkUnchecked>>,
   pub location: Option<OutPoint>,
   pub dune: SpacedDune,

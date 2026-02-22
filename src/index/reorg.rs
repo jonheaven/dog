@@ -23,11 +23,11 @@ pub(crate) struct Reorg {}
 
 impl Reorg {
   pub(crate) fn detect_reorg(block: &BlockData, height: u32, index: &Index) -> Result {
-    let bitcoind_prev_blockhash = block.header.prev_blockhash;
+    let core_prev_blockhash = block.header.prev_blockhash;
 
     match index.block_hash(height.checked_sub(1))? {
-      Some(index_prev_blockhash) if index_prev_blockhash == bitcoind_prev_blockhash => Ok(()),
-      Some(index_prev_blockhash) if index_prev_blockhash != bitcoind_prev_blockhash => {
+      Some(index_prev_blockhash) if index_prev_blockhash == core_prev_blockhash => Ok(()),
+      Some(index_prev_blockhash) if index_prev_blockhash != core_prev_blockhash => {
         let savepoint_interval = u32::try_from(index.settings.savepoint_interval()).unwrap();
         let max_savepoints = u32::try_from(index.settings.max_savepoints()).unwrap();
         let max_recoverable_reorg_depth =
@@ -35,12 +35,12 @@ impl Reorg {
 
         for depth in 1..max_recoverable_reorg_depth {
           let index_block_hash = index.block_hash(height.checked_sub(depth))?;
-          let bitcoind_block_hash = index
+          let core_block_hash = index
             .client
             .get_block_hash(u64::from(height.saturating_sub(depth)))
             .into_option()?;
 
-          if index_block_hash == bitcoind_block_hash {
+          if index_block_hash == core_block_hash {
             return Err(anyhow!(reorg::Error::Recoverable { height, depth }));
           }
         }

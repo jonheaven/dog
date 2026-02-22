@@ -1,8 +1,8 @@
-Runes Does Not Have a Specification
+Dunes Does Not Have a Specification
 ===================================
 
-The Runes reference implementation, `ord`, is the normative specification of
-the Runes protocol.
+The Dunes reference implementation, `ord`, is the normative specification of
+the Dunes protocol.
 
 Nothing you read here or elsewhere, aside from the code of `ord`, is a
 specification. This prose description of the dunes protocol is provided as a
@@ -14,15 +14,15 @@ If, due to a bug in `ord`, this document diverges from the actual behavior of
 document will be amended to agree with `ord`'s actual behavior.
 
 Users of alternative implementations do so at their own risk, and services
-wishing to integrate Runes are strongly encouraged to use `ord` itself to make
-Runes transactions, and to determine the state of dunes, mints, and balances.
+wishing to integrate Dunes are strongly encouraged to use `ord` itself to make
+Dunes transactions, and to determine the state of dunes, mints, and balances.
 
 Dunestones
 ----------
 
 Dune protocol messages are termed "dunestones".
 
-The Runes protocol activates on block 840,000. Dunestones in earlier blocks are
+The Dunes protocol activates on block 840,000. Dunestones in earlier blocks are
 ignored.
 
 Abstractly, dunestones contain the following fields:
@@ -36,7 +36,7 @@ struct Dunestone {
 }
 ```
 
-Runes are created by etchings:
+Dunes are created by etchings:
 
 ```rust
 struct Etching {
@@ -60,7 +60,7 @@ struct Terms {
 }
 ```
 
-Runes are transferred by edict:
+Dunes are transferred by edict:
 
 ```rust
 struct Edict {
@@ -457,7 +457,7 @@ appears.
 Initially, all dune names of length thirteen and longer, up until the first
 reserved dune name, are unlocked.
 
-Runes begin unlocking in block 840,000, the block in which the dunes protocol
+Dunes begin unlocking in block 840,000, the block in which the dunes protocol
 activates.
 
 Thereafter, every 17,500 block period, the next shortest length of dune names
@@ -491,7 +491,7 @@ block.
 
 #### Transferring
 
-Runes are transferred by edict:
+Dunes are transferred by edict:
 
 ```rust
 struct Edict {

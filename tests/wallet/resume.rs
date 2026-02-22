@@ -11,7 +11,7 @@ fn get_batchfile() -> batch::File {
     etching: Some(batch::Etching {
       divisibility: 0,
       dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       supply: "1000".parse().unwrap(),
@@ -108,14 +108,14 @@ fn wallet_resume() {
       .unwrap()
       .dune
       .dune,
-    Dune(RUNE)
+    Dune(DUNE)
   );
 
   assert!(output.etchings.first().unwrap().reveal_broadcast);
 }
 
 #[test]
-fn wallet_resume_by_rune_name() {
+fn wallet_resume_by_dune_name() {
   let core = mockcore::builder().network(Network::Regtest).build();
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
@@ -146,7 +146,7 @@ fn wallet_resume_by_rune_name() {
       .unwrap()
       .dune
       .dune,
-    Dune(RUNE)
+    Dune(DUNE)
   );
 
   assert!(output.etchings.first().unwrap().reveal_broadcast);

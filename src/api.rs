@@ -6,7 +6,7 @@ use {
 pub use crate::{
   subcommand::decode::RawOutput as Decode,
   templates::{
-    BlocksHtml as Blocks, RuneHtml as Dune, RunesHtml as Runes, StatusHtml as Status,
+    BlocksHtml as Blocks, DuneHtml as Dune, DunesHtml as Dunes, StatusHtml as Status,
     TransactionHtml as Transaction,
   },
 };
@@ -250,7 +250,7 @@ pub struct AddressInfo {
   pub outputs: Vec<OutPoint>,
   pub inscriptions: Option<Vec<InscriptionId>>,
   pub sat_balance: u64,
-  pub runes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
+  pub dunes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

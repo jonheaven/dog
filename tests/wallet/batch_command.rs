@@ -1538,7 +1538,7 @@ inscriptions:
 }
 
 #[test]
-fn batch_can_etch_rune() {
+fn batch_can_etch_dune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -1548,7 +1548,7 @@ fn batch_can_etch_rune() {
   core.mine_blocks(1);
 
   let dune = SpacedDune {
-    dune: Dune(RUNE),
+    dune: Dune(DUNE),
     spacers: 0,
   };
 
@@ -1650,7 +1650,7 @@ fn batch_can_etch_rune() {
 }
 
 #[test]
-fn batch_can_etch_turbo_rune() {
+fn batch_can_etch_turbo_dune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -1660,7 +1660,7 @@ fn batch_can_etch_turbo_rune() {
   core.mine_blocks(1);
 
   let dune = SpacedDune {
-    dune: Dune(RUNE),
+    dune: Dune(DUNE),
     spacers: 0,
   };
 
@@ -1696,7 +1696,7 @@ fn batch_can_etch_turbo_rune() {
 }
 
 #[test]
-fn batch_can_etch_rune_without_premine() {
+fn batch_can_etch_dune_without_premine() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -1706,7 +1706,7 @@ fn batch_can_etch_rune_without_premine() {
   core.mine_blocks(1);
 
   let dune = SpacedDune {
-    dune: Dune(RUNE),
+    dune: Dune(DUNE),
     spacers: 0,
   };
 
@@ -1781,7 +1781,7 @@ fn batch_can_etch_rune_without_premine() {
 }
 
 #[test]
-fn batch_inscribe_can_etch_rune_with_offset() {
+fn batch_inscribe_can_etch_dune_with_offset() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -1797,7 +1797,7 @@ fn batch_inscribe_can_etch_rune_with_offset() {
       etching: Some(batch::Etching {
         divisibility: 0,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         supply: "10000".parse().unwrap(),
@@ -1857,7 +1857,7 @@ fn batch_inscribe_can_etch_rune_with_offset() {
 }
 
 #[test]
-fn batch_inscribe_can_etch_rune_with_height() {
+fn batch_inscribe_can_etch_dune_with_height() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -1873,7 +1873,7 @@ fn batch_inscribe_can_etch_rune_with_height() {
       etching: Some(batch::Etching {
         divisibility: 0,
         dune: SpacedDune {
-          dune: Dune(RUNE),
+          dune: Dune(DUNE),
           spacers: 0,
         },
         supply: "10000".parse().unwrap(),
@@ -1933,14 +1933,14 @@ fn batch_inscribe_can_etch_rune_with_height() {
 }
 
 #[test]
-fn etch_existing_rune_error() {
+fn etch_existing_dune_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
@@ -1950,7 +1950,7 @@ fn etch_existing_rune_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 1,
           },
           supply: "1000".parse().unwrap(),
@@ -1975,7 +1975,7 @@ fn etch_existing_rune_error() {
 }
 
 #[test]
-fn etch_reserved_rune_error() {
+fn etch_reserved_dune_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -2017,7 +2017,7 @@ fn etch_reserved_rune_error() {
 }
 
 #[test]
-fn etch_sub_minimum_rune_error() {
+fn etch_sub_minimum_dune_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -2059,7 +2059,7 @@ fn etch_sub_minimum_rune_error() {
 }
 
 #[test]
-fn etch_requires_rune_index() {
+fn etch_requires_dune_index() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
@@ -2076,7 +2076,7 @@ fn etch_requires_rune_index() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "1000".parse().unwrap(),
@@ -2118,7 +2118,7 @@ fn etch_divisibility_over_maximum_error() {
         etching: Some(batch::Etching {
           divisibility: 39,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "1000".parse().unwrap(),
@@ -2160,7 +2160,7 @@ fn etch_mintable_overflow_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: default(),
@@ -2210,7 +2210,7 @@ fn etch_mintable_plus_premine_overflow_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: default(),
@@ -2260,7 +2260,7 @@ fn incorrect_supply_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2310,7 +2310,7 @@ fn zero_offset_interval_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2360,7 +2360,7 @@ fn zero_height_interval_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2410,7 +2410,7 @@ fn invalid_start_height_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2462,7 +2462,7 @@ fn invalid_end_height_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2514,7 +2514,7 @@ fn zero_supply_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "0".parse().unwrap(),
@@ -2556,7 +2556,7 @@ fn zero_cap_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2603,7 +2603,7 @@ fn zero_amount_error() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2758,7 +2758,7 @@ fn batch_inscribe_errors_if_pending_etchings() {
     etching: Some(batch::Etching {
       divisibility: 0,
       dune: SpacedDune {
-        dune: Dune(RUNE),
+        dune: Dune(DUNE),
         spacers: 0,
       },
       supply: "1000".parse().unwrap(),
@@ -2831,7 +2831,7 @@ fn batch_inscribe_errors_if_pending_etchings() {
 }
 
 #[test]
-fn forbid_etching_below_rune_activation_height() {
+fn forbid_etching_below_dune_activation_height() {
   let core = mockcore::builder().build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes"], &[]);
@@ -2848,7 +2848,7 @@ fn forbid_etching_below_rune_activation_height() {
         etching: Some(batch::Etching {
           divisibility: 0,
           dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),

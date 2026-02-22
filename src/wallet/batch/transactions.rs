@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug)]
 pub(crate) struct Transactions {
-  pub(crate) dune: Option<RuneInfo>,
+  pub(crate) dune: Option<DuneInfo>,
   pub(crate) commit_tx: Transaction,
   pub(crate) commit_vout: usize,
   pub(crate) recovery_key_pair: TweakedKeypair,

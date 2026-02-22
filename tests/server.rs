@@ -65,20 +65,20 @@ fn address_page_shows_outputs_and_sat_balance() {
 }
 
 #[test]
-fn address_page_shows_single_rune() {
+fn address_page_shows_single_dune() {
   let core = mockcore::builder().network(Network::Regtest).build();
   let dog =
     TestServer::spawn_with_args(&core, &["--index-dunes", "--index-addresses", "--regtest"]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let address = "bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw";
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 {address} 1000:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -89,26 +89,26 @@ fn address_page_shows_single_rune() {
 
   dog.assert_response_regex(
     format!("/address/{address}"),
-    format!(".*<dd>.*{}.*: 1000¢</dd>.*", Dune(RUNE)),
+    format!(".*<dd>.*{}.*: 1000¢</dd>.*", Dune(DUNE)),
   );
 }
 
 #[test]
-fn address_page_shows_multiple_runes() {
+fn address_page_shows_multiple_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
   let dog =
     TestServer::spawn_with_args(&core, &["--index-dunes", "--index-addresses", "--regtest"]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
-  etch(&core, &dog, Dune(RUNE + 1));
+  etch(&core, &dog, Dune(DUNE));
+  etch(&core, &dog, Dune(DUNE + 1));
 
   let address = "bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw";
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 {address} 1000:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -119,7 +119,7 @@ fn address_page_shows_multiple_runes() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 {address} 1000:{}",
-    Dune(RUNE + 1)
+    Dune(DUNE + 1)
   ))
   .core(&core)
   .dog(&dog)
@@ -132,27 +132,27 @@ fn address_page_shows_multiple_runes() {
     format!("/address/{address}"),
     format!(
       ".*<dd>.*{}.*: 1000¢</dd>.*<dd>.*{}.*: 1000¢</dd>.*",
-      Dune(RUNE),
-      Dune(RUNE + 1)
+      Dune(DUNE),
+      Dune(DUNE + 1)
     ),
   );
 }
 
 #[test]
-fn address_page_shows_aggregated_runes_balance() {
+fn address_page_shows_aggregated_dunes_balance() {
   let core = mockcore::builder().network(Network::Regtest).build();
   let dog =
     TestServer::spawn_with_args(&core, &["--index-dunes", "--index-addresses", "--regtest"]);
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
 
   let address = "bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw";
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 {address} 250:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -163,7 +163,7 @@ fn address_page_shows_aggregated_runes_balance() {
 
   CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet send --fee-rate 1 {address} 250:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -174,7 +174,7 @@ fn address_page_shows_aggregated_runes_balance() {
 
   dog.assert_response_regex(
     format!("/address/{address}"),
-    format!(".*<dd>.*{}.*: 500¢</dd>.*", Dune(RUNE)),
+    format!(".*<dd>.*{}.*: 500¢</dd>.*", Dune(DUNE)),
   );
 }
 

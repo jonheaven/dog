@@ -17,24 +17,24 @@ pub enum Event {
     old_location: KoinuPoint,
     sequence_number: u32,
   },
-  RuneBurned {
+  DuneBurned {
     amount: u128,
     block_height: u32,
     dune_id: DuneId,
     txid: Txid,
   },
-  RuneEtched {
+  DuneEtched {
     block_height: u32,
     dune_id: DuneId,
     txid: Txid,
   },
-  RuneMinted {
+  DuneMinted {
     amount: u128,
     block_height: u32,
     dune_id: DuneId,
     txid: Txid,
   },
-  RuneTransferred {
+  DuneTransferred {
     amount: u128,
     block_height: u32,
     outpoint: OutPoint,

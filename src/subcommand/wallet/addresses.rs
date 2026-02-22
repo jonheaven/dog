@@ -19,7 +19,7 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
     let inscriptions = wallet.get_inscriptions_in_output(output)?;
 
     let dunes = wallet
-      .get_runes_balances_in_output(output)?
+      .get_dunes_balances_in_output(output)?
       .map(|balances| {
         balances
           .iter()

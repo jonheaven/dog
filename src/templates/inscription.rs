@@ -409,7 +409,7 @@ mod tests {
   }
 
   #[test]
-  fn with_rune() {
+  fn with_dune() {
     assert_regex_match!(
       InscriptionHtml {
         fee: 1,

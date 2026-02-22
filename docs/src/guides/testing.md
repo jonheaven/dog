@@ -5,9 +5,9 @@ Test Environment
 ----------------
 
 `ord env <DIRECTORY>` creates a test environment in `<DIRECTORY>`, spins up
-`bitcoind` and `ord server` instances, prints example commands for interacting
-with the test `bitcoind` and `ord server` instances, waits for `CTRL-C`, and
-then shuts down `bitcoind` and `ord server`.
+`bitcoind` and `dog server` instances, prints example commands for interacting
+with the test `bitcoind` and `dog server` instances, waits for `CTRL-C`, and
+then shuts down `bitcoind` and `dog server`.
 
 `ord env` tries to use port 9000 for `bitcoind`'s RPC interface, and port
 `9001` for `ord`'s RPC interface, but will fall back to random unused ports.
@@ -17,7 +17,7 @@ Inside of the env directory, `ord env` will write `bitcoind`'s configuration to
 to `env.json`.
 
 `env.json` contains the commands needed to invoke `bitcoin-cli` and `ord
-wallet`, as well as the ports `bitcoind` and `ord server` are listening on.
+wallet`, as well as the ports `bitcoind` and `dog server` are listening on.
 
 These can be extracted into shell commands using `jq`:
 
@@ -69,7 +69,7 @@ Run `bitcoind` in regtest with:
 bitcoind -regtest -txindex
 ```
 
-Run `ord server` in regtest with:
+Run `dog server` in regtest with:
 
 ```
 ord --regtest server
@@ -144,11 +144,11 @@ bitcoin-cli generatetoaddress 6 <receive address>
 ### Mainnet Dependencies
 
 To avoid having to change dependency inscription IDs to mainnet inscription IDs,
-you may utilize a content proxy when testing. `ord server` accepts a
-`--proxy` option, which takes the URL of another `ord server`
+you may utilize a content proxy when testing. `dog server` accepts a
+`--proxy` option, which takes the URL of another `dog server`
 instance. When making a request to `/content/<INSCRIPTION_ID>` when a content
-proxy is set and the inscription is not found, `ord server` will forward the
-request to the content proxy. This allows you to run a test `ord server`
+proxy is set and the inscription is not found, `dog server` will forward the
+request to the content proxy. This allows you to run a test `dog server`
 instance with a mainnet content proxy. You can then use mainnet inscription IDs
 in your test inscription, which will then return the content of the mainnet
 inscriptions.

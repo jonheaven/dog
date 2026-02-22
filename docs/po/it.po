@@ -3117,16 +3117,16 @@ msgid "The server can be run locally with:"
 msgstr "Il server può essere eseguito localmente con:"
 
 #: src/guides/explorer.md:11
-msgid "`ord server`"
-msgstr "`ord server`"
+msgid "`dog server`"
+msgstr "`dog server`"
 
 #: src/guides/explorer.md:13
 msgid "To specify a port add the `--http-port` flag:"
 msgstr "Per specificare una porta aggiungere `--http-port` flag:"
 
 #: src/guides/explorer.md:15
-msgid "`ord server --http-port 8080`"
-msgstr "`ord server --http-port 8080`"
+msgid "`dog server --http-port 8080`"
+msgstr "`dog server --http-port 8080`"
 
 #: src/guides/explorer.md:17
 msgid ""
@@ -5844,9 +5844,9 @@ msgstr ""
 
 #: src/guides/moderation.md:4
 msgid ""
-"`ord` includes a block explorer, which you can run locally with `ord server`."
+"`ord` includes a block explorer, which you can run locally with `dog server`."
 msgstr ""
-"`ord` include un block explorer, che può essere eseguito localmente con `ord server`."
+"`ord` include un block explorer, che può essere eseguito localmente con `dog server`."
 
 #: src/guides/moderation.md:6
 msgid ""
@@ -5932,7 +5932,7 @@ msgstr "`ordinals.com`"
 
 #: src/guides/moderation.md:40
 msgid ""
-"The `ordinals.com` instances use `systemd` to run the `ord server` service, "
+"The `ordinals.com` instances use `systemd` to run the `dog server` service, "
 "which is called `ord`, with a config file located at `/var/lib/ord/ord.yaml`."
 msgstr ""
 "Le istanze `ordinals.com` utilizzano `systemd` per eseguire il servizio `ord "
@@ -5970,11 +5970,11 @@ msgstr ""
 msgid ""
 "Sometimes the `ord` database must be reindexed, which means deleting the "
 "database and restarting the indexing process with either `ord index update` "
-"or `ord server`. Reasons to reindex are:"
+"or `dog server`. Reasons to reindex are:"
 msgstr ""
 "A volte è necessario reindicizzare il database `ord`, il che significa cancellare "
 "il database e riavviare il processo di indicizzazione con `ord index update` o "
-"`ord server`. I motivi per la reindicizzazione sono:"
+"`dog server`. I motivi per la reindicizzazione sono:"
 
 #: src/guides/reindexing.md:8
 msgid "A new major release of ord, which changes the database scheme"

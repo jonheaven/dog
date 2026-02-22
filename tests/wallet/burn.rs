@@ -56,7 +56,7 @@ fn runic_outputs_are_protected() {
   let (inscription, _) = inscribe_with_options(&core, &dog, Some(1000), 1);
   let height = core.height();
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
   etch(&core, &dog, dune);
 
   let address = CommandBuilder::new("--regtest wallet receive")
@@ -71,7 +71,7 @@ fn runic_outputs_are_protected() {
   CommandBuilder::new(format!(
     "--regtest --index-dunes wallet send --fee-rate 1 {} 1000:{} --postage 1000sat",
     address.clone().require_network(Network::Regtest).unwrap(),
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -410,14 +410,14 @@ fn oversize_metadata_requires_no_limit_flag() {
 }
 
 #[test]
-fn burn_rune() {
+fn burn_dune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
   etch(&core, &dog, dune);
 
   core.mine_blocks(1);
@@ -476,7 +476,7 @@ fn burn_rune() {
 }
 
 #[test]
-fn burn_rune_with_many_assets_in_wallet() {
+fn burn_dune_with_many_assets_in_wallet() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
@@ -487,14 +487,14 @@ fn burn_rune_with_many_assets_in_wallet() {
 
   inscribe(&core, &dog);
 
-  let rune_0 = Dune(RUNE);
-  etch(&core, &dog, rune_0);
+  let dune_0 = Dune(DUNE);
+  etch(&core, &dog, dune_0);
 
-  let rune_1 = Dune(RUNE - 1);
-  etch(&core, &dog, rune_1);
+  let dune_1 = Dune(DUNE - 1);
+  etch(&core, &dog, dune_1);
 
-  let rune_2 = Dune(RUNE - 2);
-  etch(&core, &dog, rune_2);
+  let dune_2 = Dune(DUNE - 2);
+  etch(&core, &dog, dune_2);
 
   pretty_assert_eq!(
     CommandBuilder::new("--regtest wallet balance")
@@ -509,7 +509,7 @@ fn burn_rune_with_many_assets_in_wallet() {
         [
           (
             SpacedDune {
-              dune: rune_0,
+              dune: dune_0,
               spacers: 0
             },
             Decimal {
@@ -519,7 +519,7 @@ fn burn_rune_with_many_assets_in_wallet() {
           ),
           (
             SpacedDune {
-              dune: rune_1,
+              dune: dune_1,
               spacers: 0
             },
             Decimal {
@@ -529,7 +529,7 @@ fn burn_rune_with_many_assets_in_wallet() {
           ),
           (
             SpacedDune {
-              dune: rune_2,
+              dune: dune_2,
               spacers: 0
             },
             Decimal {
@@ -545,14 +545,14 @@ fn burn_rune_with_many_assets_in_wallet() {
     }
   );
 
-  CommandBuilder::new(format!("--regtest wallet burn --fee-rate 1 1111:{rune_0}",))
+  CommandBuilder::new(format!("--regtest wallet burn --fee-rate 1 1111:{dune_0}",))
     .core(&core)
     .dog(&dog)
     .expected_exit_code(1)
     .stderr_regex("error: insufficient `AAAAAAAAAAAAA` balance.*")
     .run_and_extract_stdout();
 
-  CommandBuilder::new(format!("--regtest wallet burn --fee-rate 1 1000:{rune_2}",))
+  CommandBuilder::new(format!("--regtest wallet burn --fee-rate 1 1000:{dune_2}",))
     .core(&core)
     .dog(&dog)
     .run_and_deserialize_output::<Send>();
@@ -572,7 +572,7 @@ fn burn_rune_with_many_assets_in_wallet() {
         [
           (
             SpacedDune {
-              dune: rune_0,
+              dune: dune_0,
               spacers: 0
             },
             Decimal {
@@ -582,7 +582,7 @@ fn burn_rune_with_many_assets_in_wallet() {
           ),
           (
             SpacedDune {
-              dune: rune_1,
+              dune: dune_1,
               spacers: 0
             },
             Decimal {
@@ -600,15 +600,15 @@ fn burn_rune_with_many_assets_in_wallet() {
 }
 
 #[test]
-fn burning_rune_creates_change_output_for_non_burnt_runes() {
+fn burning_dune_creates_change_output_for_non_burnt_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
   create_wallet(&core, &dog);
 
-  let a = etch(&core, &dog, Dune(RUNE));
-  let b = etch(&core, &dog, Dune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(DUNE));
+  let b = etch(&core, &dog, Dune(DUNE + 1));
 
   let (a_block, a_tx) = core.tx_index(a.output.reveal);
   let (b_block, b_tx) = core.tx_index(b.output.reveal);
@@ -642,7 +642,7 @@ fn burning_rune_creates_change_output_for_non_burnt_runes() {
     dog::subcommand::balances::Output {
       dunes: [
         (
-          SpacedDune::new(Dune(RUNE), 0),
+          SpacedDune::new(Dune(DUNE), 0),
           [(
             OutPoint {
               txid: merge,
@@ -657,7 +657,7 @@ fn burning_rune_creates_change_output_for_non_burnt_runes() {
           .into()
         ),
         (
-          SpacedDune::new(Dune(RUNE + 1), 0),
+          SpacedDune::new(Dune(DUNE + 1), 0),
           [(
             OutPoint {
               txid: merge,
@@ -678,7 +678,7 @@ fn burning_rune_creates_change_output_for_non_burnt_runes() {
 
   let output = CommandBuilder::new(format!(
     "--chain regtest --index-dunes wallet burn --fee-rate 1 500:{}",
-    Dune(RUNE)
+    Dune(DUNE)
   ))
   .core(&core)
   .dog(&dog)
@@ -696,7 +696,7 @@ fn burning_rune_creates_change_output_for_non_burnt_runes() {
     dog::subcommand::balances::Output {
       dunes: [
         (
-          SpacedDune::new(Dune(RUNE), 0),
+          SpacedDune::new(Dune(DUNE), 0),
           [(
             OutPoint {
               txid: output.txid,
@@ -711,7 +711,7 @@ fn burning_rune_creates_change_output_for_non_burnt_runes() {
           .into()
         ),
         (
-          SpacedDune::new(Dune(RUNE + 1), 0),
+          SpacedDune::new(Dune(DUNE + 1), 0),
           [(
             OutPoint {
               txid: output.txid,
@@ -740,8 +740,8 @@ fn burning_rune_creates_change_output_for_non_burnt_runes() {
       ordinal: 20000,
       dunes: Some(
         [
-          (SpacedDune::new(Dune(RUNE), 0), "500".parse().unwrap()),
-          (SpacedDune::new(Dune(RUNE + 1), 0), "1000".parse().unwrap())
+          (SpacedDune::new(Dune(DUNE), 0), "500".parse().unwrap()),
+          (SpacedDune::new(Dune(DUNE + 1), 0), "1000".parse().unwrap())
         ]
         .into()
       ),

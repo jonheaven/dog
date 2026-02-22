@@ -95,7 +95,7 @@ fn runic_utxos_are_deducted_from_cardinal() {
     }
   );
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   batch(
     &core,
@@ -207,7 +207,7 @@ fn runic_utxos_are_displayed_with_decimal_amount() {
     }
   );
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   batch(
     &core,

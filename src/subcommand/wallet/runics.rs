@@ -16,13 +16,13 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
 
   for output in unspent_outputs.keys() {
     if runic_utxos.contains(output) {
-      let rune_balances = wallet
-        .get_runes_balances_in_output(output)?
+      let dune_balances = wallet
+        .get_dunes_balances_in_output(output)?
         .unwrap_or_default();
 
       let mut dunes = BTreeMap::new();
 
-      for (spaced_dune, pile) in rune_balances {
+      for (spaced_dune, pile) in dune_balances {
         dunes
           .entry(spaced_dune)
           .and_modify(|decimal: &mut Decimal| {

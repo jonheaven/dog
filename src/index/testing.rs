@@ -21,7 +21,7 @@ impl ContextBuilder {
 
     let command: Vec<OsString> = vec![
       "ord".into(),
-      "--bitcoin-rpc-url".into(),
+      "--dogecoin-rpc-url".into(),
       core.url().into(),
       "--datadir".into(),
       tempdir.path().into(),
@@ -117,7 +117,7 @@ impl Context {
   }
 
   #[track_caller]
-  pub(crate) fn assert_runes(
+  pub(crate) fn assert_dunes(
     &self,
     mut dunes: impl AsMut<[(DuneId, DuneEntry)]>,
     mut balances: impl AsMut<[(OutPoint, Vec<(DuneId, u128)>)]>,
@@ -134,7 +134,7 @@ impl Context {
 
     pretty_assert_eq!(dunes, self.index.dunes().unwrap());
 
-    pretty_assert_eq!(balances, self.index.get_rune_balances().unwrap());
+    pretty_assert_eq!(balances, self.index.get_dune_balances().unwrap());
 
     let mut outstanding: HashMap<DuneId, u128> = HashMap::new();
 

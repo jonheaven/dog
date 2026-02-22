@@ -10,8 +10,8 @@ use {
     GalleryHtml, HomeHtml, InputHtml, InscriptionHtml, InscriptionsBlockHtml, InscriptionsHtml,
     ItemHtml, OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
     PreviewFontHtml, PreviewImageHtml, PreviewMarkdownHtml, PreviewModelHtml, PreviewPdfHtml,
-    PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, RuneHtml, RuneNotFoundHtml,
-    RunesHtml, SatHtml, SatscardHtml, TransactionHtml,
+    PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, DuneHtml, DuneNotFoundHtml,
+    DunesHtml, SatHtml, SatscardHtml, TransactionHtml,
   },
   axum::{
     Router,
@@ -267,7 +267,7 @@ impl Server {
         .route("/rare.txt", get(Self::rare_txt))
         .route("/dune/{dune}", get(Self::dune))
         .route("/dunes", get(Self::dunes))
-        .route("/dunes/{page}", get(Self::runes_paginated))
+        .route("/dunes/{page}", get(Self::dunes_paginated))
         .route("/sat/{sat}", get(Self::sat))
         .route("/satpoint/{satpoint}", get(Self::satpoint))
         .route("/koinucard", get(Self::koinucard))
@@ -645,7 +645,7 @@ impl Server {
 
       let prefix = if re::INSCRIPTION_ID.is_match(&path) || re::INSCRIPTION_NUMBER.is_match(&path) {
         "inscription"
-      } else if re::RUNE_ID.is_match(&path) || re::SPACED_RUNE.is_match(&path) {
+      } else if re::DUNE_ID.is_match(&path) || re::SPACED_DUNE.is_match(&path) {
         "dune"
       } else if re::OUTPOINT.is_match(&path) {
         "output"
@@ -700,13 +700,13 @@ impl Server {
            outputs,
            inscriptions,
            sat_balance,
-           runes_balances,
+           dunes_balances,
          }| AddressHtml {
           address: koinucard.address.clone(),
           header: false,
           inscriptions,
           outputs,
-          runes_balances,
+          dunes_balances,
           sat_balance,
         },
       );
@@ -906,7 +906,7 @@ impl Server {
       let output_type = query.ty.unwrap_or_default();
 
       if output_type != OutputType::Any {
-        if !index.has_rune_index() {
+        if !index.has_dune_index() {
           return Err(ServerError::BadRequest(
             "this server has no dunes index".to_string(),
           ));
@@ -935,7 +935,7 @@ impl Server {
               .unwrap_or_default()
               .is_empty()
               && index
-                .get_rune_balances_for_output(output)?
+                .get_dune_balances_for_output(output)?
                 .unwrap_or_default()
                 .is_empty()
           }
@@ -944,7 +944,7 @@ impl Server {
             .unwrap_or_default()
             .is_empty(),
           OutputType::Runic => !index
-            .get_rune_balances_for_output(output)?
+            .get_dune_balances_for_output(output)?
             .unwrap_or_default()
             .is_empty(),
         };
@@ -969,23 +969,23 @@ impl Server {
   async fn dune(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
-    Path(DeserializeFromStr(rune_query)): Path<DeserializeFromStr<query::Dune>>,
+    Path(DeserializeFromStr(dune_query)): Path<DeserializeFromStr<query::Dune>>,
     AcceptJson(accept_json): AcceptJson,
   ) -> ServerResult {
     task::block_in_place(|| {
-      if !index.has_rune_index() {
+      if !index.has_dune_index() {
         return Err(ServerError::NotFound(
           "this server has no dune index".to_string(),
         ));
       }
 
-      let dune = match rune_query {
+      let dune = match dune_query {
         query::Dune::Spaced(spaced_dune) => spaced_dune.dune,
         query::Dune::Id(dune_id) => index
-          .get_rune_by_id(dune_id)?
+          .get_dune_by_id(dune_id)?
           .ok_or_not_found(|| format!("dune {dune_id}"))?,
         query::Dune::Number(number) => index
-          .get_rune_by_number(usize::try_from(number).unwrap())?
+          .get_dune_by_number(usize::try_from(number).unwrap())?
           .ok_or_not_found(|| format!("dune number {number}"))?,
       };
 
@@ -1001,7 +1001,7 @@ impl Server {
 
           (
             StatusCode::NOT_FOUND,
-            RuneNotFoundHtml { dune, unlock }.page(server_config),
+            DuneNotFoundHtml { dune, unlock }.page(server_config),
           )
             .into_response()
         });
@@ -1020,7 +1020,7 @@ impl Server {
         })
         .into_response()
       } else {
-        RuneHtml {
+        DuneHtml {
           entry,
           id,
           mintable,
@@ -1037,7 +1037,7 @@ impl Server {
     Extension(index): Extension<Arc<Index>>,
     accept_json: AcceptJson,
   ) -> ServerResult<Response> {
-    Self::runes_paginated(
+    Self::dunes_paginated(
       Extension(server_config),
       Extension(index),
       Path(0),
@@ -1046,21 +1046,21 @@ impl Server {
     .await
   }
 
-  async fn runes_paginated(
+  async fn dunes_paginated(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
     Path(page_index): Path<usize>,
     AcceptJson(accept_json): AcceptJson,
   ) -> ServerResult {
     task::block_in_place(|| {
-      let (entries, more) = index.runes_paginated(50, page_index)?;
+      let (entries, more) = index.dunes_paginated(50, page_index)?;
 
       let prev = page_index.checked_sub(1);
 
       let next = more.then_some(page_index + 1);
 
       Ok(if accept_json {
-        Json(RunesHtml {
+        Json(DunesHtml {
           entries,
           more,
           prev,
@@ -1068,7 +1068,7 @@ impl Server {
         })
         .into_response()
       } else {
-        RunesHtml {
+        DunesHtml {
           entries,
           more,
           prev,
@@ -1193,7 +1193,7 @@ impl Server {
           sat_balance,
           outputs,
           inscriptions,
-          runes_balances,
+          dunes_balances,
         } = info;
 
         AddressHtml {
@@ -1201,7 +1201,7 @@ impl Server {
           header: true,
           inscriptions,
           outputs,
-          runes_balances,
+          dunes_balances,
           sat_balance,
         }
         .page(server_config)
@@ -1223,13 +1223,13 @@ impl Server {
 
     let inscriptions = index.get_inscriptions_for_outputs(&outputs)?;
 
-    let runes_balances = index.get_aggregated_rune_balances_for_outputs(&outputs)?;
+    let dunes_balances = index.get_aggregated_dune_balances_for_outputs(&outputs)?;
 
     Ok(Some(api::AddressInfo {
       sat_balance,
       outputs,
       inscriptions,
-      runes_balances,
+      dunes_balances,
     }))
   }
 
@@ -1261,7 +1261,7 @@ impl Server {
         }
       };
 
-      let dunes = index.get_runes_in_block(u64::from(height))?;
+      let dunes = index.get_dunes_in_block(u64::from(height))?;
       Ok(if accept_json {
         let inscriptions = index.get_inscriptions_in_block(height)?;
         Json(api::Block::new(
@@ -1416,14 +1416,14 @@ impl Server {
         )))
       } else if let Some(captures) = re::ORDINALS_SATSCARD_URL.captures(query) {
         Ok(Redirect::to(&format!("/koinucard?{}", &captures["query"])))
-      } else if re::SPACED_RUNE.is_match(query) {
+      } else if re::SPACED_DUNE.is_match(query) {
         Ok(Redirect::to(&format!("/dune/{query}")))
-      } else if re::RUNE_ID.is_match(query) {
+      } else if re::DUNE_ID.is_match(query) {
         let id = query
           .parse::<DuneId>()
           .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
-        let dune = index.get_rune_by_id(id)?.ok_or_not_found(|| "dune ID")?;
+        let dune = index.get_dune_by_id(id)?.ok_or_not_found(|| "dune ID")?;
 
         Ok(Redirect::to(&format!("/dune/{dune}")))
       } else if re::ADDRESS.is_match(query) {
@@ -2214,7 +2214,7 @@ mod tests {
     tempfile::TempDir,
   };
 
-  const RUNE: u128 = 99246114928149462;
+  const DUNE: u128 = 99246114928149462;
 
   #[derive(Default)]
   struct Builder {
@@ -2285,7 +2285,7 @@ mod tests {
 
       let mut args = vec!["ord".to_string()];
 
-      args.push("--bitcoin-rpc-url".into());
+      args.push("--dogecoin-rpc-url".into());
       args.push(core.url());
 
       args.push("--cookie-file".into());
@@ -2375,7 +2375,7 @@ mod tests {
       self.ord_flag("--index-addresses")
     }
 
-    fn index_runes(self) -> Self {
+    fn index_dunes(self) -> Self {
       self.ord_flag("--index-dunes")
     }
 
@@ -2642,24 +2642,24 @@ mod tests {
   #[test]
   fn http_and_https_port_dont_conflict() {
     parse_server_args(
-      "ord server --http-port 0 --https-port 0 --acme-cache foo --acme-contact bar --acme-domain baz",
+      "dog server --http-port 0 --https-port 0 --acme-cache foo --acme-contact bar --acme-domain baz",
     );
   }
 
   #[test]
   fn http_port_defaults_to_80() {
-    assert_eq!(parse_server_args("ord server").1.http_port(), Some(80));
+    assert_eq!(parse_server_args("dog server").1.http_port(), Some(80));
   }
 
   #[test]
   fn https_port_defaults_to_none() {
-    assert_eq!(parse_server_args("ord server").1.https_port(), None);
+    assert_eq!(parse_server_args("dog server").1.https_port(), None);
   }
 
   #[test]
   fn https_sets_https_port_to_443() {
     assert_eq!(
-      parse_server_args("ord server --https --acme-cache foo --acme-contact bar --acme-domain baz")
+      parse_server_args("dog server --https --acme-cache foo --acme-contact bar --acme-domain baz")
         .1
         .https_port(),
       Some(443)
@@ -2669,7 +2669,7 @@ mod tests {
   #[test]
   fn https_disables_http() {
     assert_eq!(
-      parse_server_args("ord server --https --acme-cache foo --acme-contact bar --acme-domain baz")
+      parse_server_args("dog server --https --acme-cache foo --acme-contact bar --acme-domain baz")
         .1
         .http_port(),
       None
@@ -2680,7 +2680,7 @@ mod tests {
   fn https_port_disables_http() {
     assert_eq!(
       parse_server_args(
-        "ord server --https-port 433 --acme-cache foo --acme-contact bar --acme-domain baz"
+        "dog server --https-port 433 --acme-cache foo --acme-contact bar --acme-domain baz"
       )
       .1
       .http_port(),
@@ -2692,7 +2692,7 @@ mod tests {
   fn https_port_sets_https_port() {
     assert_eq!(
       parse_server_args(
-        "ord server --https-port 1000 --acme-cache foo --acme-contact bar --acme-domain baz"
+        "dog server --https-port 1000 --acme-cache foo --acme-contact bar --acme-domain baz"
       )
       .1
       .https_port(),
@@ -2704,7 +2704,7 @@ mod tests {
   fn http_with_https_leaves_http_enabled() {
     assert_eq!(
       parse_server_args(
-        "ord server --https --http --acme-cache foo --acme-contact bar --acme-domain baz"
+        "dog server --https --http --acme-cache foo --acme-contact bar --acme-domain baz"
       )
       .1
       .http_port(),
@@ -2716,7 +2716,7 @@ mod tests {
   fn http_with_https_leaves_https_enabled() {
     assert_eq!(
       parse_server_args(
-        "ord server --https --http --acme-cache foo --acme-contact bar --acme-domain baz"
+        "dog server --https --http --acme-cache foo --acme-contact bar --acme-domain baz"
       )
       .1
       .https_port(),
@@ -2799,7 +2799,7 @@ mod tests {
 
   #[test]
   fn acme_domain_defaults_to_hostname() {
-    let (_, server) = parse_server_args("ord server");
+    let (_, server) = parse_server_args("dog server");
     assert_eq!(
       server.acme_domains().unwrap(),
       &[System::host_name().unwrap()]
@@ -2808,7 +2808,7 @@ mod tests {
 
   #[test]
   fn acme_domain_flag_is_respected() {
-    let (_, server) = parse_server_args("ord server --acme-domain example.com");
+    let (_, server) = parse_server_args("dog server --acme-domain example.com");
     assert_eq!(server.acme_domains().unwrap(), &["example.com"]);
   }
 
@@ -2836,7 +2836,7 @@ mod tests {
   }
 
   #[test]
-  fn search_by_query_returns_rune() {
+  fn search_by_query_returns_dune() {
     TestServer::new().assert_redirect("/search?query=ABCD", "/dune/ABCD");
   }
 
@@ -2917,7 +2917,7 @@ mod tests {
   }
 
   #[test]
-  fn search_by_path_returns_rune() {
+  fn search_by_path_returns_dune() {
     TestServer::new().assert_redirect("/search/ABCD", "/dune/ABCD");
   }
 
@@ -2927,15 +2927,15 @@ mod tests {
   }
 
   #[test]
-  fn search_by_dune_id_returns_rune() {
+  fn search_by_dune_id_returns_dune() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
-    let dune = Dune(RUNE);
+    let dune = Dune(DUNE);
 
     server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
@@ -3104,15 +3104,15 @@ mod tests {
   }
 
   #[test]
-  fn runes_can_be_queried_by_dune_id() {
+  fn dunes_can_be_queried_by_dune_id() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
-    let dune = Dune(RUNE);
+    let dune = Dune(DUNE);
 
     server.assert_response_regex("/dune/9:1", StatusCode::NOT_FOUND, ".*");
 
@@ -3143,10 +3143,10 @@ mod tests {
   }
 
   #[test]
-  fn runes_can_be_queried_by_rune_number() {
+  fn dunes_can_be_queried_by_dune_number() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
@@ -3154,7 +3154,7 @@ mod tests {
     server.assert_response_regex("/dune/0", StatusCode::NOT_FOUND, ".*");
 
     for i in 0..10 {
-      let dune = Dune(RUNE + i);
+      let dune = Dune(DUNE + i);
       server.etch(
         Dunestone {
           edicts: vec![Edict {
@@ -3197,10 +3197,10 @@ mod tests {
   }
 
   #[test]
-  fn rune_not_etched_shows_unlock_height() {
+  fn dune_not_etched_shows_unlock_height() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
@@ -3208,7 +3208,7 @@ mod tests {
     server.assert_html_status(
       "/dune/A",
       StatusCode::NOT_FOUND,
-      RuneNotFoundHtml {
+      DuneNotFoundHtml {
         dune: Dune(0),
         unlock: Some((
           Height(209999),
@@ -3219,10 +3219,10 @@ mod tests {
   }
 
   #[test]
-  fn reserved_rune_not_etched_shows_reserved_status() {
+  fn reserved_dune_not_etched_shows_reserved_status() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
@@ -3230,7 +3230,7 @@ mod tests {
     server.assert_html_status(
       format!("/dune/{}", Dune(Dune::RESERVED)),
       StatusCode::NOT_FOUND,
-      RuneNotFoundHtml {
+      DuneNotFoundHtml {
         dune: Dune(Dune::RESERVED),
         unlock: None,
       },
@@ -3238,17 +3238,17 @@ mod tests {
   }
 
   #[test]
-  fn runes_are_displayed_on_runes_page() {
+  fn dunes_are_displayed_on_dunes_page() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
     server.assert_html(
       "/dunes",
-      RunesHtml {
+      DunesHtml {
         entries: Vec::new(),
         more: false,
         prev: None,
@@ -3264,7 +3264,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           symbol: Some('%'),
           premine: Some(u128::MAX),
           ..default()
@@ -3283,7 +3283,7 @@ mod tests {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0
           },
           premine: u128::MAX,
@@ -3295,18 +3295,18 @@ mod tests {
     );
 
     assert_eq!(
-      server.index.get_rune_balances().unwrap(),
+      server.index.get_dune_balances().unwrap(),
       [(OutPoint { txid, vout: 0 }, vec![(id, u128::MAX)])]
     );
 
     server.assert_html(
       "/dunes",
-      RunesHtml {
+      DunesHtml {
         entries: vec![(
           DuneId::default(),
           DuneEntry {
             spaced_dune: SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0,
             },
             ..default()
@@ -3320,15 +3320,15 @@ mod tests {
   }
 
   #[test]
-  fn runes_are_displayed_on_rune_page() {
+  fn dunes_are_displayed_on_dune_page() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
-    let dune = Dune(RUNE);
+    let dune = Dune(DUNE);
 
     server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
@@ -3374,7 +3374,7 @@ mod tests {
     assert_eq!(server.index.dunes().unwrap(), [(id, entry)]);
 
     assert_eq!(
-      server.index.get_rune_balances().unwrap(),
+      server.index.get_dune_balances().unwrap(),
       [(OutPoint { txid, vout: 0 }, vec![(id, u128::MAX)])]
     );
 
@@ -3382,7 +3382,7 @@ mod tests {
 
     server.assert_html(
       format!("/dune/{dune}"),
-      RuneHtml {
+      DuneHtml {
         id,
         entry,
         mintable: false,
@@ -3404,15 +3404,15 @@ mod tests {
   }
 
   #[test]
-  fn etched_runes_are_displayed_on_block_page() {
+  fn etched_dunes_are_displayed_on_block_page() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune0 = Dune(RUNE);
+    let dune0 = Dune(DUNE);
 
     let (_txid, id) = server.etch(
       Dunestone {
@@ -3422,7 +3422,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(rune0),
+          dune: Some(dune0),
           ..default()
         }),
         ..default()
@@ -3432,32 +3432,32 @@ mod tests {
     );
 
     assert_eq!(
-      server.index.get_runes_in_block(id.block - 1).unwrap().len(),
+      server.index.get_dunes_in_block(id.block - 1).unwrap().len(),
       0
     );
-    assert_eq!(server.index.get_runes_in_block(id.block).unwrap().len(), 1);
+    assert_eq!(server.index.get_dunes_in_block(id.block).unwrap().len(), 1);
     assert_eq!(
-      server.index.get_runes_in_block(id.block + 1).unwrap().len(),
+      server.index.get_dunes_in_block(id.block + 1).unwrap().len(),
       0
     );
 
     server.assert_response_regex(
       format!("/block/{}", id.block),
       StatusCode::OK,
-      format!(".*<h2>1 Dune</h2>.*<li><a href=/dune/{rune0}>{rune0}</a></li>.*"),
+      format!(".*<h2>1 Dune</h2>.*<li><a href=/dune/{dune0}>{dune0}</a></li>.*"),
     );
   }
 
   #[test]
-  fn runes_are_spaced() {
+  fn dunes_are_spaced() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
-    let dune = Dune(RUNE);
+    let dune = Dune(DUNE);
 
     server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
@@ -3506,7 +3506,7 @@ mod tests {
     );
 
     assert_eq!(
-      server.index.get_rune_balances().unwrap(),
+      server.index.get_dune_balances().unwrap(),
       [(OutPoint { txid, vout: 0 }, vec![(id, u128::MAX)])]
     );
 
@@ -3551,7 +3551,7 @@ mod tests {
   fn transactions_link_to_etching() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
@@ -3559,7 +3559,7 @@ mod tests {
     server.assert_response_regex(
       "/dunes",
       StatusCode::OK,
-      ".*<title>Runes</title>.*<h1>Runes</h1>\n<ul>\n</ul>.*",
+      ".*<title>Dunes</title>.*<h1>Dunes</h1>\n<ul>\n</ul>.*",
     );
 
     let (txid, id) = server.etch(
@@ -3570,7 +3570,7 @@ mod tests {
           output: 0,
         }],
         etching: Some(Etching {
-          dune: Some(Dune(RUNE)),
+          dune: Some(Dune(DUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3588,7 +3588,7 @@ mod tests {
           block: id.block,
           etching: txid,
           spaced_dune: SpacedDune {
-            dune: Dune(RUNE),
+            dune: Dune(DUNE),
             spacers: 0
           },
           premine: u128::MAX,
@@ -3599,7 +3599,7 @@ mod tests {
     );
 
     pretty_assert_eq!(
-      server.index.get_rune_balances().unwrap(),
+      server.index.get_dune_balances().unwrap(),
       [(OutPoint { txid, vout: 0 }, vec![(id, u128::MAX)])]
     );
 
@@ -3614,15 +3614,15 @@ mod tests {
   }
 
   #[test]
-  fn runes_are_displayed_on_output_page() {
+  fn dunes_are_displayed_on_output_page() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_runes()
+      .index_dunes()
       .build();
 
     server.mine_blocks(1);
 
-    let dune = Dune(RUNE);
+    let dune = Dune(DUNE);
 
     server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
@@ -3664,7 +3664,7 @@ mod tests {
     let output = OutPoint { txid, vout: 0 };
 
     assert_eq!(
-      server.index.get_rune_balances().unwrap(),
+      server.index.get_dune_balances().unwrap(),
       [(output, vec![(id, u128::MAX)])]
     );
 
@@ -3707,7 +3707,7 @@ mod tests {
         dunes: Some(
           vec![(
             SpacedDune {
-              dune: Dune(RUNE),
+              dune: Dune(DUNE),
               spacers: 0
             },
             Pile {
@@ -7077,10 +7077,10 @@ next
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
       .index_sats()
-      .index_runes()
+      .index_dunes()
       .build();
 
-    let dune = Dune(RUNE);
+    let dune = Dune(DUNE);
 
     let (txid, id) = server.etch(
       Dunestone {
@@ -8751,7 +8751,7 @@ next
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
-              runes_balances: None,
+              dunes_balances: None,
               sat_balance: 0,
             }),
           )),
@@ -8775,7 +8775,7 @@ next
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
-              runes_balances: None,
+              dunes_balances: None,
               sat_balance: 0,
             }),
           )),

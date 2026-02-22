@@ -21,8 +21,8 @@ ord = { path = ".." }
 ordinals = { path = "../crates/ordinals" }
 
 [[bin]]
-name = "runestone-decipher"
-path = "fuzz_targets/runestone_decipher.rs"
+name = "dunestone-decipher"
+path = "fuzz_targets/dunestone_decipher.rs"
 test = false
 doc = false
 

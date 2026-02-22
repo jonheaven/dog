@@ -163,7 +163,7 @@ Creating a Wallet
 
 `ord` uses `bitcoind` to manage private keys, sign transactions, and
 broadcast transactions to the Bitcoin network. Additionally the `ord wallet`
-requires [`ord server`](explorer.md) running in the background. Make sure these
+requires [`dog server`](explorer.md) running in the background. Make sure these
 programs are running:
 
 ```
@@ -171,7 +171,7 @@ bitcoind -txindex
 ```
 
 ```
-ord server
+dog server
 ```
 
 To create a wallet named `ord`, the default, for use with `ord wallet`, run:
@@ -189,7 +189,7 @@ This will print out your seed phrase mnemonic, store it somewhere safe.
 }
 ```
 
-If you want to specify a different name or use an `ord server` running on a
+If you want to specify a different name or use an `dog server` running on a
 non-default URL you can set these options:
 
 ```
@@ -386,7 +386,7 @@ running:
 ord wallet inscriptions
 ```
 
-Sending Runes
+Sending Dunes
 -------------
 
 Ask the recipient to generate a new address by running:
@@ -398,10 +398,10 @@ ord wallet receive
 Send the dunes by running:
 
 ```
-ord wallet send --fee-rate <FEE_RATE> <ADDRESS> <RUNES_AMOUNT>
+ord wallet send --fee-rate <FEE_RATE> <ADDRESS> <DUNES_AMOUNT>
 ```
 
-Where `RUNES_AMOUNT` is the number of dunes to send, a `:` character, and the
+Where `DUNES_AMOUNT` is the number of dunes to send, a `:` character, and the
 name of the dune. For example if you want to send 1000 of the EXAMPLE dune, you
 would use `1000:EXAMPLE`.
 

@@ -12,13 +12,13 @@
 %% }
   </dd>
 %% }
-%% if let Some(runes_balances) = self.runes_balances.as_ref().filter(|runes_balances| !runes_balances.is_empty()) {
-  <dt>rune balances</dt>
-%% for (rune, decimal, symbol) in runes_balances {
+%% if let Some(dunes_balances) = self.dunes_balances.as_ref().filter(|dunes_balances| !dunes_balances.is_empty()) {
+  <dt>dune balances</dt>
+%% for (dune, decimal, symbol) in dunes_balances {
 %% if let Some(symbol) = symbol {
-  <dd><a class=monospace href=/rune/{{ rune }}>{{ rune }}</a>: {{ decimal }}{{ symbol }}</dd>
+  <dd><a class=monospace href=/dune/{{ dune }}>{{ dune }}</a>: {{ decimal }}{{ symbol }}</dd>
 %% } else {
-  <dd><a class=monospace href=/rune/{{ rune }}>{{ rune }}</a>: {{ decimal }}¤</dd>
+  <dd><a class=monospace href=/dune/{{ dune }}>{{ dune }}</a>: {{ decimal }}¤</dd>
 %% }
 %% }
 %% }

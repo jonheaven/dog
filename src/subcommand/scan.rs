@@ -58,7 +58,7 @@ pub struct ScanCommand {
 impl ScanCommand {
   pub(crate) fn run(self, settings: Settings) -> SubcommandResult {
     let chain = settings.chain();
-    let client = settings.bitcoin_rpc_client(None)?;
+    let client = settings.dogecoin_rpc_client(None)?;
 
     // Open BlkReader for fast disk reads (no index required).
     let index_copy_dir = settings.data_dir().join("blk-index");

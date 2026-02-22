@@ -10,7 +10,7 @@ fn wallet_runics() {
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   batch(
     &core,

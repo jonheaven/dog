@@ -51,7 +51,7 @@ Changelog
 
 ### Misc
 - Replace `lazy_static` with `LazyLock` ([#4429](https://github.com/ordinals/ord/pull/4429) by [terror](https://github.com/terror))
-- Fix rune specification ([#4430](https://github.com/ordinals/ord/pull/4430) by [gmart7t2](https://github.com/gmart7t2))
+- Fix dune specification ([#4430](https://github.com/ordinals/ord/pull/4430) by [gmart7t2](https://github.com/gmart7t2))
 - Add properties and metaprotocol to API docs ([#4426](https://github.com/ordinals/ord/pull/4426) by [casey](https://github.com/casey))
 - Use single properties struct ([#4423](https://github.com/ordinals/ord/pull/4423) by [casey](https://github.com/casey))
 - Fix typo in src/fund_raw_transaction.rs ([#4420](https://github.com/ordinals/ord/pull/4420) by [stemlaud](https://github.com/stemlaud))
@@ -88,7 +88,7 @@ Changelog
 - Allow inscribing JPEG XL ([#4326](https://github.com/ordinals/ord/pull/4326) by [casey](https://github.com/casey))
 
 ### Fixed
-- Don't display `(expected)` when rune has already unlocked ([#4323](https://github.com/ordinals/ord/pull/4323) by [casey](https://github.com/casey))
+- Don't display `(expected)` when dune has already unlocked ([#4323](https://github.com/ordinals/ord/pull/4323) by [casey](https://github.com/casey))
 
 ### Misc
 - Bump minimum required Rust version to 1.81.0 ([#4353](https://github.com/ordinals/ord/pull/4353) by [casey](https://github.com/casey))
@@ -162,7 +162,7 @@ Changelog
 - Add /satscard page ([#4176](https://github.com/ordinals/ord/pull/4176) by [casey](https://github.com/casey))
 - Add sat at inscription content endpoint `/r/sat/:sat_number/at/:index/content` ([#4113](https://github.com/ordinals/ord/pull/4113) by [astralarkitekt](https://github.com/astralarkitekt))
 - Add .opus to audio types ([#4194](https://github.com/ordinals/ord/pull/4194) by [raphjaph](https://github.com/raphjaph))
-- Display unlock time on /rune ([#4192](https://github.com/ordinals/ord/pull/4192) by [casey](https://github.com/casey))
+- Display unlock time on /dune ([#4192](https://github.com/ordinals/ord/pull/4192) by [casey](https://github.com/casey))
 - Use `application/x-bittorrent` media type for `.torrent` files ([#4193](https://github.com/ordinals/ord/pull/4193) by [casey](https://github.com/casey))
 - Add creating and accepting offers ([#4156](https://github.com/ordinals/ord/pull/4156) by [raphjaph](https://github.com/raphjaph))
 - Set --disable-json-api with environment variable ([#4154](https://github.com/ordinals/ord/pull/4154) by [casey](https://github.com/casey))
@@ -193,7 +193,7 @@ Changelog
 ### Added
 - Add `/r/utxo/:outpoint` endpoint ([#4148](https://github.com/ordinals/ord/pull/4148) by [raphjaph](https://github.com/raphjaph))
 - Add testnet4 ([#4135](https://github.com/ordinals/ord/pull/4135) by [raphjaph](https://github.com/raphjaph))
-- Enable rune burning in wallet ([#4117](https://github.com/ordinals/ord/pull/4117) by [raphjaph](https://github.com/raphjaph))
+- Enable dune burning in wallet ([#4117](https://github.com/ordinals/ord/pull/4117) by [raphjaph](https://github.com/raphjaph))
 - Enable redb quick-repair mode ([#4084](https://github.com/ordinals/ord/pull/4084) by [partialord](https://github.com/partialord))
 
 ### Changed
@@ -215,7 +215,7 @@ Changelog
 ### Added
 - Sign for inscription and output ([#4027](https://github.com/ordinals/ord/pull/4027) by [raphjaph](https://github.com/raphjaph))
 - Document Inscription URIs ([#4098](https://github.com/ordinals/ord/pull/4098) by [casey](https://github.com/casey))
-- Show rune unlock height ([#3580](https://github.com/ordinals/ord/pull/3580) by [raphjaph](https://github.com/raphjaph))
+- Show dune unlock height ([#3580](https://github.com/ordinals/ord/pull/3580) by [raphjaph](https://github.com/raphjaph))
 - Add field metaprotocol to api::Inscription ([#4047](https://github.com/ordinals/ord/pull/4047) by [kbehouse](https://github.com/kbehouse))
 - Show sat owner address when present ([#4016](https://github.com/ordinals/ord/pull/4016) by [lifofifoX](https://github.com/lifofifoX))
 
@@ -233,7 +233,7 @@ Changelog
 - Test `Charm` `FromStr` implementation for exhaustiveness ([#4107](https://github.com/ordinals/ord/pull/4107) by [casey](https://github.com/casey))
 - Improve `ord wallet send` help message and rename output `outgoing` to `asset` ([#4105](https://github.com/ordinals/ord/pull/4105) by [casey](https://github.com/casey))
 - Hide teleburn address ([#4093](https://github.com/ordinals/ord/pull/4093) by [raphjaph](https://github.com/raphjaph))
-- Add function to calculate rune unlock height ([#4097](https://github.com/ordinals/ord/pull/4097) by [casey](https://github.com/casey))
+- Add function to calculate dune unlock height ([#4097](https://github.com/ordinals/ord/pull/4097) by [casey](https://github.com/casey))
 - Handle errors when retrieving sat address ([#4094](https://github.com/ordinals/ord/pull/4094) by [casey](https://github.com/casey))
 - Fixed error message when using sat or satpoint with batch inscribe ([#4054](https://github.com/ordinals/ord/pull/4054) by [pokrovskyy](https://github.com/pokrovskyy))
 - Add replicate and swap recipes ([#4083](https://github.com/ordinals/ord/pull/4083) by [casey](https://github.com/casey))
@@ -257,7 +257,7 @@ Changelog
 - Allow restoring wallet with custom timestamp ([#4065](https://github.com/ordinals/ord/pull/4065) by [raphjaph](https://github.com/raphjaph))
 
 ### Changed
-- Do not chunk runestone data pushes ([#4036](https://github.com/ordinals/ord/pull/4036) by [casey](https://github.com/casey))
+- Do not chunk dunestone data pushes ([#4036](https://github.com/ordinals/ord/pull/4036) by [casey](https://github.com/casey))
 - Rescan wallet on restore ([#4041](https://github.com/ordinals/ord/pull/4041) by [casey](https://github.com/casey))
 
 ### Misc
@@ -272,7 +272,7 @@ Changelog
 --------------------------------------------------------------------------
 
 ### Fixed
-- Create change output when inputs containing non-outgoing runes are selected ([#4028](https://github.com/ordinals/ord/pull/4028) by [casey](https://github.com/casey))
+- Create change output when inputs containing non-outgoing dunes are selected ([#4028](https://github.com/ordinals/ord/pull/4028) by [casey](https://github.com/casey))
 
 ### Added
 - Show total child count ([#4009](https://github.com/ordinals/ord/pull/4009) by [arik-so](https://github.com/arik-so))
@@ -282,7 +282,7 @@ Changelog
 - Show if JSON API is enabled on /status ([#4014](https://github.com/ordinals/ord/pull/4014) by [casey](https://github.com/casey))
 
 ### Changed
-- Only show rune mint progress during mint ([#4013](https://github.com/ordinals/ord/pull/4013) by [casey](https://github.com/casey))
+- Only show dune mint progress during mint ([#4013](https://github.com/ordinals/ord/pull/4013) by [casey](https://github.com/casey))
 - Change mint progress to `mints / terms.cap` ([#4012](https://github.com/ordinals/ord/pull/4012) by [casey](https://github.com/casey))
 
 ### Misc
@@ -300,7 +300,7 @@ Changelog
 - Revert redb to 2.1.3 ([#4003](https://github.com/ordinals/ord/pull/4003) by [raphjaph](https://github.com/raphjaph))
 
 ### Changed
-- Remove /runes/balances API endpoint ([#3980](https://github.com/ordinals/ord/pull/3980) by [lifofifoX](https://github.com/lifofifoX))
+- Remove /dunes/balances API endpoint ([#3980](https://github.com/ordinals/ord/pull/3980) by [lifofifoX](https://github.com/lifofifoX))
 
 ### Misc
 - Update rust-bitcoin in ord ([#3962](https://github.com/ordinals/ord/pull/3962) by [raphjaph](https://github.com/raphjaph))
@@ -352,10 +352,10 @@ Changelog
 
 ### Fixed
 - Make index settings harder to misuse ([#3893](https://github.com/ordinals/ord/pull/3893) by [casey](https://github.com/casey))
-- Fix rune links for runes with no symbol ([#3849](https://github.com/ordinals/ord/pull/3849) by [cryptoni9n](https://github.com/cryptoni9n))
+- Fix dune links for dunes with no symbol ([#3849](https://github.com/ordinals/ord/pull/3849) by [cryptoni9n](https://github.com/cryptoni9n))
 
 ### Added
-- Add inscriptions and runes details to address API endpoint ([#3924](https://github.com/ordinals/ord/pull/3924) by [twosatsmaxi](https://github.com/twosatsmaxi))
+- Add inscriptions and dunes details to address API endpoint ([#3924](https://github.com/ordinals/ord/pull/3924) by [twosatsmaxi](https://github.com/twosatsmaxi))
 - Add address field to `/r/inscription/:id` ([#3891](https://github.com/ordinals/ord/pull/3891) by [elocremarc](https://github.com/elocremarc))
 - Add sat_balance to address API ([#3905](https://github.com/ordinals/ord/pull/3905) by [cryptoni9n](https://github.com/cryptoni9n))
 - List all Bitcoin Core wallets ([#3902](https://github.com/ordinals/ord/pull/3902) by [raphjaph](https://github.com/raphjaph))
@@ -376,10 +376,10 @@ Changelog
 - Migrate Outgoing to SnafuError ([#3854](https://github.com/ordinals/ord/pull/3854) by [cryptoni9n](https://github.com/cryptoni9n))
 - Make first first and last sat in range clickable ([#3903](https://github.com/ordinals/ord/pull/3903) by [raphjaph](https://github.com/raphjaph))
 - Serve responses with cross origin isolation headers ([#3898](https://github.com/ordinals/ord/pull/3898) by [patrick99e99](https://github.com/patrick99e99))
-- Remove trailing space from runes specification ([#3896](https://github.com/ordinals/ord/pull/3896) by [casey](https://github.com/casey))
+- Remove trailing space from dunes specification ([#3896](https://github.com/ordinals/ord/pull/3896) by [casey](https://github.com/casey))
 - Don't unnecessarily insert into utxo cache when indexing addresses ([#3894](https://github.com/ordinals/ord/pull/3894) by [raphjaph](https://github.com/raphjaph))
 - Migrate object.rs to snafu error handling ([#3858](https://github.com/ordinals/ord/pull/3858) by [cryptoni9n](https://github.com/cryptoni9n))
-- Clarify that unused runes tags should not be used ([#3885](https://github.com/ordinals/ord/pull/3885) by [casey](https://github.com/casey))
+- Clarify that unused dunes tags should not be used ([#3885](https://github.com/ordinals/ord/pull/3885) by [casey](https://github.com/casey))
 - Update pointer specification ([#3861](https://github.com/ordinals/ord/pull/3861) by [ansigroup](https://github.com/ansigroup))
 - Re-enter beta ([#3884](https://github.com/ordinals/ord/pull/3884) by [casey](https://github.com/casey))
 - Updated Chinese translation  ([#3881](https://github.com/ordinals/ord/pull/3881) by [DrJingLee](https://github.com/DrJingLee))
@@ -401,7 +401,7 @@ Changelog
 - Add inscriptions to address page ([#3843](https://github.com/ordinals/ord/pull/3843) by [raphjaph](https://github.com/raphjaph))
 - Add ability to cancel shutdown ([#3820](https://github.com/ordinals/ord/pull/3820) by [felipelincoln](https://github.com/felipelincoln))
 - Add charm to burned inscriptions ([#3836](https://github.com/ordinals/ord/pull/3836) by [onchainguy-btc](https://github.com/onchainguy-btc))
-- Display aggregated rune balances in address page ([#3831](https://github.com/ordinals/ord/pull/3831) by [yoitsyoung](https://github.com/yoitsyoung))
+- Display aggregated dune balances in address page ([#3831](https://github.com/ordinals/ord/pull/3831) by [yoitsyoung](https://github.com/yoitsyoung))
 - Add --all flag on `ord wallet sats` ([#3824](https://github.com/ordinals/ord/pull/3824) by [cryptoni9n](https://github.com/cryptoni9n))
 - Add sat ranges to output ([#3817](https://github.com/ordinals/ord/pull/3817) by [cryptoni9n](https://github.com/cryptoni9n))
 - Add sat name to inscription page ([#3826](https://github.com/ordinals/ord/pull/3826) by [cryptoni9n](https://github.com/cryptoni9n))
@@ -414,9 +414,9 @@ Changelog
 - Make recursive endpoints proxiable ([#3797](https://github.com/ordinals/ord/pull/3797) by [raphjaph](https://github.com/raphjaph))
 - Add recursive endpoint with more details about children ([#3771](https://github.com/ordinals/ord/pull/3771) by [gmart7t2](https://github.com/gmart7t2))
 - Add delegate value to recursive inscription endpoint ([#3751](https://github.com/ordinals/ord/pull/3751) by [phorkish](https://github.com/phorkish))
-- Update `ord list` to include inscriptions and runes information ([#3766](https://github.com/ordinals/ord/pull/3766) by [cryptoni9n](https://github.com/cryptoni9n))
+- Update `ord list` to include inscriptions and dunes information ([#3766](https://github.com/ordinals/ord/pull/3766) by [cryptoni9n](https://github.com/cryptoni9n))
 - Add feerate percentiles to blockinfo endpoint ([#3753](https://github.com/ordinals/ord/pull/3753) by [benbuschmann](https://github.com/benbuschmann))
-- Add mint progress field to rune.html ([#3748](https://github.com/ordinals/ord/pull/3748) by [cryptoni9n](https://github.com/cryptoni9n))
+- Add mint progress field to dune.html ([#3748](https://github.com/ordinals/ord/pull/3748) by [cryptoni9n](https://github.com/cryptoni9n))
 - Add /inscription/:query/:child_number route ([#3777](https://github.com/ordinals/ord/pull/3777) by [casey](https://github.com/casey))
 - Add parents recursive endpoint ([#3749](https://github.com/ordinals/ord/pull/3749) by [phorkish](https://github.com/phorkish))
 - Index addresses ([#3757](https://github.com/ordinals/ord/pull/3757) by [raphjaph](https://github.com/raphjaph))
@@ -426,7 +426,7 @@ Changelog
 - Add `ord wallet runics` command ([#3734](https://github.com/ordinals/ord/pull/3734) by [ldiego08](https://github.com/ldiego08))
 
 ### Changed
-- Enable resuming a specific rune etching ([#3679](https://github.com/ordinals/ord/pull/3679) by [ldiego08](https://github.com/ldiego08))
+- Enable resuming a specific dune etching ([#3679](https://github.com/ordinals/ord/pull/3679) by [ldiego08](https://github.com/ldiego08))
 
 ### Fixed
 - Fix panic in ord env shutdown ([#3787](https://github.com/ordinals/ord/pull/3787) by [cryptoni9n](https://github.com/cryptoni9n))
@@ -442,7 +442,7 @@ Changelog
 - Link address on inscription.html ([#3801](https://github.com/ordinals/ord/pull/3801) by [cryptoni9n](https://github.com/cryptoni9n))
 - Fix fuzz testers  ([#3740](https://github.com/ordinals/ord/pull/3740) by [jeasonstudio](https://github.com/jeasonstudio))
 - Remove duplicate example ([#3776](https://github.com/ordinals/ord/pull/3776) by [gmart7t2](https://github.com/gmart7t2))
-- Update runes spec ([#3745](https://github.com/ordinals/ord/pull/3745) by [gmart7t2](https://github.com/gmart7t2))
+- Update dunes spec ([#3745](https://github.com/ordinals/ord/pull/3745) by [gmart7t2](https://github.com/gmart7t2))
 - Clarify teleburning.md ([#3744](https://github.com/ordinals/ord/pull/3744) by [gmart7t2](https://github.com/gmart7t2))
 
 [0.18.5](https://github.com/ordinals/ord/releases/tag/0.18.5) - 2024-05-09
@@ -455,7 +455,7 @@ Changelog
 
 ### Fixed
 - Update sat-hunting.md ([#3724](https://github.com/ordinals/ord/pull/3724) by [cryptoni9n](https://github.com/cryptoni9n))
-- Update runes.md docs ([#3681](https://github.com/ordinals/ord/pull/3681) by [hantuzun](https://github.com/hantuzun))
+- Update dunes.md docs ([#3681](https://github.com/ordinals/ord/pull/3681) by [hantuzun](https://github.com/hantuzun))
 - Patch some omissions in the Chinese translation ([#3694](https://github.com/ordinals/ord/pull/3694) by [shadowv0vshadow](https://github.com/shadowv0vshadow))
 - Bump rustfmt version 2018 to 2021 ([#3721](https://github.com/ordinals/ord/pull/3721) by [bingryan](https://github.com/bingryan))
 
@@ -470,7 +470,7 @@ Changelog
 - Do not show runic outputs in cardinals command ([#3656](https://github.com/ordinals/ord/pull/3656) by [raphjaph](https://github.com/raphjaph))
 
 ### Fixed
-- Fix send runes ([#3484](https://github.com/ordinals/ord/pull/3484) by [raphjaph](https://github.com/raphjaph))
+- Fix send dunes ([#3484](https://github.com/ordinals/ord/pull/3484) by [raphjaph](https://github.com/raphjaph))
 - Allow longer request body for JSON API ([#3655](https://github.com/ordinals/ord/pull/3655) by [raphjaph](https://github.com/raphjaph))
 - Allow minting if mint begins next block ([#3659](https://github.com/ordinals/ord/pull/3659) by [casey](https://github.com/casey))
 
@@ -490,7 +490,7 @@ Changelog
 
 ### Added
 - Add `dry-run` flag to `resume` command ([#3592](https://github.com/ordinals/ord/pull/3592) by [felipelincoln](https://github.com/felipelincoln))
-- Add back runes balances API ([#3571](https://github.com/ordinals/ord/pull/3571) by [lugondev](https://github.com/lugondev))
+- Add back dunes balances API ([#3571](https://github.com/ordinals/ord/pull/3571) by [lugondev](https://github.com/lugondev))
 - Show premine percentage ([#3567](https://github.com/ordinals/ord/pull/3567) by [raphjaph](https://github.com/raphjaph))
 - Add default content proxy and decompress to env command ([#3509](https://github.com/ordinals/ord/pull/3509) by [jahvi](https://github.com/jahvi))
 
@@ -498,13 +498,13 @@ Changelog
 - Resume cycles through all pending etchings ([#3566](https://github.com/ordinals/ord/pull/3566) by [raphjaph](https://github.com/raphjaph))
 
 ### Misc
-- Check rune minimum at height before sending ([#3626](https://github.com/ordinals/ord/pull/3626) by [raphjaph](https://github.com/raphjaph))
+- Check dune minimum at height before sending ([#3626](https://github.com/ordinals/ord/pull/3626) by [raphjaph](https://github.com/raphjaph))
 - Update recursion.md with consistant syntax ([#3585](https://github.com/ordinals/ord/pull/3585) by [zmeyer44](https://github.com/zmeyer44))
-- Add test Rune cannot be minted less than limit amount ([#3556](https://github.com/ordinals/ord/pull/3556) by [lugondev](https://github.com/lugondev))
-- Clear etching when rune commitment is spent ([#3618](https://github.com/ordinals/ord/pull/3618) by [felipelincoln](https://github.com/felipelincoln))
+- Add test Dune cannot be minted less than limit amount ([#3556](https://github.com/ordinals/ord/pull/3556) by [lugondev](https://github.com/lugondev))
+- Clear etching when dune commitment is spent ([#3618](https://github.com/ordinals/ord/pull/3618) by [felipelincoln](https://github.com/felipelincoln))
 - Remove timeout for wallet client ([#3621](https://github.com/ordinals/ord/pull/3621) by [raphjaph](https://github.com/raphjaph))
 - Remove duplicated word ([#3598](https://github.com/ordinals/ord/pull/3598) by [oxSaturn](https://github.com/oxSaturn))
-- Address runes review comments ([#3605](https://github.com/ordinals/ord/pull/3605) by [casey](https://github.com/casey))
+- Address dunes review comments ([#3605](https://github.com/ordinals/ord/pull/3605) by [casey](https://github.com/casey))
 - Generate sample batch.yaml in env command ([#3530](https://github.com/ordinals/ord/pull/3530) by [twosatsmaxi](https://github.com/twosatsmaxi))
 
 [0.18.2](https://github.com/ordinals/ord/releases/tag/0.18.2) - 2024-04-17
@@ -518,26 +518,26 @@ Changelog
 
 ### Changed
 - Store wallets in /wallets subdir of data dir ([#3553](https://github.com/ordinals/ord/pull/3553) by [casey](https://github.com/casey))
-- Remove /runes/balances page ([#3555](https://github.com/ordinals/ord/pull/3555) by [lugondev](https://github.com/lugondev))
-- Forbid etching below rune activation height ([#3523](https://github.com/ordinals/ord/pull/3523) by [casey](https://github.com/casey))
+- Remove /dunes/balances page ([#3555](https://github.com/ordinals/ord/pull/3555) by [lugondev](https://github.com/lugondev))
+- Forbid etching below dune activation height ([#3523](https://github.com/ordinals/ord/pull/3523) by [casey](https://github.com/casey))
 
 ### Added
 - Add command to export BIP-329 labels for wallet outputs ([#3120](https://github.com/ordinals/ord/pull/3120) by [casey](https://github.com/casey))
-- Display etched runes on /block ([#3366](https://github.com/ordinals/ord/pull/3366) by [lugondev](https://github.com/lugondev))
-- Emit rune-related events ([#3219](https://github.com/ordinals/ord/pull/3219) by [felipelincoln](https://github.com/felipelincoln))
-- Lookup rune by number ([#3440](https://github.com/ordinals/ord/pull/3440) by [lugondev](https://github.com/lugondev))
-- Add runes pagination ([#3215](https://github.com/ordinals/ord/pull/3215) by [lugondev](https://github.com/lugondev))
+- Display etched dunes on /block ([#3366](https://github.com/ordinals/ord/pull/3366) by [lugondev](https://github.com/lugondev))
+- Emit dune-related events ([#3219](https://github.com/ordinals/ord/pull/3219) by [felipelincoln](https://github.com/felipelincoln))
+- Lookup dune by number ([#3440](https://github.com/ordinals/ord/pull/3440) by [lugondev](https://github.com/lugondev))
+- Add dunes pagination ([#3215](https://github.com/ordinals/ord/pull/3215) by [lugondev](https://github.com/lugondev))
 
 ### Misc
 - Document turbo flag ([#3579](https://github.com/ordinals/ord/pull/3579) by [gmart7t2](https://github.com/gmart7t2))
 - Add open mint tests ([#3558](https://github.com/ordinals/ord/pull/3558) by [lugondev](https://github.com/lugondev))
 - Fix typos ([#3541](https://github.com/ordinals/ord/pull/3541) by [StevenMia](https://github.com/StevenMia))
 - Fix typo in zh.po ([#3540](https://github.com/ordinals/ord/pull/3540) by [blackj-x](https://github.com/blackj-x))
-- Lock runes commit output ([#3504](https://github.com/ordinals/ord/pull/3504) by [raphjaph](https://github.com/raphjaph))
-- Address runes review comments ([#3547](https://github.com/ordinals/ord/pull/3547) by [casey](https://github.com/casey))
+- Lock dunes commit output ([#3504](https://github.com/ordinals/ord/pull/3504) by [raphjaph](https://github.com/raphjaph))
+- Address dunes review comments ([#3547](https://github.com/ordinals/ord/pull/3547) by [casey](https://github.com/casey))
 - Add Red Had build instructions to readme ([#3531](https://github.com/ordinals/ord/pull/3531) by [rongyi](https://github.com/rongyi))
 - Fix typo in recursion docs ([#3529](https://github.com/ordinals/ord/pull/3529) by [nix-eth](https://github.com/nix-eth))
-- Put rune higher on /inscription ([#3363](https://github.com/ordinals/ord/pull/3363) by [lugondev](https://github.com/lugondev))
+- Put dune higher on /inscription ([#3363](https://github.com/ordinals/ord/pull/3363) by [lugondev](https://github.com/lugondev))
 
 [0.18.1](https://github.com/ordinals/ord/releases/tag/0.18.1) - 2024-04-11
 --------------------------------------------------------------------------
@@ -559,7 +559,7 @@ Changelog
 - Add wallet batch outputs and inscriptions endpoints ([#3456](https://github.com/ordinals/ord/pull/3456) by [raphjaph](https://github.com/raphjaph))
 
 ### Changed
-- Show decimal rune balances ([#3505](https://github.com/ordinals/ord/pull/3505) by [raphjaph](https://github.com/raphjaph))
+- Show decimal dune balances ([#3505](https://github.com/ordinals/ord/pull/3505) by [raphjaph](https://github.com/raphjaph))
 
 ### Misc
 - Test that mints without a cap are unmintable ([#3495](https://github.com/ordinals/ord/pull/3495) by [lugondev](https://github.com/lugondev))
@@ -567,18 +567,18 @@ Changelog
 - Updated rust-version to 1.74.0 ([#3492](https://github.com/ordinals/ord/pull/3492) by [tgscan-dev](https://github.com/tgscan-dev))
 - Better error message when bitcoind doesn't start ([#3500](https://github.com/ordinals/ord/pull/3500) by [twosatsmaxi](https://github.com/twosatsmaxi))
 - Fix typo in zh.po ([#3498](https://github.com/ordinals/ord/pull/3498) by [RandolphJiffy](https://github.com/RandolphJiffy))
-- Document allowed opcodes in runestones ([#3461](https://github.com/ordinals/ord/pull/3461) by [casey](https://github.com/casey))
+- Document allowed opcodes in dunestones ([#3461](https://github.com/ordinals/ord/pull/3461) by [casey](https://github.com/casey))
 - Update data carriersize to match with ord ([#3506](https://github.com/ordinals/ord/pull/3506) by [twosatsmaxi](https://github.com/twosatsmaxi))
 - Fix maturation loop ([#3480](https://github.com/ordinals/ord/pull/3480) by [raphjaph](https://github.com/raphjaph))
-- Add rune logo and link to navbar ([#3442](https://github.com/ordinals/ord/pull/3442) by [lugondev](https://github.com/lugondev))
+- Add dune logo and link to navbar ([#3442](https://github.com/ordinals/ord/pull/3442) by [lugondev](https://github.com/lugondev))
 - Add package necessary for Ubuntu ([#3462](https://github.com/ordinals/ord/pull/3462) by [petriuslima](https://github.com/petriuslima))
 - Update required Rust version in README ([#3466](https://github.com/ordinals/ord/pull/3466) by [cryptoni9n](https://github.com/cryptoni9n))
 - Fix typo in zh.po ([#3464](https://github.com/ordinals/ord/pull/3464) by [RandolphJiffy](https://github.com/RandolphJiffy))
 - Update testing.md ([#3463](https://github.com/ordinals/ord/pull/3463) by [gmart7t2](https://github.com/gmart7t2))
-- Update rune docs for Chinese version ([#3457](https://github.com/ordinals/ord/pull/3457) by [DrJingLee](https://github.com/DrJingLee))
+- Update dune docs for Chinese version ([#3457](https://github.com/ordinals/ord/pull/3457) by [DrJingLee](https://github.com/DrJingLee))
 - Remove `etch` from error message ([#3449](https://github.com/ordinals/ord/pull/3449) by [ordinariusprof](https://github.com/ordinariusprof))
 - Fix deploy bitcoin.conf typo ([#3443](https://github.com/ordinals/ord/pull/3443) by [bitspill](https://github.com/bitspill))
-- Fix type in runes docs ([#3447](https://github.com/ordinals/ord/pull/3447) by [twosatsmaxi](https://github.com/twosatsmaxi))
+- Fix type in dunes docs ([#3447](https://github.com/ordinals/ord/pull/3447) by [twosatsmaxi](https://github.com/twosatsmaxi))
 
 [0.17.1](https://github.com/ordinals/ord/releases/tag/0.17.1) - 2024-04-01
 --------------------------------------------------------------------------
@@ -595,16 +595,16 @@ Changelog
 
 ### Added
 - Allow pausing and resuming etchings ([#3374](https://github.com/ordinals/ord/pull/3374) by [raphjaph](https://github.com/raphjaph))
-- Seed index with genesis rune ([#3426](https://github.com/ordinals/ord/pull/3426) by [casey](https://github.com/casey))
+- Seed index with genesis dune ([#3426](https://github.com/ordinals/ord/pull/3426) by [casey](https://github.com/casey))
 - Add `ord wallet batch` command ([#3401](https://github.com/ordinals/ord/pull/3401) by [casey](https://github.com/casey))
 - Return effective content type in JSON API ([#3289](https://github.com/ordinals/ord/pull/3289) by [arik-so](https://github.com/arik-so))
 - Mint terms ([#3375](https://github.com/ordinals/ord/pull/3375) by [casey](https://github.com/casey))
 - Allow supply-capped mints ([#3365](https://github.com/ordinals/ord/pull/3365) by [casey](https://github.com/casey))
-- Return runestone from `ord decode` ([#3349](https://github.com/ordinals/ord/pull/3349) by [casey](https://github.com/casey))
+- Return dunestone from `ord decode` ([#3349](https://github.com/ordinals/ord/pull/3349) by [casey](https://github.com/casey))
 - Display charms on /sat ([#3340](https://github.com/ordinals/ord/pull/3340) by [markovichecha](https://github.com/markovichecha))
 - Allow sending sat ([#3200](https://github.com/ordinals/ord/pull/3200) by [bingryan](https://github.com/bingryan))
-- Display mintability on /rune ([#3324](https://github.com/ordinals/ord/pull/3324) by [raphjaph](https://github.com/raphjaph))
-- Mint runes with wallet ([#3298](https://github.com/ordinals/ord/pull/3298) by [raphjaph](https://github.com/raphjaph))
+- Display mintability on /dune ([#3324](https://github.com/ordinals/ord/pull/3324) by [raphjaph](https://github.com/raphjaph))
+- Mint dunes with wallet ([#3298](https://github.com/ordinals/ord/pull/3298) by [raphjaph](https://github.com/raphjaph))
 - Index multiple parents ([#3227](https://github.com/ordinals/ord/pull/3227) by [arik-so](https://github.com/arik-so))
 - Add fallback route ([#3288](https://github.com/ordinals/ord/pull/3288) by [casey](https://github.com/casey))
 - Allow looking up inscriptions by sat name ([#3286](https://github.com/ordinals/ord/pull/3286) by [casey](https://github.com/casey))
@@ -613,21 +613,21 @@ Changelog
 ### Changed
 - Recognized field without required flag produce cenotaphs ([#3422](https://github.com/ordinals/ord/pull/3422) by [casey](https://github.com/casey))
 - Rename test-bitcoincore-rpc to mockcore ([#3415](https://github.com/ordinals/ord/pull/3415) by [casey](https://github.com/casey))
-- Derive reserved rune names from rune ID ([#3412](https://github.com/ordinals/ord/pull/3412) by [casey](https://github.com/casey))
-- Don't complain about large runestones if --no-limit is passed ([#3402](https://github.com/ordinals/ord/pull/3402) by [casey](https://github.com/casey))
-- Move runes types into ordinals crate ([#3391](https://github.com/ordinals/ord/pull/3391) by [casey](https://github.com/casey))
-- Disambiguate when sending runes ([#3368](https://github.com/ordinals/ord/pull/3368) by [raphjaph](https://github.com/raphjaph))
+- Derive reserved dune names from dune ID ([#3412](https://github.com/ordinals/ord/pull/3412) by [casey](https://github.com/casey))
+- Don't complain about large dunestones if --no-limit is passed ([#3402](https://github.com/ordinals/ord/pull/3402) by [casey](https://github.com/casey))
+- Move dunes types into ordinals crate ([#3391](https://github.com/ordinals/ord/pull/3391) by [casey](https://github.com/casey))
+- Disambiguate when sending dunes ([#3368](https://github.com/ordinals/ord/pull/3368) by [raphjaph](https://github.com/raphjaph))
 - Only allow sending sats by name ([#3344](https://github.com/ordinals/ord/pull/3344) by [casey](https://github.com/casey))
 - Downgrade from `beta` to `alpha` ([#3315](https://github.com/ordinals/ord/pull/3315) by [casey](https://github.com/casey))
 
 ### Misc
 - Add links to status page ([#3361](https://github.com/ordinals/ord/pull/3361) by [lugondev](https://github.com/lugondev))
-- Document sending runes ([#3405](https://github.com/ordinals/ord/pull/3405) by [rot13maxi](https://github.com/rot13maxi))
-- Use checked arithmetic in RuneUpdater ([#3423](https://github.com/ordinals/ord/pull/3423) by [casey](https://github.com/casey))
+- Document sending dunes ([#3405](https://github.com/ordinals/ord/pull/3405) by [rot13maxi](https://github.com/rot13maxi))
+- Use checked arithmetic in DuneUpdater ([#3423](https://github.com/ordinals/ord/pull/3423) by [casey](https://github.com/casey))
 - Update Dockerfile Rust version ([#3425](https://github.com/ordinals/ord/pull/3425) by [0xspyop](https://github.com/0xspyop))
-- Don't conflate cenotaphs and runestones ([#3417](https://github.com/ordinals/ord/pull/3417) by [casey](https://github.com/casey))
+- Don't conflate cenotaphs and dunestones ([#3417](https://github.com/ordinals/ord/pull/3417) by [casey](https://github.com/casey))
 - Fix typos ([#3418](https://github.com/ordinals/ord/pull/3418) by [xiaoxianBoy](https://github.com/xiaoxianBoy))
-- Set pointer in etching runestone ([#3420](https://github.com/ordinals/ord/pull/3420) by [casey](https://github.com/casey))
+- Set pointer in etching dunestone ([#3420](https://github.com/ordinals/ord/pull/3420) by [casey](https://github.com/casey))
 - Fix fuzz tests ([#3416](https://github.com/ordinals/ord/pull/3416) by [casey](https://github.com/casey))
 - Set relative lock height on etching transactions ([#3414](https://github.com/ordinals/ord/pull/3414) by [casey](https://github.com/casey))
 - Add CTRL-C test ([#3413](https://github.com/ordinals/ord/pull/3413) by [raphjaph](https://github.com/raphjaph))
@@ -635,42 +635,42 @@ Changelog
 - Fix inscribe_with_no_limit test ([#3403](https://github.com/ordinals/ord/pull/3403) by [casey](https://github.com/casey))
 - Rename Inscribe to Batch in integration tests ([#3404](https://github.com/ordinals/ord/pull/3404) by [casey](https://github.com/casey))
 - Distinguish invalid opcode and invalid script ([#3400](https://github.com/ordinals/ord/pull/3400) by [casey](https://github.com/casey))
-- Fix rune ID delta-encoding table ([#3393](https://github.com/ordinals/ord/pull/3393) by [chendatony31](https://github.com/chendatony31))
+- Fix dune ID delta-encoding table ([#3393](https://github.com/ordinals/ord/pull/3393) by [chendatony31](https://github.com/chendatony31))
 - Handle invalid scripts correctly ([#3390](https://github.com/ordinals/ord/pull/3390) by [casey](https://github.com/casey))
 - Fix typo: Eching -> Etching ([#3397](https://github.com/ordinals/ord/pull/3397) by [gmart7t2](https://github.com/gmart7t2))
 - Fix typo: transactions -> transaction's ([#3398](https://github.com/ordinals/ord/pull/3398) by [gmart7t2](https://github.com/gmart7t2))
 - Fix typo: an -> a ([#3395](https://github.com/ordinals/ord/pull/3395) by [gmart7t2](https://github.com/gmart7t2))
-- Fix runes docs table ([#3389](https://github.com/ordinals/ord/pull/3389) by [casey](https://github.com/casey))
-- Document runes ([#3380](https://github.com/ordinals/ord/pull/3380) by [casey](https://github.com/casey))
-- Check mint runestone ([#3388](https://github.com/ordinals/ord/pull/3388) by [casey](https://github.com/casey))
-- Check send runestone ([#3386](https://github.com/ordinals/ord/pull/3386) by [casey](https://github.com/casey))
+- Fix dunes docs table ([#3389](https://github.com/ordinals/ord/pull/3389) by [casey](https://github.com/casey))
+- Document dunes ([#3380](https://github.com/ordinals/ord/pull/3380) by [casey](https://github.com/casey))
+- Check mint dunestone ([#3388](https://github.com/ordinals/ord/pull/3388) by [casey](https://github.com/casey))
+- Check send dunestone ([#3386](https://github.com/ordinals/ord/pull/3386) by [casey](https://github.com/casey))
 - Decimal::to_amount → Decimal::to_integer ([#3382](https://github.com/ordinals/ord/pull/3382) by [casey](https://github.com/casey))
-- Add SpacedRune test case ([#3379](https://github.com/ordinals/ord/pull/3379) by [casey](https://github.com/casey))
-- Add Runestone::cenotaph() ([#3381](https://github.com/ordinals/ord/pull/3381) by [casey](https://github.com/casey))
+- Add SpacedDune test case ([#3379](https://github.com/ordinals/ord/pull/3379) by [casey](https://github.com/casey))
+- Add Dunestone::cenotaph() ([#3381](https://github.com/ordinals/ord/pull/3381) by [casey](https://github.com/casey))
 - Terms::limit → Terms::amount ([#3383](https://github.com/ordinals/ord/pull/3383) by [casey](https://github.com/casey))
 - Use default() as shorthand for Default::default() ([#3371](https://github.com/ordinals/ord/pull/3371) by [casey](https://github.com/casey))
 - Add batch module to wallet ([#3359](https://github.com/ordinals/ord/pull/3359) by [casey](https://github.com/casey))
-- Make rune parent clickable ([#3358](https://github.com/ordinals/ord/pull/3358) by [raphjaph](https://github.com/raphjaph))
-- Assert etched runestone is correct ([#3354](https://github.com/ordinals/ord/pull/3354) by [casey](https://github.com/casey))
-- Display spaced runes in balances ([#3353](https://github.com/ordinals/ord/pull/3353) by [casey](https://github.com/casey))
+- Make dune parent clickable ([#3358](https://github.com/ordinals/ord/pull/3358) by [raphjaph](https://github.com/raphjaph))
+- Assert etched dunestone is correct ([#3354](https://github.com/ordinals/ord/pull/3354) by [casey](https://github.com/casey))
+- Display spaced dunes in balances ([#3353](https://github.com/ordinals/ord/pull/3353) by [casey](https://github.com/casey))
 - Cleanup ([#3348](https://github.com/ordinals/ord/pull/3348) by [lugondev](https://github.com/lugondev))
 - Fetch etching inputs using Bitcoin Core RPC ([#3336](https://github.com/ordinals/ord/pull/3336) by [raphjaph](https://github.com/raphjaph))
 - Update Chinese version of handbook ([#3334](https://github.com/ordinals/ord/pull/3334) by [DrJingLee](https://github.com/DrJingLee))
 - Use serde_with::DeserializeFromStr ([#3343](https://github.com/ordinals/ord/pull/3343) by [casey](https://github.com/casey))
 - Remove quotes from example ord env command ([#3335](https://github.com/ordinals/ord/pull/3335) by [casey](https://github.com/casey))
-- Initial runes review ([#3331](https://github.com/ordinals/ord/pull/3331) by [casey](https://github.com/casey))
+- Initial dunes review ([#3331](https://github.com/ordinals/ord/pull/3331) by [casey](https://github.com/casey))
 - Fix redundant locking ([#3342](https://github.com/ordinals/ord/pull/3342) by [raphjaph](https://github.com/raphjaph))
-- Derive Deserialize for Runestone ([#3339](https://github.com/ordinals/ord/pull/3339) by [emilcondrea](https://github.com/emilcondrea))
+- Derive Deserialize for Dunestone ([#3339](https://github.com/ordinals/ord/pull/3339) by [emilcondrea](https://github.com/emilcondrea))
 - Update redb to 2.0.0 ([#3341](https://github.com/ordinals/ord/pull/3341) by [cberner](https://github.com/cberner))
-- Runestones with unknown semantics are cenotaphs ([#3325](https://github.com/ordinals/ord/pull/3325) by [casey](https://github.com/casey))
-- Reserve rune IDs with zero block and nonzero tx ([#3323](https://github.com/ordinals/ord/pull/3323) by [casey](https://github.com/casey))
-- Display rune premine ([#3313](https://github.com/ordinals/ord/pull/3313) by [raphjaph](https://github.com/raphjaph))
+- Dunestones with unknown semantics are cenotaphs ([#3325](https://github.com/ordinals/ord/pull/3325) by [casey](https://github.com/casey))
+- Reserve dune IDs with zero block and nonzero tx ([#3323](https://github.com/ordinals/ord/pull/3323) by [casey](https://github.com/casey))
+- Display dune premine ([#3313](https://github.com/ordinals/ord/pull/3313) by [raphjaph](https://github.com/raphjaph))
 - Make max mint limit u64::MAX ([#3316](https://github.com/ordinals/ord/pull/3316) by [casey](https://github.com/casey))
-- Change rune protocol identifier to OP_PUSHNUM_13 ([#3314](https://github.com/ordinals/ord/pull/3314) by [casey](https://github.com/casey))
+- Change dune protocol identifier to OP_PUSHNUM_13 ([#3314](https://github.com/ordinals/ord/pull/3314) by [casey](https://github.com/casey))
 - Strict edicts ([#3312](https://github.com/ordinals/ord/pull/3312) by [casey](https://github.com/casey))
 - Allow premining with open etchings ([#3311](https://github.com/ordinals/ord/pull/3311) by [raphjaph](https://github.com/raphjaph))
-- Rename RuneID fields ([#3310](https://github.com/ordinals/ord/pull/3310) by [casey](https://github.com/casey))
-- Prevent front-running rune etchings ([#3212](https://github.com/ordinals/ord/pull/3212) by [casey](https://github.com/casey))
+- Rename DuneID fields ([#3310](https://github.com/ordinals/ord/pull/3310) by [casey](https://github.com/casey))
+- Prevent front-running dune etchings ([#3212](https://github.com/ordinals/ord/pull/3212) by [casey](https://github.com/casey))
 - Clarify build instructions ([#3304](https://github.com/ordinals/ord/pull/3304) by [raphjaph](https://github.com/raphjaph))
 - Add test to choose the earliest of deadline or end ([#3254](https://github.com/ordinals/ord/pull/3254) by [sondotpin](https://github.com/sondotpin))
 - Ensure inscription tags are unique ([#3296](https://github.com/ordinals/ord/pull/3296) by [casey](https://github.com/casey))
@@ -696,13 +696,13 @@ Changelog
 - Add `/r/inscription` endpoint for getting inscription details ([#2628](https://github.com/ordinals/ord/pull/2628) by [devords](https://github.com/devords))
 - Add optional HTTP authentication for server ([#3131](https://github.com/ordinals/ord/pull/3131) by [casey](https://github.com/casey))
 - Display inscription content type counts on /status ([#3127](https://github.com/ordinals/ord/pull/3127) by [casey](https://github.com/casey))
-- Add `ord env` to spin up a test bitcoin daemon and ord server ([#3146](https://github.com/ordinals/ord/pull/3146) by [casey](https://github.com/casey))
+- Add `ord env` to spin up a test bitcoin daemon and dog server ([#3146](https://github.com/ordinals/ord/pull/3146) by [casey](https://github.com/casey))
 - Emit inscription update events to channel ([#3137](https://github.com/ordinals/ord/pull/3137) by [mi-yu](https://github.com/mi-yu))
 - Allow inscribing AVIF images ([#3123](https://github.com/ordinals/ord/pull/3123) by [casey](https://github.com/casey))
 - Add `satpoints` batch inscribe mode ([#3115](https://github.com/ordinals/ord/pull/3115) by [raphjaph](https://github.com/raphjaph))
 - Add /r/blockinfo endpoint ([#3075](https://github.com/ordinals/ord/pull/3075) by [jerryfane](https://github.com/jerryfane))
 - Return signed PSBT from `ord wallet send` ([#3093](https://github.com/ordinals/ord/pull/3093) by [raphjaph](https://github.com/raphjaph))
-- Add /runes/balances ([#2978](https://github.com/ordinals/ord/pull/2978) by [lugondev](https://github.com/lugondev))
+- Add /dunes/balances ([#2978](https://github.com/ordinals/ord/pull/2978) by [lugondev](https://github.com/lugondev))
 - Dump and restore wallet from descriptors ([#3048](https://github.com/ordinals/ord/pull/3048) by [raphjaph](https://github.com/raphjaph))
 - Inscribe with delegate ([#3021](https://github.com/ordinals/ord/pull/3021) by [casey](https://github.com/casey))
 - Add option to retain sat index for spent outputs ([#2999](https://github.com/ordinals/ord/pull/2999) by [casey](https://github.com/casey))
@@ -714,7 +714,7 @@ Changelog
 - Load config from default data dir and configure `ord env ` using config ([#3240](https://github.com/ordinals/ord/pull/3240) by [casey](https://github.com/casey))
 - Overhaul settings ([#3188](https://github.com/ordinals/ord/pull/3188) by [casey](https://github.com/casey))
 - Improve configuration ([#3156](https://github.com/ordinals/ord/pull/3156) by [casey](https://github.com/casey))
-- Represent rune IDs as `BLOCK:TX` ([#3165](https://github.com/ordinals/ord/pull/3165) by [casey](https://github.com/casey))
+- Represent dune IDs as `BLOCK:TX` ([#3165](https://github.com/ordinals/ord/pull/3165) by [casey](https://github.com/casey))
 - Display parent above metadata on /inscription ([#3160](https://github.com/ordinals/ord/pull/3160) by [casey](https://github.com/casey))
 - Make `ord env` more user friendly ([#3153](https://github.com/ordinals/ord/pull/3153) by [casey](https://github.com/casey))
 - Use `image-rendering: auto` for AVIF inscriptions ([#3148](https://github.com/ordinals/ord/pull/3148) by [casey](https://github.com/casey))
@@ -736,9 +736,9 @@ Changelog
 - Fix list numbering in handbook ([#3248](https://github.com/ordinals/ord/pull/3248) by [lugondev](https://github.com/lugondev))
 - Document `ord env` commands ([#3241](https://github.com/ordinals/ord/pull/3241) by [casey](https://github.com/casey))
 - Document `ord wallet restore` ([#3237](https://github.com/ordinals/ord/pull/3237) by [raphjaph](https://github.com/raphjaph))
-- Enable indexing runes on mainnet ([#3236](https://github.com/ordinals/ord/pull/3236) by [casey](https://github.com/casey))
+- Enable indexing dunes on mainnet ([#3236](https://github.com/ordinals/ord/pull/3236) by [casey](https://github.com/casey))
 - Add libssl-dev to ubuntu install command ([#3235](https://github.com/ordinals/ord/pull/3235) by [andrewhong5297](https://github.com/andrewhong5297))
-- Test that runes can be minted with no edict ([#3231](https://github.com/ordinals/ord/pull/3231) by [casey](https://github.com/casey))
+- Test that dunes can be minted with no edict ([#3231](https://github.com/ordinals/ord/pull/3231) by [casey](https://github.com/casey))
 - Rename index_envelopes to index_inscriptions ([#3233](https://github.com/ordinals/ord/pull/3233) by [casey](https://github.com/casey))
 - Check for duplicate satpoints in `satpoints` mode ([#3221](https://github.com/ordinals/ord/pull/3221) by [raphjaph](https://github.com/raphjaph))
 - Add reinscribe option to batch file ([#3220](https://github.com/ordinals/ord/pull/3220) by [raphjaph](https://github.com/raphjaph))
@@ -791,7 +791,7 @@ Changelog
 ### Added
 - Add no sync option to server command ([#2966](https://github.com/ordinals/ord/pull/2966) by [raphjaph](https://github.com/raphjaph))
 - Vindicate cursed inscriptions ([#2950](https://github.com/ordinals/ord/pull/2950) by [casey](https://github.com/casey))
-- Add JSON endpoints for Runes ([#2941](https://github.com/ordinals/ord/pull/2941) by [lugondev](https://github.com/lugondev))
+- Add JSON endpoints for Dunes ([#2941](https://github.com/ordinals/ord/pull/2941) by [lugondev](https://github.com/lugondev))
 - Add JSON endpoint for status ([#2955](https://github.com/ordinals/ord/pull/2955) by [raphjaph](https://github.com/raphjaph))
 - Add chain to status page ([#2953](https://github.com/ordinals/ord/pull/2953) by [raphjaph](https://github.com/raphjaph))
 
@@ -807,7 +807,7 @@ Changelog
 - Update server names in justfile ([#2954](https://github.com/ordinals/ord/pull/2954) by [casey](https://github.com/casey))
 - Update delegate.md ([#2976](https://github.com/ordinals/ord/pull/2976) by [gmart7t2](https://github.com/gmart7t2))
 - Fix a typo ([#2980](https://github.com/ordinals/ord/pull/2980) by [GoodDaisy](https://github.com/GoodDaisy))
-- Use enums for runestone tags and flags ([#2956](https://github.com/ordinals/ord/pull/2956) by [casey](https://github.com/casey))
+- Use enums for dunestone tags and flags ([#2956](https://github.com/ordinals/ord/pull/2956) by [casey](https://github.com/casey))
 - Make `FundRawTransactionOptions ` public ([#2938](https://github.com/ordinals/ord/pull/2938) by [lateminer](https://github.com/lateminer))
 - Deduplicate deploy script case statements ([#2962](https://github.com/ordinals/ord/pull/2962) by [casey](https://github.com/casey))
 - Remove quotes around key to allow shell expansion ([#2951](https://github.com/ordinals/ord/pull/2951) by [casey](https://github.com/casey))
@@ -830,9 +830,9 @@ Changelog
 
 ### Added
 - Allow inscriptions to nominate a delegate ([#2912](https://github.com/ordinals/ord/pull/2912) by [casey](https://github.com/casey))
-- Display number of times a rune has been minted ([#2901](https://github.com/ordinals/ord/pull/2901) by [casey](https://github.com/casey))
+- Display number of times a dune has been minted ([#2901](https://github.com/ordinals/ord/pull/2901) by [casey](https://github.com/casey))
 - Optionally store transactions in index ([#2885](https://github.com/ordinals/ord/pull/2885) by [casey](https://github.com/casey))
-- Allow specifying destination for unallocated runes ([#2899](https://github.com/ordinals/ord/pull/2899) by [casey](https://github.com/casey))
+- Allow specifying destination for unallocated dunes ([#2899](https://github.com/ordinals/ord/pull/2899) by [casey](https://github.com/casey))
 - Make inscriptions with tag 66 permanently unbound ([#2906](https://github.com/ordinals/ord/pull/2906) by [casey](https://github.com/casey))
 - Decode transactions from Bitcoin Core with `ord decode --txid` ([#2907](https://github.com/ordinals/ord/pull/2907) by [casey](https://github.com/casey))
 - Allow skpping indexing inscriptions ([#2900](https://github.com/ordinals/ord/pull/2900) by [casey](https://github.com/casey))
@@ -842,7 +842,7 @@ Changelog
 - Only store transactions with inscriptions in the database ([#2926](https://github.com/ordinals/ord/pull/2926) by [casey](https://github.com/casey))
 - Hide all inscriptions with /content/<INSCRIPTION_ID> content ([#2908](https://github.com/ordinals/ord/pull/2908) by [casey](https://github.com/casey))
 - Hide code, metaprotocol, and unknown media inscriptions ([#2872](https://github.com/ordinals/ord/pull/2872) by [casey](https://github.com/casey))
-- Display rune symbol to right of amount ([#2871](https://github.com/ordinals/ord/pull/2871) by [casey](https://github.com/casey))
+- Display dune symbol to right of amount ([#2871](https://github.com/ordinals/ord/pull/2871) by [casey](https://github.com/casey))
 
 ### Misc
 - Use install to copy binary in deploy script ([#2934](https://github.com/ordinals/ord/pull/2934) by [casey](https://github.com/casey))
@@ -861,9 +861,9 @@ Changelog
 - Optimize /inscription endpoint ([#2884](https://github.com/ordinals/ord/pull/2884) by [casey](https://github.com/casey))
 - Show all inscription geneses on /tx ([#2909](https://github.com/ordinals/ord/pull/2909) by [casey](https://github.com/casey))
 - Serve HTTP/2 ([#2895](https://github.com/ordinals/ord/pull/2895) by [casey](https://github.com/casey))
-- Don't display trailing spacers in spaced runes ([#2896](https://github.com/ordinals/ord/pull/2896) by [casey](https://github.com/casey))
-- Split runes more evenly ([#2897](https://github.com/ordinals/ord/pull/2897) by [casey](https://github.com/casey))
-- Dispaly rune ID above height and index ([#2874](https://github.com/ordinals/ord/pull/2874) by [casey](https://github.com/casey))
+- Don't display trailing spacers in spaced dunes ([#2896](https://github.com/ordinals/ord/pull/2896) by [casey](https://github.com/casey))
+- Split dunes more evenly ([#2897](https://github.com/ordinals/ord/pull/2897) by [casey](https://github.com/casey))
+- Dispaly dune ID above height and index ([#2874](https://github.com/ordinals/ord/pull/2874) by [casey](https://github.com/casey))
 - Use transaction version 2 ([#2873](https://github.com/ordinals/ord/pull/2873) by [casey](https://github.com/casey))
 
 [0.13.1](https://github.com/ordinals/ord/releases/tag/0.13.1) - 2023-12-16
@@ -876,10 +876,10 @@ Changelog
 --------------------------------------------------------------------------
 
 ### Added
-- Send runes with `ord wallet send` ([#2858](https://github.com/ordinals/ord/pull/2858) by [casey](https://github.com/casey))
-- Add rune spacers ([#2862](https://github.com/ordinals/ord/pull/2862) by [casey](https://github.com/casey))
-- Reserve runes for sequential allocation ([#2831](https://github.com/ordinals/ord/pull/2831) by [casey](https://github.com/casey))
-- Unlock runes over course of halving epoch ([#2852](https://github.com/ordinals/ord/pull/2852) by [casey](https://github.com/casey))
+- Send dunes with `ord wallet send` ([#2858](https://github.com/ordinals/ord/pull/2858) by [casey](https://github.com/casey))
+- Add dune spacers ([#2862](https://github.com/ordinals/ord/pull/2862) by [casey](https://github.com/casey))
+- Reserve dunes for sequential allocation ([#2831](https://github.com/ordinals/ord/pull/2831) by [casey](https://github.com/casey))
+- Unlock dunes over course of halving epoch ([#2852](https://github.com/ordinals/ord/pull/2852) by [casey](https://github.com/casey))
 - Add flag to decompress brotli server-side ([#2854](https://github.com/ordinals/ord/pull/2854) by [raphjaph](https://github.com/raphjaph))
 - Add /status page ([#2819](https://github.com/ordinals/ord/pull/2819) by [casey](https://github.com/casey))
 - Add coin charm ([#2821](https://github.com/ordinals/ord/pull/2821) by [casey](https://github.com/casey))
@@ -888,12 +888,12 @@ Changelog
 - Fix endpoint `/inscriptions/block/<height>/<page>` ([#2798](https://github.com/ordinals/ord/pull/2798) by [gmart7t2](https://github.com/gmart7t2))
 
 ### Misc
-- Tweak rune tags and flags ([#2860](https://github.com/ordinals/ord/pull/2860) by [casey](https://github.com/casey))
-- Unlock runes in first block of interval ([#2861](https://github.com/ordinals/ord/pull/2861) by [casey](https://github.com/casey))
-- Index runes on testnet and signet deployments ([#2857](https://github.com/ordinals/ord/pull/2857) by [casey](https://github.com/casey))
+- Tweak dune tags and flags ([#2860](https://github.com/ordinals/ord/pull/2860) by [casey](https://github.com/casey))
+- Unlock dunes in first block of interval ([#2861](https://github.com/ordinals/ord/pull/2861) by [casey](https://github.com/casey))
+- Index dunes on testnet and signet deployments ([#2857](https://github.com/ordinals/ord/pull/2857) by [casey](https://github.com/casey))
 - Fix fuzzers ([#2859](https://github.com/ordinals/ord/pull/2859) by [casey](https://github.com/casey))
 - Make varint decoding infallible ([#2853](https://github.com/ordinals/ord/pull/2853) by [casey](https://github.com/casey))
-- Add runes to parse command ([#2830](https://github.com/ordinals/ord/pull/2830) by [casey](https://github.com/casey))
+- Add dunes to parse command ([#2830](https://github.com/ordinals/ord/pull/2830) by [casey](https://github.com/casey))
 - Update dependencies ([#2828](https://github.com/ordinals/ord/pull/2828) by [casey](https://github.com/casey))
 - Add coverage recipe ([#2846](https://github.com/ordinals/ord/pull/2846) by [casey](https://github.com/casey))
 - Put `Accept-Encoding` value in backticks ([#2840](https://github.com/ordinals/ord/pull/2840) by [casey](https://github.com/casey))
@@ -906,14 +906,14 @@ Changelog
 - Add accept encoding test without qvalues ([#2822](https://github.com/ordinals/ord/pull/2822) by [casey](https://github.com/casey))
 - Italian version of the handbook ([#2801](https://github.com/ordinals/ord/pull/2801) by [DrJingLee](https://github.com/DrJingLee))
 - Preview can mine blocks ([#2809](https://github.com/ordinals/ord/pull/2809) by [raphjaph](https://github.com/raphjaph))
-- Burn input runes if there are no non-op-return outputs ([#2812](https://github.com/ordinals/ord/pull/2812) by [casey](https://github.com/casey))
+- Burn input dunes if there are no non-op-return outputs ([#2812](https://github.com/ordinals/ord/pull/2812) by [casey](https://github.com/casey))
 - Update audit-cache binary ([#2804](https://github.com/ordinals/ord/pull/2804) by [casey](https://github.com/casey))
 
 [0.12.3](https://github.com/ordinals/ord/releases/tag/0.12.3) - 2023-12-01
 --------------------------------------------------------------------------
 
 ### Added
-- Add `ord balances` to show rune balances ([#2782](https://github.com/ordinals/ord/pull/2782) by [casey](https://github.com/casey))
+- Add `ord balances` to show dune balances ([#2782](https://github.com/ordinals/ord/pull/2782) by [casey](https://github.com/casey))
 
 ### Fixed
 - Fix preview test ([#2795](https://github.com/ordinals/ord/pull/2795) by [casey](https://github.com/casey))
@@ -938,7 +938,7 @@ Changelog
 --------------------------------------------------------------------------
 
 ### Added
-- Add commands to etch and list runes ([#2544](https://github.com/ordinals/ord/pull/2544) by [casey](https://github.com/casey))
+- Add commands to etch and list dunes ([#2544](https://github.com/ordinals/ord/pull/2544) by [casey](https://github.com/casey))
 - Add ability to specify sat to batch inscribe ([#2770](https://github.com/ordinals/ord/pull/2770) by [raphjaph](https://github.com/raphjaph))
 - Allow setting the sat to inscribe ([#2765](https://github.com/ordinals/ord/pull/2765) by [raphjaph](https://github.com/raphjaph))
 - Batch inscribe on same sat ([#2749](https://github.com/ordinals/ord/pull/2749) by [raphjaph](https://github.com/raphjaph))
@@ -982,7 +982,7 @@ Changelog
 - Update docs to include all fields, including content-encoding ([#2740](https://github.com/ordinals/ord/pull/2740) by [raphjaph](https://github.com/raphjaph))
 - Ignore flaky test ([#2742](https://github.com/ordinals/ord/pull/2742) by [casey](https://github.com/casey))
 - Add docs and examples for sat recursive endpoint ([#2735](https://github.com/ordinals/ord/pull/2735) by [raphjaph](https://github.com/raphjaph))
-- Remove `RUNE` from `<h1>` on /rune ([#2728](https://github.com/ordinals/ord/pull/2728) by [casey](https://github.com/casey))
+- Remove `DUNE` from `<h1>` on /dune ([#2728](https://github.com/ordinals/ord/pull/2728) by [casey](https://github.com/casey))
 - Add docs for metadata recursive endpoint ([#2734](https://github.com/ordinals/ord/pull/2734) by [raphjaph](https://github.com/raphjaph))
 - Fix typo in docs/src/inscriptions/metadata.md ([#2731](https://github.com/ordinals/ord/pull/2731) by [vuittont60](https://github.com/vuittont60))
 - Only accept sat number in recursive endpoint ([#2732](https://github.com/ordinals/ord/pull/2732) by [raphjaph](https://github.com/raphjaph))
@@ -998,7 +998,7 @@ Changelog
 - Fix unbound outpoint server error ([#2479](https://github.com/ordinals/ord/pull/2479) by [raphjaph](https://github.com/raphjaph))
 - Update schema version for charms ([#2687](https://github.com/ordinals/ord/pull/2687) by [casey](https://github.com/casey))
 - Fix media table formatting ([#2686](https://github.com/ordinals/ord/pull/2686) by [casey](https://github.com/casey))
-- Group rune server tests ([#2685](https://github.com/ordinals/ord/pull/2685) by [casey](https://github.com/casey))
+- Group dune server tests ([#2685](https://github.com/ordinals/ord/pull/2685) by [casey](https://github.com/casey))
 - Don't color links in headers ([#2678](https://github.com/ordinals/ord/pull/2678) by [casey](https://github.com/casey))
 - Remove Index::index_block_inscription_numbers ([#2667](https://github.com/ordinals/ord/pull/2667) by [casey](https://github.com/casey))
 - Fix lost sats bug ([#2666](https://github.com/ordinals/ord/pull/2666) by [raphjaph](https://github.com/raphjaph))
@@ -1045,13 +1045,13 @@ Changelog
 - Move `--enable-json-api` flag to server options ([#2599](https://github.com/ordinals/ord/pull/2599) by [raphjaph](https://github.com/raphjaph))
 - Make server_runs_with_rpc_user_and_pass_as_env_vars test less flaky ([#2580](https://github.com/ordinals/ord/pull/2580) by [casey](https://github.com/casey))
 
-### Runes
+### Dunes
 - Implement open etchings ([#2548](https://github.com/ordinals/ord/pull/2548) by [casey](https://github.com/casey))
-- Add more info to /rune page and link to rune from /tx ([#2528](https://github.com/ordinals/ord/pull/2528) by [casey](https://github.com/casey))
-- Display inscription on /rune ([#2542](https://github.com/ordinals/ord/pull/2542) by [casey](https://github.com/casey))
-- Add rune numbers ([#2557](https://github.com/ordinals/ord/pull/2557) by [casey](https://github.com/casey))
-- Ignore non push opcodes in runestones ([#2553](https://github.com/ordinals/ord/pull/2553) by [casey](https://github.com/casey))
-- Improve rune minimum at height ([#2546](https://github.com/ordinals/ord/pull/2546) by [casey](https://github.com/casey))
+- Add more info to /dune page and link to dune from /tx ([#2528](https://github.com/ordinals/ord/pull/2528) by [casey](https://github.com/casey))
+- Display inscription on /dune ([#2542](https://github.com/ordinals/ord/pull/2542) by [casey](https://github.com/casey))
+- Add dune numbers ([#2557](https://github.com/ordinals/ord/pull/2557) by [casey](https://github.com/casey))
+- Ignore non push opcodes in dunestones ([#2553](https://github.com/ordinals/ord/pull/2553) by [casey](https://github.com/casey))
+- Improve dune minimum at height ([#2546](https://github.com/ordinals/ord/pull/2546) by [casey](https://github.com/casey))
 
 [0.10.0](https://github.com/ordinals/ord/releases/tag/0.10.0) - 2023-10-23
 --------------------------------------------------------------------------
@@ -1110,21 +1110,21 @@ Changelog
 - Update guide with parent-child and json API ([#2429](https://github.com/ordinals/ord/pull/2429) by [elocremarc](https://github.com/elocremarc))
 - Update Japanese handbook version with provenance section ([#2450](https://github.com/ordinals/ord/pull/2450) by [DrJingLee](https://github.com/DrJingLee))
 
-### Runes
+### Dunes
 - Implement splits ([#2530](https://github.com/ordinals/ord/pull/2530) by [casey](https://github.com/casey))
-- Add rune fuzz targets ([#2526](https://github.com/ordinals/ord/pull/2526) by [casey](https://github.com/casey))
-- Allow searching by rune or rune ID ([#2522](https://github.com/ordinals/ord/pull/2522) by [casey](https://github.com/casey))
-- Encode runestones with tags ([#2547](https://github.com/ordinals/ord/pull/2547) by [casey](https://github.com/casey))
-- Edict with zero amount allocates all remaining runes ([#2531](https://github.com/ordinals/ord/pull/2531) by [casey](https://github.com/casey))
-- Always create rune, even if none were allocated ([#2543](https://github.com/ordinals/ord/pull/2543) by [casey](https://github.com/casey))
-- Show rune balances on /output page ([#2527](https://github.com/ordinals/ord/pull/2527) by [casey](https://github.com/casey))
-- Delta encode Rune IDs in edicts ([#2532](https://github.com/ordinals/ord/pull/2532) by [casey](https://github.com/casey))
-- Add test to keep track of runestone size ([#2529](https://github.com/ordinals/ord/pull/2529) by [casey](https://github.com/casey))
-- Show etching and inscription on /rune page ([#2512](https://github.com/ordinals/ord/pull/2512) by [casey](https://github.com/casey))
-- Track burned runes ([#2511](https://github.com/ordinals/ord/pull/2511) by [casey](https://github.com/casey))
+- Add dune fuzz targets ([#2526](https://github.com/ordinals/ord/pull/2526) by [casey](https://github.com/casey))
+- Allow searching by dune or dune ID ([#2522](https://github.com/ordinals/ord/pull/2522) by [casey](https://github.com/casey))
+- Encode dunestones with tags ([#2547](https://github.com/ordinals/ord/pull/2547) by [casey](https://github.com/casey))
+- Edict with zero amount allocates all remaining dunes ([#2531](https://github.com/ordinals/ord/pull/2531) by [casey](https://github.com/casey))
+- Always create dune, even if none were allocated ([#2543](https://github.com/ordinals/ord/pull/2543) by [casey](https://github.com/casey))
+- Show dune balances on /output page ([#2527](https://github.com/ordinals/ord/pull/2527) by [casey](https://github.com/casey))
+- Delta encode Dune IDs in edicts ([#2532](https://github.com/ordinals/ord/pull/2532) by [casey](https://github.com/casey))
+- Add test to keep track of dunestone size ([#2529](https://github.com/ordinals/ord/pull/2529) by [casey](https://github.com/casey))
+- Show etching and inscription on /dune page ([#2512](https://github.com/ordinals/ord/pull/2512) by [casey](https://github.com/casey))
+- Track burned dunes ([#2511](https://github.com/ordinals/ord/pull/2511) by [casey](https://github.com/casey))
 - Don't encode divisibility if zero ([#2510](https://github.com/ordinals/ord/pull/2510) by [casey](https://github.com/casey))
-- Format rune supply using divisibility ([#2509](https://github.com/ordinals/ord/pull/2509) by [casey](https://github.com/casey))
-- Add pre-alpha unstable incomplete half-baked rune index ([#2491](https://github.com/ordinals/ord/pull/2491) by [casey](https://github.com/casey))
+- Format dune supply using divisibility ([#2509](https://github.com/ordinals/ord/pull/2509) by [casey](https://github.com/casey))
+- Add pre-alpha unstable incomplete half-baked dune index ([#2491](https://github.com/ordinals/ord/pull/2491) by [casey](https://github.com/casey))
 
 [0.9.0](https://github.com/ordinals/ord/releases/tag/0.9.0) - 2023-09-11
 ------------------------------------------------------------------------
@@ -1696,7 +1696,7 @@ Changelog
 - Deduct fee before calculating reveal transaction signature ([#780](https://github.com/ordinals/ord/pull/780) by [casey](https://github.com/casey))
 - Remove redundant wallet balance check ([#764](https://github.com/ordinals/ord/pull/764) by [casey](https://github.com/casey))
 - Add `ord wallet inscribe` command ([#658](https://github.com/ordinals/ord/pull/658) by [casey](https://github.com/casey))
-- Remove outdated runes and inscriptions ([#760](https://github.com/ordinals/ord/pull/760) by [casey](https://github.com/casey))
+- Remove outdated dunes and inscriptions ([#760](https://github.com/ordinals/ord/pull/760) by [casey](https://github.com/casey))
 - Prevent progress bar from flickering when synced ([#759](https://github.com/ordinals/ord/pull/759) by [casey](https://github.com/casey))
 - Fix graph command to work with new format ([#755](https://github.com/ordinals/ord/pull/755) by [casey](https://github.com/casey))
 - Track ordinal ranges ([#756](https://github.com/ordinals/ord/pull/756) by [casey](https://github.com/casey))
@@ -1758,13 +1758,13 @@ Changelog
 - Append network to data dir ([#650](https://github.com/ordinals/ord/pull/650) by [casey](https://github.com/casey))
 - Only commit when necessary ([#647](https://github.com/ordinals/ord/pull/647) by [casey](https://github.com/casey))
 - Make rarity text white ([#644](https://github.com/ordinals/ord/pull/644) by [casey](https://github.com/casey))
-- Link to ordinal from rune ([#643](https://github.com/ordinals/ord/pull/643) by [casey](https://github.com/casey))
+- Link to ordinal from dune ([#643](https://github.com/ordinals/ord/pull/643) by [casey](https://github.com/casey))
 - Show inscriptions on /ordinal ([#645](https://github.com/ordinals/ord/pull/645) by [casey](https://github.com/casey))
 - Document search ([#646](https://github.com/ordinals/ord/pull/646) by [casey](https://github.com/casey))
 - Check that RPC server is on correct network ([#642](https://github.com/ordinals/ord/pull/642) by [casey](https://github.com/casey))
 - Add /input page ([#639](https://github.com/ordinals/ord/pull/639) by [casey](https://github.com/casey))
 - Expand search box to fill available space ([#633](https://github.com/ordinals/ord/pull/633) by [casey](https://github.com/casey))
-- Add `ord rune publish` command ([#637](https://github.com/ordinals/ord/pull/637) by [casey](https://github.com/casey))
+- Add `ord dune publish` command ([#637](https://github.com/ordinals/ord/pull/637) by [casey](https://github.com/casey))
 - Add links to docs ([#635](https://github.com/ordinals/ord/pull/635) by [casey](https://github.com/casey))
 - Use docs for name of workflow and directory ([#632](https://github.com/ordinals/ord/pull/632) by [casey](https://github.com/casey))
 - Remove multilingual book config key ([#631](https://github.com/ordinals/ord/pull/631) by [casey](https://github.com/casey))
@@ -1968,7 +1968,7 @@ Changelog
 - Clarify duplicate transaction rule in BIP ([#254](https://github.com/ordinals/ord/pull/254) by [casey](https://github.com/casey))
 - Purge LMDB ([#231](https://github.com/ordinals/ord/pull/231) by [casey](https://github.com/casey))
 - Add justfile with commands for moving ordinals around manually ([#238](https://github.com/ordinals/ord/pull/238) by [casey](https://github.com/casey))
-- Add links to discord server ([#237](https://github.com/ordinals/ord/pull/237) by [casey](https://github.com/casey))
+- Add links to discdog server ([#237](https://github.com/ordinals/ord/pull/237) by [casey](https://github.com/casey))
 - Make `nft verify` take input as argument ([#235](https://github.com/ordinals/ord/pull/235) by [casey](https://github.com/casey))
 - Add --version flag ([#236](https://github.com/ordinals/ord/pull/236) by [casey](https://github.com/casey))
 - Bump version: 0.0.2 → 0.0.3 ([#234](https://github.com/ordinals/ord/pull/234) by [casey](https://github.com/casey))

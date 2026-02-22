@@ -61,7 +61,7 @@ fn sweep() {
 }
 
 #[test]
-fn sweep_needs_rune_index() {
+fn sweep_needs_dune_index() {
   let core = mockcore::spawn();
   let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses"], &[]);
 
@@ -287,7 +287,7 @@ fn sweep_does_not_select_non_cardinal_utxos() {
 
   create_wallet(&core, &dog);
 
-  etch(&core, &dog, Dune(RUNE));
+  etch(&core, &dog, Dune(DUNE));
   inscribe(&core, &dog);
 
   let (inscription, _) = inscribe(&core, &dog);
@@ -315,7 +315,7 @@ fn sweep_does_not_select_non_cardinal_utxos() {
 }
 
 #[test]
-fn complain_if_runes_contained_in_any_of_the_inputs() {
+fn complain_if_dunes_contained_in_any_of_the_inputs() {
   let core = mockcore::builder().network(Network::Regtest).build();
   let dog = TestServer::spawn_with_server_args(
     &core,
@@ -325,7 +325,7 @@ fn complain_if_runes_contained_in_any_of_the_inputs() {
 
   create_wallet(&core, &dog);
 
-  let dune = etch(&core, &dog, Dune(RUNE)).output.dune.unwrap().dune.dune;
+  let dune = etch(&core, &dog, Dune(DUNE)).output.dune.unwrap().dune.dune;
   let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Regtest);

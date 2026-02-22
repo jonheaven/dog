@@ -46,7 +46,7 @@ impl Accept {
       bail!("PSBT contains no inputs owned by wallet");
     };
 
-    if let Some(dunes) = wallet.get_runes_balances_in_output(&outgoing)? {
+    if let Some(dunes) = wallet.get_dunes_balances_in_output(&outgoing)? {
       ensure! {
         dunes.is_empty(),
         "outgoing input {} contains dunes", outgoing,
@@ -102,12 +102,12 @@ impl Accept {
       psbt.unsigned_tx.compute_txid()
     } else {
       let signed_psbt = wallet
-        .bitcoin_client()
+        .dogecoin_client()
         .wallet_process_psbt(&base64_encode(&psbt.serialize()), Some(true), None, None)?
         .psbt;
 
       let signed_tx = wallet
-        .bitcoin_client()
+        .dogecoin_client()
         .finalize_psbt(&signed_psbt, None)?
         .hex
         .ok_or_else(|| anyhow!("unable to sign transaction"))?;

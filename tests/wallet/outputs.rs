@@ -96,14 +96,14 @@ fn outputs_includes_sat_ranges() {
 }
 
 #[test]
-fn outputs_includes_runes_and_inscriptions() {
+fn outputs_includes_dunes_and_inscriptions() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
   create_wallet(&core, &dog);
 
-  let dune = Dune(RUNE);
+  let dune = Dune(DUNE);
 
   let etched = batch(
     &core,

@@ -39,7 +39,7 @@ impl Restore {
   pub(crate) fn run(self, name: String, settings: &Settings) -> SubcommandResult {
     ensure!(
       !settings
-        .bitcoin_rpc_client(None)?
+        .dogecoin_rpc_client(None)?
         .list_wallet_dir()?
         .iter()
         .any(|wallet_name| wallet_name == &name),

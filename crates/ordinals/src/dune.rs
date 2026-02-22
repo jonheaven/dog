@@ -54,7 +54,7 @@ impl Dune {
     self.0
   }
 
-  pub fn first_rune_height(network: Network) -> u32 {
+  pub fn first_dune_height(network: Network) -> u32 {
     SUBSIDY_HALVING_INTERVAL
       * match network {
         Network::Bitcoin => 4,
@@ -68,7 +68,7 @@ impl Dune {
   pub fn minimum_at_height(network: Network, height: Height) -> Self {
     let offset = height.0.saturating_add(1);
 
-    let start = Self::first_rune_height(network);
+    let start = Self::first_dune_height(network);
 
     let end = start + SUBSIDY_HALVING_INTERVAL;
 
@@ -112,7 +112,7 @@ impl Dune {
     let interval = start - end;
     let progress = start - self.0;
 
-    let height = Self::first_rune_height(network)
+    let height = Self::first_dune_height(network)
       + u32::try_from(Self::UNLOCKED - i).unwrap() * Self::UNLOCK_INTERVAL
       + u32::try_from((progress * u128::from(Self::UNLOCK_INTERVAL) - 1) / interval).unwrap();
 
@@ -482,7 +482,7 @@ mod tests {
   }
 
   #[test]
-  fn reserved_rune_unlock_height() {
+  fn reserved_dune_unlock_height() {
     assert_eq!(Dune(Dune::RESERVED).unlock_height(Network::Bitcoin), None);
     assert_eq!(
       Dune(Dune::RESERVED + 1).unlock_height(Network::Bitcoin),
