@@ -11,6 +11,7 @@ pub mod index;
 pub mod list;
 pub mod parse;
 pub mod dunes;
+pub mod scan;
 pub mod server;
 mod settings;
 pub mod subsidy;
@@ -45,6 +46,8 @@ pub(crate) enum Subcommand {
   Parse(parse::Parse),
   #[command(about = "List all dunes")]
   Runes,
+  #[command(about = "Scan a block range for inscriptions (no full index required)")]
+  Scan(scan::ScanCommand),
   #[command(about = "Run the explorer server")]
   Server(server::Server),
   #[command(about = "Display settings")]
@@ -79,6 +82,7 @@ impl Subcommand {
       Self::List(list) => list.run(settings),
       Self::Parse(parse) => parse.run(),
       Self::Runes => dunes::run(settings),
+      Self::Scan(scan) => scan.run(settings),
       Self::Server(server) => {
         let index = Arc::new(Index::open(&settings)?);
         let handle = axum_server::Handle::new();
