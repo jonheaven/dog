@@ -30,7 +30,7 @@ use {
     option_ext::OptionExt,
     outgoing::Outgoing,
     representation::Representation,
-    satscard::Satscard,
+    koinucard::Koinucard,
     settings::Settings,
     signer::Signer,
     subcommand::{OutputFormat, Subcommand, SubcommandResult},
@@ -61,8 +61,8 @@ use {
   clap::{ArgGroup, Parser},
   error::{ResultExt, SnafuError},
   ordinals::{
-    Artifact, Charm, Edict, Epoch, Etching, Height, Pile, Rarity, Rune, RuneId, Runestone, Sat,
-    SatPoint, SpacedRune, Terms, varint,
+    Artifact, Charm, Edict, Epoch, Etching, Height, Pile, Rarity, Dune, DuneId, Dunestone, Koinu,
+    KoinuPoint, SpacedDune, Terms, varint,
   },
   regex::Regex,
   reqwest::{StatusCode, Url, header::HeaderMap},
@@ -98,7 +98,7 @@ use {
 pub use self::{
   chain::Chain,
   fee_rate::FeeRate,
-  index::{Index, RuneEntry},
+  index::{Index, DuneEntry},
   inscriptions::{Envelope, Inscription, InscriptionId, ParsedEnvelope, RawEnvelope},
   object::Object,
   options::Options,
@@ -134,8 +134,8 @@ pub mod outgoing;
 mod properties;
 mod re;
 mod representation;
-pub mod runes;
-mod satscard;
+pub mod dunes;
+mod koinucard;
 pub mod settings;
 mod signer;
 pub mod subcommand;

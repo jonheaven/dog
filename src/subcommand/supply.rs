@@ -19,9 +19,9 @@ pub(crate) fn run() -> SubcommandResult {
   }
 
   Ok(Some(Box::new(Output {
-    supply: Sat::SUPPLY,
+    supply: Koinu::SUPPLY,
     first: 0,
-    last: Sat::SUPPLY - 1,
+    last: Koinu::SUPPLY - 1,
     last_mined_in_block: last,
   })))
 }

@@ -4,7 +4,7 @@ use super::*;
 pub(super) enum Tag {
   Body = 0,
   Flags = 2,
-  Rune = 4,
+  Dune = 4,
   Premine = 6,
   Cap = 8,
   Amount = 10,
@@ -140,11 +140,11 @@ mod tests {
 
     assert_eq!(payload, [2, 3]);
 
-    Tag::Rune.encode([5], &mut payload);
+    Tag::Dune.encode([5], &mut payload);
 
     assert_eq!(payload, [2, 3, 4, 5]);
 
-    Tag::Rune.encode([5, 6], &mut payload);
+    Tag::Dune.encode([5, 6], &mut payload);
 
     assert_eq!(payload, [2, 3, 4, 5, 4, 5, 4, 6]);
   }

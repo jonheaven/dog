@@ -24,7 +24,7 @@ pub(crate) struct Sweep {
   address_type: AddressType,
   #[arg(long, help = "Don't sign or broadcast transaction")]
   dry_run: bool,
-  #[arg(long, help = "Use fee rate of <FEE_RATE> sats/vB")]
+  #[arg(long, help = "Use fee rate of <FEE_RATE> koinu/vB")]
   fee_rate: FeeRate,
 }
 
@@ -32,7 +32,7 @@ impl Sweep {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
       wallet.has_rune_index(),
-      "sweeping private key requires index created with `--index-runes`",
+      "sweeping private key requires index created with `--index-dunes`",
     );
 
     let secp = Secp256k1::new();
@@ -81,8 +81,8 @@ impl Sweep {
         .context("failed to get output info from ord server")?;
 
       ensure! {
-        output.runes.as_ref().unwrap().is_empty(),
-        "output `{outpoint}` contains runes, sweeping runes is not supported",
+        output.dunes.as_ref().unwrap().is_empty(),
+        "output `{outpoint}` contains dunes, sweeping dunes is not supported",
       }
 
       ensure! {

@@ -13,14 +13,14 @@ use super::*;
   DeserializeFromStr,
   SerializeDisplay,
 )]
-pub struct RuneId {
+pub struct DuneId {
   pub block: u64,
   pub tx: u32,
 }
 
-impl RuneId {
-  pub fn new(block: u64, tx: u32) -> Option<RuneId> {
-    let id = RuneId { block, tx };
+impl DuneId {
+  pub fn new(block: u64, tx: u32) -> Option<DuneId> {
+    let id = DuneId { block, tx };
 
     if id.block == 0 && id.tx > 0 {
       return None;
@@ -29,7 +29,7 @@ impl RuneId {
     Some(id)
   }
 
-  pub fn delta(self, next: RuneId) -> Option<(u128, u128)> {
+  pub fn delta(self, next: DuneId) -> Option<(u128, u128)> {
     let block = next.block.checked_sub(self.block)?;
 
     let tx = if block == 0 {
@@ -41,8 +41,8 @@ impl RuneId {
     Some((block.into(), tx.into()))
   }
 
-  pub fn next(self: RuneId, block: u128, tx: u128) -> Option<RuneId> {
-    RuneId::new(
+  pub fn next(self: DuneId, block: u128, tx: u128) -> Option<DuneId> {
+    DuneId::new(
       self.block.checked_add(block.try_into().ok()?)?,
       if block == 0 {
         self.tx.checked_add(tx.try_into().ok()?)?
@@ -53,13 +53,13 @@ impl RuneId {
   }
 }
 
-impl Display for RuneId {
+impl Display for DuneId {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}:{}", self.block, self.tx)
   }
 }
 
-impl FromStr for RuneId {
+impl FromStr for DuneId {
   type Err = Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -98,12 +98,12 @@ mod tests {
   #[test]
   fn delta() {
     let mut expected = [
-      RuneId { block: 3, tx: 1 },
-      RuneId { block: 4, tx: 2 },
-      RuneId { block: 1, tx: 2 },
-      RuneId { block: 1, tx: 1 },
-      RuneId { block: 3, tx: 1 },
-      RuneId { block: 2, tx: 0 },
+      DuneId { block: 3, tx: 1 },
+      DuneId { block: 4, tx: 2 },
+      DuneId { block: 1, tx: 2 },
+      DuneId { block: 1, tx: 1 },
+      DuneId { block: 3, tx: 1 },
+      DuneId { block: 2, tx: 0 },
     ];
 
     expected.sort();
@@ -111,16 +111,16 @@ mod tests {
     assert_eq!(
       expected,
       [
-        RuneId { block: 1, tx: 1 },
-        RuneId { block: 1, tx: 2 },
-        RuneId { block: 2, tx: 0 },
-        RuneId { block: 3, tx: 1 },
-        RuneId { block: 3, tx: 1 },
-        RuneId { block: 4, tx: 2 },
+        DuneId { block: 1, tx: 1 },
+        DuneId { block: 1, tx: 2 },
+        DuneId { block: 2, tx: 0 },
+        DuneId { block: 3, tx: 1 },
+        DuneId { block: 3, tx: 1 },
+        DuneId { block: 4, tx: 2 },
       ]
     );
 
-    let mut previous = RuneId::default();
+    let mut previous = DuneId::default();
     let mut deltas = Vec::new();
     for id in expected {
       deltas.push(previous.delta(id).unwrap());
@@ -129,7 +129,7 @@ mod tests {
 
     assert_eq!(deltas, [(1, 1), (0, 1), (1, 0), (1, 1), (0, 0), (1, 2)]);
 
-    let mut previous = RuneId::default();
+    let mut previous = DuneId::default();
     let mut actual = Vec::new();
     for (block, tx) in deltas {
       let next = previous.next(block, tx).unwrap();
@@ -142,28 +142,28 @@ mod tests {
 
   #[test]
   fn display() {
-    assert_eq!(RuneId { block: 1, tx: 2 }.to_string(), "1:2");
+    assert_eq!(DuneId { block: 1, tx: 2 }.to_string(), "1:2");
   }
 
   #[test]
   fn from_str() {
-    assert!(matches!("123".parse::<RuneId>(), Err(Error::Separator)));
-    assert!(matches!(":".parse::<RuneId>(), Err(Error::Block(_))));
-    assert!(matches!("1:".parse::<RuneId>(), Err(Error::Transaction(_))));
-    assert!(matches!(":2".parse::<RuneId>(), Err(Error::Block(_))));
-    assert!(matches!("a:2".parse::<RuneId>(), Err(Error::Block(_))));
+    assert!(matches!("123".parse::<DuneId>(), Err(Error::Separator)));
+    assert!(matches!(":".parse::<DuneId>(), Err(Error::Block(_))));
+    assert!(matches!("1:".parse::<DuneId>(), Err(Error::Transaction(_))));
+    assert!(matches!(":2".parse::<DuneId>(), Err(Error::Block(_))));
+    assert!(matches!("a:2".parse::<DuneId>(), Err(Error::Block(_))));
     assert!(matches!(
-      "1:a".parse::<RuneId>(),
+      "1:a".parse::<DuneId>(),
       Err(Error::Transaction(_)),
     ));
-    assert_eq!("1:2".parse::<RuneId>().unwrap(), RuneId { block: 1, tx: 2 });
+    assert_eq!("1:2".parse::<DuneId>().unwrap(), DuneId { block: 1, tx: 2 });
   }
 
   #[test]
   fn serde() {
-    let rune_id = RuneId { block: 1, tx: 2 };
+    let dune_id = DuneId { block: 1, tx: 2 };
     let json = "\"1:2\"";
-    assert_eq!(serde_json::to_string(&rune_id).unwrap(), json);
-    assert_eq!(serde_json::from_str::<RuneId>(json).unwrap(), rune_id);
+    assert_eq!(serde_json::to_string(&dune_id).unwrap(), json);
+    assert_eq!(serde_json::from_str::<DuneId>(json).unwrap(), dune_id);
   }
 }

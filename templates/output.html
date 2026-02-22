@@ -8,17 +8,17 @@
 %% }
   </dd>
 %% }
-%% if let Some(runes) = self.runes.as_ref().filter(|runes| !runes.is_empty()) {
-  <dt>runes</dt>
+%% if let Some(runes) = self.dunes.as_ref().filter(|runes| !runes.is_empty()) {
+  <dt>dunes</dt>
   <dd>
     <table>
       <tr>
-        <th>rune</th>
+        <th>dune</th>
         <th>balance</th>
       </tr>
 %% for (rune, balance) in runes {
       <tr>
-        <td><a href=/rune/{{ rune }}>{{ rune }}</a></td>
+        <td><a href=/dune/{{ rune }}>{{ rune }}</a></td>
         <td>{{ balance }}</td>
       </tr>
 %% }
@@ -34,16 +34,16 @@
   <dt>confirmations</dt><dd>{{ self.confirmations }}</dd>
   <dt>spent</dt><dd>{{ self.spent }}</dd>
 </dl>
-%% if let Some(sat_ranges) = &self.sat_ranges {
-<h2>{{"Sat Range".tally(sat_ranges.len())}}</h2>
+%% if let Some(sat_ranges) = &self.koinu_ranges {
+<h2>{{"Koinu Range".tally(sat_ranges.len())}}</h2>
 <ul class=monospace>
 %% for (start, end) in sat_ranges {
 %% let value = end - start;
 %% let last = end - 1;
 %% if value == 1 {
-  <li><a href=/sat/{{start}} class={{Sat(*start).rarity()}}>{{start}}</a></li>
+  <li><a href=/koinu/{{start}} class={{Koinu(*start).rarity()}}>{{start}}</a></li>
 %% } else {
-  <li><a href=/sat/{{start}} class={{Sat(*start).rarity()}}>{{start}}</a>-<a href=/sat/{{last}} class=common>{{last}}</a> ({{value}} sats)</li>
+  <li><a href=/koinu/{{start}} class={{Koinu(*start).rarity()}}>{{start}}</a>-<a href=/koinu/{{last}} class=common>{{last}}</a> ({{value}} koinu)</li>
 %% }
 %% }
 </ul>

@@ -22,7 +22,7 @@ pub mod receive;
 pub mod restore;
 pub mod resume;
 pub mod runics;
-pub mod sats;
+pub mod koinu;
 pub mod send;
 mod shared_args;
 pub mod sign;
@@ -32,7 +32,7 @@ pub mod transactions;
 
 #[derive(Debug, Parser)]
 pub(crate) struct WalletCommand {
-  #[arg(long, default_value = "ord", help = "Use wallet named <WALLET>.")]
+  #[arg(long, default_value = "dog", help = "Use wallet named <WALLET>.")]
   pub(crate) name: String,
   #[arg(long, alias = "nosync", help = "Do not update index.")]
   pub(crate) no_sync: bool,
@@ -52,7 +52,7 @@ pub(crate) enum Subcommand {
   Addresses,
   #[command(about = "Get wallet balance")]
   Balance,
-  #[command(about = "Create inscriptions and runes")]
+  #[command(about = "Create inscriptions and dunes")]
   Batch(batch_command::Batch),
   #[command(about = "Burn an inscription")]
   Burn(burn::Burn),
@@ -68,7 +68,7 @@ pub(crate) enum Subcommand {
   Inscriptions,
   #[command(about = "Export output labels")]
   Label,
-  #[command(about = "Mint a rune")]
+  #[command(about = "Mint a dune")]
   Mint(mint::Mint),
   #[command(subcommand, about = "Offer commands")]
   Offer(offer::Offer),
@@ -84,8 +84,8 @@ pub(crate) enum Subcommand {
   Resume(resume::Resume),
   #[command(about = "List unspent runic outputs in wallet")]
   Runics,
-  #[command(about = "List wallet satoshis")]
-  Sats(sats::Sats),
+  #[command(about = "List wallet koinus")]
+  Sats(koinu::Sats),
   #[command(about = "Send sat or inscription")]
   Send(send::Send),
   #[command(about = "Sign message")]
@@ -138,7 +138,7 @@ impl WalletCommand {
       Subcommand::Receive(receive) => receive.run(wallet),
       Subcommand::Resume(resume) => resume.run(wallet),
       Subcommand::Runics => runics::run(wallet),
-      Subcommand::Sats(sats) => sats.run(wallet),
+      Subcommand::Sats(koinu) => koinu.run(wallet),
       Subcommand::Send(send) => send.run(wallet),
       Subcommand::Sign(sign) => sign.run(wallet),
       Subcommand::Split(split) => split.run(wallet),

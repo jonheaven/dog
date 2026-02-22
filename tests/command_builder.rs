@@ -136,9 +136,9 @@ impl CommandBuilder {
     }
   }
 
-  pub(crate) fn ord(self, ord: &TestServer) -> Self {
+  pub(crate) fn dog(self, dog: &TestServer) -> Self {
     Self {
-      ord_url: Some(ord.url()),
+      ord_url: Some(dog.url()),
       ..self
     }
   }
@@ -190,7 +190,7 @@ impl CommandBuilder {
   }
 
   pub(crate) fn command(&self) -> Command {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_ord"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_dog"));
 
     if let Some(rpc_server_url) = &self.core_url {
       command.args([

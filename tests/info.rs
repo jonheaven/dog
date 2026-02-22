@@ -1,14 +1,14 @@
-use {super::*, ord::subcommand::index::info::TransactionsOutput};
+use {super::*, dog::subcommand::index::info::TransactionsOutput};
 
 #[test]
-fn json_with_satoshi_index() {
+fn json_with_koinu_index() {
   let core = mockcore::spawn();
 
-  let (tempdir, _) = CommandBuilder::new("--index-sats index update")
+  let (tempdir, _) = CommandBuilder::new("--index-koinu index update")
     .core(&core)
     .run();
 
-  CommandBuilder::new("--index-sats index info")
+  CommandBuilder::new("--index-koinu index info")
     .temp_dir(tempdir)
     .core(&core)
     .stdout_regex(
@@ -22,7 +22,7 @@ fn json_with_satoshi_index() {
   "metadata_bytes": \d+,
   "outputs_traversed": 1,
   "page_size": \d+,
-  "sat_ranges": 1,
+  "koinu_ranges": 1,
   "stored_bytes": \d+,
   "tables": .*,
   "total_bytes": \d+,
@@ -41,7 +41,7 @@ fn json_with_satoshi_index() {
 }
 
 #[test]
-fn json_without_satoshi_index() {
+fn json_without_koinu_index() {
   let core = mockcore::spawn();
 
   let (tempdir, _) = CommandBuilder::new("index update").core(&core).run();
@@ -60,7 +60,7 @@ fn json_without_satoshi_index() {
   "metadata_bytes": \d+,
   "outputs_traversed": 0,
   "page_size": \d+,
-  "sat_ranges": 0,
+  "koinu_ranges": 0,
   "stored_bytes": \d+,
   "tables": .*,
   "total_bytes": \d+,

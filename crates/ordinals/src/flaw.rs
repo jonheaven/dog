@@ -4,7 +4,7 @@ use super::*;
 #[serde(rename_all = "kebab-case")]
 pub enum Flaw {
   EdictOutput,
-  EdictRuneId,
+  EdictDuneId,
   InvalidScript,
   Opcode,
   SupplyOverflow,
@@ -19,7 +19,7 @@ impl Display for Flaw {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     match self {
       Self::EdictOutput => write!(f, "edict output greater than transaction output count"),
-      Self::EdictRuneId => write!(f, "invalid rune ID in edict"),
+      Self::EdictDuneId => write!(f, "invalid dune ID in edict"),
       Self::InvalidScript => write!(f, "invalid script in OP_RETURN"),
       Self::Opcode => write!(f, "non-pushdata opcode in OP_RETURN"),
       Self::SupplyOverflow => write!(f, "supply overflows u128"),

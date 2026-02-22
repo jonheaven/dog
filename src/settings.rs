@@ -156,11 +156,9 @@ impl Settings {
       bitcoin_rpc_url: options.bitcoin_rpc_url,
       bitcoin_rpc_username: options.bitcoin_rpc_username,
       chain: options
-        .signet
-        .then_some(Chain::Signet)
-        .or(options.regtest.then_some(Chain::Regtest))
-        .or(options.testnet.then_some(Chain::Testnet))
-        .or(options.testnet4.then_some(Chain::Testnet4))
+        .regtest
+        .then_some(Chain::DogecoinRegtest)
+        .or(options.testnet.then_some(Chain::DogecoinTestnet))
         .or(options.chain_argument),
       commit_interval: options.commit_interval,
       config: options.config,
@@ -283,7 +281,7 @@ impl Settings {
       bitcoin_rpc_password: None,
       bitcoin_rpc_url: Some(rpc_url.into()),
       bitcoin_rpc_username: None,
-      chain: Some(Chain::Regtest),
+      chain: Some(Chain::DogecoinRegtest),
       commit_interval: None,
       config: None,
       config_dir: None,
@@ -314,24 +312,14 @@ impl Settings {
     let bitcoin_data_dir = match &self.bitcoin_data_dir {
       Some(bitcoin_data_dir) => bitcoin_data_dir.clone(),
       None => {
-        if chain.is_dogecoin() {
-          if cfg!(target_os = "linux") {
-            dirs::home_dir()
-              .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
-              .join(".dogecoin")
-          } else {
-            dirs::data_dir()
-              .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
-              .join("Dogecoin")
-          }
-        } else if cfg!(target_os = "linux") {
+        if cfg!(target_os = "linux") {
           dirs::home_dir()
             .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
-            .join(".bitcoin")
+            .join(".dogecoin")
         } else {
           dirs::data_dir()
             .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
-            .join("Bitcoin")
+            .join("Dogecoin")
         }
       }
     };
@@ -398,7 +386,7 @@ impl Settings {
     Ok(
       dirs::data_dir()
         .context("could not get data dir")?
-        .join("ord"),
+        .join("dog"),
     )
   }
 
@@ -420,7 +408,7 @@ impl Settings {
     let bitcoin_credentials = self.bitcoin_credentials()?;
 
     log::trace!(
-      "Connecting to Bitcoin Core at {}",
+      "Connecting to Dogecoin Core at {}",
       self.bitcoin_rpc_url(None)
     );
 
@@ -439,7 +427,7 @@ impl Settings {
 
     let client = Client::new(&rpc_url, bitcoin_credentials.clone()).with_context(|| {
       format!(
-        "failed to connect to Bitcoin Core RPC at `{rpc_url}` with {}",
+        "failed to connect to Dogecoin Core RPC at `{rpc_url}` with {}",
         match bitcoin_credentials {
           Auth::None => "no credentials".into(),
           Auth::UserPass(_, _) => "username and password".into(),
@@ -454,24 +442,12 @@ impl Settings {
     let rpc_chain = loop {
       match client.get_blockchain_info() {
         Ok(blockchain_info) => {
-          // Dogecoin Core returns "main"/"test"/"regtest"; Bitcoin Core
-          // returns "bitcoin"/"testnet"/"signet"/"regtest"/"testnet4".
-          break if ord_chain.is_dogecoin() {
-            match blockchain_info.chain.to_string().as_str() {
-              "main" => Chain::Dogecoin,
-              "test" => Chain::DogecoinTestnet,
-              "regtest" => Chain::DogecoinRegtest,
-              other => bail!("Dogecoin RPC server on unknown chain: {other}"),
-            }
-          } else {
-            match blockchain_info.chain.to_string().as_str() {
-              "bitcoin" => Chain::Mainnet,
-              "regtest" => Chain::Regtest,
-              "signet" => Chain::Signet,
-              "testnet" => Chain::Testnet,
-              "testnet4" => Chain::Testnet4,
-              other => bail!("Bitcoin RPC server on unknown chain: {other}"),
-            }
+          // Dogecoin Core returns "main"/"test"/"regtest".
+          break match blockchain_info.chain.to_string().as_str() {
+            "main" => Chain::Dogecoin,
+            "test" => Chain::DogecoinTestnet,
+            "regtest" => Chain::DogecoinRegtest,
+            other => bail!("Dogecoin RPC server on unknown chain: {other}"),
           };
         }
         Err(bitcoincore_rpc::Error::JsonRpc(bitcoincore_rpc::jsonrpc::Error::Rpc(err)))
@@ -490,7 +466,7 @@ impl Settings {
     };
 
     if rpc_chain != ord_chain {
-      bail!("RPC server is on {rpc_chain} but ord is on {ord_chain}");
+      bail!("RPC server is on {rpc_chain} but dog is on {ord_chain}");
     }
 
     Ok(client)
@@ -520,24 +496,14 @@ impl Settings {
     let chain = self.chain();
     let path = if let Some(bitcoin_data_dir) = &self.bitcoin_data_dir {
       bitcoin_data_dir.clone()
-    } else if chain.is_dogecoin() {
-      if cfg!(target_os = "linux") {
-        dirs::home_dir()
-          .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
-          .join(".dogecoin")
-      } else {
-        dirs::data_dir()
-          .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
-          .join("Dogecoin")
-      }
     } else if cfg!(target_os = "linux") {
       dirs::home_dir()
         .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
-        .join(".bitcoin")
+        .join(".dogecoin")
     } else {
       dirs::data_dir()
         .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
-        .join("Bitcoin")
+        .join("Dogecoin")
     };
 
     let path = chain.join_with_data_dir(path);
@@ -638,7 +604,7 @@ mod tests {
   use super::*;
 
   fn parse(args: &[&str]) -> Settings {
-    let args = iter::once("ord")
+    let args = iter::once("dog")
       .chain(args.iter().copied())
       .collect::<Vec<&str>>();
     Settings::from_options(Options::try_parse_from(args).unwrap())
@@ -706,10 +672,10 @@ mod tests {
   #[test]
   fn auth_with_cookie_file() {
     assert_eq!(
-      parse(&["--cookie-file=/var/lib/Bitcoin/.cookie"])
+      parse(&["--cookie-file=/var/lib/Dogecoin/.cookie"])
         .bitcoin_credentials()
         .unwrap(),
-      Auth::CookieFile("/var/lib/Bitcoin/.cookie".into())
+      Auth::CookieFile("/var/lib/Dogecoin/.cookie".into())
     );
   }
 
@@ -727,7 +693,9 @@ mod tests {
 
   #[test]
   fn rpc_server_chain_must_match() {
-    let core = mockcore::builder().network(Network::Testnet).build();
+    // Connect a regtest mockcore to a dog instance configured for dogecoin mainnet.
+    // The chain mismatch should be detected.
+    let core = mockcore::builder().network(Network::Regtest).build();
 
     let settings = parse(&[
       "--cookie-file",
@@ -738,14 +706,15 @@ mod tests {
 
     assert_eq!(
       settings.bitcoin_rpc_client(None).unwrap_err().to_string(),
-      "Bitcoin RPC server is on testnet but ord is on mainnet"
+      "RPC server is on dogecoin-regtest but dog is on dogecoin"
     );
   }
 
   #[test]
   fn rpc_url_overrides_network() {
     assert_eq!(
-      parse(&["--bitcoin-rpc-url=127.0.0.1:1234", "--chain=signet"]).bitcoin_rpc_url(None),
+      parse(&["--bitcoin-rpc-url=127.0.0.1:1234", "--chain=dogecoin-testnet"])
+        .bitcoin_rpc_url(None),
       "127.0.0.1:1234/"
     );
   }
@@ -753,7 +722,7 @@ mod tests {
   #[test]
   fn cookie_file_overrides_network() {
     assert_eq!(
-      parse(&["--cookie-file=/foo/bar", "--chain=signet"])
+      parse(&["--cookie-file=/foo/bar", "--chain=dogecoin-testnet"])
         .cookie_file()
         .unwrap(),
       Path::new("/foo/bar")
@@ -764,16 +733,16 @@ mod tests {
   fn use_default_network() {
     let settings = parse(&[]);
 
-    assert_eq!(settings.bitcoin_rpc_url(None), "127.0.0.1:8332/");
+    assert_eq!(settings.bitcoin_rpc_url(None), "127.0.0.1:22555/");
 
     assert!(settings.cookie_file().unwrap().ends_with(".cookie"));
   }
 
   #[test]
   fn uses_network_defaults() {
-    let settings = parse(&["--chain=signet"]);
+    let settings = parse(&["--chain=dogecoin-testnet"]);
 
-    assert_eq!(settings.bitcoin_rpc_url(None), "127.0.0.1:38332/");
+    assert_eq!(settings.bitcoin_rpc_url(None), "127.0.0.1:44555/");
 
     assert!(
       settings
@@ -782,9 +751,9 @@ mod tests {
         .display()
         .to_string()
         .ends_with(if cfg!(windows) {
-          r"\signet\.cookie"
+          r"\testnet3\.cookie"
         } else {
-          "/signet/.cookie"
+          "/testnet3/.cookie"
         })
     );
   }
@@ -794,57 +763,58 @@ mod tests {
     let cookie_file = parse(&[]).cookie_file().unwrap().display().to_string();
 
     assert!(cookie_file.ends_with(if cfg!(target_os = "linux") {
-      "/.bitcoin/.cookie"
+      "/.dogecoin/.cookie"
     } else if cfg!(windows) {
-      r"\Bitcoin\.cookie"
+      r"\Dogecoin\.cookie"
     } else {
-      "/Bitcoin/.cookie"
+      "/Dogecoin/.cookie"
     }))
   }
 
   #[test]
   fn othernet_cookie_file_path() {
-    let cookie_file = parse(&["--chain=signet"])
+    let cookie_file = parse(&["--chain=dogecoin-testnet"])
       .cookie_file()
       .unwrap()
       .display()
       .to_string();
 
     assert!(cookie_file.ends_with(if cfg!(target_os = "linux") {
-      "/.bitcoin/signet/.cookie"
+      "/.dogecoin/testnet3/.cookie"
     } else if cfg!(windows) {
-      r"\Bitcoin\signet\.cookie"
+      r"\Dogecoin\testnet3\.cookie"
     } else {
-      "/Bitcoin/signet/.cookie"
+      "/Dogecoin/testnet3/.cookie"
     }));
 
-    let cookie_file = parse(&["--testnet4"])
+    let cookie_file = parse(&["--regtest"])
       .cookie_file()
       .unwrap()
       .display()
       .to_string();
 
     assert!(cookie_file.ends_with(if cfg!(target_os = "linux") {
-      "/.bitcoin/testnet4/.cookie"
+      "/.dogecoin/regtest/.cookie"
     } else if cfg!(windows) {
-      r"\Bitcoin\testnet4\.cookie"
+      r"\Dogecoin\regtest\.cookie"
     } else {
-      "/Bitcoin/testnet4/.cookie"
+      "/Dogecoin/regtest/.cookie"
     }));
   }
 
   #[test]
   fn cookie_file_defaults_to_bitcoin_data_dir() {
-    let cookie_file = parse(&["--bitcoin-data-dir=foo", "--chain=signet"])
-      .cookie_file()
-      .unwrap()
-      .display()
-      .to_string();
+    let cookie_file =
+      parse(&["--bitcoin-data-dir=foo", "--chain=dogecoin-testnet"])
+        .cookie_file()
+        .unwrap()
+        .display()
+        .to_string();
 
     assert!(cookie_file.ends_with(if cfg!(windows) {
-      r"foo\signet\.cookie"
+      r"foo\testnet3\.cookie"
     } else {
-      "foo/signet/.cookie"
+      "foo/testnet3/.cookie"
     }));
   }
 
@@ -852,19 +822,22 @@ mod tests {
   fn mainnet_data_dir() {
     let data_dir = parse(&[]).data_dir().display().to_string();
     assert!(
-      data_dir.ends_with(if cfg!(windows) { r"\ord" } else { "/ord" }),
+      data_dir.ends_with(if cfg!(windows) { r"\dog" } else { "/dog" }),
       "{data_dir}"
     );
   }
 
   #[test]
   fn othernet_data_dir() {
-    let data_dir = parse(&["--chain=signet"]).data_dir().display().to_string();
+    let data_dir = parse(&["--chain=dogecoin-regtest"])
+      .data_dir()
+      .display()
+      .to_string();
     assert!(
       data_dir.ends_with(if cfg!(windows) {
-        r"\ord\signet"
+        r"\dog\regtest"
       } else {
-        "/ord/signet"
+        "/dog/regtest"
       }),
       "{data_dir}"
     );
@@ -872,15 +845,15 @@ mod tests {
 
   #[test]
   fn network_is_joined_with_data_dir() {
-    let data_dir = parse(&["--chain=signet", "--datadir=foo"])
+    let data_dir = parse(&["--chain=dogecoin-regtest", "--datadir=foo"])
       .data_dir()
       .display()
       .to_string();
     assert!(
       data_dir.ends_with(if cfg!(windows) {
-        r"foo\signet"
+        r"foo\regtest"
       } else {
-        "foo/signet"
+        "foo/regtest"
       }),
       "{data_dir}"
     );
@@ -895,81 +868,69 @@ mod tests {
       assert!(data_dir.ends_with(suffix), "{data_dir}");
     }
 
-    check_network_alias("main", "ord");
-    check_network_alias("mainnet", "ord");
+    check_network_alias("dogecoin", "dog");
+    check_network_alias("doge", "dog");
+    check_network_alias("mainnet", "dog");
     check_network_alias(
       "regtest",
       if cfg!(windows) {
-        r"ord\regtest"
+        r"dog\regtest"
       } else {
-        "ord/regtest"
+        "dog/regtest"
       },
     );
     check_network_alias(
-      "signet",
+      "dogecoin-regtest",
       if cfg!(windows) {
-        r"ord\signet"
+        r"dog\regtest"
       } else {
-        "ord/signet"
-      },
-    );
-    check_network_alias(
-      "test",
-      if cfg!(windows) {
-        r"ord\testnet3"
-      } else {
-        "ord/testnet3"
+        "dog/regtest"
       },
     );
     check_network_alias(
       "testnet",
       if cfg!(windows) {
-        r"ord\testnet3"
+        r"dog\testnet3"
       } else {
-        "ord/testnet3"
+        "dog/testnet3"
       },
     );
     check_network_alias(
-      "testnet4",
+      "dogecoin-testnet",
       if cfg!(windows) {
-        r"ord\testnet4"
+        r"dog\testnet3"
       } else {
-        "ord/testnet4"
+        "dog/testnet3"
       },
     );
   }
 
   #[test]
   fn chain_flags() {
-    Arguments::try_parse_from(["ord", "--signet", "--chain", "signet", "index", "update"])
+    Arguments::try_parse_from(["dog", "--regtest", "--chain", "dogecoin-testnet", "index", "update"])
       .unwrap_err();
-    assert_eq!(parse(&["--signet"]).chain(), Chain::Signet);
-    assert_eq!(parse(&["-s"]).chain(), Chain::Signet);
+    assert_eq!(parse(&["--regtest"]).chain(), Chain::DogecoinRegtest);
+    assert_eq!(parse(&["-r"]).chain(), Chain::DogecoinRegtest);
 
-    Arguments::try_parse_from(["ord", "--regtest", "--chain", "signet", "index", "update"])
+    Arguments::try_parse_from(["dog", "--testnet", "--chain", "dogecoin-regtest", "index", "update"])
       .unwrap_err();
-    assert_eq!(parse(&["--regtest"]).chain(), Chain::Regtest);
-    assert_eq!(parse(&["-r"]).chain(), Chain::Regtest);
-
-    Arguments::try_parse_from(["ord", "--testnet", "--chain", "signet", "index", "update"])
-      .unwrap_err();
-    assert_eq!(parse(&["--testnet"]).chain(), Chain::Testnet);
-    assert_eq!(parse(&["-t"]).chain(), Chain::Testnet);
+    assert_eq!(parse(&["--testnet"]).chain(), Chain::DogecoinTestnet);
+    assert_eq!(parse(&["-t"]).chain(), Chain::DogecoinTestnet);
   }
 
   #[test]
   fn wallet_flag_overrides_default_name() {
-    assert_eq!(wallet("ord wallet create").1.name, "ord");
-    assert_eq!(wallet("ord wallet --name foo create").1.name, "foo")
+    assert_eq!(wallet("dog wallet create").1.name, "dog");
+    assert_eq!(wallet("dog wallet --name foo create").1.name, "foo")
   }
 
   #[test]
   fn uses_wallet_rpc() {
-    let (settings, _) = wallet("ord wallet --name foo balance");
+    let (settings, _) = wallet("dog wallet --name foo balance");
 
     assert_eq!(
       settings.bitcoin_rpc_url(Some("foo".into())),
-      "127.0.0.1:8332/wallet/foo"
+      "127.0.0.1:22555/wallet/foo"
     );
   }
 
@@ -984,28 +945,29 @@ mod tests {
   #[test]
   fn setting_commit_interval() {
     let arguments =
-      Arguments::try_parse_from(["ord", "--commit-interval", "500", "index", "update"]).unwrap();
+      Arguments::try_parse_from(["dog", "--commit-interval", "500", "index", "update"]).unwrap();
     assert_eq!(arguments.options.commit_interval, Some(500));
   }
 
   #[test]
   fn setting_savepoint_interval() {
     let arguments =
-      Arguments::try_parse_from(["ord", "--savepoint-interval", "500", "index", "update"]).unwrap();
+      Arguments::try_parse_from(["dog", "--savepoint-interval", "500", "index", "update"])
+        .unwrap();
     assert_eq!(arguments.options.savepoint_interval, Some(500));
   }
 
   #[test]
   fn setting_max_savepoints() {
     let arguments =
-      Arguments::try_parse_from(["ord", "--max-savepoints", "10", "index", "update"]).unwrap();
+      Arguments::try_parse_from(["dog", "--max-savepoints", "10", "index", "update"]).unwrap();
     assert_eq!(arguments.options.max_savepoints, Some(10));
   }
 
   #[test]
   fn index_runes() {
-    assert!(parse(&["--chain=signet", "--index-runes"]).index_runes_raw());
-    assert!(parse(&["--index-runes"]).index_runes_raw());
+    assert!(parse(&["--chain=dogecoin-testnet", "--index-dunes"]).index_runes_raw());
+    assert!(parse(&["--index-dunes"]).index_runes_raw());
     assert!(!parse(&[]).index_runes_raw());
   }
 
@@ -1094,12 +1056,12 @@ mod tests {
   #[test]
   fn from_env() {
     let env = vec![
-      ("BITCOIN_DATA_DIR", "/bitcoin/data/dir"),
+      ("BITCOIN_DATA_DIR", "/dogecoin/data/dir"),
       ("BITCOIN_RPC_LIMIT", "12"),
-      ("BITCOIN_RPC_PASSWORD", "bitcoin password"),
+      ("BITCOIN_RPC_PASSWORD", "dogecoin password"),
       ("BITCOIN_RPC_URL", "url"),
-      ("BITCOIN_RPC_USERNAME", "bitcoin username"),
-      ("CHAIN", "signet"),
+      ("BITCOIN_RPC_USERNAME", "dogecoin username"),
+      ("CHAIN", "dogecoin-testnet"),
       ("COMMIT_INTERVAL", "1"),
       ("CONFIG", "config"),
       ("CONFIG_DIR", "config dir"),
@@ -1129,12 +1091,12 @@ mod tests {
     pretty_assert_eq!(
       Settings::from_env(env).unwrap(),
       Settings {
-        bitcoin_data_dir: Some("/bitcoin/data/dir".into()),
+        bitcoin_data_dir: Some("/dogecoin/data/dir".into()),
         bitcoin_rpc_limit: Some(12),
-        bitcoin_rpc_password: Some("bitcoin password".into()),
+        bitcoin_rpc_password: Some("dogecoin password".into()),
         bitcoin_rpc_url: Some("url".into()),
-        bitcoin_rpc_username: Some("bitcoin username".into()),
-        chain: Some(Chain::Signet),
+        bitcoin_rpc_username: Some("dogecoin username".into()),
+        chain: Some(Chain::DogecoinTestnet),
         commit_interval: Some(1),
         savepoint_interval: Some(10),
         max_savepoints: Some(2),
@@ -1176,13 +1138,13 @@ mod tests {
     pretty_assert_eq!(
       Settings::from_options(
         Options::try_parse_from([
-          "ord",
-          "--bitcoin-data-dir=/bitcoin/data/dir",
+          "dog",
+          "--bitcoin-data-dir=/dogecoin/data/dir",
           "--bitcoin-rpc-limit=12",
-          "--bitcoin-rpc-password=bitcoin password",
+          "--bitcoin-rpc-password=dogecoin password",
           "--bitcoin-rpc-url=url",
-          "--bitcoin-rpc-username=bitcoin username",
-          "--chain=signet",
+          "--bitcoin-rpc-username=dogecoin username",
+          "--chain=dogecoin-testnet",
           "--commit-interval=1",
           "--savepoint-interval=10",
           "--max-savepoints=2",
@@ -1193,8 +1155,8 @@ mod tests {
           "--height-limit=3",
           "--index-addresses",
           "--index-cache-size=4",
-          "--index-runes",
-          "--index-sats",
+          "--index-dunes",
+          "--index-koinu",
           "--index-transactions",
           "--index=index",
           "--integration-test",
@@ -1205,12 +1167,12 @@ mod tests {
         .unwrap()
       ),
       Settings {
-        bitcoin_data_dir: Some("/bitcoin/data/dir".into()),
+        bitcoin_data_dir: Some("/dogecoin/data/dir".into()),
         bitcoin_rpc_limit: Some(12),
-        bitcoin_rpc_password: Some("bitcoin password".into()),
+        bitcoin_rpc_password: Some("dogecoin password".into()),
         bitcoin_rpc_url: Some("url".into()),
-        bitcoin_rpc_username: Some("bitcoin username".into()),
-        chain: Some(Chain::Signet),
+        bitcoin_rpc_username: Some("dogecoin username".into()),
+        chain: Some(Chain::DogecoinTestnet),
         commit_interval: Some(1),
         savepoint_interval: Some(10),
         max_savepoints: Some(2),
@@ -1255,7 +1217,7 @@ mod tests {
     fs::write(&config_path, serde_yaml::to_string(&config).unwrap()).unwrap();
 
     let options =
-      Options::try_parse_from(["ord", "--config", config_path.to_str().unwrap()]).unwrap();
+      Options::try_parse_from(["dog", "--config", config_path.to_str().unwrap()]).unwrap();
 
     pretty_assert_eq!(
       Settings::merge(options.clone(), Default::default())
@@ -1270,7 +1232,7 @@ mod tests {
     );
 
     let options = Options::try_parse_from([
-      "ord",
+      "dog",
       "--index=option",
       "--config",
       config_path.to_str().unwrap(),

@@ -6,7 +6,7 @@ pub(crate) struct Batch {
   shared: SharedArgs,
   #[arg(
     long,
-    help = "Inscribe multiple inscriptions and rune defined in YAML <BATCH_FILE>.",
+    help = "Inscribe multiple inscriptions and dune defined in YAML <BATCH_FILE>.",
     value_name = "BATCH_FILE"
   )]
   pub(crate) batch: PathBuf,
@@ -80,14 +80,14 @@ impl Batch {
   }
 
   fn check_etching(wallet: &Wallet, etching: &batch::Etching) -> Result {
-    let rune = etching.rune.rune;
+    let dune = etching.dune.dune;
 
     ensure!(
-      wallet.load_etching(rune)?.is_none(),
-      "rune `{rune}` has pending etching, resume with `ord wallet resume`"
+      wallet.load_etching(dune)?.is_none(),
+      "dune `{dune}` has pending etching, resume with `ord wallet resume`"
     );
 
-    ensure!(!rune.is_reserved(), "rune `{rune}` is reserved");
+    ensure!(!dune.is_reserved(), "dune `{dune}` is reserved");
 
     ensure!(
       etching.divisibility <= Etching::MAX_DIVISIBILITY,
@@ -96,12 +96,12 @@ impl Batch {
 
     ensure!(
       wallet.has_rune_index(),
-      "etching runes requires index created with `--index-runes`",
+      "etching dunes requires index created with `--index-dunes`",
     );
 
     ensure!(
-      wallet.get_rune(rune)?.is_none(),
-      "rune `{rune}` has already been etched",
+      wallet.get_rune(dune)?.is_none(),
+      "dune `{dune}` has already been etched",
     );
 
     let premine = etching.premine.to_integer(etching.divisibility)?;
@@ -133,13 +133,13 @@ impl Batch {
 
     let current_height = u32::try_from(bitcoin_client.get_block_count()?).unwrap();
 
-    let reveal_height = current_height + u32::from(Runestone::COMMIT_CONFIRMATIONS);
+    let reveal_height = current_height + u32::from(Dunestone::COMMIT_CONFIRMATIONS);
 
-    let first_rune_height = Rune::first_rune_height(wallet.chain().into());
+    let first_rune_height = Dune::first_rune_height(wallet.chain().into());
 
     ensure!(
       reveal_height >= first_rune_height,
-      "rune reveal height below rune activation height: {reveal_height} < {first_rune_height}",
+      "dune reveal height below dune activation height: {reveal_height} < {first_rune_height}",
     );
 
     if let Some(terms) = etching.terms {
@@ -179,11 +179,11 @@ impl Batch {
       );
     }
 
-    let minimum = Rune::minimum_at_height(wallet.chain().into(), Height(reveal_height));
+    let minimum = Dune::minimum_at_height(wallet.chain().into(), Height(reveal_height));
 
     ensure!(
-      rune >= minimum,
-      "rune is less than minimum for next block: {rune} < {minimum}",
+      dune >= minimum,
+      "dune is less than minimum for next block: {dune} < {minimum}",
     );
 
     Ok(())

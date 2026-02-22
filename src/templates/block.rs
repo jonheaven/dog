@@ -8,7 +8,7 @@ pub(crate) struct BlockHtml {
   hash: BlockHash,
   height: Height,
   inscription_count: usize,
-  runes: Vec<SpacedRune>,
+  dunes: Vec<SpacedDune>,
   target: BlockHash,
 }
 
@@ -19,7 +19,7 @@ impl BlockHtml {
     best_height: Height,
     inscription_count: usize,
     featured_inscriptions: Vec<InscriptionId>,
-    runes: Vec<SpacedRune>,
+    dunes: Vec<SpacedDune>,
   ) -> Self {
     Self {
       hash: block.header.block_hash(),
@@ -29,7 +29,7 @@ impl BlockHtml {
       best_height,
       inscription_count,
       featured_inscriptions,
-      runes,
+      dunes,
     }
   }
 }
@@ -48,7 +48,7 @@ mod tests {
   fn html() {
     assert_regex_match!(
       BlockHtml::new(
-        Chain::Mainnet.genesis_block(),
+        Chain::Dogecoin.genesis_block(),
         Height(0),
         Height(0),
         0,
@@ -85,7 +85,7 @@ mod tests {
   fn next_active_when_not_last() {
     assert_regex_match!(
       BlockHtml::new(
-        Chain::Mainnet.genesis_block(),
+        Chain::Dogecoin.genesis_block(),
         Height(0),
         Height(1),
         0,
@@ -100,7 +100,7 @@ mod tests {
   fn prev_active_when_not_first() {
     assert_regex_match!(
       BlockHtml::new(
-        Chain::Mainnet.genesis_block(),
+        Chain::Dogecoin.genesis_block(),
         Height(1),
         Height(1),
         0,

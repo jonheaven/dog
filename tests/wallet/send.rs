@@ -4,13 +4,13 @@ use super::*;
 fn inscriptions_can_be_sent() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -18,7 +18,7 @@ fn inscriptions_can_be_sent() {
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {inscription}",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .stdout_regex(r".*")
   .run_and_deserialize_output::<Send>();
 
@@ -29,7 +29,7 @@ fn inscriptions_can_be_sent() {
 
   let send_txid = output.txid;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{inscription}"),
     format!(
       ".*<h1>Inscription 0</h1>.*<dl>.*
@@ -51,9 +51,9 @@ fn inscriptions_can_be_sent() {
 fn send_unknown_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let txid = core.mine_blocks(1)[0].txdata[0].compute_txid();
 
@@ -61,7 +61,7 @@ fn send_unknown_inscription() {
     "wallet send --fee-rate 1 bc1qcqgs2pps4u4yedfyl5pysdjjncs8et5utseepv {txid}i0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr(format!("error: inscription {txid}i0 not found\n"))
   .expected_exit_code(1)
   .run_and_extract_stdout();
@@ -71,13 +71,13 @@ fn send_unknown_inscription() {
 fn send_inscribed_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -85,14 +85,14 @@ fn send_inscribed_inscription() {
     "wallet send --fee-rate 1 bc1qcqgs2pps4u4yedfyl5pysdjjncs8et5utseepv {inscription}",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
   let send_txid = output.txid;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{inscription}"),
     format!(".*<h1>Inscription 0</h1>.*<dt>location</dt>.*{send_txid}:0:0</a></dd>.*",),
   );
@@ -102,18 +102,18 @@ fn send_inscribed_inscription() {
 fn send_uninscribed_sat() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let sat = Sat(1);
+  let sat = Koinu(1);
 
   CommandBuilder::new(format!(
     "wallet send --fee-rate 1 bc1qcqgs2pps4u4yedfyl5pysdjjncs8et5utseepv {}",
     sat.name(),
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr(format!(
     "error: could not find sat `{sat}` in wallet outputs\n"
   ))
@@ -125,17 +125,17 @@ fn send_uninscribed_sat() {
 fn send_inscription_by_sat() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
-
-  core.mine_blocks(1);
-
-  let (inscription, txid) = inscribe(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let sat_list = sats(&core, &ord);
+  let (inscription, txid) = inscribe(&core, &dog);
+
+  core.mine_blocks(1);
+
+  let sat_list = koinu(&core, &dog);
 
   let sat = sat_list.iter().find(|s| s.output.txid == txid).unwrap().sat;
 
@@ -143,14 +143,14 @@ fn send_inscription_by_sat() {
 
   let output = CommandBuilder::new(format!("wallet send --fee-rate 1 {address} {}", sat.name()))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
   let send_txid = output.txid;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{inscription}"),
     format!(
       ".*<h1>Inscription 0</h1>.*<dt>address</dt>.*<dd><a class=collapse href=/address/{address}>{address}</a></dd>.*<dt>location</dt>.*<dd><a class=collapse href=/satpoint/{send_txid}:0:0>{send_txid}:0:0</a></dd>.*",
@@ -162,20 +162,20 @@ fn send_inscription_by_sat() {
 fn send_on_mainnnet_works_with_wallet_named_foo() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
   let txid = core.mine_blocks(1)[0].txdata[0].compute_txid();
 
   CommandBuilder::new("wallet --name foo create")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Create>();
 
   CommandBuilder::new(format!(
     "wallet --name foo send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {txid}:0:0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 }
 
@@ -183,9 +183,9 @@ fn send_on_mainnnet_works_with_wallet_named_foo() {
 fn send_addresses_must_be_valid_for_network() {
   let core = mockcore::builder().build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let txid = core.mine_blocks_with_subsidy(1, 1_000)[0].txdata[0].compute_txid();
 
@@ -193,7 +193,7 @@ fn send_addresses_must_be_valid_for_network() {
     "wallet send --fee-rate 1 tb1q6en7qjxgw4ev8xwx94pzdry6a6ky7wlfeqzunz {txid}:0:0"
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .expected_stderr(
     "error: validation error\n\nbecause:\n- address tb1q6en7qjxgw4ev8xwx94pzdry6a6ky7wlfeqzunz is not valid on bitcoin\n",
   )
@@ -205,9 +205,9 @@ fn send_addresses_must_be_valid_for_network() {
 fn send_on_mainnnet_works_with_wallet_named_ord() {
   let core = mockcore::builder().build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let txid = core.mine_blocks_with_subsidy(1, 1_000_000)[0].txdata[0].compute_txid();
 
@@ -215,7 +215,7 @@ fn send_on_mainnnet_works_with_wallet_named_ord() {
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {txid}:0:0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   assert_eq!(core.mempool()[0].compute_txid(), output.txid);
@@ -225,9 +225,9 @@ fn send_on_mainnnet_works_with_wallet_named_ord() {
 fn send_does_not_use_inscribed_sats_as_cardinal_utxos() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let txid = core.mine_blocks_with_subsidy(1, 10_000)[0].txdata[0].compute_txid();
   CommandBuilder::new(format!(
@@ -235,7 +235,7 @@ fn send_does_not_use_inscribed_sats_as_cardinal_utxos() {
   ))
   .write("degenerate.png", [1; 100])
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Batch>();
 
   let txid = core.mine_blocks_with_subsidy(1, 100)[0].txdata[0].compute_txid();
@@ -243,7 +243,7 @@ fn send_does_not_use_inscribed_sats_as_cardinal_utxos() {
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {txid}:0:0"
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: wallet does not contain enough cardinal UTXOs, please add additional funds to wallet.\n")
   .run_and_extract_stdout();
@@ -253,11 +253,11 @@ fn send_does_not_use_inscribed_sats_as_cardinal_utxos() {
 fn do_not_send_within_dust_limit_of_an_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, reveal) = inscribe(&core, &ord);
+  let (inscription, reveal) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -270,7 +270,7 @@ fn do_not_send_within_dust_limit_of_an_inscription() {
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {output}:329"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr(format!(
     "error: cannot send {output}:329 without also sending inscription {inscription} at {output}:0\n"
@@ -282,11 +282,11 @@ fn do_not_send_within_dust_limit_of_an_inscription() {
 fn can_send_after_dust_limit_from_an_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (_, reveal) = inscribe(&core, &ord);
+  let (_, reveal) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -299,7 +299,7 @@ fn can_send_after_dust_limit_from_an_inscription() {
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {output}:330"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 }
 
@@ -307,9 +307,9 @@ fn can_send_after_dust_limit_from_an_inscription() {
 fn splitting_merged_inscriptions_is_possible() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -327,7 +327,7 @@ inscriptions:
 ",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   let reveal_txid = inscribe.reveal;
@@ -336,7 +336,7 @@ inscriptions:
 
   core.mine_blocks(1);
 
-  let response = ord.json_request(format!("/output/{reveal_txid}:0"));
+  let response = dog.json_request(format!("/output/{reveal_txid}:0"));
   assert_eq!(response.status(), StatusCode::OK);
 
   let output_json: api::Output = serde_json::from_str(&response.text().unwrap()).unwrap();
@@ -365,8 +365,8 @@ inscriptions:
         },
       ]),
       indexed: true,
-      runes: None,
-      sat_ranges: Some(vec![(5_000_000_000, 5_000_030_000)]),
+      dunes: None,
+      koinu_ranges: Some(vec![(5_000_000_000, 5_000_030_000)]),
       script_pubkey: destination.assume_checked_ref().script_pubkey(),
       spent: false,
       transaction: reveal_txid,
@@ -379,7 +379,7 @@ inscriptions:
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {reveal_txid}i0"
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr(format!(
     "error: cannot send {reveal_txid}:0:0 without also sending inscription {reveal_txid}i2 at {reveal_txid}:0:20000\n",
@@ -391,7 +391,7 @@ inscriptions:
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {reveal_txid}i2"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
@@ -401,7 +401,7 @@ inscriptions:
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {reveal_txid}i1"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
@@ -411,7 +411,7 @@ inscriptions:
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {reveal_txid}i0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 }
 
@@ -419,11 +419,11 @@ inscriptions:
 fn inscriptions_cannot_be_sent_by_satpoint() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (_, reveal) = inscribe(&core, &ord);
+  let (_, reveal) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -431,7 +431,7 @@ fn inscriptions_cannot_be_sent_by_satpoint() {
     "wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {reveal}:0:0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr("error: inscriptions must be sent by inscription ID\n")
   .expected_exit_code(1)
   .run_and_extract_stdout();
@@ -441,9 +441,9 @@ fn inscriptions_cannot_be_sent_by_satpoint() {
 fn send_btc_with_fee_rate() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -451,7 +451,7 @@ fn send_btc_with_fee_rate() {
     "wallet send --fee-rate 13.3 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 2btc",
   )
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   let tx = &core.mempool()[0];
@@ -484,17 +484,17 @@ fn send_btc_with_fee_rate() {
 fn send_btc_locks_inscriptions() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (_, reveal) = inscribe(&core, &ord);
+  let (_, reveal) = inscribe(&core, &dog);
 
   CommandBuilder::new("wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 1btc")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Send>();
 
   assert!(core.get_locked().contains(&OutPoint {
@@ -507,15 +507,15 @@ fn send_btc_locks_inscriptions() {
 fn send_btc_fails_if_lock_unspent_fails() {
   let core = mockcore::builder().fail_lock_unspent(true).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   CommandBuilder::new("wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 1btc")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: failed to lock UTXOs\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -525,19 +525,19 @@ fn send_btc_fails_if_lock_unspent_fails() {
 fn wallet_send_with_fee_rate() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   CommandBuilder::new(format!(
     "wallet send bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {inscription} --fee-rate 2.0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   let tx = &core.mempool()[0];
@@ -558,19 +558,19 @@ fn wallet_send_with_fee_rate() {
 fn user_must_provide_fee_rate_to_send() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   CommandBuilder::new(format!(
     "wallet send bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {inscription}"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(2)
   .stderr_regex(
     ".*error: the following required arguments were not provided:
@@ -583,19 +583,19 @@ fn user_must_provide_fee_rate_to_send() {
 fn wallet_send_with_fee_rate_and_target_postage() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   CommandBuilder::new(format!(
     "wallet send bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 {inscription} --fee-rate 2.0 --postage 77000sat"
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   let tx = &core.mempool()[0];
@@ -617,9 +617,9 @@ fn wallet_send_with_fee_rate_and_target_postage() {
 fn send_btc_does_not_send_locked_utxos() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let coinbase_tx = &core.mine_blocks(1)[0].txdata[0];
   let outpoint = OutPoint::new(coinbase_tx.compute_txid(), 0);
@@ -628,7 +628,7 @@ fn send_btc_does_not_send_locked_utxos() {
 
   CommandBuilder::new("wallet send --fee-rate 1 bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 1btc")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .stderr_regex("error:.*")
     .run_and_extract_stdout();
@@ -638,13 +638,13 @@ fn send_btc_does_not_send_locked_utxos() {
 fn send_dry_run() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -652,7 +652,7 @@ fn send_dry_run() {
     "wallet send --fee-rate 1 bc1qcqgs2pps4u4yedfyl5pysdjjncs8et5utseepv {inscription} --dry-run",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   assert!(core.mempool().is_empty());
@@ -671,20 +671,20 @@ fn send_dry_run() {
 fn sending_rune_that_has_not_been_etched_is_an_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let coinbase_tx = &core.mine_blocks(1)[0].txdata[0];
   let outpoint = OutPoint::new(coinbase_tx.compute_txid(), 0);
 
   core.lock(outpoint);
 
-  CommandBuilder::new("--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1:FOO")
+  CommandBuilder::new("--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1:FOO")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
-    .expected_stderr("error: rune `FOO` has not been etched\n")
+    .expected_stderr("error: dune `FOO` has not been etched\n")
     .run_and_extract_stdout();
 }
 
@@ -692,18 +692,18 @@ fn sending_rune_that_has_not_been_etched_is_an_error() {
 fn sending_rune_with_excessive_precision_is_an_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1.1:{}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1.1:{}",
+    Dune(RUNE)
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: excessive precision\n")
   .run_and_extract_stdout();
@@ -713,18 +713,18 @@ fn sending_rune_with_excessive_precision_is_an_error() {
 fn sending_rune_with_insufficient_balance_is_an_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1001:{}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1001:{}",
+    Dune(RUNE)
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: insufficient `AAAAAAAAAAAAA` balance, only 1000\u{A0}¢ in wallet\n")
   .run_and_extract_stdout();
@@ -734,32 +734,32 @@ fn sending_rune_with_insufficient_balance_is_an_error() {
 fn sending_rune_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   let output = CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:{}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:{}",
+    Dune(RUNE)
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   pretty_assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: vec![(
-        SpacedRune::new(Rune(RUNE), 0),
+    dog::subcommand::balances::Output {
+      dunes: vec![(
+        SpacedDune::new(Dune(RUNE), 0),
         vec![(
           OutPoint {
             txid: output.txid,
@@ -784,18 +784,18 @@ fn sending_rune_works() {
 fn sending_rune_with_change_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   let output = CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --postage 1234sat --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 777:{}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet send --postage 1234sat --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 777:{}",
+    Dune(RUNE)
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
@@ -805,16 +805,16 @@ fn sending_rune_with_change_works() {
   assert_eq!(tx.output[1].value.to_sat(), 1234);
   assert_eq!(tx.output[2].value.to_sat(), 1234);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   pretty_assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: [(
-        SpacedRune::new(Rune(RUNE), 0),
+    dog::subcommand::balances::Output {
+      dunes: [(
+        SpacedDune::new(Dune(RUNE), 0),
         [
           (
             OutPoint {
@@ -850,12 +850,12 @@ fn sending_rune_with_change_works() {
 fn sending_rune_creates_change_output_for_non_outgoing_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let a = etch(&core, &ord, Rune(RUNE));
-  let b = etch(&core, &ord, Rune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(RUNE));
+  let b = etch(&core, &dog, Dune(RUNE + 1));
 
   let (a_block, a_tx) = core.tx_index(a.output.reveal);
   let (b_block, b_tx) = core.tx_index(b.output.reveal);
@@ -864,8 +864,8 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
 
   let address = CommandBuilder::new("--regtest wallet receive")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::wallet::receive::Output>()
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::wallet::receive::Output>()
     .addresses
     .into_iter()
     .next()
@@ -879,17 +879,17 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
 
   core.mine_blocks(1);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   pretty_assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: [
+    dog::subcommand::balances::Output {
+      dunes: [
         (
-          SpacedRune::new(Rune(RUNE), 0),
+          SpacedDune::new(Dune(RUNE), 0),
           [(
             OutPoint {
               txid: merge,
@@ -904,7 +904,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
           .into()
         ),
         (
-          SpacedRune::new(Rune(RUNE + 1), 0),
+          SpacedDune::new(Dune(RUNE + 1), 0),
           [(
             OutPoint {
               txid: merge,
@@ -924,26 +924,26 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
   );
 
   let output = CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:{}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:{}",
+    Dune(RUNE)
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   pretty_assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: [
+    dog::subcommand::balances::Output {
+      dunes: [
         (
-          SpacedRune::new(Rune(RUNE), 0),
+          SpacedDune::new(Dune(RUNE), 0),
           [(
             OutPoint {
               txid: output.txid,
@@ -958,7 +958,7 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
           .into()
         ),
         (
-          SpacedRune::new(Rune(RUNE + 1), 0),
+          SpacedDune::new(Dune(RUNE + 1), 0),
           [(
             OutPoint {
               txid: output.txid,
@@ -978,14 +978,14 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
   );
 
   pretty_assert_eq!(
-    CommandBuilder::new("--regtest --index-runes wallet balance")
+    CommandBuilder::new("--regtest --index-dunes wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 84999960000,
       ordinal: 20000,
-      runes: Some([(SpacedRune::new(Rune(RUNE + 1), 0), "1000".parse().unwrap())].into()),
+      dunes: Some([(SpacedDune::new(Dune(RUNE + 1), 0), "1000".parse().unwrap())].into()),
       runic: Some(10000),
       total: 84999990000,
     }
@@ -993,20 +993,20 @@ fn sending_rune_creates_change_output_for_non_outgoing_runes() {
 }
 
 #[test]
-fn sending_spaced_rune_works_with_no_change() {
+fn sending_spaced_dune_works_with_no_change() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   let output = CommandBuilder::new(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:A•AAAAAAAAAAAA",
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1000:A•AAAAAAAAAAAA",
   )
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
@@ -1015,16 +1015,16 @@ fn sending_spaced_rune_works_with_no_change() {
 
   assert_eq!(tx.output.len(), 2);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: vec![(
-        SpacedRune::new(Rune(RUNE), 0),
+    dog::subcommand::balances::Output {
+      dunes: vec![(
+        SpacedDune::new(Dune(RUNE), 0),
         vec![(
           OutPoint {
             txid: output.txid,
@@ -1049,21 +1049,21 @@ fn sending_spaced_rune_works_with_no_change() {
 fn sending_rune_with_divisibility_works() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
   batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 1,
-        rune: SpacedRune { rune, spacers: 0 },
+        dune: SpacedDune { dune, spacers: 0 },
         premine: "1000".parse().unwrap(),
         supply: "1000".parse().unwrap(),
         symbol: '¢',
@@ -1079,24 +1079,24 @@ fn sending_rune_with_divisibility_works() {
   );
 
   let output = CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 10.1:{rune}"
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 10.1:{dune}"
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   pretty_assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: vec![(
-        SpacedRune::new(Rune(RUNE), 0),
+    dog::subcommand::balances::Output {
+      dunes: vec![(
+        SpacedDune::new(Dune(RUNE), 0),
         vec![
           (
             OutPoint {
@@ -1134,32 +1134,32 @@ fn sending_rune_with_divisibility_works() {
 fn sending_rune_leaves_unspent_runes_in_wallet() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   let output = CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 750:{}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 750:{}",
+    Dune(RUNE)
   ))
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: vec![(
-        SpacedRune::new(Rune(RUNE), 0),
+    dog::subcommand::balances::Output {
+      dunes: vec![(
+        SpacedDune::new(Dune(RUNE), 0),
         vec![
           (
             OutPoint {
@@ -1200,42 +1200,42 @@ fn sending_rune_leaves_unspent_runes_in_wallet() {
 }
 
 #[test]
-fn sending_rune_creates_transaction_with_expected_runestone() {
+fn sending_rune_creates_transaction_with_expected_dunestone() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let etch = etch(&core, &ord, Rune(RUNE));
+  let etch = etch(&core, &dog, Dune(RUNE));
 
   let output = CommandBuilder::new(format!(
     "
       --chain regtest
-      --index-runes
+      --index-dunes
       wallet
       send
       --fee-rate 1
       bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 750:{}
     ",
-    Rune(RUNE),
+    Dune(RUNE),
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  let balances = CommandBuilder::new("--regtest --index-runes balances")
+  let balances = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::balances::Output>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::balances::Output>();
 
   assert_eq!(
     balances,
-    ord::subcommand::balances::Output {
-      runes: vec![(
-        SpacedRune::new(Rune(RUNE), 0),
+    dog::subcommand::balances::Output {
+      dunes: vec![(
+        SpacedDune::new(Dune(RUNE), 0),
         vec![
           (
             OutPoint {
@@ -1271,8 +1271,8 @@ fn sending_rune_creates_transaction_with_expected_runestone() {
   let tx = core.tx_by_id(output.txid);
 
   pretty_assert_eq!(
-    Runestone::decipher(&tx).unwrap(),
-    Artifact::Runestone(Runestone {
+    Dunestone::decipher(&tx).unwrap(),
+    Artifact::Dunestone(Dunestone {
       pointer: None,
       etching: None,
       edicts: vec![Edict {
@@ -1286,28 +1286,28 @@ fn sending_rune_creates_transaction_with_expected_runestone() {
 }
 
 #[test]
-fn error_messages_use_spaced_runes() {
+fn error_messages_use_spaced_dunes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
   CommandBuilder::new(
-    "--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1001:A•AAAAAAAAAAAA",
+    "--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1001:A•AAAAAAAAAAAA",
   )
   .core(&core)
-    .ord(&ord)
+    .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: insufficient `A•AAAAAAAAAAAA` balance, only 1000\u{A0}¢ in wallet\n")
   .run_and_extract_stdout();
 
-  CommandBuilder::new("--chain regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1:F•OO")
+  CommandBuilder::new("--chain regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 1:F•OO")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
-    .expected_stderr("error: rune `FOO` has not been etched\n")
+    .expected_stderr("error: dune `FOO` has not been etched\n")
     .run_and_extract_stdout();
 }

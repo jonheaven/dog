@@ -26,7 +26,7 @@ pub struct Inscription {
   pub pointer: Option<Vec<u8>>,
   pub properties: Option<Vec<u8>>,
   pub property_encoding: Option<Vec<u8>>,
-  pub rune: Option<Vec<u8>>,
+  pub dune: Option<Vec<u8>>,
   pub unrecognized_even_field: bool,
 }
 
@@ -41,7 +41,7 @@ impl Inscription {
     path: Option<PathBuf>,
     pointer: Option<u64>,
     properties: Properties,
-    rune: Option<Rune>,
+    dune: Option<Dune>,
   ) -> Result<Self, Error> {
     let path = path.as_ref();
 
@@ -106,7 +106,7 @@ impl Inscription {
       pointer: pointer.map(Self::pointer_value),
       property_encoding,
       properties,
-      rune: rune.map(|rune| rune.commitment()),
+      dune: dune.map(|dune| dune.commitment()),
       unrecognized_even_field: false,
     })
   }
@@ -167,7 +167,7 @@ impl Inscription {
     Tag::Delegate.append(&mut builder, &self.delegate);
     Tag::Pointer.append(&mut builder, &self.pointer);
     Tag::Metadata.append(&mut builder, &self.metadata);
-    Tag::Rune.append(&mut builder, &self.rune);
+    Tag::Dune.append(&mut builder, &self.dune);
     Tag::Properties.append(&mut builder, &self.properties);
     Tag::PropertyEncoding.append(&mut builder, &self.property_encoding);
 
@@ -885,7 +885,7 @@ mod tests {
     write!(file, "foo").unwrap();
 
     let inscription = Inscription::new(
-      Chain::Mainnet,
+      Chain::Dogecoin,
       false,
       None,
       None,
@@ -901,7 +901,7 @@ mod tests {
     assert_eq!(inscription.pointer, None);
 
     let inscription = Inscription::new(
-      Chain::Mainnet,
+      Chain::Dogecoin,
       false,
       None,
       None,
@@ -917,7 +917,7 @@ mod tests {
     assert_eq!(inscription.pointer, Some(Vec::new()));
 
     let inscription = Inscription::new(
-      Chain::Mainnet,
+      Chain::Dogecoin,
       false,
       None,
       None,
@@ -933,7 +933,7 @@ mod tests {
     assert_eq!(inscription.pointer, Some(vec![1]));
 
     let inscription = Inscription::new(
-      Chain::Mainnet,
+      Chain::Dogecoin,
       false,
       None,
       None,
@@ -1162,7 +1162,7 @@ mod tests {
     let cbor = properties.to_cbor().unwrap();
 
     let inscription = Inscription::new(
-      Chain::Mainnet,
+      Chain::Dogecoin,
       true,
       None,
       None,
@@ -1196,7 +1196,7 @@ mod tests {
 
     assert!(
       Inscription::new(
-        Chain::Mainnet,
+        Chain::Dogecoin,
         true,
         None,
         None,
@@ -1229,7 +1229,7 @@ mod tests {
 
     assert!(
       Inscription::new(
-        Chain::Mainnet,
+        Chain::Dogecoin,
         true,
         None,
         None,

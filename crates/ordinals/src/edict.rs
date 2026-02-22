@@ -2,13 +2,13 @@ use super::*;
 
 #[derive(Default, Serialize, Deserialize, Debug, PartialEq, Copy, Clone, Eq)]
 pub struct Edict {
-  pub id: RuneId,
+  pub id: DuneId,
   pub amount: u128,
   pub output: u32,
 }
 
 impl Edict {
-  pub fn from_integers(tx: &Transaction, id: RuneId, amount: u128, output: u128) -> Option<Self> {
+  pub fn from_integers(tx: &Transaction, id: DuneId, amount: u128, output: u128) -> Option<Self> {
     let Ok(output) = u32::try_from(output) else {
       return None;
     };

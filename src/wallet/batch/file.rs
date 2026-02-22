@@ -10,8 +10,8 @@ pub struct File {
   pub postage: Option<u64>,
   #[serde(default)]
   pub reinscribe: bool,
-  pub sat: Option<Sat>,
-  pub satpoint: Option<SatPoint>,
+  pub sat: Option<Koinu>,
+  pub satpoint: Option<KoinuPoint>,
   pub inscriptions: Vec<batch::Entry>,
   pub etching: Option<batch::Etching>,
 }
@@ -71,7 +71,7 @@ impl File {
 
     if any_entry_has_satpoint {
       ensure!(
-        batchfile.mode == Mode::SatPoints,
+        batchfile.mode == Mode::KoinuPoints,
         "specifying `satpoint` in an inscription only works in `satpoints` mode"
       );
 
@@ -92,7 +92,7 @@ impl File {
       );
     }
 
-    if batchfile.mode == Mode::SatPoints {
+    if batchfile.mode == Mode::KoinuPoints {
       ensure!(
         batchfile.postage.is_none(),
         "`postage` cannot be set if in `satpoints` mode"
@@ -128,7 +128,7 @@ impl File {
     compress: bool,
   ) -> Result<(
     Vec<Inscription>,
-    Vec<(SatPoint, TxOut)>,
+    Vec<(KoinuPoint, TxOut)>,
     Vec<Amount>,
     Vec<Address>,
   )> {
@@ -169,10 +169,10 @@ impl File {
         },
         self
           .etching
-          .and_then(|etch| (i == 0).then_some(etch.rune.rune)),
+          .and_then(|etch| (i == 0).then_some(etch.dune.dune)),
       )?);
 
-      let postage = if self.mode == Mode::SatPoints {
+      let postage = if self.mode == Mode::KoinuPoints {
         let satpoint = entry
           .satpoint
           .ok_or_else(|| anyhow!("no satpoint specified for entry {i}"))?;
@@ -201,7 +201,7 @@ impl File {
 
     let destinations = match self.mode {
       Mode::SharedOutput | Mode::SameSat => vec![wallet.get_change_address()?],
-      Mode::SeparateOutputs | Mode::SatPoints => self
+      Mode::SeparateOutputs | Mode::KoinuPoints => self
         .inscriptions
         .iter()
         .map(|entry| {
@@ -403,7 +403,7 @@ inscriptions:
         sat: None,
         satpoint: None,
         etching: Some(Etching {
-          rune: "THE•BEST•RUNE".parse().unwrap(),
+          dune: "THE•BEST•RUNE".parse().unwrap(),
           divisibility: 2,
           premine: "1000.00".parse().unwrap(),
           supply: "10000.00".parse().unwrap(),
@@ -474,7 +474,7 @@ inscriptions:
             ),
             metadata: Some(serde_yaml::Value::Mapping({
               let mut mapping = serde_yaml::Mapping::new();
-              mapping.insert("author".into(), "Satoshi Nakamoto".into());
+              mapping.insert("author".into(), "Koinu Nakamoto".into());
               mapping
             })),
             ..default()

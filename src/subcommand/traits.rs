@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Parser)]
 pub(crate) struct Traits {
   #[arg(help = "Show traits for <SAT>.")]
-  sat: Sat,
+  sat: Koinu,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

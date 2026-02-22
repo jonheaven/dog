@@ -11,14 +11,14 @@ use {
   },
   chrono::{DateTime, Utc},
   mockcore::TransactionTemplate,
-  ord::{
-    Inscription, InscriptionId, RuneEntry, api, base64_decode, base64_encode, chain::Chain,
-    decimal::Decimal, outgoing::Outgoing, subcommand::runes::RuneInfo, templates::InscriptionHtml,
+  dog::{
+    Inscription, InscriptionId, DuneEntry, api, base64_decode, base64_encode, chain::Chain,
+    decimal::Decimal, outgoing::Outgoing, subcommand::dunes::RuneInfo, templates::InscriptionHtml,
     wallet::ListDescriptorsResult, wallet::batch,
   },
   ordinals::{
-    Artifact, COIN_VALUE, Charm, Edict, Pile, Rarity, Rune, RuneId, Runestone, Sat, SatPoint,
-    SpacedRune,
+    Artifact, COIN_VALUE, Charm, Edict, Pile, Rarity, Dune, DuneId, Dunestone, Koinu, KoinuPoint,
+    SpacedDune,
   },
   pretty_assertions::assert_eq as pretty_assert_eq,
   regex::Regex,
@@ -65,7 +65,7 @@ mod info;
 mod json_api;
 mod list;
 mod parse;
-mod runes;
+mod dunes;
 mod server;
 mod settings;
 mod subsidy;
@@ -77,37 +77,37 @@ mod wallet;
 
 const RUNE: u128 = 99246114928149462;
 
-type Balance = ord::subcommand::wallet::balance::Output;
-type Balances = ord::subcommand::balances::Output;
-type Batch = ord::wallet::batch::Output;
-type Create = ord::subcommand::wallet::create::Output;
-type Inscriptions = Vec<ord::subcommand::wallet::inscriptions::Output>;
-type Send = ord::subcommand::wallet::send::Output;
-type Split = ord::subcommand::wallet::split::Output;
-type Supply = ord::subcommand::supply::Output;
-type Sweep = ord::subcommand::wallet::sweep::Output;
+type Balance = dog::subcommand::wallet::balance::Output;
+type Balances = dog::subcommand::balances::Output;
+type Batch = dog::wallet::batch::Output;
+type Create = dog::subcommand::wallet::create::Output;
+type Inscriptions = Vec<dog::subcommand::wallet::inscriptions::Output>;
+type Send = dog::subcommand::wallet::send::Output;
+type Split = dog::subcommand::wallet::split::Output;
+type Supply = dog::subcommand::supply::Output;
+type Sweep = dog::subcommand::wallet::sweep::Output;
 
-fn create_wallet(core: &mockcore::Handle, ord: &TestServer) {
+fn create_wallet(core: &mockcore::Handle, dog: &TestServer) {
   CommandBuilder::new(format!("--chain {} wallet create", core.network()))
     .core(core)
-    .ord(ord)
+    .dog(dog)
     .stdout_regex(".*")
     .run_and_extract_stdout();
 }
 
-fn sats(
+fn koinu(
   core: &mockcore::Handle,
-  ord: &TestServer,
-) -> Vec<ord::subcommand::wallet::sats::OutputRare> {
-  CommandBuilder::new(format!("--chain {} wallet sats", core.network()))
+  dog: &TestServer,
+) -> Vec<dog::subcommand::wallet::koinu::OutputRare> {
+  CommandBuilder::new(format!("--chain {} wallet koinu", core.network()))
     .core(core)
-    .ord(ord)
-    .run_and_deserialize_output::<Vec<ord::subcommand::wallet::sats::OutputRare>>()
+    .dog(dog)
+    .run_and_deserialize_output::<Vec<dog::subcommand::wallet::koinu::OutputRare>>()
 }
 
 fn inscribe_with_options(
   core: &mockcore::Handle,
-  ord: &TestServer,
+  dog: &TestServer,
   postage: Option<u64>,
   fee_rate: u64,
 ) -> (InscriptionId, Txid) {
@@ -126,7 +126,7 @@ fn inscribe_with_options(
   let output = CommandBuilder::new(command_str)
     .write("foo.txt", "FOO")
     .core(core)
-    .ord(ord)
+    .dog(dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -136,20 +136,20 @@ fn inscribe_with_options(
   (output.inscriptions[0].id, output.reveal)
 }
 
-fn inscribe(core: &mockcore::Handle, ord: &TestServer) -> (InscriptionId, Txid) {
-  inscribe_with_options(core, ord, None, 1)
+fn inscribe(core: &mockcore::Handle, dog: &TestServer) -> (InscriptionId, Txid) {
+  inscribe_with_options(core, dog, None, 1)
 }
 
-fn drain(core: &mockcore::Handle, ord: &TestServer) {
-  let balance = CommandBuilder::new("--regtest --index-runes wallet balance")
+fn drain(core: &mockcore::Handle, dog: &TestServer) {
+  let balance = CommandBuilder::new("--regtest --index-dunes wallet balance")
     .core(core)
-    .ord(ord)
+    .dog(dog)
     .run_and_deserialize_output::<Balance>();
 
   CommandBuilder::new(format!(
     "
       --chain regtest
-      --index-runes
+      --index-dunes
       wallet send
       --fee-rate 0
       bcrt1pyrmadgg78e38ewfv0an8c6eppk2fttv5vnuvz04yza60qau5va0saknu8k
@@ -158,35 +158,35 @@ fn drain(core: &mockcore::Handle, ord: &TestServer) {
     balance.cardinal
   ))
   .core(core)
-  .ord(ord)
+  .dog(dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks_with_subsidy(1, 0);
 
-  let balance = CommandBuilder::new("--regtest --index-runes wallet balance")
+  let balance = CommandBuilder::new("--regtest --index-dunes wallet balance")
     .core(core)
-    .ord(ord)
+    .dog(dog)
     .run_and_deserialize_output::<Balance>();
 
   pretty_assert_eq!(balance.cardinal, 0);
 }
 
 struct Etched {
-  id: RuneId,
+  id: DuneId,
   output: Batch,
 }
 
-fn etch(core: &mockcore::Handle, ord: &TestServer, rune: Rune) -> Etched {
+fn etch(core: &mockcore::Handle, dog: &TestServer, dune: Dune) -> Etched {
   batch(
     core,
-    ord,
+    dog,
     batch::File {
       etching: Some(batch::Etching {
         supply: "1000".parse().unwrap(),
         divisibility: 0,
         terms: None,
         premine: "1000".parse().unwrap(),
-        rune: SpacedRune { rune, spacers: 0 },
+        dune: SpacedDune { dune, spacers: 0 },
         symbol: '¢',
         turbo: false,
       }),
@@ -199,14 +199,14 @@ fn etch(core: &mockcore::Handle, ord: &TestServer, rune: Rune) -> Etched {
   )
 }
 
-fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> Etched {
+fn batch(core: &mockcore::Handle, dog: &TestServer, batchfile: batch::File) -> Etched {
   core.mine_blocks(1);
 
   let mut builder =
-    CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+    CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
       .write("batch.yaml", serde_yaml::to_string(&batchfile).unwrap())
       .core(core)
-      .ord(ord);
+      .dog(dog);
 
   for inscription in &batchfile.inscriptions {
     builder = builder.write(inscription.file.clone().unwrap(), "inscription");
@@ -222,7 +222,7 @@ fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> E
 
   assert_regex_match!(
     buffer,
-    "Waiting for rune .* commitment [[:xdigit:]]{64} to mature…\n"
+    "Waiting for dune .* commitment [[:xdigit:]]{64} to mature…\n"
   );
 
   core.mine_blocks(5);
@@ -233,7 +233,7 @@ fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> E
 
   let block_height = core.height();
 
-  let id = RuneId {
+  let id = DuneId {
     block: block_height,
     tx: 1,
   };
@@ -244,7 +244,7 @@ fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> E
   let batch::Etching {
     divisibility,
     premine,
-    rune,
+    dune,
     supply,
     symbol,
     terms,
@@ -346,10 +346,10 @@ fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> E
     mint_definition.push("<dd>no</dd>".into());
   }
 
-  let RuneId { block, tx } = id;
+  let DuneId { block, tx } = id;
 
-  ord.assert_response_regex(
-    format!("/rune/{rune}"),
+  dog.assert_response_regex(
+    format!("/dune/{dune}"),
     format!(
       r".*<dt>id</dt>
   <dd>{id}</dd>.*
@@ -385,8 +385,8 @@ fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> E
   let batch::RuneInfo {
     destination,
     location,
-    rune: _,
-  } = output.rune.clone().unwrap();
+    dune: _,
+  } = output.dune.clone().unwrap();
 
   if premine.to_integer(divisibility).unwrap() > 0 {
     let destination = destination
@@ -405,12 +405,12 @@ fn batch(core: &mockcore::Handle, ord: &TestServer, batchfile: batch::File) -> E
     assert!(location.is_none());
   }
 
-  let response = ord.json_request("/inscriptions");
+  let response = dog.json_request("/inscriptions");
 
   assert!(response.status().is_success());
 
   for id in response.json::<api::Inscriptions>().unwrap().ids {
-    let response = ord.json_request(format!("/inscription/{id}"));
+    let response = dog.json_request(format!("/inscription/{id}"));
     assert!(response.status().is_success());
     if let Some(location) = location {
       let inscription = response.json::<api::Inscription>().unwrap();

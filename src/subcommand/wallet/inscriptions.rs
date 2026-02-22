@@ -3,21 +3,16 @@ use super::*;
 #[derive(Serialize, Deserialize)]
 pub struct Output {
   pub inscription: InscriptionId,
-  pub location: SatPoint,
+  pub location: KoinuPoint,
   pub explorer: String,
   pub postage: u64,
 }
 
 pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
   let explorer = match wallet.chain() {
-    Chain::Mainnet => "https://ordinals.com/inscription/",
-    Chain::Regtest => "http://localhost/inscription/",
-    Chain::Signet => "https://signet.ordinals.com/inscription/",
-    Chain::Testnet => "https://testnet.ordinals.com/inscription/",
-    Chain::Testnet4 => "https://testnet4.ordinals.com/inscription/",
-    Chain::Dogecoin | Chain::DogecoinTestnet | Chain::DogecoinRegtest => {
-      "http://localhost/inscription/"
-    }
+    Chain::Dogecoin => "https://doginals.com/inscription/",
+    Chain::DogecoinTestnet => "https://testnet.doginals.com/inscription/",
+    Chain::DogecoinRegtest => "http://localhost/inscription/",
   };
 
   let mut output = Vec::new();

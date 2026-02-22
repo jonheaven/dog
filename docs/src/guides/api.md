@@ -108,7 +108,7 @@ curl -s -H "Accept: application/json" \
   "hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
   "height": 0,
   "inscriptions": [],
-  "runes": [],
+  "dunes": [],
   "target": "00000000ffff0000000000000000000000000000000000000000000000000000",
   "transactions": [
     {
@@ -157,7 +157,7 @@ curl -s -H "Accept: application/json" \
     "hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
     "height": 0,
     "inscriptions": [],
-    "runes": [],
+    "dunes": [],
     "target": "00000000ffff0000000000000000000000000000000000000000000000000000",
     "transactions": [
       {
@@ -1310,14 +1310,14 @@ curl -s -H "Accept: application/json" \
         "metaprotocol": null,
         "parents": [],
         "pointer": null,
-        "rune": null,
+        "dune": null,
         "unrecognized_even_field": false
       },
       "pushnum": false,
       "stutter": false
     }
   ],
-  "runestone": null
+  "dunestone": null
 }
 ```
 </details>
@@ -1435,7 +1435,7 @@ curl -s -H "Accept: application/json" /
       }
     }
   },
-  "rune": null,
+  "dune": null,
   "sat": null,
   "satpoint": "47c7260764af2ee17aa584d9c035f2e5429aefd96b8016cfe0e3f0bcf04869a3:0:0",
   "timestamp": 1671049920,
@@ -1480,7 +1480,7 @@ curl -s -H "Accept: application/json" \
     "b1ef66c2d1a047cbaa6260b74daac43813924378fe08ef8545da4cb79e8fcf00i0"
   ],
   "previous": "e2619e0fa641ed2dfba083dc57a15ca1d3f195f15d187de353e1576a0cb6e87ci8",
-  "rune": null,
+  "dune": null,
   "sat": null,
   "satpoint": "ab924ff229beca227bf40221faf492a20b5e2ee4f084524c84a5f98b80fe527f:1:0",
   "timestamp": 1713399652,
@@ -1529,7 +1529,7 @@ curl -s -X POST \
       "b1ef66c2d1a047cbaa6260b74daac43813924378fe08ef8545da4cb79e8fcf00i0"
     ],
     "previous": "ab924ff229beca227bf40221faf492a20b5e2ee4f084524c84a5f98b80fe527fi0",
-    "rune": null,
+    "dune": null,
     "sat": null,
     "satpoint": "ab924ff229beca227bf40221faf492a20b5e2ee4f084524c84a5f98b80fe527f:2:0",
     "timestamp": 1713399652,
@@ -1553,7 +1553,7 @@ curl -s -X POST \
       "b1ef66c2d1a047cbaa6260b74daac43813924378fe08ef8545da4cb79e8fcf00i0"
     ],
     "previous": "e2619e0fa641ed2dfba083dc57a15ca1d3f195f15d187de353e1576a0cb6e87ci8",
-    "rune": null,
+    "dune": null,
     "sat": null,
     "satpoint": "ab924ff229beca227bf40221faf492a20b5e2ee4f084524c84a5f98b80fe527f:1:0",
     "timestamp": 1713399652,
@@ -1922,7 +1922,7 @@ curl -s -H "Accept: application/json" \
   "indexed": false,
   "inscriptions": [],
   "outpoint": "bc4c30829a9564c0d58e6287195622b53ced54a25711d1b86be7cd3a70ef61ed:0",
-  "runes": {},
+  "dunes": {},
   "sat_ranges": null,
   "script_pubkey": "OP_PUSHNUM_1 OP_PUSHBYTES_32 156cc4878306157720607cdcb4b32afa4cc6853868458d7258b907112e5a434b",
   "spent": true,
@@ -1959,7 +1959,7 @@ curl -s -X POST \
     "indexed": false,
     "inscriptions": [],
     "outpoint": "bc4c30829a9564c0d58e6287195622b53ced54a25711d1b86be7cd3a70ef61ed:0",
-    "runes": {},
+    "dunes": {},
     "sat_ranges": null,
     "script_pubkey": "OP_PUSHNUM_1 OP_PUSHBYTES_32 156cc4878306157720607cdcb4b32afa4cc6853868458d7258b907112e5a434b",
     "spent": true,
@@ -1971,7 +1971,7 @@ curl -s -X POST \
     "indexed": false,
     "inscriptions": [],
     "outpoint": "bc4c30829a9564c0d58e6287195622b53ced54a25711d1b86be7cd3a70ef61ed:1",
-    "runes": {},
+    "dunes": {},
     "sat_ranges": null,
     "script_pubkey": "5120b61586cf7a3647b5a982320ae76383a04680ff41dc2264948d593a6a0660821c",
     "spent": true,
@@ -1999,9 +1999,9 @@ Get UTXOs held by `<ADDRESS>`.
 | Value       | Description |
 |-------------|-------------|
 | `any`       | return all UTXOs |
-| `cardinal`  | return UTXOs not containing inscriptions or runes |
+| `cardinal`  | return UTXOs not containing inscriptions or dunes |
 | `inscribed` | return UTXOs containing inscriptions |
-| `runic`     | return UTXOs containing runes |
+| `runic`     | return UTXOs containing dunes |
 
 ### Example
 
@@ -2017,7 +2017,7 @@ curl -s -H "Accept: application/json" \
     "indexed": true,
     "inscriptions": [],
     "outpoint": "6737d77ee9fba5f37e5f4128b03479209030bf44f78ffa3f4e94bf9783691b00:0",
-    "runes": {},
+    "dunes": {},
     "sat_ranges": [
       [
         567775159437503,
@@ -2050,7 +2050,7 @@ curl -s -H "Accept: application/json" \
     "indexed": true,
     "inscriptions": [],
     "outpoint": "0cfa3e55f14812c119e47936d95abbb4e04f3094f6d86ac16c6e10018b0b2900:0",
-    "runes": {},
+    "dunes": {},
     "sat_ranges": [
       [
         1773029001419378,
@@ -2069,18 +2069,18 @@ curl -s -H "Accept: application/json" \
 <details>
   <summary>
     <code>GET</code>
-    <code><b>/rune/&lt;RUNE&gt;</b></code>
+    <code><b>/dune/&lt;RUNE&gt;</b></code>
   </summary>
 
 ### Description
 
-Returns details about the specified rune. Requires index with `--index-runes` flag.
+Returns details about the specified dune. Requires index with `--index-dunes` flag.
 
 ### Example
 
 ```bash
 curl -s -H "Accept: application/json" \
-  http://localhost/rune/UNCOMMONGOODS
+  http://localhost/dune/UNCOMMONGOODS
 ```
 
 ```json
@@ -2093,7 +2093,7 @@ curl -s -H "Accept: application/json" \
     "mints": 33891693,
     "number": 0,
     "premine": 0,
-    "spaced_rune": "UNCOMMON•GOODS",
+    "spaced_dune": "UNCOMMON•GOODS",
     "symbol": "⧉",
     "terms": {
       "amount": 1,
@@ -2120,18 +2120,18 @@ curl -s -H "Accept: application/json" \
 <details>
   <summary>
     <code>GET</code>
-    <code><b>/runes</b></code>
+    <code><b>/dunes</b></code>
   </summary>
 
 ### Description
 
-Returns details for last 100 inscribed runes.  Requires index with `--index-runes` flag.
+Returns details for last 100 inscribed dunes.  Requires index with `--index-dunes` flag.
 
 ### Example
 
 ```bash
 curl -s -H "Accept: application/json" \
-  http://0.0.0.0/runes
+  http://0.0.0.0/dunes
 ```
 
 ```json
@@ -2147,7 +2147,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119793,
         "premine": 0,
-        "spaced_rune": "ZKSKOOUGYPXB",
+        "spaced_dune": "ZKSKOOUGYPXB",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2175,7 +2175,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119792,
         "premine": 0,
-        "spaced_rune": "VEMRWZCGQRLL",
+        "spaced_dune": "VEMRWZCGQRLL",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2203,7 +2203,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119791,
         "premine": 0,
-        "spaced_rune": "LBQPCHACURXD",
+        "spaced_dune": "LBQPCHACURXD",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2231,7 +2231,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119790,
         "premine": 1000000000,
-        "spaced_rune": "BABY•LEN•SASSAMAN",
+        "spaced_dune": "BABY•LEN•SASSAMAN",
         "symbol": "Ⱡ",
         "terms": {
           "amount": 100000,
@@ -2259,7 +2259,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119789,
         "premine": 30000,
-        "spaced_rune": "COMPLETED•IT•MATE",
+        "spaced_dune": "COMPLETED•IT•MATE",
         "symbol": "⚽",
         "terms": {
           "amount": 100,
@@ -2287,7 +2287,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119788,
         "premine": 0,
-        "spaced_rune": "IJEIKMFKELRFRGRGRGEFREFGR",
+        "spaced_dune": "IJEIKMFKELRFRGRGRGEFREFGR",
         "symbol": "d",
         "terms": {
           "amount": 211,
@@ -2315,7 +2315,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119787,
         "premine": 0,
-        "spaced_rune": "CQHMUFFTWWPF",
+        "spaced_dune": "CQHMUFFTWWPF",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2343,7 +2343,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119786,
         "premine": 0,
-        "spaced_rune": "KJMKPVMKREMVBVBFBVFD",
+        "spaced_dune": "KJMKPVMKREMVBVBFBVFD",
         "symbol": "3",
         "terms": {
           "amount": 332,
@@ -2371,7 +2371,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119785,
         "premine": 0,
-        "spaced_rune": "JNJKMLKMNJCMPMCESCVDSV•DV",
+        "spaced_dune": "JNJKMLKMNJCMPMCESCVDSV•DV",
         "symbol": "2",
         "terms": {
           "amount": 3222,
@@ -2399,7 +2399,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119784,
         "premine": 0,
-        "spaced_rune": "UOBYCVAGPLNO",
+        "spaced_dune": "UOBYCVAGPLNO",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2427,7 +2427,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119783,
         "premine": 0,
-        "spaced_rune": "YNJMQPGPUGWN",
+        "spaced_dune": "YNJMQPGPUGWN",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2455,7 +2455,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119782,
         "premine": 0,
-        "spaced_rune": "FDLQGMGRYAMF",
+        "spaced_dune": "FDLQGMGRYAMF",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2483,7 +2483,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119781,
         "premine": 0,
-        "spaced_rune": "LBPOUDNUAIDK",
+        "spaced_dune": "LBPOUDNUAIDK",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2511,7 +2511,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119780,
         "premine": 0,
-        "spaced_rune": "RNVHGUYHAUCM",
+        "spaced_dune": "RNVHGUYHAUCM",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2539,7 +2539,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119779,
         "premine": 0,
-        "spaced_rune": "RTSQQFKTEEBX",
+        "spaced_dune": "RTSQQFKTEEBX",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2567,7 +2567,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119778,
         "premine": 0,
-        "spaced_rune": "IWHXSPKPYQOX",
+        "spaced_dune": "IWHXSPKPYQOX",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2595,7 +2595,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119777,
         "premine": 0,
-        "spaced_rune": "OHDKZWZHYLVL",
+        "spaced_dune": "OHDKZWZHYLVL",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2623,7 +2623,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119776,
         "premine": 0,
-        "spaced_rune": "NSZNPZDDFYCT",
+        "spaced_dune": "NSZNPZDDFYCT",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2651,7 +2651,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119775,
         "premine": 0,
-        "spaced_rune": "NTOOWMNTOOWMNTOOWM",
+        "spaced_dune": "NTOOWMNTOOWMNTOOWM",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2679,7 +2679,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119774,
         "premine": 0,
-        "spaced_rune": "HIDDEN•SELDOM•DISEASE•WISE",
+        "spaced_dune": "HIDDEN•SELDOM•DISEASE•WISE",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2707,7 +2707,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119773,
         "premine": 0,
-        "spaced_rune": "TYDSJXISYECCOQYYSS",
+        "spaced_dune": "TYDSJXISYECCOQYYSS",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2735,7 +2735,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119772,
         "premine": 0,
-        "spaced_rune": "BEGCOAJVXEHW",
+        "spaced_dune": "BEGCOAJVXEHW",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2763,7 +2763,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119771,
         "premine": 0,
-        "spaced_rune": "BEDIALAMDARBEDIALAMDAR",
+        "spaced_dune": "BEDIALAMDARBEDIALAMDAR",
         "symbol": null,
         "terms": {
           "amount": 5,
@@ -2791,7 +2791,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119770,
         "premine": 0,
-        "spaced_rune": "RUTHMARTINRUTHMARTIN",
+        "spaced_dune": "RUTHMARTINRUTHMARTIN",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2819,7 +2819,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119769,
         "premine": 0,
-        "spaced_rune": "ULTIVERSEULTIVERSE",
+        "spaced_dune": "ULTIVERSEULTIVERSE",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2847,7 +2847,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119768,
         "premine": 0,
-        "spaced_rune": "NUQHRKVWSYEA",
+        "spaced_dune": "NUQHRKVWSYEA",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2875,7 +2875,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119767,
         "premine": 0,
-        "spaced_rune": "FMTJRFVGNHVZNUCB",
+        "spaced_dune": "FMTJRFVGNHVZNUCB",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2903,7 +2903,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119766,
         "premine": 0,
-        "spaced_rune": "WEELZZLGHGDRTO",
+        "spaced_dune": "WEELZZLGHGDRTO",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2931,7 +2931,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119765,
         "premine": 0,
-        "spaced_rune": "MIIOBBPODENFJ",
+        "spaced_dune": "MIIOBBPODENFJ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2959,7 +2959,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119764,
         "premine": 0,
-        "spaced_rune": "TASTE•RISING•FULL",
+        "spaced_dune": "TASTE•RISING•FULL",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -2987,7 +2987,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119763,
         "premine": 0,
-        "spaced_rune": "REGION•MARK•LOW",
+        "spaced_dune": "REGION•MARK•LOW",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3015,7 +3015,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119762,
         "premine": 0,
-        "spaced_rune": "QHKKEWPTDMNB",
+        "spaced_dune": "QHKKEWPTDMNB",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3043,7 +3043,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119761,
         "premine": 0,
-        "spaced_rune": "IWLUKGYIWMBP",
+        "spaced_dune": "IWLUKGYIWMBP",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3071,7 +3071,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119760,
         "premine": 0,
-        "spaced_rune": "KWUFVEOJVKGQ",
+        "spaced_dune": "KWUFVEOJVKGQ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3099,7 +3099,7 @@ curl -s -H "Accept: application/json" \
         "mints": 26,
         "number": 119759,
         "premine": 210000,
-        "spaced_rune": "BOUNCE•THE•BITCOIN•CAT",
+        "spaced_dune": "BOUNCE•THE•BITCOIN•CAT",
         "symbol": "🐱",
         "terms": {
           "amount": 1000,
@@ -3127,7 +3127,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119758,
         "premine": 30000000,
-        "spaced_rune": "BITCAT•IS•IN•CONTROL",
+        "spaced_dune": "BITCAT•IS•IN•CONTROL",
         "symbol": "🐈",
         "terms": {
           "amount": 5000,
@@ -3155,7 +3155,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119757,
         "premine": 0,
-        "spaced_rune": "FIRST•CAT•EATING•BITCOINER",
+        "spaced_dune": "FIRST•CAT•EATING•BITCOINER",
         "symbol": "🙀",
         "terms": {
           "amount": 1000,
@@ -3183,7 +3183,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119756,
         "premine": 0,
-        "spaced_rune": "AI•CRYPTO•AI•CRYPTO",
+        "spaced_dune": "AI•CRYPTO•AI•CRYPTO",
         "symbol": "A",
         "terms": {
           "amount": 1000,
@@ -3211,7 +3211,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119755,
         "premine": 0,
-        "spaced_rune": "SACMKSOKCMPOKMWCLWMCLWCDWC",
+        "spaced_dune": "SACMKSOKCMPOKMWCLWMCLWCDWC",
         "symbol": "c",
         "terms": {
           "amount": 221,
@@ -3239,7 +3239,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119754,
         "premine": 0,
-        "spaced_rune": "XQOFVAHHLCQR",
+        "spaced_dune": "XQOFVAHHLCQR",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3267,7 +3267,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119753,
         "premine": 0,
-        "spaced_rune": "YEPWCVNODTII",
+        "spaced_dune": "YEPWCVNODTII",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3295,7 +3295,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119752,
         "premine": 0,
-        "spaced_rune": "SDFGJUJTYHTGRSFAD",
+        "spaced_dune": "SDFGJUJTYHTGRSFAD",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3323,7 +3323,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119751,
         "premine": 0,
-        "spaced_rune": "XQEKAAGEYDXY",
+        "spaced_dune": "XQEKAAGEYDXY",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3351,7 +3351,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119750,
         "premine": 0,
-        "spaced_rune": "XFHSGMZJEUML",
+        "spaced_dune": "XFHSGMZJEUML",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3379,7 +3379,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119749,
         "premine": 0,
-        "spaced_rune": "DJLNUHRYYTGR",
+        "spaced_dune": "DJLNUHRYYTGR",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3407,7 +3407,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119748,
         "premine": 0,
-        "spaced_rune": "CBAQVALKVMYP",
+        "spaced_dune": "CBAQVALKVMYP",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3435,7 +3435,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119747,
         "premine": 0,
-        "spaced_rune": "POJSRGWQBBWQ",
+        "spaced_dune": "POJSRGWQBBWQ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3463,7 +3463,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119746,
         "premine": 0,
-        "spaced_rune": "FMPQPSLKENKY",
+        "spaced_dune": "FMPQPSLKENKY",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3491,7 +3491,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119745,
         "premine": 0,
-        "spaced_rune": "GOARBTCEASGJ",
+        "spaced_dune": "GOARBTCEASGJ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3519,7 +3519,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119744,
         "premine": 0,
-        "spaced_rune": "MNBIUEEAKPBJ",
+        "spaced_dune": "MNBIUEEAKPBJ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3556,13 +3556,13 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119743,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "etching": "74e290bc2ed6b39c887ab3b456f86d91edbadb829936c63bb166d42233527491",
         "mints": 0,
         "number": 119743,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3570,13 +3570,13 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119743,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "terms": {
           "amount": 1,
           "cap": 29807122,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3616,18 +3616,18 @@ curl -s -H "Accept: application/json" \
 <details>
   <summary>
     <code>GET</code>
-    <code><b>/runes/&lt;PAGE&gt;</b></code>
+    <code><b>/dunes/&lt;PAGE&gt;</b></code>
   </summary>
 
 ### Description
 
-Pagination allows you to specify which page of 100 runes you'd like to return.
+Pagination allows you to specify which page of 100 dunes you'd like to return.
 
 ### Example
 
 ```bash
 curl -s -H "Accept: application/json" \
-  http://0.0.0.0/runes/0
+  http://0.0.0.0/dunes/0
 ```
 
 ```json
@@ -3643,7 +3643,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119793,
         "premine": 0,
-        "spaced_rune": "ZKSKOOUGYPXB",
+        "spaced_dune": "ZKSKOOUGYPXB",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3671,7 +3671,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119792,
         "premine": 0,
-        "spaced_rune": "VEMRWZCGQRLL",
+        "spaced_dune": "VEMRWZCGQRLL",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3699,7 +3699,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119791,
         "premine": 0,
-        "spaced_rune": "LBQPCHACURXD",
+        "spaced_dune": "LBQPCHACURXD",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3727,7 +3727,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119790,
         "premine": 1000000000,
-        "spaced_rune": "BABY•LEN•SASSAMAN",
+        "spaced_dune": "BABY•LEN•SASSAMAN",
         "symbol": "Ⱡ",
         "terms": {
           "amount": 100000,
@@ -3755,7 +3755,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119789,
         "premine": 30000,
-        "spaced_rune": "COMPLETED•IT•MATE",
+        "spaced_dune": "COMPLETED•IT•MATE",
         "symbol": "⚽",
         "terms": {
           "amount": 100,
@@ -3783,7 +3783,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119788,
         "premine": 0,
-        "spaced_rune": "IJEIKMFKELRFRGRGRGEFREFGR",
+        "spaced_dune": "IJEIKMFKELRFRGRGRGEFREFGR",
         "symbol": "d",
         "terms": {
           "amount": 211,
@@ -3811,7 +3811,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119787,
         "premine": 0,
-        "spaced_rune": "CQHMUFFTWWPF",
+        "spaced_dune": "CQHMUFFTWWPF",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3839,7 +3839,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119786,
         "premine": 0,
-        "spaced_rune": "KJMKPVMKREMVBVBFBVFD",
+        "spaced_dune": "KJMKPVMKREMVBVBFBVFD",
         "symbol": "3",
         "terms": {
           "amount": 332,
@@ -3867,7 +3867,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119785,
         "premine": 0,
-        "spaced_rune": "JNJKMLKMNJCMPMCESCVDSV•DV",
+        "spaced_dune": "JNJKMLKMNJCMPMCESCVDSV•DV",
         "symbol": "2",
         "terms": {
           "amount": 3222,
@@ -3895,7 +3895,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119784,
         "premine": 0,
-        "spaced_rune": "UOBYCVAGPLNO",
+        "spaced_dune": "UOBYCVAGPLNO",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3923,7 +3923,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119783,
         "premine": 0,
-        "spaced_rune": "YNJMQPGPUGWN",
+        "spaced_dune": "YNJMQPGPUGWN",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3951,7 +3951,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119782,
         "premine": 0,
-        "spaced_rune": "FDLQGMGRYAMF",
+        "spaced_dune": "FDLQGMGRYAMF",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -3979,7 +3979,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119781,
         "premine": 0,
-        "spaced_rune": "LBPOUDNUAIDK",
+        "spaced_dune": "LBPOUDNUAIDK",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4007,7 +4007,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119780,
         "premine": 0,
-        "spaced_rune": "RNVHGUYHAUCM",
+        "spaced_dune": "RNVHGUYHAUCM",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4035,7 +4035,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119779,
         "premine": 0,
-        "spaced_rune": "RTSQQFKTEEBX",
+        "spaced_dune": "RTSQQFKTEEBX",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4063,7 +4063,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119778,
         "premine": 0,
-        "spaced_rune": "IWHXSPKPYQOX",
+        "spaced_dune": "IWHXSPKPYQOX",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4091,7 +4091,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119777,
         "premine": 0,
-        "spaced_rune": "OHDKZWZHYLVL",
+        "spaced_dune": "OHDKZWZHYLVL",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4119,7 +4119,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119776,
         "premine": 0,
-        "spaced_rune": "NSZNPZDDFYCT",
+        "spaced_dune": "NSZNPZDDFYCT",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4147,7 +4147,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119775,
         "premine": 0,
-        "spaced_rune": "NTOOWMNTOOWMNTOOWM",
+        "spaced_dune": "NTOOWMNTOOWMNTOOWM",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4175,7 +4175,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119774,
         "premine": 0,
-        "spaced_rune": "HIDDEN•SELDOM•DISEASE•WISE",
+        "spaced_dune": "HIDDEN•SELDOM•DISEASE•WISE",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4203,7 +4203,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119773,
         "premine": 0,
-        "spaced_rune": "TYDSJXISYECCOQYYSS",
+        "spaced_dune": "TYDSJXISYECCOQYYSS",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4231,7 +4231,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119772,
         "premine": 0,
-        "spaced_rune": "BEGCOAJVXEHW",
+        "spaced_dune": "BEGCOAJVXEHW",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4259,7 +4259,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119771,
         "premine": 0,
-        "spaced_rune": "BEDIALAMDARBEDIALAMDAR",
+        "spaced_dune": "BEDIALAMDARBEDIALAMDAR",
         "symbol": null,
         "terms": {
           "amount": 5,
@@ -4287,7 +4287,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119770,
         "premine": 0,
-        "spaced_rune": "RUTHMARTINRUTHMARTIN",
+        "spaced_dune": "RUTHMARTINRUTHMARTIN",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4315,7 +4315,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119769,
         "premine": 0,
-        "spaced_rune": "ULTIVERSEULTIVERSE",
+        "spaced_dune": "ULTIVERSEULTIVERSE",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4343,7 +4343,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119768,
         "premine": 0,
-        "spaced_rune": "NUQHRKVWSYEA",
+        "spaced_dune": "NUQHRKVWSYEA",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4371,7 +4371,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119767,
         "premine": 0,
-        "spaced_rune": "FMTJRFVGNHVZNUCB",
+        "spaced_dune": "FMTJRFVGNHVZNUCB",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4399,7 +4399,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119766,
         "premine": 0,
-        "spaced_rune": "WEELZZLGHGDRTO",
+        "spaced_dune": "WEELZZLGHGDRTO",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4427,7 +4427,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119765,
         "premine": 0,
-        "spaced_rune": "MIIOBBPODENFJ",
+        "spaced_dune": "MIIOBBPODENFJ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4455,7 +4455,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119764,
         "premine": 0,
-        "spaced_rune": "TASTE•RISING•FULL",
+        "spaced_dune": "TASTE•RISING•FULL",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4483,7 +4483,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119763,
         "premine": 0,
-        "spaced_rune": "REGION•MARK•LOW",
+        "spaced_dune": "REGION•MARK•LOW",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4511,7 +4511,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119762,
         "premine": 0,
-        "spaced_rune": "QHKKEWPTDMNB",
+        "spaced_dune": "QHKKEWPTDMNB",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4539,7 +4539,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119761,
         "premine": 0,
-        "spaced_rune": "IWLUKGYIWMBP",
+        "spaced_dune": "IWLUKGYIWMBP",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4567,7 +4567,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119760,
         "premine": 0,
-        "spaced_rune": "KWUFVEOJVKGQ",
+        "spaced_dune": "KWUFVEOJVKGQ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4595,7 +4595,7 @@ curl -s -H "Accept: application/json" \
         "mints": 26,
         "number": 119759,
         "premine": 210000,
-        "spaced_rune": "BOUNCE•THE•BITCOIN•CAT",
+        "spaced_dune": "BOUNCE•THE•BITCOIN•CAT",
         "symbol": "🐱",
         "terms": {
           "amount": 1000,
@@ -4623,7 +4623,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119758,
         "premine": 30000000,
-        "spaced_rune": "BITCAT•IS•IN•CONTROL",
+        "spaced_dune": "BITCAT•IS•IN•CONTROL",
         "symbol": "🐈",
         "terms": {
           "amount": 5000,
@@ -4651,7 +4651,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119757,
         "premine": 0,
-        "spaced_rune": "FIRST•CAT•EATING•BITCOINER",
+        "spaced_dune": "FIRST•CAT•EATING•BITCOINER",
         "symbol": "🙀",
         "terms": {
           "amount": 1000,
@@ -4679,7 +4679,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119756,
         "premine": 0,
-        "spaced_rune": "AI•CRYPTO•AI•CRYPTO",
+        "spaced_dune": "AI•CRYPTO•AI•CRYPTO",
         "symbol": "A",
         "terms": {
           "amount": 1000,
@@ -4707,7 +4707,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119755,
         "premine": 0,
-        "spaced_rune": "SACMKSOKCMPOKMWCLWMCLWCDWC",
+        "spaced_dune": "SACMKSOKCMPOKMWCLWMCLWCDWC",
         "symbol": "c",
         "terms": {
           "amount": 221,
@@ -4735,7 +4735,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119754,
         "premine": 0,
-        "spaced_rune": "XQOFVAHHLCQR",
+        "spaced_dune": "XQOFVAHHLCQR",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4763,7 +4763,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119753,
         "premine": 0,
-        "spaced_rune": "YEPWCVNODTII",
+        "spaced_dune": "YEPWCVNODTII",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4791,7 +4791,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119752,
         "premine": 0,
-        "spaced_rune": "SDFGJUJTYHTGRSFAD",
+        "spaced_dune": "SDFGJUJTYHTGRSFAD",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4819,7 +4819,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119751,
         "premine": 0,
-        "spaced_rune": "XQEKAAGEYDXY",
+        "spaced_dune": "XQEKAAGEYDXY",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4847,7 +4847,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119750,
         "premine": 0,
-        "spaced_rune": "XFHSGMZJEUML",
+        "spaced_dune": "XFHSGMZJEUML",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4875,7 +4875,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119749,
         "premine": 0,
-        "spaced_rune": "DJLNUHRYYTGR",
+        "spaced_dune": "DJLNUHRYYTGR",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4903,7 +4903,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119748,
         "premine": 0,
-        "spaced_rune": "CBAQVALKVMYP",
+        "spaced_dune": "CBAQVALKVMYP",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4931,7 +4931,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119747,
         "premine": 0,
-        "spaced_rune": "POJSRGWQBBWQ",
+        "spaced_dune": "POJSRGWQBBWQ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4959,7 +4959,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119746,
         "premine": 0,
-        "spaced_rune": "FMPQPSLKENKY",
+        "spaced_dune": "FMPQPSLKENKY",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -4987,7 +4987,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119745,
         "premine": 0,
-        "spaced_rune": "GOARBTCEASGJ",
+        "spaced_dune": "GOARBTCEASGJ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -5015,7 +5015,7 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119744,
         "premine": 0,
-        "spaced_rune": "MNBIUEEAKPBJ",
+        "spaced_dune": "MNBIUEEAKPBJ",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -5052,13 +5052,13 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119743,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "etching": "74e290bc2ed6b39c887ab3b456f86d91edbadb829936c63bb166d42233527491",
         "mints": 0,
         "number": 119743,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -5066,13 +5066,13 @@ curl -s -H "Accept: application/json" \
         "mints": 0,
         "number": 119743,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "terms": {
           "amount": 1,
           "cap": 29807122,
         "premine": 0,
-        "spaced_rune": "CWTYCFSOTBSU",
+        "spaced_dune": "CWTYCFSOTBSU",
         "symbol": null,
         "terms": {
           "amount": 1,
@@ -5117,7 +5117,7 @@ curl -s -H "Accept: application/json" \
 
 ### Description
 
-Returns details about a specific satoshi. Requires index with `--index-sats` flag.
+Returns details about a specific koinu. Requires index with `--index-sats` flag.
 
 ### Example
 
@@ -5135,7 +5135,7 @@ curl -s -H "Accept: application/json" \
   "degree": "3°111094′214″16797‴",
   "epoch": 18,
   "inscriptions": [],
-  "name": "satoshi",
+  "name": "koinu",
   "number": 2099994106992659,
   "offset": 16797,
   "percentile": "99.99971949060254%",
@@ -5179,7 +5179,7 @@ curl -s -H "Accept: application/json" \
   "lost_sats": 0,
   "minimum_rune_for_next_block": "PVHGFEDCAZZ",
   "rune_index": true,
-  "runes": 119811,
+  "dunes": 119811,
   "sat_index": false,
   "started": "2024-09-27T17:43:39.291876400Z",
   "transaction_index": false,

@@ -14,7 +14,7 @@ inscriptions to another wallet.
 Bitcoin Core provides both a Bitcoin full node and wallet. However, the Bitcoin
 Core wallet cannot create inscriptions and does not perform sat control.
 
-This requires [`ord`](https://github.com/ordinals/ord), the ordinal utility. `ord`
+This requires [`ord`](https://github.com/doginals/ord), the ordinal utility. `ord`
 doesn't implement its own wallet, so `ord wallet` subcommands interact with
 Bitcoin Core wallets.
 
@@ -32,10 +32,10 @@ This guide covers:
 Getting Help
 ------------
 
-If you get stuck, try asking for help on the [Ordinals Discord
+If you get stuck, try asking for help on the [Doginals Discord
 Server](https://discord.com/invite/87cjuz4FYg), or checking GitHub for relevant
-[issues](https://github.com/ordinals/ord/issues) and
-[discussions](https://github.com/ordinals/ord/discussions).
+[issues](https://github.com/doginals/ord/issues) and
+[discussions](https://github.com/doginals/ord/discussions).
 
 Installing Bitcoin Core
 -----------------------
@@ -141,13 +141,13 @@ Installing `ord`
 ----------------
 
 The `ord` utility is written in Rust and can be built from
-[source](https://github.com/ordinals/ord). Pre-built binaries are available on the
-[releases page](https://github.com/ordinals/ord/releases).
+[source](https://github.com/doginals/ord). Pre-built binaries are available on the
+[releases page](https://github.com/doginals/ord/releases).
 
 You can install the latest pre-built binary from the command line with:
 
 ```sh
-curl --proto '=https' --tlsv1.2 -fsLS https://ordinals.com/install.sh | bash -s
+curl --proto '=https' --tlsv1.2 -fsLS https://doginals.com/install.sh | bash -s
 ```
 
 Once `ord` is installed, you should be able to run:
@@ -395,14 +395,14 @@ Ask the recipient to generate a new address by running:
 ord wallet receive
 ```
 
-Send the runes by running:
+Send the dunes by running:
 
 ```
 ord wallet send --fee-rate <FEE_RATE> <ADDRESS> <RUNES_AMOUNT>
 ```
 
-Where `RUNES_AMOUNT` is the number of runes to send, a `:` character, and the
-name of the rune. For example if you want to send 1000 of the EXAMPLE rune, you
+Where `RUNES_AMOUNT` is the number of dunes to send, a `:` character, and the
+name of the dune. For example if you want to send 1000 of the EXAMPLE dune, you
 would use `1000:EXAMPLE`.
 
 ```

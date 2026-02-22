@@ -82,7 +82,7 @@ pub(crate) struct Wallet {
   ord_client: reqwest::blocking::Client,
   inscription_info: BTreeMap<InscriptionId, api::Inscription>,
   output_info: BTreeMap<OutPoint, api::Output>,
-  inscriptions: BTreeMap<SatPoint, Vec<InscriptionId>>,
+  inscriptions: BTreeMap<KoinuPoint, Vec<InscriptionId>>,
   locked_utxos: BTreeMap<OutPoint, TxOut>,
   settings: Settings,
 }
@@ -91,13 +91,13 @@ impl Wallet {
   pub(crate) fn get_wallet_sat_ranges(&self) -> Result<Vec<(OutPoint, Vec<(u64, u64)>)>> {
     ensure!(
       self.has_sat_index,
-      "ord index must be built with `--index-sats` to use `--sat`"
+      "ord index must be built with `--index-koinu` to use `--sat`"
     );
 
     let mut output_sat_ranges = Vec::new();
     for (output, info) in self.output_info.iter() {
-      if let Some(sat_ranges) = &info.sat_ranges {
-        output_sat_ranges.push((*output, sat_ranges.clone()));
+      if let Some(koinu_ranges) = &info.koinu_ranges {
+        output_sat_ranges.push((*output, koinu_ranges.clone()));
       } else {
         bail!("output {output} in wallet but is spent according to ord server");
       }
@@ -109,12 +109,12 @@ impl Wallet {
   pub(crate) fn get_output_sat_ranges(&self, output: &OutPoint) -> Result<Vec<(u64, u64)>> {
     ensure!(
       self.has_sat_index,
-      "ord index must be built with `--index-sats` to see sat ranges"
+      "ord index must be built with `--index-koinu` to see sat ranges"
     );
 
     if let Some(info) = self.output_info.get(output) {
-      if let Some(sat_ranges) = &info.sat_ranges {
-        Ok(sat_ranges.clone())
+      if let Some(koinu_ranges) = &info.koinu_ranges {
+        Ok(koinu_ranges.clone())
       } else {
         bail!("output {output} in wallet but is spent according to ord server");
       }
@@ -123,18 +123,18 @@ impl Wallet {
     }
   }
 
-  pub(crate) fn find_sat_in_outputs(&self, sat: Sat) -> Result<SatPoint> {
+  pub(crate) fn find_sat_in_outputs(&self, sat: Koinu) -> Result<KoinuPoint> {
     ensure!(
       self.has_sat_index,
-      "ord index must be built with `--index-sats` to use `--sat`"
+      "ord index must be built with `--index-koinu` to use `--sat`"
     );
 
     for (outpoint, info) in self.output_info.iter() {
-      if let Some(sat_ranges) = &info.sat_ranges {
+      if let Some(koinu_ranges) = &info.koinu_ranges {
         let mut offset = 0;
-        for (start, end) in sat_ranges {
+        for (start, end) in koinu_ranges {
           if start <= &sat.n() && &sat.n() < end {
-            return Ok(SatPoint {
+            return Ok(KoinuPoint {
               outpoint: *outpoint,
               offset: offset + sat.n() - start,
             });
@@ -192,7 +192,7 @@ impl Wallet {
     Ok(())
   }
 
-  pub(crate) fn inscriptions(&self) -> &BTreeMap<SatPoint, Vec<InscriptionId>> {
+  pub(crate) fn inscriptions(&self) -> &BTreeMap<KoinuPoint, Vec<InscriptionId>> {
     &self.inscriptions
   }
 
@@ -281,11 +281,11 @@ impl Wallet {
   pub(crate) fn get_runic_outputs(&self) -> Result<Option<BTreeSet<OutPoint>>> {
     let mut runic_outputs = BTreeSet::new();
     for (output, info) in &self.output_info {
-      let Some(runes) = &info.runes else {
+      let Some(dunes) = &info.dunes else {
         return Ok(None);
       };
 
-      if !runes.is_empty() {
+      if !dunes.is_empty() {
         runic_outputs.insert(*output);
       }
     }
@@ -296,27 +296,27 @@ impl Wallet {
   pub(crate) fn get_runes_balances_in_output(
     &self,
     output: &OutPoint,
-  ) -> Result<Option<BTreeMap<SpacedRune, Pile>>> {
+  ) -> Result<Option<BTreeMap<SpacedDune, Pile>>> {
     Ok(
       self
         .output_info
         .get(output)
         .ok_or(anyhow!("output not found in wallet"))?
-        .runes
+        .dunes
         .clone(),
     )
   }
 
   pub(crate) fn get_rune(
     &self,
-    rune: Rune,
-  ) -> Result<Option<(RuneId, RuneEntry, Option<InscriptionId>)>> {
+    dune: Dune,
+  ) -> Result<Option<(DuneId, DuneEntry, Option<InscriptionId>)>> {
     let response = self
       .ord_client
       .get(
         self
           .rpc_url
-          .join(&format!("/rune/{}", SpacedRune { rune, spacers: 0 }))
+          .join(&format!("/dune/{}", SpacedDune { dune, spacers: 0 }))
           .unwrap(),
       )
       .send()?;
@@ -327,7 +327,7 @@ impl Wallet {
 
     let response = response.error_for_status()?;
 
-    let rune_json: api::Rune = serde_json::from_str(&response.text()?)?;
+    let rune_json: api::Dune = serde_json::from_str(&response.text()?)?;
 
     Ok(Some((rune_json.id, rune_json.entry, rune_json.parent)))
   }
@@ -368,17 +368,17 @@ impl Wallet {
     self.settings.integration_test()
   }
 
-  fn is_above_minimum_at_height(&self, rune: Rune) -> Result<bool> {
+  fn is_above_minimum_at_height(&self, dune: Dune) -> Result<bool> {
     Ok(
-      rune
-        >= Rune::minimum_at_height(
+      dune
+        >= Dune::minimum_at_height(
           self.chain().network(),
           Height(u32::try_from(self.bitcoin_client().get_block_count()? + 1).unwrap()),
         ),
     )
   }
 
-  pub(crate) fn check_maturity(&self, rune: Rune, commit: &Transaction) -> Result<Maturity> {
+  pub(crate) fn check_maturity(&self, dune: Dune, commit: &Transaction) -> Result<Maturity> {
     Ok(
       if let Some(commit_tx) = self
         .bitcoin_client()
@@ -392,11 +392,11 @@ impl Wallet {
           .is_none()
         {
           Maturity::CommitSpent(commit_tx.info.txid)
-        } else if !self.is_above_minimum_at_height(rune)? {
+        } else if !self.is_above_minimum_at_height(dune)? {
           Maturity::BelowMinimumHeight(self.bitcoin_client().get_block_count()? + 1)
-        } else if current_confirmations + 1 < u32::from(Runestone::COMMIT_CONFIRMATIONS) {
+        } else if current_confirmations + 1 < u32::from(Dunestone::COMMIT_CONFIRMATIONS) {
           Maturity::ConfirmationsPending(
-            u32::from(Runestone::COMMIT_CONFIRMATIONS) - current_confirmations - 1,
+            u32::from(Dunestone::COMMIT_CONFIRMATIONS) - current_confirmations - 1,
           )
         } else {
           Maturity::Mature
@@ -407,18 +407,18 @@ impl Wallet {
     )
   }
 
-  pub(crate) fn wait_for_maturation(&self, rune: Rune) -> Result<batch::Output> {
-    let Some(entry) = self.load_etching(rune)? else {
+  pub(crate) fn wait_for_maturation(&self, dune: Dune) -> Result<batch::Output> {
+    let Some(entry) = self.load_etching(dune)? else {
       bail!("no etching found");
     };
 
     eprintln!(
-      "Waiting for rune {} commitment {} to mature…",
-      rune,
+      "Waiting for dune {} commitment {} to mature…",
+      dune,
       entry.commit.compute_txid()
     );
 
-    let mut pending_confirmations: u32 = Runestone::COMMIT_CONFIRMATIONS.into();
+    let mut pending_confirmations: u32 = Dunestone::COMMIT_CONFIRMATIONS.into();
 
     let progress = ProgressBar::new(pending_confirmations.into()).with_style(
       ProgressStyle::default_bar()
@@ -433,9 +433,9 @@ impl Wallet {
         return Ok(entry.output);
       }
 
-      match self.check_maturity(rune, &entry.commit)? {
+      match self.check_maturity(dune, &entry.commit)? {
         Maturity::Mature => {
-          progress.finish_with_message("Rune matured, submitting...");
+          progress.finish_with_message("Dune matured, submitting...");
           break;
         }
         Maturity::ConfirmationsPending(remaining) => {
@@ -445,8 +445,8 @@ impl Wallet {
           }
         }
         Maturity::CommitSpent(txid) => {
-          self.clear_etching(rune)?;
-          bail!("rune commitment {} spent, can't send reveal tx", txid);
+          self.clear_etching(dune)?;
+          bail!("dune commitment {} spent, can't send reveal tx", txid);
         }
         _ => {}
       }
@@ -456,10 +456,10 @@ impl Wallet {
       }
     }
 
-    self.send_etching(rune, &entry)
+    self.send_etching(dune, &entry)
   }
 
-  pub(crate) fn send_etching(&self, rune: Rune, entry: &EtchingEntry) -> Result<batch::Output> {
+  pub(crate) fn send_etching(&self, dune: Dune, entry: &EtchingEntry) -> Result<batch::Output> {
     match self.bitcoin_client().send_raw_transaction(&entry.reveal) {
       Ok(txid) => txid,
       Err(err) => {
@@ -470,7 +470,7 @@ impl Wallet {
       }
     };
 
-    self.clear_etching(rune)?;
+    self.clear_etching(dune)?;
 
     Ok(batch::Output {
       reveal_broadcast: true,
@@ -737,7 +737,7 @@ impl Wallet {
 
   pub(crate) fn save_etching(
     &self,
-    rune: &Rune,
+    dune: &Dune,
     commit: &Transaction,
     reveal: &Transaction,
     output: batch::Output,
@@ -746,7 +746,7 @@ impl Wallet {
     wtx.set_quick_repair(true);
 
     wtx.open_table(RUNE_TO_ETCHING)?.insert(
-      rune.0,
+      dune.0,
       EtchingEntry {
         commit: commit.clone(),
         reveal: reveal.clone(),
@@ -760,28 +760,28 @@ impl Wallet {
     Ok(())
   }
 
-  pub(crate) fn load_etching(&self, rune: Rune) -> Result<Option<EtchingEntry>> {
+  pub(crate) fn load_etching(&self, dune: Dune) -> Result<Option<EtchingEntry>> {
     let rtx = self.database.begin_read()?;
 
     Ok(
       rtx
         .open_table(RUNE_TO_ETCHING)?
-        .get(rune.0)?
+        .get(dune.0)?
         .map(|result| EtchingEntry::load(result.value())),
     )
   }
 
-  pub(crate) fn clear_etching(&self, rune: Rune) -> Result {
+  pub(crate) fn clear_etching(&self, dune: Dune) -> Result {
     let mut wtx = self.database.begin_write()?;
     wtx.set_quick_repair(true);
 
-    wtx.open_table(RUNE_TO_ETCHING)?.remove(rune.0)?;
+    wtx.open_table(RUNE_TO_ETCHING)?.remove(dune.0)?;
     wtx.commit()?;
 
     Ok(())
   }
 
-  pub(crate) fn pending_etchings(&self) -> Result<Vec<(Rune, EtchingEntry)>> {
+  pub(crate) fn pending_etchings(&self) -> Result<Vec<(Dune, EtchingEntry)>> {
     let rtx = self.database.begin_read()?;
 
     Ok(
@@ -789,9 +789,9 @@ impl Wallet {
         .open_table(RUNE_TO_ETCHING)?
         .iter()?
         .map(|result| {
-          result.map(|(key, value)| (Rune(key.value()), EtchingEntry::load(value.value())))
+          result.map(|(key, value)| (Dune(key.value()), EtchingEntry::load(value.value())))
         })
-        .collect::<Result<Vec<(Rune, EtchingEntry)>, StorageError>>()?,
+        .collect::<Result<Vec<(Dune, EtchingEntry)>, StorageError>>()?,
     )
   }
 
@@ -900,7 +900,7 @@ impl Wallet {
   pub fn create_unsigned_send_satpoint_transaction(
     &self,
     destination: Address,
-    satpoint: SatPoint,
+    satpoint: KoinuPoint,
     postage: Option<Amount>,
     fee_rate: FeeRate,
     sending_inscription: bool,
@@ -948,21 +948,21 @@ impl Wallet {
   pub fn create_unsigned_send_or_burn_runes_transaction(
     &self,
     destination: Option<Address>,
-    spaced_rune: SpacedRune,
+    spaced_dune: SpacedDune,
     decimal: Decimal,
     postage: Option<Amount>,
     fee_rate: FeeRate,
   ) -> Result<Transaction> {
     ensure!(
       self.has_rune_index(),
-      "sending runes with `ord send` requires index created with `--index-runes` flag",
+      "sending dunes with `ord send` requires index created with `--index-dunes` flag",
     );
 
     self.lock_non_cardinal_outputs()?;
 
     let (id, entry, _parent) = self
-      .get_rune(spaced_rune.rune)?
-      .with_context(|| format!("rune `{}` has not been etched", spaced_rune.rune))?;
+      .get_rune(spaced_dune.dune)?
+      .with_context(|| format!("dune `{}` has not been etched", spaced_dune.dune))?;
 
     let amount = decimal.to_integer(entry.divisibility)?;
 
@@ -984,28 +984,28 @@ impl Wallet {
             balance
               .unwrap_or_default()
               .into_iter()
-              .map(|(spaced_rune, pile)| (spaced_rune.rune, pile.amount))
+              .map(|(spaced_dune, pile)| (spaced_dune.dune, pile.amount))
               .collect(),
           )
         })
       })
-      .collect::<Result<BTreeMap<OutPoint, BTreeMap<Rune, u128>>>>()?;
+      .collect::<Result<BTreeMap<OutPoint, BTreeMap<Dune, u128>>>>()?;
 
     let mut inputs = Vec::new();
-    let mut input_rune_balances: BTreeMap<Rune, u128> = BTreeMap::new();
+    let mut input_rune_balances: BTreeMap<Dune, u128> = BTreeMap::new();
 
-    for (output, runes) in balances {
-      if let Some(balance) = runes.get(&spaced_rune.rune)
+    for (output, dunes) in balances {
+      if let Some(balance) = dunes.get(&spaced_dune.dune)
         && *balance > 0
       {
-        for (rune, balance) in runes {
-          *input_rune_balances.entry(rune).or_default() += balance;
+        for (dune, balance) in dunes {
+          *input_rune_balances.entry(dune).or_default() += balance;
         }
 
         inputs.push(output);
 
         if input_rune_balances
-          .get(&spaced_rune.rune)
+          .get(&spaced_dune.dune)
           .cloned()
           .unwrap_or_default()
           >= amount
@@ -1016,7 +1016,7 @@ impl Wallet {
     }
 
     let input_rune_balance = input_rune_balances
-      .get(&spaced_rune.rune)
+      .get(&spaced_dune.dune)
       .cloned()
       .unwrap_or_default();
 
@@ -1025,7 +1025,7 @@ impl Wallet {
     ensure! {
       input_rune_balance >= amount,
       "insufficient `{}` balance, only {} in wallet",
-      spaced_rune,
+      spaced_dune,
       Pile {
         amount: input_rune_balance,
         divisibility: entry.divisibility,
@@ -1033,11 +1033,11 @@ impl Wallet {
       },
     }
 
-    let runestone;
+    let dunestone;
     let postage = postage.unwrap_or(TARGET_POSTAGE);
 
     let unfunded_transaction = if let Some(destination) = destination {
-      runestone = Runestone {
+      dunestone = Dunestone {
         edicts: vec![Edict {
           amount,
           id,
@@ -1061,7 +1061,7 @@ impl Wallet {
         output: if needs_runes_change_output {
           vec![
             TxOut {
-              script_pubkey: runestone.encipher(),
+              script_pubkey: dunestone.encipher(),
               value: Amount::from_sat(0),
             },
             TxOut {
@@ -1081,7 +1081,7 @@ impl Wallet {
         },
       }
     } else {
-      runestone = Runestone {
+      dunestone = Dunestone {
         edicts: vec![Edict {
           amount,
           id,
@@ -1105,7 +1105,7 @@ impl Wallet {
         output: if needs_runes_change_output {
           vec![
             TxOut {
-              script_pubkey: runestone.encipher(),
+              script_pubkey: dunestone.encipher(),
               value: Amount::from_sat(0),
             },
             TxOut {
@@ -1115,7 +1115,7 @@ impl Wallet {
           ]
         } else {
           vec![TxOut {
-            script_pubkey: runestone.encipher(),
+            script_pubkey: dunestone.encipher(),
             value: Amount::from_sat(0),
           }]
         },
@@ -1129,8 +1129,8 @@ impl Wallet {
 
     if needs_runes_change_output {
       assert_eq!(
-        Runestone::decipher(&unsigned_transaction),
-        Some(Artifact::Runestone(runestone)),
+        Dunestone::decipher(&unsigned_transaction),
+        Some(Artifact::Dunestone(dunestone)),
       );
     }
 

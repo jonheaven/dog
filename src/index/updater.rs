@@ -1,5 +1,5 @@
 use {
-  self::{inscription_updater::InscriptionUpdater, rune_updater::RuneUpdater},
+  self::{inscription_updater::InscriptionUpdater, dune_updater::DuneUpdater},
   super::{fetcher::Fetcher, *},
   futures::future::try_join_all,
   tokio::sync::{
@@ -9,7 +9,7 @@ use {
 };
 
 mod inscription_updater;
-mod rune_updater;
+mod dune_updater;
 
 pub(crate) struct BlockData {
   pub(crate) header: Header,
@@ -353,41 +353,41 @@ impl Updater<'_> {
 
     if self.index.index_runes && self.height >= self.index.settings.first_rune_height() {
       let mut outpoint_to_rune_balances = wtx.open_table(OUTPOINT_TO_RUNE_BALANCES)?;
-      let mut rune_id_to_rune_entry = wtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-      let mut rune_to_rune_id = wtx.open_table(RUNE_TO_RUNE_ID)?;
-      let mut sequence_number_to_rune_id = wtx.open_table(SEQUENCE_NUMBER_TO_RUNE_ID)?;
+      let mut dune_id_to_rune_entry = wtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+      let mut rune_to_dune_id = wtx.open_table(RUNE_TO_RUNE_ID)?;
+      let mut sequence_number_to_dune_id = wtx.open_table(SEQUENCE_NUMBER_TO_RUNE_ID)?;
       let mut transaction_id_to_rune = wtx.open_table(TRANSACTION_ID_TO_RUNE)?;
 
-      let runes = statistic_to_count
+      let dunes = statistic_to_count
         .get(&Statistic::Runes.into())?
         .map(|x| x.value())
         .unwrap_or(0);
 
-      let mut rune_updater = RuneUpdater {
+      let mut dune_updater = DuneUpdater {
         event_sender: self.index.event_sender.as_ref(),
         block_time: block.header.time,
         burned: HashMap::new(),
         client: &self.index.client,
         height: self.height,
-        id_to_entry: &mut rune_id_to_rune_entry,
+        id_to_entry: &mut dune_id_to_rune_entry,
         inscription_id_to_sequence_number: &mut inscription_id_to_sequence_number,
-        minimum: Rune::minimum_at_height(
+        minimum: Dune::minimum_at_height(
           self.index.settings.chain().network(),
           Height(self.height),
         ),
         outpoint_to_balances: &mut outpoint_to_rune_balances,
-        rune_to_id: &mut rune_to_rune_id,
-        runes,
-        sequence_number_to_rune_id: &mut sequence_number_to_rune_id,
+        rune_to_id: &mut rune_to_dune_id,
+        dunes,
+        sequence_number_to_dune_id: &mut sequence_number_to_dune_id,
         statistic_to_count: &mut statistic_to_count,
         transaction_id_to_rune: &mut transaction_id_to_rune,
       };
 
       for (i, (tx, txid)) in block.txdata.iter().enumerate() {
-        rune_updater.index_runes(u32::try_from(i).unwrap(), tx, *txid)?;
+        dune_updater.index_runes(u32::try_from(i).unwrap(), tx, *txid)?;
       }
 
-      rune_updater.update()?;
+      dune_updater.update()?;
     }
 
     height_to_block_header.insert(&self.height, &block.header.store())?;
@@ -426,7 +426,7 @@ impl Updater<'_> {
       wtx.open_multimap_table(LATEST_CHILD_SEQUENCE_NUMBER_TO_COLLECTION_SEQUENCE_NUMBER)?;
     let mut outpoint_to_utxo_entry = wtx.open_table(OUTPOINT_TO_UTXO_ENTRY)?;
     let mut sat_to_satpoint = wtx.open_table(SAT_TO_SATPOINT)?;
-    let mut sat_to_sequence_number = wtx.open_multimap_table(SAT_TO_SEQUENCE_NUMBER)?;
+    let mut koinu_to_sequence_number = wtx.open_multimap_table(SAT_TO_SEQUENCE_NUMBER)?;
     let mut script_pubkey_to_outpoint = wtx.open_multimap_table(SCRIPT_PUBKEY_TO_OUTPOINT)?;
     let mut sequence_number_to_children = wtx.open_multimap_table(SEQUENCE_NUMBER_TO_CHILDREN)?;
     let mut sequence_number_to_inscription_entry =
@@ -479,9 +479,9 @@ impl Updater<'_> {
       }
     }
 
-    let mut lost_sats = statistic_to_count
+    let mut lost_koinu = statistic_to_count
       .get(&Statistic::LostSats.key())?
-      .map(|lost_sats| lost_sats.value())
+      .map(|lost_koinu| lost_koinu.value())
       .unwrap_or(0);
 
     let cursed_inscription_count = statistic_to_count
@@ -520,10 +520,10 @@ impl Updater<'_> {
       id_to_sequence_number: inscription_id_to_sequence_number,
       inscription_number_to_sequence_number: &mut inscription_number_to_sequence_number,
       latest_child_to_collection: &mut latest_child_to_collection,
-      lost_sats,
+      lost_koinu,
       next_sequence_number,
       reward: Height(self.height).subsidy(),
-      sat_to_sequence_number: &mut sat_to_sequence_number,
+      koinu_to_sequence_number: &mut koinu_to_sequence_number,
       sequence_number_to_children: &mut sequence_number_to_children,
       sequence_number_to_entry: &mut sequence_number_to_inscription_entry,
       timestamp: block.header.time,
@@ -618,7 +618,7 @@ impl Updater<'_> {
           input_sat_ranges = Some(
             input_utxo_entries
               .iter()
-              .map(|entry| entry.sat_ranges())
+              .map(|entry| entry.koinu_ranges())
               .collect(),
           );
           leftover_sat_ranges = &mut coinbase_inputs;
@@ -670,7 +670,7 @@ impl Updater<'_> {
     }
 
     if !lost_sat_ranges.is_empty() {
-      // Note that the lost-sats outpoint is special, because (unlike real
+      // Note that the lost-koinu outpoint is special, because (unlike real
       // outputs) it gets written to more than once.  commit() will merge
       // our new entry with any existing one.
       let utxo_entry = utxo_cache
@@ -679,18 +679,18 @@ impl Updater<'_> {
 
       for chunk in lost_sat_ranges.chunks_exact(11) {
         let (start, end) = SatRange::load(chunk.try_into().unwrap());
-        if !Sat(start).common() {
+        if !Koinu(start).common() {
           sat_to_satpoint.insert(
             &start,
-            &SatPoint {
+            &KoinuPoint {
               outpoint: OutPoint::null(),
-              offset: lost_sats,
+              offset: lost_koinu,
             }
             .store(),
           )?;
         }
 
-        lost_sats += end - start;
+        lost_koinu += end - start;
       }
 
       let mut new_utxo_entry = UtxoEntryBuf::new();
@@ -705,9 +705,9 @@ impl Updater<'_> {
     statistic_to_count.insert(
       &Statistic::LostSats.key(),
       &if self.index.index_sats {
-        lost_sats
+        lost_koinu
       } else {
-        inscription_updater.lost_sats
+        inscription_updater.lost_koinu
       },
     )?;
 
@@ -743,7 +743,7 @@ impl Updater<'_> {
     &mut self,
     tx: &Transaction,
     txid: Txid,
-    sat_to_satpoint: &mut Table<u64, &SatPointValue>,
+    sat_to_satpoint: &mut Table<u64, &KoinuPointValue>,
     output_utxo_entries: &mut [UtxoEntryBuf],
     input_sat_ranges: &[&[u8]],
     leftover_sat_ranges: &mut Vec<u8>,
@@ -758,7 +758,7 @@ impl Updater<'_> {
     // Preallocate our temporary array, sized to hold the combined
     // sat ranges from our inputs.  We'll never need more than that
     // for a single output, even if we end up splitting some ranges.
-    let mut sats = Vec::with_capacity(
+    let mut koinu = Vec::with_capacity(
       input_sat_ranges
         .iter()
         .map(|slice| slice.len())
@@ -783,10 +783,10 @@ impl Updater<'_> {
           )
         });
 
-        if !Sat(range.0).common() {
+        if !Koinu(range.0).common() {
           sat_to_satpoint.insert(
             &range.0,
-            &SatPoint {
+            &KoinuPoint {
               outpoint,
               offset: output.value.to_sat() - remaining,
             }
@@ -805,7 +805,7 @@ impl Updater<'_> {
           range
         };
 
-        sats.extend_from_slice(&assigned.store());
+        koinu.extend_from_slice(&assigned.store());
 
         remaining -= assigned.1 - assigned.0;
 
@@ -814,8 +814,8 @@ impl Updater<'_> {
 
       *outputs_traversed += 1;
 
-      output_utxo_entries[vout].push_sat_ranges(&sats, self.index);
-      sats.clear();
+      output_utxo_entries[vout].push_sat_ranges(&koinu, self.index);
+      koinu.clear();
     }
 
     if let Some(range) = pending_input_sat_range {
@@ -861,7 +861,7 @@ impl Updater<'_> {
 
         if self.index.index_inscriptions {
           for (sequence_number, offset) in utxo_entry.parse_inscriptions() {
-            let satpoint = SatPoint { outpoint, offset };
+            let satpoint = KoinuPoint { outpoint, offset };
             sequence_number_to_satpoint.insert(sequence_number, &satpoint.store())?;
           }
         }

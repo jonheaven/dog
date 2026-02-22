@@ -50,9 +50,9 @@ pub(crate) struct Inscribe {
   #[clap(long, help = "Allow reinscription.")]
   pub(crate) reinscribe: bool,
   #[arg(long, help = "Inscribe <SAT>.", conflicts_with = "satpoint")]
-  pub(crate) sat: Option<Sat>,
+  pub(crate) sat: Option<Koinu>,
   #[arg(long, help = "Inscribe <SATPOINT>.", conflicts_with = "sat")]
-  pub(crate) satpoint: Option<SatPoint>,
+  pub(crate) satpoint: Option<KoinuPoint>,
   #[arg(long, help = "Set `title` property to <TITLE>.")]
   pub(crate) title: Option<String>,
 }
@@ -160,7 +160,7 @@ mod tests {
     assert_regex_match!(
       Arguments::try_parse_from([
         "ord",
-        "--index-sats",
+        "--index-koinu",
         "wallet",
         "inscribe",
         "--sat",

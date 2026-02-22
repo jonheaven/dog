@@ -14,17 +14,17 @@ enum Error {
     threshold: Amount,
   },
   NoOutputs,
-  RunestoneSize {
+  DunestoneSize {
     size: usize,
   },
   Shortfall {
-    rune: SpacedRune,
+    dune: SpacedDune,
     have: Pile,
     need: Pile,
   },
   ZeroValue {
     output: usize,
-    rune: SpacedRune,
+    dune: SpacedDune,
   },
 }
 
@@ -43,15 +43,15 @@ impl Display for Error {
         write!(f, "postage value {value} below dust threshold {threshold}")
       }
       Self::NoOutputs => write!(f, "split file must contain at least one output"),
-      Self::RunestoneSize { size } => write!(
+      Self::DunestoneSize { size } => write!(
         f,
-        "runestone size {size} over maximum standard OP_RETURN size {MAX_STANDARD_OP_RETURN_SIZE}"
+        "dunestone size {size} over maximum standard OP_RETURN size {MAX_STANDARD_OP_RETURN_SIZE}"
       ),
-      Self::Shortfall { rune, have, need } => {
-        write!(f, "wallet contains {have} of {rune} but need {need}")
+      Self::Shortfall { dune, have, need } => {
+        write!(f, "wallet contains {have} of {dune} but need {need}")
       }
-      Self::ZeroValue { output, rune } => {
-        write!(f, "output {output} has zero value for rune {rune}")
+      Self::ZeroValue { output, dune } => {
+        write!(f, "output {output} has zero value for dune {dune}")
       }
     }
   }
@@ -63,7 +63,7 @@ impl std::error::Error for Error {}
 pub(crate) struct Split {
   #[arg(long, help = "Don't sign or broadcast transaction")]
   pub(crate) dry_run: bool,
-  #[arg(long, help = "Use fee rate of <FEE_RATE> sats/vB")]
+  #[arg(long, help = "Use fee rate of <FEE_RATE> koinu/vB")]
   fee_rate: FeeRate,
   #[arg(
     long,
@@ -73,7 +73,7 @@ pub(crate) struct Split {
   pub(crate) postage: Option<Amount>,
   #[arg(
     long,
-    help = "Split outputs multiple inscriptions and rune defined in YAML <SPLIT_FILE>.",
+    help = "Split outputs multiple inscriptions and dune defined in YAML <SPLIT_FILE>.",
     value_name = "SPLIT_FILE"
   )]
   pub(crate) splits: PathBuf,
@@ -98,7 +98,7 @@ impl Split {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
       wallet.has_rune_index(),
-      "`ord wallet split` requires index created with `--index-runes`",
+      "`ord wallet split` requires index created with `--index-dunes`",
     );
 
     wallet.lock_non_cardinal_outputs()?;
@@ -123,12 +123,12 @@ impl Split {
             balance
               .unwrap_or_default()
               .into_iter()
-              .map(|(spaced_rune, pile)| (spaced_rune.rune, pile.amount))
+              .map(|(spaced_dune, pile)| (spaced_dune.dune, pile.amount))
               .collect(),
           )
         })
       })
-      .collect::<Result<BTreeMap<OutPoint, BTreeMap<Rune, u128>>>>()?;
+      .collect::<Result<BTreeMap<OutPoint, BTreeMap<Dune, u128>>>>()?;
 
     let unfunded_transaction = Self::build_transaction(
       self.no_limit,
@@ -154,8 +154,8 @@ impl Split {
   }
 
   fn build_transaction(
-    no_runestone_limit: bool,
-    balances: BTreeMap<OutPoint, BTreeMap<Rune, u128>>,
+    no_dunestone_limit: bool,
+    balances: BTreeMap<OutPoint, BTreeMap<Dune, u128>>,
     change_address: &Address,
     postage: Option<Amount>,
     splits: &Splitfile,
@@ -177,37 +177,37 @@ impl Split {
       });
     }
 
-    let mut input_runes_required = BTreeMap::<Rune, u128>::new();
+    let mut input_runes_required = BTreeMap::<Dune, u128>::new();
 
     for (i, output) in splits.outputs.iter().enumerate() {
-      for (&rune, &amount) in &output.runes {
+      for (&dune, &amount) in &output.dunes {
         if amount == 0 {
           return Err(Error::ZeroValue {
-            rune: splits.rune_info[&rune].spaced_rune,
+            dune: splits.rune_info[&dune].spaced_dune,
             output: i,
           });
         }
-        let required = input_runes_required.entry(rune).or_default();
+        let required = input_runes_required.entry(dune).or_default();
         *required = (*required).checked_add(amount).unwrap();
       }
     }
 
-    let mut input_rune_balances: BTreeMap<Rune, u128> = BTreeMap::new();
+    let mut input_rune_balances: BTreeMap<Dune, u128> = BTreeMap::new();
 
     let mut inputs = Vec::new();
 
-    for (output, runes) in balances {
-      for (rune, required) in &input_runes_required {
-        if input_rune_balances.get(rune).copied().unwrap_or_default() >= *required {
+    for (output, dunes) in balances {
+      for (dune, required) in &input_runes_required {
+        if input_rune_balances.get(dune).copied().unwrap_or_default() >= *required {
           continue;
         }
 
-        if runes.get(rune).copied().unwrap_or_default() == 0 {
+        if dunes.get(dune).copied().unwrap_or_default() == 0 {
           continue;
         }
 
-        for (rune, balance) in &runes {
-          *input_rune_balances.entry(*rune).or_default() += balance;
+        for (dune, balance) in &dunes {
+          *input_rune_balances.entry(*dune).or_default() += balance;
         }
 
         inputs.push(output);
@@ -216,12 +216,12 @@ impl Split {
       }
     }
 
-    for (&rune, &need) in &input_runes_required {
-      let have = input_rune_balances.get(&rune).copied().unwrap_or_default();
+    for (&dune, &need) in &input_runes_required {
+      let have = input_rune_balances.get(&dune).copied().unwrap_or_default();
       if have < need {
-        let info = splits.rune_info[&rune];
+        let info = splits.rune_info[&dune];
         return Err(Error::Shortfall {
-          rune: info.spaced_rune,
+          dune: info.spaced_dune,
           have: Pile {
             amount: have,
             divisibility: info.divisibility,
@@ -237,8 +237,8 @@ impl Split {
     }
 
     let mut need_rune_change_output = false;
-    for (rune, input) in input_rune_balances {
-      if input > input_runes_required.get(&rune).copied().unwrap_or_default() {
+    for (dune, input) in input_rune_balances {
+      if input > input_runes_required.get(&dune).copied().unwrap_or_default() {
         need_rune_change_output = true;
       }
     }
@@ -248,31 +248,31 @@ impl Split {
     let base = if need_rune_change_output { 2 } else { 1 };
 
     for (i, output) in splits.outputs.iter().enumerate() {
-      for (rune, amount) in &output.runes {
+      for (dune, amount) in &output.dunes {
         edicts.push(Edict {
-          id: splits.rune_info.get(rune).unwrap().id,
+          id: splits.rune_info.get(dune).unwrap().id,
           amount: *amount,
           output: (i + base).try_into().unwrap(),
         });
       }
     }
 
-    let runestone = Runestone {
+    let dunestone = Dunestone {
       edicts,
       ..default()
     };
 
     let mut output = Vec::new();
 
-    let runestone_script_pubkey = runestone.encipher();
-    let size = runestone_script_pubkey.len();
+    let dunestone_script_pubkey = dunestone.encipher();
+    let size = dunestone_script_pubkey.len();
 
-    if !no_runestone_limit && size > MAX_STANDARD_OP_RETURN_SIZE {
-      return Err(Error::RunestoneSize { size });
+    if !no_dunestone_limit && size > MAX_STANDARD_OP_RETURN_SIZE {
+      return Err(Error::DunestoneSize { size });
     }
 
     output.push(TxOut {
-      script_pubkey: runestone_script_pubkey,
+      script_pubkey: dunestone_script_pubkey,
       value: Amount::from_sat(0),
     });
 
@@ -320,8 +320,8 @@ impl Split {
     }
 
     assert_eq!(
-      Runestone::decipher(&tx),
-      Some(Artifact::Runestone(runestone)),
+      Dunestone::decipher(&tx),
+      Some(Artifact::Dunestone(dunestone)),
     );
 
     Ok(tx)
@@ -361,7 +361,7 @@ mod tests {
         &Splitfile {
           outputs: vec![splitfile::Output {
             address: address(0),
-            runes: [(Rune(0), 1000)].into(),
+            dunes: [(Dune(0), 1000)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
           rune_info: BTreeMap::new(),
@@ -386,17 +386,17 @@ mod tests {
         &Splitfile {
           outputs: vec![splitfile::Output {
             address: address(0),
-            runes: [(Rune(0), 0)].into(),
+            dunes: [(Dune(0), 0)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
           rune_info: [(
-            Rune(0),
+            Dune(0),
             RuneInfo {
-              id: RuneId { block: 1, tx: 1 },
+              id: DuneId { block: 1, tx: 1 },
               divisibility: 10,
               symbol: Some('@'),
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 1,
               },
             },
@@ -407,8 +407,8 @@ mod tests {
       .unwrap_err(),
       Error::ZeroValue {
         output: 0,
-        rune: SpacedRune {
-          rune: Rune(0),
+        dune: SpacedDune {
+          dune: Dune(0),
           spacers: 1,
         },
       },
@@ -424,23 +424,23 @@ mod tests {
           outputs: vec![
             splitfile::Output {
               address: address(0),
-              runes: [(Rune(0), 100)].into(),
+              dunes: [(Dune(0), 100)].into(),
               value: Some(Amount::from_sat(1000)),
             },
             splitfile::Output {
               address: address(0),
-              runes: [(Rune(0), 0)].into(),
+              dunes: [(Dune(0), 0)].into(),
               value: Some(Amount::from_sat(1000)),
             },
           ],
           rune_info: [(
-            Rune(0),
+            Dune(0),
             RuneInfo {
-              id: RuneId { block: 1, tx: 1 },
+              id: DuneId { block: 1, tx: 1 },
               divisibility: 10,
               symbol: Some('@'),
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 10,
               },
             },
@@ -451,8 +451,8 @@ mod tests {
       .unwrap_err(),
       Error::ZeroValue {
         output: 1,
-        rune: SpacedRune {
-          rune: Rune(0),
+        dune: SpacedDune {
+          dune: Dune(0),
           spacers: 10,
         },
       },
@@ -470,17 +470,17 @@ mod tests {
         &Splitfile {
           outputs: vec![splitfile::Output {
             address: address(0),
-            runes: [(Rune(0), 1000)].into(),
+            dunes: [(Dune(0), 1000)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
           rune_info: [(
-            Rune(0),
+            Dune(0),
             RuneInfo {
-              id: RuneId { block: 1, tx: 1 },
+              id: DuneId { block: 1, tx: 1 },
               divisibility: 10,
               symbol: Some('@'),
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 2,
               },
             },
@@ -490,8 +490,8 @@ mod tests {
       )
       .unwrap_err(),
       Error::Shortfall {
-        rune: SpacedRune {
-          rune: Rune(0),
+        dune: SpacedDune {
+          dune: Dune(0),
           spacers: 2
         },
         have: Pile {
@@ -510,23 +510,23 @@ mod tests {
     assert_eq!(
       Split::build_transaction(
         false,
-        [(outpoint(0), [(Rune(0), 1000)].into())].into(),
+        [(outpoint(0), [(Dune(0), 1000)].into())].into(),
         &change(0),
         None,
         &Splitfile {
           outputs: vec![splitfile::Output {
             address: address(0),
-            runes: [(Rune(0), 2000)].into(),
+            dunes: [(Dune(0), 2000)].into(),
             value: Some(Amount::from_sat(1000)),
           }],
           rune_info: [(
-            Rune(0),
+            Dune(0),
             RuneInfo {
-              id: RuneId { block: 1, tx: 1 },
+              id: DuneId { block: 1, tx: 1 },
               divisibility: 2,
               symbol: Some('x'),
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 1
               },
             },
@@ -536,8 +536,8 @@ mod tests {
       )
       .unwrap_err(),
       Error::Shortfall {
-        rune: SpacedRune {
-          rune: Rune(0),
+        dune: SpacedDune {
+          dune: Dune(0),
           spacers: 1,
         },
         have: Pile {
@@ -559,23 +559,23 @@ mod tests {
     assert_eq!(
       Split::build_transaction(
         false,
-        [(outpoint(0), [(Rune(0), 1000)].into())].into(),
+        [(outpoint(0), [(Dune(0), 1000)].into())].into(),
         &change(0),
         None,
         &Splitfile {
           outputs: vec![splitfile::Output {
             address: address(0),
-            runes: [(Rune(0), 1000)].into(),
+            dunes: [(Dune(0), 1000)].into(),
             value: Some(Amount::from_sat(1)),
           }],
           rune_info: [(
-            Rune(0),
+            Dune(0),
             RuneInfo {
-              id: RuneId { block: 1, tx: 1 },
+              id: DuneId { block: 1, tx: 1 },
               divisibility: 0,
               symbol: None,
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 0,
               },
             },
@@ -594,30 +594,30 @@ mod tests {
     assert_eq!(
       Split::build_transaction(
         false,
-        [(outpoint(0), [(Rune(0), 2000)].into())].into(),
+        [(outpoint(0), [(Dune(0), 2000)].into())].into(),
         &change(0),
         None,
         &Splitfile {
           outputs: vec![
             splitfile::Output {
               address: address(0),
-              runes: [(Rune(0), 1000)].into(),
+              dunes: [(Dune(0), 1000)].into(),
               value: Some(Amount::from_sat(1000)),
             },
             splitfile::Output {
               address: address(0),
-              runes: [(Rune(0), 1000)].into(),
+              dunes: [(Dune(0), 1000)].into(),
               value: Some(Amount::from_sat(10)),
             },
           ],
           rune_info: [(
-            Rune(0),
+            Dune(0),
             RuneInfo {
-              id: RuneId { block: 1, tx: 1 },
+              id: DuneId { block: 1, tx: 1 },
               divisibility: 0,
               symbol: None,
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 0,
               },
             },
@@ -638,25 +638,25 @@ mod tests {
   fn one_output_no_change() {
     let address = address(0);
     let output = outpoint(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
 
-    let balances = [(output, [(rune, 1000)].into())].into();
+    let balances = [(output, [(dune, 1000)].into())].into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(rune, 1000)].into(),
+        dunes: [(dune, 1000)].into(),
         value: None,
       }],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -680,7 +680,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
                 id,
                 amount: 1000,
@@ -705,26 +705,26 @@ mod tests {
   fn one_output_with_change_for_outgoing_rune_with_default_postage() {
     let address = address(0);
     let output = outpoint(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
     let change = change(0);
 
-    let balances = [(output, [(rune, 2000)].into())].into();
+    let balances = [(output, [(dune, 2000)].into())].into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(rune, 1000)].into(),
+        dunes: [(dune, 1000)].into(),
         value: None,
       }],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -748,7 +748,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
                 id,
                 amount: 1000,
@@ -777,26 +777,26 @@ mod tests {
   fn one_output_with_change_for_outgoing_rune_with_non_default_postage() {
     let address = address(0);
     let output = outpoint(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
     let change = change(0);
 
-    let balances = [(output, [(rune, 2000)].into())].into();
+    let balances = [(output, [(dune, 2000)].into())].into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(rune, 1000)].into(),
+        dunes: [(dune, 1000)].into(),
         value: None,
       }],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -827,7 +827,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
                 id,
                 amount: 1000,
@@ -858,22 +858,22 @@ mod tests {
     let output = outpoint(0);
     let change = change(0);
 
-    let balances = [(output, [(Rune(0), 1000), (Rune(1), 1000)].into())].into();
+    let balances = [(output, [(Dune(0), 1000), (Dune(1), 1000)].into())].into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(Rune(0), 1000)].into(),
+        dunes: [(Dune(0), 1000)].into(),
         value: None,
       }],
       rune_info: [(
-        Rune(0),
+        Dune(0),
         RuneInfo {
-          id: rune_id(0),
+          id: dune_id(0),
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -897,9 +897,9 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
-                id: rune_id(0),
+                id: dune_id(0),
                 amount: 1000,
                 output: 2
               }],
@@ -929,25 +929,25 @@ mod tests {
       .unwrap()
       .assume_checked();
     let output = outpoint(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
 
-    let balances = [(output, [(rune, 1000)].into())].into();
+    let balances = [(output, [(dune, 1000)].into())].into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(rune, 1000)].into(),
+        dunes: [(dune, 1000)].into(),
         value: None,
       }],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -971,7 +971,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
                 id,
                 amount: 1000,
@@ -996,29 +996,29 @@ mod tests {
   fn excessive_inputs_are_not_selected() {
     let address = address(0);
     let output = outpoint(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
 
     let balances = [
-      (output, [(rune, 1000)].into()),
-      (outpoint(1), [(rune, 1000)].into()),
+      (output, [(dune, 1000)].into()),
+      (outpoint(1), [(dune, 1000)].into()),
     ]
     .into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(rune, 1000)].into(),
+        dunes: [(dune, 1000)].into(),
         value: None,
       }],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -1042,7 +1042,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
                 id,
                 amount: 1000,
@@ -1066,29 +1066,29 @@ mod tests {
   #[test]
   fn multiple_inputs_may_be_selected() {
     let address = address(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
 
     let balances = [
-      (outpoint(0), [(rune, 1000)].into()),
-      (outpoint(1), [(rune, 1000)].into()),
+      (outpoint(0), [(dune, 1000)].into()),
+      (outpoint(1), [(dune, 1000)].into()),
     ]
     .into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(rune, 2000)].into(),
+        dunes: [(dune, 2000)].into(),
         value: None,
       }],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -1120,7 +1120,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![Edict {
                 id,
                 amount: 2000,
@@ -1144,32 +1144,32 @@ mod tests {
   #[test]
   fn two_outputs_no_change() {
     let output = outpoint(0);
-    let rune = Rune(0);
-    let id = RuneId { block: 1, tx: 1 };
+    let dune = Dune(0);
+    let id = DuneId { block: 1, tx: 1 };
 
-    let balances = [(output, [(rune, 1000)].into())].into();
+    let balances = [(output, [(dune, 1000)].into())].into();
 
     let splits = Splitfile {
       outputs: vec![
         splitfile::Output {
           address: address(0),
-          runes: [(rune, 500)].into(),
+          dunes: [(dune, 500)].into(),
           value: None,
         },
         splitfile::Output {
           address: address(1),
-          runes: [(rune, 500)].into(),
+          dunes: [(dune, 500)].into(),
           value: None,
         },
       ],
       rune_info: [(
-        rune,
+        dune,
         RuneInfo {
           id,
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -1193,7 +1193,7 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![
                 Edict {
                   id,
@@ -1230,38 +1230,38 @@ mod tests {
     let address = address(0);
 
     let balances = [
-      (outpoint(0), [(Rune(0), 1000)].into()),
-      (outpoint(1), [(Rune(1), 2000)].into()),
+      (outpoint(0), [(Dune(0), 1000)].into()),
+      (outpoint(1), [(Dune(1), 2000)].into()),
     ]
     .into();
 
     let splits = Splitfile {
       outputs: vec![splitfile::Output {
         address: address.clone(),
-        runes: [(Rune(0), 1000), (Rune(1), 2000)].into(),
+        dunes: [(Dune(0), 1000), (Dune(1), 2000)].into(),
         value: None,
       }],
       rune_info: [
         (
-          Rune(0),
+          Dune(0),
           RuneInfo {
-            id: rune_id(0),
+            id: dune_id(0),
             divisibility: 0,
             symbol: None,
-            spaced_rune: SpacedRune {
-              rune: Rune(0),
+            spaced_dune: SpacedDune {
+              dune: Dune(0),
               spacers: 0,
             },
           },
         ),
         (
-          Rune(1),
+          Dune(1),
           RuneInfo {
-            id: rune_id(1),
+            id: dune_id(1),
             divisibility: 0,
             symbol: None,
-            spaced_rune: SpacedRune {
-              rune: Rune(1),
+            spaced_dune: SpacedDune {
+              dune: Dune(1),
               spacers: 0,
             },
           },
@@ -1294,15 +1294,15 @@ mod tests {
         output: vec![
           TxOut {
             value: Amount::from_sat(0),
-            script_pubkey: Runestone {
+            script_pubkey: Dunestone {
               edicts: vec![
                 Edict {
-                  id: rune_id(0),
+                  id: dune_id(0),
                   amount: 1000,
                   output: 1
                 },
                 Edict {
-                  id: rune_id(1),
+                  id: dune_id(1),
                   amount: 2000,
                   output: 1
                 },
@@ -1324,24 +1324,24 @@ mod tests {
 
   #[test]
   fn oversize_op_return_is_an_error() {
-    let balances = [(outpoint(0), [(Rune(0), 10_000_000_000)].into())].into();
+    let balances = [(outpoint(0), [(Dune(0), 10_000_000_000)].into())].into();
 
     let splits = Splitfile {
       outputs: (0..10)
         .map(|i| splitfile::Output {
           address: address(i).clone(),
-          runes: [(Rune(0), 1_000_000_000)].into(),
+          dunes: [(Dune(0), 1_000_000_000)].into(),
           value: None,
         })
         .collect(),
       rune_info: [(
-        Rune(0),
+        Dune(0),
         RuneInfo {
-          id: rune_id(0),
+          id: dune_id(0),
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -1351,30 +1351,30 @@ mod tests {
 
     assert_eq!(
       Split::build_transaction(false, balances, &change(0), None, &splits).unwrap_err(),
-      Error::RunestoneSize { size: 85 },
+      Error::DunestoneSize { size: 85 },
     );
   }
 
   #[test]
   fn oversize_op_return_is_allowed_with_flag() {
-    let balances = [(outpoint(0), [(Rune(0), 10_000_000_000)].into())].into();
+    let balances = [(outpoint(0), [(Dune(0), 10_000_000_000)].into())].into();
 
     let splits = Splitfile {
       outputs: (0..10)
         .map(|i| splitfile::Output {
           address: address(i).clone(),
-          runes: [(Rune(0), 1_000_000_000)].into(),
+          dunes: [(Dune(0), 1_000_000_000)].into(),
           value: None,
         })
         .collect(),
       rune_info: [(
-        Rune(0),
+        Dune(0),
         RuneInfo {
-          id: rune_id(0),
+          id: dune_id(0),
           divisibility: 0,
           symbol: None,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
         },
@@ -1397,10 +1397,10 @@ mod tests {
           .map(|i| if i == 0 {
             TxOut {
               value: Amount::from_sat(0),
-              script_pubkey: Runestone {
+              script_pubkey: Dunestone {
                 edicts: (0..10)
                   .map(|i| Edict {
-                    id: rune_id(0),
+                    id: dune_id(0),
                     amount: 1_000_000_000,
                     output: i + 1,
                   })

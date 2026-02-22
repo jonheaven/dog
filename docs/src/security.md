@@ -54,7 +54,7 @@ as another web service which is vulnerable to cross-site scripting.
 
 ### Spoofing
 
-If `ord server` is run at a well known domain, for example, `ordinals.com`, an
+If `ord server` is run at a well known domain, for example, `doginals.com`, an
 attacker could publish a malicious inscription that attempts to trick users
 into thinking that it represents the owners of the domain. For example, by
 publishing a mint page to induce users to send bitcoin. Additionally, the

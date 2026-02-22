@@ -13,7 +13,7 @@ pub struct Entry {
   pub gallery: Vec<Item>,
   pub metadata: Option<serde_yaml::Value>,
   pub metaprotocol: Option<String>,
-  pub satpoint: Option<SatPoint>,
+  pub satpoint: Option<KoinuPoint>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]

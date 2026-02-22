@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:crates.io)",
+      "Bash(python3:*)",
+      "Bash(cargo build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(git mv:*)",
+      "Bash(xargs sed:*)",
+      "Bash(git -C /c/Users/jheav/Desktop/doge/dog mv:*)",
+      "Bash(cargo test:*)"
+    ]
+  }
+}

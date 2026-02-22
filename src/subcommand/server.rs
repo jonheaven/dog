@@ -140,7 +140,7 @@ pub struct Server {
   #[arg(
     long,
     default_value = "5s",
-    help = "Poll Bitcoin Core every <POLLING_INTERVAL>."
+    help = "Poll Dogecoin Core every <POLLING_INTERVAL>."
   )]
   pub(crate) polling_interval: humantime::Duration,
 }
@@ -265,12 +265,12 @@ impl Server {
         )
         .route("/preview/{inscription_id}", get(Self::preview))
         .route("/rare.txt", get(Self::rare_txt))
-        .route("/rune/{rune}", get(Self::rune))
-        .route("/runes", get(Self::runes))
-        .route("/runes/{page}", get(Self::runes_paginated))
+        .route("/dune/{dune}", get(Self::dune))
+        .route("/dunes", get(Self::dunes))
+        .route("/dunes/{page}", get(Self::runes_paginated))
         .route("/sat/{sat}", get(Self::sat))
         .route("/satpoint/{satpoint}", get(Self::satpoint))
-        .route("/satscard", get(Self::satscard))
+        .route("/koinucard", get(Self::koinucard))
         .route("/search", get(Self::search_by_query))
         .route("/search/{*query}", get(Self::search_by_path))
         .route("/static/{*path}", get(Self::static_asset))
@@ -646,7 +646,7 @@ impl Server {
       let prefix = if re::INSCRIPTION_ID.is_match(&path) || re::INSCRIPTION_NUMBER.is_match(&path) {
         "inscription"
       } else if re::RUNE_ID.is_match(&path) || re::SPACED_RUNE.is_match(&path) {
-        "rune"
+        "dune"
       } else if re::OUTPOINT.is_match(&path) {
         "output"
       } else if re::SATPOINT.is_match(&path) {
@@ -667,7 +667,7 @@ impl Server {
     })
   }
 
-  async fn satscard(
+  async fn koinucard(
     Extension(settings): Extension<Arc<Settings>>,
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
@@ -680,29 +680,29 @@ impl Server {
 
     if let Ok(form) = Query::<Form>::try_from_uri(&uri) {
       return if let Some(fragment) = form.url.0.fragment() {
-        Ok(Redirect::to(&format!("/satscard?{fragment}")).into_response())
+        Ok(Redirect::to(&format!("/koinucard?{fragment}")).into_response())
       } else if let Some(query) = form.url.0.query() {
-        Ok(Redirect::to(&format!("/satscard?{query}")).into_response())
+        Ok(Redirect::to(&format!("/koinucard?{query}")).into_response())
       } else {
         Err(ServerError::BadRequest(
-          "satscard URL missing fragment".into(),
+          "koinucard URL missing fragment".into(),
         ))
       };
     }
 
-    let satscard = if let Some(query) = uri.query().filter(|query| !query.is_empty()) {
-      let satscard = Satscard::from_query_parameters(settings.chain(), query).map_err(|err| {
-        ServerError::BadRequest(format!("invalid satscard query parameters: {err}"))
+    let koinucard = if let Some(query) = uri.query().filter(|query| !query.is_empty()) {
+      let koinucard = Koinucard::from_query_parameters(settings.chain(), query).map_err(|err| {
+        ServerError::BadRequest(format!("invalid koinucard query parameters: {err}"))
       })?;
 
-      let address_info = Self::address_info(&index, &satscard.address)?.map(
+      let address_info = Self::address_info(&index, &koinucard.address)?.map(
         |api::AddressInfo {
            outputs,
            inscriptions,
            sat_balance,
            runes_balances,
          }| AddressHtml {
-          address: satscard.address.clone(),
+          address: koinucard.address.clone(),
           header: false,
           inscriptions,
           outputs,
@@ -711,13 +711,13 @@ impl Server {
         },
       );
 
-      Some((satscard, address_info))
+      Some((koinucard, address_info))
     } else {
       None
     };
 
     Ok(
-      SatscardHtml { satscard }
+      SatscardHtml { koinucard }
         .page(server_config)
         .into_response(),
     )
@@ -726,7 +726,7 @@ impl Server {
   async fn sat(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
-    Path(DeserializeFromStr(sat)): Path<DeserializeFromStr<Sat>>,
+    Path(DeserializeFromStr(sat)): Path<DeserializeFromStr<Koinu>>,
     AcceptJson(accept_json): AcceptJson,
   ) -> ServerResult {
     task::block_in_place(|| {
@@ -766,7 +766,7 @@ impl Server {
       };
 
       Ok(if accept_json {
-        Json(api::Sat {
+        Json(api::Koinu {
           address: address.map(|address| address.to_string()),
           block: sat.height().0,
           charms: Charm::charms(charms),
@@ -823,8 +823,8 @@ impl Server {
           inscriptions: output_info.inscriptions,
           outpoint,
           output: txout,
-          runes: output_info.runes,
-          sat_ranges: output_info.sat_ranges,
+          dunes: output_info.dunes,
+          koinu_ranges: output_info.koinu_ranges,
           spent: output_info.spent,
         }
         .page(server_config)
@@ -835,14 +835,14 @@ impl Server {
 
   async fn satpoint(
     Extension(index): Extension<Arc<Index>>,
-    Path(satpoint): Path<SatPoint>,
+    Path(satpoint): Path<KoinuPoint>,
   ) -> ServerResult<Redirect> {
     task::block_in_place(|| {
       let (output_info, _) = index
         .get_output_info(satpoint.outpoint)?
         .ok_or_not_found(|| format!("satpoint {satpoint}"))?;
 
-      let Some(ranges) = output_info.sat_ranges else {
+      let Some(ranges) = output_info.koinu_ranges else {
         return Err(ServerError::NotFound("sat index required".into()));
       };
 
@@ -908,7 +908,7 @@ impl Server {
       if output_type != OutputType::Any {
         if !index.has_rune_index() {
           return Err(ServerError::BadRequest(
-            "this server has no runes index".to_string(),
+            "this server has no dunes index".to_string(),
           ));
         }
 
@@ -966,34 +966,34 @@ impl Server {
     task::block_in_place(|| Ok(RareTxt(index.rare_sat_satpoints()?)))
   }
 
-  async fn rune(
+  async fn dune(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
-    Path(DeserializeFromStr(rune_query)): Path<DeserializeFromStr<query::Rune>>,
+    Path(DeserializeFromStr(rune_query)): Path<DeserializeFromStr<query::Dune>>,
     AcceptJson(accept_json): AcceptJson,
   ) -> ServerResult {
     task::block_in_place(|| {
       if !index.has_rune_index() {
         return Err(ServerError::NotFound(
-          "this server has no rune index".to_string(),
+          "this server has no dune index".to_string(),
         ));
       }
 
-      let rune = match rune_query {
-        query::Rune::Spaced(spaced_rune) => spaced_rune.rune,
-        query::Rune::Id(rune_id) => index
-          .get_rune_by_id(rune_id)?
-          .ok_or_not_found(|| format!("rune {rune_id}"))?,
-        query::Rune::Number(number) => index
+      let dune = match rune_query {
+        query::Dune::Spaced(spaced_dune) => spaced_dune.dune,
+        query::Dune::Id(dune_id) => index
+          .get_rune_by_id(dune_id)?
+          .ok_or_not_found(|| format!("dune {dune_id}"))?,
+        query::Dune::Number(number) => index
           .get_rune_by_number(usize::try_from(number).unwrap())?
-          .ok_or_not_found(|| format!("rune number {number}"))?,
+          .ok_or_not_found(|| format!("dune number {number}"))?,
       };
 
-      let Some((id, entry, parent)) = index.rune(rune)? else {
+      let Some((id, entry, parent)) = index.dune(dune)? else {
         return Ok(if accept_json {
           StatusCode::NOT_FOUND.into_response()
         } else {
-          let unlock = if let Some(height) = rune.unlock_height(server_config.chain.network()) {
+          let unlock = if let Some(height) = dune.unlock_height(server_config.chain.network()) {
             Some((height, index.block_time(height)?))
           } else {
             None
@@ -1001,7 +1001,7 @@ impl Server {
 
           (
             StatusCode::NOT_FOUND,
-            RuneNotFoundHtml { rune, unlock }.page(server_config),
+            RuneNotFoundHtml { dune, unlock }.page(server_config),
           )
             .into_response()
         });
@@ -1012,7 +1012,7 @@ impl Server {
       let mintable = entry.mintable((block_height.n() + 1).into()).is_ok();
 
       Ok(if accept_json {
-        Json(api::Rune {
+        Json(api::Dune {
           entry,
           id,
           mintable,
@@ -1032,7 +1032,7 @@ impl Server {
     })
   }
 
-  async fn runes(
+  async fn dunes(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
     accept_json: AcceptJson,
@@ -1261,7 +1261,7 @@ impl Server {
         }
       };
 
-      let runes = index.get_runes_in_block(u64::from(height))?;
+      let dunes = index.get_runes_in_block(u64::from(height))?;
       Ok(if accept_json {
         let inscriptions = index.get_inscriptions_in_block(height)?;
         Json(api::Block::new(
@@ -1269,7 +1269,7 @@ impl Server {
           Height(height),
           Self::index_height(&index)?,
           inscriptions,
-          runes,
+          dunes,
         ))
         .into_response()
       } else {
@@ -1281,7 +1281,7 @@ impl Server {
           Self::index_height(&index)?,
           total_num,
           featured_inscriptions,
-          runes,
+          dunes,
         )
         .page(server_config)
         .into_response()
@@ -1336,12 +1336,12 @@ impl Server {
         .ok_or_not_found(|| format!("transaction {txid}"))?;
 
       let inscriptions = ParsedEnvelope::from_transaction(&transaction);
-      let runestone = Runestone::decipher(&transaction);
+      let dunestone = Dunestone::decipher(&transaction);
 
       Ok(if accept_json {
         Json(api::Decode {
           inscriptions,
-          runestone,
+          dunestone,
         })
         .into_response()
       } else {
@@ -1411,21 +1411,21 @@ impl Server {
         Ok(Redirect::to(&format!("/inscription/{query}")))
       } else if let Some(captures) = re::COINKITE_SATSCARD_URL.captures(query) {
         Ok(Redirect::to(&format!(
-          "/satscard?{}",
+          "/koinucard?{}",
           &captures["parameters"]
         )))
       } else if let Some(captures) = re::ORDINALS_SATSCARD_URL.captures(query) {
-        Ok(Redirect::to(&format!("/satscard?{}", &captures["query"])))
+        Ok(Redirect::to(&format!("/koinucard?{}", &captures["query"])))
       } else if re::SPACED_RUNE.is_match(query) {
-        Ok(Redirect::to(&format!("/rune/{query}")))
+        Ok(Redirect::to(&format!("/dune/{query}")))
       } else if re::RUNE_ID.is_match(query) {
         let id = query
-          .parse::<RuneId>()
+          .parse::<DuneId>()
           .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
-        let rune = index.get_rune_by_id(id)?.ok_or_not_found(|| "rune ID")?;
+        let dune = index.get_rune_by_id(id)?.ok_or_not_found(|| "dune ID")?;
 
-        Ok(Redirect::to(&format!("/rune/{rune}")))
+        Ok(Redirect::to(&format!("/dune/{dune}")))
       } else if re::ADDRESS.is_match(query) {
         Ok(Redirect::to(&format!("/address/{query}")))
       } else if re::SATPOINT.is_match(query) {
@@ -1453,7 +1453,7 @@ impl Server {
 
       let chain = server_config.chain;
       match chain {
-        Chain::Mainnet => builder.title("Inscriptions".to_string()),
+        Chain::Dogecoin => builder.title("Inscriptions".to_string()),
         _ => builder.title(format!("Inscriptions – {chain:?}")),
       };
 
@@ -1690,7 +1690,7 @@ impl Server {
     Path((DeserializeFromStr(query), i)): Path<(DeserializeFromStr<query::Inscription>, usize)>,
   ) -> ServerResult<PageHtml<ItemHtml>> {
     task::block_in_place(|| {
-      if let query::Inscription::Sat(_) = query
+      if let query::Inscription::Koinu(_) = query
         && !index.has_sat_index()
       {
         return Err(ServerError::NotFound("sat index required".into()));
@@ -1746,7 +1746,7 @@ impl Server {
     child: Option<usize>,
   ) -> ServerResult {
     task::block_in_place(|| {
-      if let query::Inscription::Sat(_) = query
+      if let query::Inscription::Koinu(_) = query
         && !index.has_sat_index()
       {
         return Err(ServerError::NotFound("sat index required".into()));
@@ -1786,7 +1786,7 @@ impl Server {
           parents: info.parents,
           previous: info.previous,
           properties,
-          rune: info.rune,
+          dune: info.dune,
           sat: info.sat,
           satpoint: info.satpoint,
           timestamp: Utc.timestamp_opt(info.timestamp, 0).unwrap(),
@@ -2376,11 +2376,11 @@ mod tests {
     }
 
     fn index_runes(self) -> Self {
-      self.ord_flag("--index-runes")
+      self.ord_flag("--index-dunes")
     }
 
     fn index_sats(self) -> Self {
-      self.ord_flag("--index-sats")
+      self.ord_flag("--index-koinu")
     }
 
     fn redirect_http_to_https(self) -> Self {
@@ -2409,10 +2409,10 @@ mod tests {
     #[track_caller]
     pub(crate) fn etch(
       &self,
-      runestone: Runestone,
+      dunestone: Dunestone,
       outputs: usize,
       witness: Option<Witness>,
-    ) -> (Txid, RuneId) {
+    ) -> (Txid, DuneId) {
       let block_count = usize::try_from(self.index.block_count().unwrap()).unwrap();
 
       self.mine_blocks(1);
@@ -2423,15 +2423,15 @@ mod tests {
         ..default()
       });
 
-      self.mine_blocks((Runestone::COMMIT_CONFIRMATIONS - 1).into());
+      self.mine_blocks((Dunestone::COMMIT_CONFIRMATIONS - 1).into());
 
       let witness = witness.unwrap_or_else(|| {
         let tapscript = script::Builder::new()
           .push_slice::<&PushBytes>(
-            runestone
+            dunestone
               .etching
               .unwrap()
-              .rune
+              .dune
               .unwrap()
               .commitment()
               .as_slice()
@@ -2447,7 +2447,7 @@ mod tests {
 
       let txid = self.core.broadcast_tx(TransactionTemplate {
         inputs: &[(block_count + 1, 1, 0, witness)],
-        op_return: Some(runestone.encipher()),
+        op_return: Some(dunestone.encipher()),
         outputs,
         ..default()
       });
@@ -2456,7 +2456,7 @@ mod tests {
 
       (
         txid,
-        RuneId {
+        DuneId {
           block: (self.index.block_count().unwrap() - 1).into(),
           tx: 1,
         },
@@ -2837,27 +2837,27 @@ mod tests {
 
   #[test]
   fn search_by_query_returns_rune() {
-    TestServer::new().assert_redirect("/search?query=ABCD", "/rune/ABCD");
+    TestServer::new().assert_redirect("/search?query=ABCD", "/dune/ABCD");
   }
 
   #[test]
-  fn search_by_query_returns_spaced_rune() {
-    TestServer::new().assert_redirect("/search?query=AB•CD", "/rune/AB•CD");
+  fn search_by_query_returns_spaced_dune() {
+    TestServer::new().assert_redirect("/search?query=AB•CD", "/dune/AB•CD");
   }
 
   #[test]
   fn search_by_query_returns_satscard() {
     TestServer::new().assert_redirect(
-      "/search?query=https://satscard.com/start%23foo",
-      "/satscard?foo",
+      "/search?query=https://koinucard.com/start%23foo",
+      "/koinucard?foo",
     );
     TestServer::new().assert_redirect(
       "/search?query=https://getsatscard.com/start%23foo",
-      "/satscard?foo",
+      "/koinucard?foo",
     );
     TestServer::new().assert_redirect(
-      "/search?query=https://ordinals.com/satscard?foo",
-      "/satscard?foo",
+      "/search?query=https://ordinals.com/koinucard?foo",
+      "/koinucard?foo",
     );
   }
 
@@ -2918,36 +2918,36 @@ mod tests {
 
   #[test]
   fn search_by_path_returns_rune() {
-    TestServer::new().assert_redirect("/search/ABCD", "/rune/ABCD");
+    TestServer::new().assert_redirect("/search/ABCD", "/dune/ABCD");
   }
 
   #[test]
-  fn search_by_path_returns_spaced_rune() {
-    TestServer::new().assert_redirect("/search/AB•CD", "/rune/AB•CD");
+  fn search_by_path_returns_spaced_dune() {
+    TestServer::new().assert_redirect("/search/AB•CD", "/dune/AB•CD");
   }
 
   #[test]
-  fn search_by_rune_id_returns_rune() {
+  fn search_by_dune_id_returns_rune() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune = Rune(RUNE);
+    let dune = Dune(RUNE);
 
-    server.assert_response_regex(format!("/rune/{rune}"), StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
     server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(rune),
+          dune: Some(dune),
           ..default()
         }),
         ..default()
@@ -2958,8 +2958,8 @@ mod tests {
 
     server.mine_blocks(1);
 
-    server.assert_redirect("/search/8:1", "/rune/AAAAAAAAAAAAA");
-    server.assert_redirect("/search?query=8:1", "/rune/AAAAAAAAAAAAA");
+    server.assert_redirect("/search/8:1", "/dune/AAAAAAAAAAAAA");
+    server.assert_redirect("/search?query=8:1", "/dune/AAAAAAAAAAAAA");
 
     server.assert_response_regex(
       "/search/100000000000000000000:200000000000000000",
@@ -2971,7 +2971,7 @@ mod tests {
   #[test]
   fn search_by_satpoint_returns_sat() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -2998,7 +2998,7 @@ mod tests {
   #[test]
   fn satpoint_returns_sat_in_multiple_ranges() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -3053,10 +3053,10 @@ mod tests {
       "/inscription/521f8eccffa4c41a3a7728dd012ea5a4a02feed81f41159231251ecf1e5c79dai0",
     );
     server.assert_redirect("/-1", "/inscription/-1");
-    server.assert_redirect("/FOO", "/rune/FOO");
-    server.assert_redirect("/FO.O", "/rune/FO.O");
-    server.assert_redirect("/FO•O", "/rune/FO•O");
-    server.assert_redirect("/0:0", "/rune/0:0");
+    server.assert_redirect("/FOO", "/dune/FOO");
+    server.assert_redirect("/FO.O", "/dune/FO.O");
+    server.assert_redirect("/FO•O", "/dune/FO•O");
+    server.assert_redirect("/0:0", "/dune/0:0");
     server.assert_redirect(
       "/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0",
       "/output/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0",
@@ -3104,27 +3104,27 @@ mod tests {
   }
 
   #[test]
-  fn runes_can_be_queried_by_rune_id() {
+  fn runes_can_be_queried_by_dune_id() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune = Rune(RUNE);
+    let dune = Dune(RUNE);
 
-    server.assert_response_regex("/rune/9:1", StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex("/dune/9:1", StatusCode::NOT_FOUND, ".*");
 
     server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(rune),
+          dune: Some(dune),
           ..default()
         }),
         ..default()
@@ -3136,34 +3136,34 @@ mod tests {
     server.mine_blocks(1);
 
     server.assert_response_regex(
-      "/rune/8:1",
+      "/dune/8:1",
       StatusCode::OK,
-      ".*<title>Rune AAAAAAAAAAAAA</title>.*",
+      ".*<title>Dune AAAAAAAAAAAAA</title>.*",
     );
   }
 
   #[test]
   fn runes_can_be_queried_by_rune_number() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    server.assert_response_regex("/rune/0", StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex("/dune/0", StatusCode::NOT_FOUND, ".*");
 
     for i in 0..10 {
-      let rune = Rune(RUNE + i);
+      let dune = Dune(RUNE + i);
       server.etch(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
-            rune: Some(rune),
+            dune: Some(dune),
             ..default()
           }),
           ..default()
@@ -3176,40 +3176,40 @@ mod tests {
     }
 
     server.assert_response_regex(
-      "/rune/0",
+      "/dune/0",
       StatusCode::OK,
-      ".*<title>Rune AAAAAAAAAAAAA</title>.*",
+      ".*<title>Dune AAAAAAAAAAAAA</title>.*",
     );
 
     for i in 1..6 {
       server.assert_response_regex(
-        format!("/rune/{i}"),
+        format!("/dune/{i}"),
         StatusCode::OK,
-        ".*<title>Rune AAAAAAAAAAAA.*</title>.*",
+        ".*<title>Dune AAAAAAAAAAAA.*</title>.*",
       );
     }
 
     server.assert_response_regex(
-      "/rune/9",
+      "/dune/9",
       StatusCode::OK,
-      ".*<title>Rune AAAAAAAAAAAAJ</title>.*",
+      ".*<title>Dune AAAAAAAAAAAAJ</title>.*",
     );
   }
 
   #[test]
   fn rune_not_etched_shows_unlock_height() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
     server.assert_html_status(
-      "/rune/A",
+      "/dune/A",
       StatusCode::NOT_FOUND,
       RuneNotFoundHtml {
-        rune: Rune(0),
+        dune: Dune(0),
         unlock: Some((
           Height(209999),
           Blocktime::Expected(DateTime::from_timestamp(125998800, 0).unwrap()),
@@ -3221,17 +3221,17 @@ mod tests {
   #[test]
   fn reserved_rune_not_etched_shows_reserved_status() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
     server.assert_html_status(
-      format!("/rune/{}", Rune(Rune::RESERVED)),
+      format!("/dune/{}", Dune(Dune::RESERVED)),
       StatusCode::NOT_FOUND,
       RuneNotFoundHtml {
-        rune: Rune(Rune::RESERVED),
+        dune: Dune(Dune::RESERVED),
         unlock: None,
       },
     );
@@ -3240,14 +3240,14 @@ mod tests {
   #[test]
   fn runes_are_displayed_on_runes_page() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
     server.assert_html(
-      "/runes",
+      "/dunes",
       RunesHtml {
         entries: Vec::new(),
         more: false,
@@ -3257,14 +3257,14 @@ mod tests {
     );
 
     let (txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           symbol: Some('%'),
           premine: Some(u128::MAX),
           ..default()
@@ -3276,14 +3276,14 @@ mod tests {
     );
 
     pretty_assert_eq!(
-      server.index.runes().unwrap(),
+      server.index.dunes().unwrap(),
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0
           },
           premine: u128::MAX,
@@ -3300,13 +3300,13 @@ mod tests {
     );
 
     server.assert_html(
-      "/runes",
+      "/dunes",
       RunesHtml {
         entries: vec![(
-          RuneId::default(),
-          RuneEntry {
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+          DuneId::default(),
+          DuneEntry {
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             ..default()
@@ -3322,25 +3322,25 @@ mod tests {
   #[test]
   fn runes_are_displayed_on_rune_page() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune = Rune(RUNE);
+    let dune = Dune(RUNE);
 
-    server.assert_response_regex(format!("/rune/{rune}"), StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
     let (txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(rune),
+          dune: Some(dune),
           symbol: Some('%'),
           premine: Some(u128::MAX),
           turbo: true,
@@ -3353,17 +3353,17 @@ mod tests {
         Inscription {
           content_type: Some("text/plain".into()),
           body: Some("hello".into()),
-          rune: Some(rune.commitment()),
+          dune: Some(dune.commitment()),
           ..default()
         }
         .to_witness(),
       ),
     );
 
-    let entry = RuneEntry {
+    let entry = DuneEntry {
       block: id.block,
       etching: txid,
-      spaced_rune: SpacedRune { rune, spacers: 0 },
+      spaced_dune: SpacedDune { dune, spacers: 0 },
       premine: u128::MAX,
       symbol: Some('%'),
       timestamp: id.block,
@@ -3371,7 +3371,7 @@ mod tests {
       ..default()
     };
 
-    assert_eq!(server.index.runes().unwrap(), [(id, entry)]);
+    assert_eq!(server.index.dunes().unwrap(), [(id, entry)]);
 
     assert_eq!(
       server.index.get_rune_balances().unwrap(),
@@ -3381,7 +3381,7 @@ mod tests {
     let parent = InscriptionId { txid, index: 0 };
 
     server.assert_html(
-      format!("/rune/{rune}"),
+      format!("/dune/{dune}"),
       RuneHtml {
         id,
         entry,
@@ -3395,8 +3395,8 @@ mod tests {
       StatusCode::OK,
       ".*
 <dl>
-  <dt>rune</dt>
-  <dd><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>
+  <dt>dune</dt>
+  <dd><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>
   .*
 </dl>
 .*",
@@ -3406,23 +3406,23 @@ mod tests {
   #[test]
   fn etched_runes_are_displayed_on_block_page() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune0 = Rune(RUNE);
+    let rune0 = Dune(RUNE);
 
     let (_txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(rune0),
+          dune: Some(rune0),
           ..default()
         }),
         ..default()
@@ -3444,32 +3444,32 @@ mod tests {
     server.assert_response_regex(
       format!("/block/{}", id.block),
       StatusCode::OK,
-      format!(".*<h2>1 Rune</h2>.*<li><a href=/rune/{rune0}>{rune0}</a></li>.*"),
+      format!(".*<h2>1 Dune</h2>.*<li><a href=/dune/{rune0}>{rune0}</a></li>.*"),
     );
   }
 
   #[test]
   fn runes_are_spaced() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune = Rune(RUNE);
+    let dune = Dune(RUNE);
 
-    server.assert_response_regex(format!("/rune/{rune}"), StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
     let (txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(rune),
+          dune: Some(dune),
           symbol: Some('%'),
           spacers: Some(1),
           premine: Some(u128::MAX),
@@ -3482,7 +3482,7 @@ mod tests {
         Inscription {
           content_type: Some("text/plain".into()),
           body: Some("hello".into()),
-          rune: Some(rune.commitment()),
+          dune: Some(dune.commitment()),
           ..default()
         }
         .to_witness(),
@@ -3490,13 +3490,13 @@ mod tests {
     );
 
     pretty_assert_eq!(
-      server.index.runes().unwrap(),
+      server.index.dunes().unwrap(),
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune { rune, spacers: 1 },
+          spaced_dune: SpacedDune { dune, spacers: 1 },
           premine: u128::MAX,
           symbol: Some('%'),
           timestamp: id.block,
@@ -3511,21 +3511,21 @@ mod tests {
     );
 
     server.assert_response_regex(
-      format!("/rune/{rune}"),
+      format!("/dune/{dune}"),
       StatusCode::OK,
-      r".*<title>Rune A•AAAAAAAAAAAA</title>.*<h1>A•AAAAAAAAAAAA</h1>.*",
+      r".*<title>Dune A•AAAAAAAAAAAA</title>.*<h1>A•AAAAAAAAAAAA</h1>.*",
     );
 
     server.assert_response_regex(
       format!("/inscription/{txid}i0"),
       StatusCode::OK,
-      ".*<dt>rune</dt>.*<dd><a href=/rune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></dd>.*",
+      ".*<dt>dune</dt>.*<dd><a href=/dune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></dd>.*",
     );
 
     server.assert_response_regex(
-      "/runes",
+      "/dunes",
       StatusCode::OK,
-      ".*<li><a href=/rune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></li>.*",
+      ".*<li><a href=/dune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></li>.*",
     );
 
     server.assert_response_regex(
@@ -3533,7 +3533,7 @@ mod tests {
       StatusCode::OK,
       ".*
   <dt>etching</dt>
-  <dd><a href=/rune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></dd>
+  <dd><a href=/dune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></dd>
 .*",
     );
 
@@ -3541,7 +3541,7 @@ mod tests {
       format!("/output/{txid}:0"),
       StatusCode::OK,
       ".*<tr>
-        <td><a href=/rune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></td>
+        <td><a href=/dune/A•AAAAAAAAAAAA>A•AAAAAAAAAAAA</a></td>
         <td>340282366920938463463374607431768211455\u{A0}%</td>
       </tr>.*",
     );
@@ -3550,27 +3550,27 @@ mod tests {
   #[test]
   fn transactions_link_to_etching() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
     server.assert_response_regex(
-      "/runes",
+      "/dunes",
       StatusCode::OK,
       ".*<title>Runes</title>.*<h1>Runes</h1>\n<ul>\n</ul>.*",
     );
 
     let (txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3581,14 +3581,14 @@ mod tests {
     );
 
     pretty_assert_eq!(
-      server.index.runes().unwrap(),
+      server.index.dunes().unwrap(),
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0
           },
           premine: u128::MAX,
@@ -3608,7 +3608,7 @@ mod tests {
       StatusCode::OK,
       ".*
   <dt>etching</dt>
-  <dd><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>
+  <dd><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>
 .*",
     );
   }
@@ -3616,26 +3616,26 @@ mod tests {
   #[test]
   fn runes_are_displayed_on_output_page() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_runes()
       .build();
 
     server.mine_blocks(1);
 
-    let rune = Rune(RUNE);
+    let dune = Dune(RUNE);
 
-    server.assert_response_regex(format!("/rune/{rune}"), StatusCode::NOT_FOUND, ".*");
+    server.assert_response_regex(format!("/dune/{dune}"), StatusCode::NOT_FOUND, ".*");
 
     let (txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
           divisibility: Some(1),
-          rune: Some(rune),
+          dune: Some(dune),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3646,14 +3646,14 @@ mod tests {
     );
 
     pretty_assert_eq!(
-      server.index.runes().unwrap(),
+      server.index.dunes().unwrap(),
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           divisibility: 1,
           etching: txid,
-          spaced_rune: SpacedRune { rune, spacers: 0 },
+          spaced_dune: SpacedDune { dune, spacers: 0 },
           premine: u128::MAX,
           timestamp: id.block,
           ..default()
@@ -3673,15 +3673,15 @@ mod tests {
       StatusCode::OK,
       format!(
         ".*<title>Output {output}</title>.*<h1>Output <span class=monospace>{output}</span></h1>.*
-  <dt>runes</dt>
+  <dt>dunes</dt>
   <dd>
     <table>
       <tr>
-        <th>rune</th>
+        <th>dune</th>
         <th>balance</th>
       </tr>
       <tr>
-        <td><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></td>
+        <td><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></td>
         <td>34028236692093846346337460743176821145.5\u{A0}¤</td>
       </tr>
     </table>
@@ -3690,7 +3690,7 @@ mod tests {
       ),
     );
 
-    let address = default_address(Chain::Regtest);
+    let address = default_address(Chain::DogecoinRegtest);
 
     pretty_assert_eq!(
       server.get_json::<api::Output>(format!("/output/{output}")),
@@ -3700,14 +3700,14 @@ mod tests {
         address: Some(uncheck(&address)),
         confirmations: 1,
         transaction: txid,
-        sat_ranges: None,
+        koinu_ranges: None,
         indexed: true,
         inscriptions: Some(Vec::new()),
         outpoint: output,
-        runes: Some(
+        dunes: Some(
           vec![(
-            SpacedRune {
-              rune: Rune(RUNE),
+            SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0
             },
             Pile {
@@ -3747,7 +3747,7 @@ mod tests {
 
   #[test]
   fn status() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(3);
 
@@ -3803,15 +3803,15 @@ mod tests {
   <dd>3</dd>
   <dt>cursed inscriptions</dt>
   <dd>0</dd>
-  <dt>runes</dt>
-  <dd><a href=/runes>0</a></dd>
-  <dt>lost sats</dt>
+  <dt>dunes</dt>
+  <dd><a href=/dunes>0</a></dd>
+  <dt>lost koinu</dt>
   <dd>.*</dd>
   <dt>started</dt>
   <dd>.*</dd>
   <dt>uptime</dt>
   <dd>.*</dd>
-  <dt>minimum rune for next block</dt>
+  <dt>minimum dune for next block</dt>
   <dd>.*</dd>
   <dt>version</dt>
   <dd>.*</dd>
@@ -3821,7 +3821,7 @@ mod tests {
   <dd>false</dd>
   <dt>inscription index</dt>
   <dd>true</dd>
-  <dt>rune index</dt>
+  <dt>dune index</dt>
   <dd>false</dd>
   <dt>sat index</dt>
   <dd>false</dd>
@@ -3914,17 +3914,17 @@ mod tests {
 
   #[test]
   fn sat_number() {
-    TestServer::new().assert_response_regex("/sat/0", StatusCode::OK, ".*<h1>Sat 0</h1>.*");
+    TestServer::new().assert_response_regex("/sat/0", StatusCode::OK, ".*<h1>Koinu 0</h1>.*");
   }
 
   #[test]
   fn sat_decimal() {
-    TestServer::new().assert_response_regex("/sat/0.0", StatusCode::OK, ".*<h1>Sat 0</h1>.*");
+    TestServer::new().assert_response_regex("/sat/0.0", StatusCode::OK, ".*<h1>Koinu 0</h1>.*");
   }
 
   #[test]
   fn sat_degree() {
-    TestServer::new().assert_response_regex("/sat/0°0′0″0‴", StatusCode::OK, ".*<h1>Sat 0</h1>.*");
+    TestServer::new().assert_response_regex("/sat/0°0′0″0‴", StatusCode::OK, ".*<h1>Koinu 0</h1>.*");
   }
 
   #[test]
@@ -3932,7 +3932,7 @@ mod tests {
     TestServer::new().assert_response_regex(
       "/sat/nvtdijuwxlp",
       StatusCode::OK,
-      ".*<h1>Sat 0</h1>.*",
+      ".*<h1>Koinu 0</h1>.*",
     );
   }
 
@@ -3941,7 +3941,7 @@ mod tests {
     TestServer::new().assert_response_regex(
       "/sat/0",
       StatusCode::OK,
-      ".*<title>Sat 0</title>.*<h1>Sat 0</h1>.*",
+      ".*<title>Koinu 0</title>.*<h1>Koinu 0</h1>.*",
     );
   }
 
@@ -3990,9 +3990,9 @@ mod tests {
   <dt>confirmations</dt><dd>1</dd>
   <dt>spent</dt><dd>false</dd>
 </dl>
-<h2>1 Sat Range</h2>
+<h2>1 Koinu Range</h2>
 <ul class=monospace>
-  <li><a href=/sat/0 class=mythic>0</a>-<a href=/sat/4999999999 class=common>4999999999</a> \\(5000000000 sats\\)</li>
+  <li><a href=/sat/0 class=mythic>0</a>-<a href=/sat/4999999999 class=common>4999999999</a> \\(5000000000 koinu\\)</li>
 </ul>.*"
         ),
       );
@@ -4037,9 +4037,9 @@ mod tests {
   <dt>confirmations</dt><dd>0</dd>
   <dt>spent</dt><dd>false</dd>
 </dl>
-<h2>1 Sat Range</h2>
+<h2>1 Koinu Range</h2>
 <ul class=monospace>
-  <li><a href=/sat/5000000000 class=uncommon>5000000000</a>-<a href=/sat/9999999999 class=common>9999999999</a> \\(5000000000 sats\\)</li>
+  <li><a href=/sat/5000000000 class=uncommon>5000000000</a>-<a href=/sat/9999999999 class=common>9999999999</a> \\(5000000000 koinu\\)</li>
 </ul>.*"
       ),
     );
@@ -4048,7 +4048,7 @@ mod tests {
   #[test]
   fn unbound_output_receives_unbound_inscriptions() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -4119,7 +4119,7 @@ mod tests {
 
   #[test]
   fn home() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -4186,7 +4186,7 @@ mod tests {
   #[test]
   fn nav_displays_chain() {
     TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .build()
       .assert_response_regex(
         "/",
@@ -4674,7 +4674,7 @@ mod tests {
   #[test]
   fn preview_content_security_policy() {
     {
-      let server = TestServer::builder().chain(Chain::Regtest).build();
+      let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
       server.mine_blocks(1);
 
@@ -4699,7 +4699,7 @@ mod tests {
 
     {
       let server = TestServer::builder()
-        .chain(Chain::Regtest)
+        .chain(Chain::DogecoinRegtest)
         .server_option("--csp-origin", "https://ordinals.com")
         .build();
 
@@ -4725,7 +4725,7 @@ mod tests {
 
   #[test]
   fn code_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4788,7 +4788,7 @@ mod tests {
 
   #[test]
   fn text_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4815,7 +4815,7 @@ mod tests {
 
   #[test]
   fn audio_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4835,7 +4835,7 @@ mod tests {
 
   #[test]
   fn font_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4855,7 +4855,7 @@ mod tests {
 
   #[test]
   fn pdf_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4880,7 +4880,7 @@ mod tests {
 
   #[test]
   fn markdown_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4900,7 +4900,7 @@ mod tests {
 
   #[test]
   fn image_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4921,7 +4921,7 @@ mod tests {
 
   #[test]
   fn iframe_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4946,7 +4946,7 @@ mod tests {
 
   #[test]
   fn unknown_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4966,7 +4966,7 @@ mod tests {
 
   #[test]
   fn video_preview() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -4987,7 +4987,7 @@ mod tests {
   #[test]
   fn inscription_page_title() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.mine_blocks(1);
@@ -5009,7 +5009,7 @@ mod tests {
   #[test]
   fn inscription_page_has_sat_when_sats_are_tracked() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.mine_blocks(1);
@@ -5031,7 +5031,7 @@ mod tests {
   #[test]
   fn inscriptions_can_be_looked_up_by_sat_name() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.mine_blocks(1);
@@ -5044,7 +5044,7 @@ mod tests {
     server.mine_blocks(1);
 
     server.assert_response_regex(
-      format!("/inscription/{}", Sat(5000000000).name()),
+      format!("/inscription/{}", Koinu(5000000000).name()),
       StatusCode::OK,
       ".*<title>Inscription 0</title.*",
     );
@@ -5053,7 +5053,7 @@ mod tests {
   #[test]
   fn gallery_items_can_be_looked_up_by_gallery_sat_name() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5085,7 +5085,7 @@ mod tests {
     server.mine_blocks(1);
 
     server.assert_response_regex(
-      format!("/gallery/{}/0", Sat(5000000000).name()),
+      format!("/gallery/{}/0", Koinu(5000000000).name()),
       StatusCode::OK,
       ".*<title>Gallery 0 Item 0</title.*",
     );
@@ -5094,7 +5094,7 @@ mod tests {
   #[test]
   fn inscriptions_can_be_looked_up_by_sat_name_with_letter_i() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.assert_response_regex("/inscription/i", StatusCode::NOT_FOUND, ".*");
@@ -5102,7 +5102,7 @@ mod tests {
 
   #[test]
   fn inscription_page_does_not_have_sat_when_sats_are_not_tracked() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -5134,7 +5134,7 @@ mod tests {
   #[test]
   fn feed() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.mine_blocks(1);
@@ -5156,7 +5156,7 @@ mod tests {
   #[test]
   fn inscription_with_unknown_type_and_no_body_has_unknown_preview() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.mine_blocks(1);
@@ -5190,7 +5190,7 @@ mod tests {
   #[test]
   fn inscription_with_known_type_and_no_body_has_unknown_preview() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
     server.mine_blocks(1);
@@ -5223,7 +5223,7 @@ mod tests {
 
   #[test]
   fn content_responses_have_cache_control_headers() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -5244,7 +5244,7 @@ mod tests {
 
   #[test]
   fn error_content_responses_have_max_age_zero_cache_control_headers() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     let response =
       server.get("/content/6ac5cacb768794f4fd7a78bf00f2074891fce68bd65c4ff36e77177237aacacai0");
 
@@ -5258,7 +5258,7 @@ mod tests {
   #[test]
   fn inscriptions_page_with_no_prev_or_next() {
     TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build()
       .assert_response_regex("/inscriptions", StatusCode::OK, ".*prev\nnext.*");
@@ -5267,7 +5267,7 @@ mod tests {
   #[test]
   fn inscriptions_page_with_no_next() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5291,7 +5291,7 @@ mod tests {
   #[test]
   fn inscriptions_page_with_no_prev() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5315,7 +5315,7 @@ mod tests {
   #[test]
   fn collections_page_prev_and_next() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5396,7 +5396,7 @@ next
   #[test]
   fn collections_page_ordered_by_most_recent_child() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5542,7 +5542,7 @@ next
   #[test]
   fn collections_page_shows_both_parents_of_multi_parent_child() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5602,7 +5602,7 @@ next
   #[test]
   fn galleries_page_prev_and_next() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5704,7 +5704,7 @@ next
 
   #[test]
   fn gallery_page_prev_and_next() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     let mut gallery_item_ids = Vec::new();
 
@@ -5787,7 +5787,7 @@ next
   #[test]
   fn galleries_json() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5841,7 +5841,7 @@ next
   #[test]
   fn galleries_json_pagination() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5909,7 +5909,7 @@ next
   #[test]
   fn non_gallery_inscription_not_in_galleries() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -5975,7 +5975,7 @@ next
 
   #[test]
   fn inscription_links_to_parent() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6041,7 +6041,7 @@ next
 
   #[test]
   fn inscription_with_and_without_children_page() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6094,7 +6094,7 @@ next
 
   #[test]
   fn inscription_with_and_without_gallery_page() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let empty_gallery_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6168,7 +6168,7 @@ next
 
   #[test]
   fn inscriptions_page_shows_max_four_children() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6270,7 +6270,7 @@ next
 
   #[test]
   fn inscriptions_page_shows_max_four_gallery_items() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     let mut item_ids = Vec::new();
 
@@ -6348,7 +6348,7 @@ next
 
   #[test]
   fn inscription_child() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6429,7 +6429,7 @@ next
 
   #[test]
   fn inscription_with_parent_page() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(2);
 
     let parent_a_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6490,7 +6490,7 @@ next
 
   #[test]
   fn inscription_parent_page_pagination() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -6559,7 +6559,7 @@ next
 
   #[test]
   fn inscription_number_endpoint() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(2);
 
     let txid = server.core.broadcast_tx(TransactionTemplate {
@@ -6611,7 +6611,7 @@ next
 
   #[test]
   fn charm_cursed() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(2);
 
@@ -6650,7 +6650,7 @@ next
 
   #[test]
   fn charm_vindicated() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(110);
 
@@ -6688,7 +6688,7 @@ next
   #[test]
   fn charm_coin() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -6724,7 +6724,7 @@ next
   #[test]
   fn charm_uncommon() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -6760,7 +6760,7 @@ next
   #[test]
   fn charm_nineball() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -6795,7 +6795,7 @@ next
 
   #[test]
   fn charm_reinscription() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -6838,7 +6838,7 @@ next
 
   #[test]
   fn charm_reinscription_in_same_tx_input() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -6917,7 +6917,7 @@ next
 
   #[test]
   fn charm_reinscription_in_same_tx_with_pointer() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(3);
 
@@ -6977,7 +6977,7 @@ next
 
   #[test]
   fn charm_unbound() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -7013,7 +7013,7 @@ next
 
   #[test]
   fn charm_lost() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -7075,23 +7075,23 @@ next
   #[test]
   fn utxo_recursive_endpoint_all() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .index_runes()
       .build();
 
-    let rune = Rune(RUNE);
+    let dune = Dune(RUNE);
 
     let (txid, id) = server.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
           divisibility: Some(1),
-          rune: Some(rune),
+          dune: Some(dune),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -7102,14 +7102,14 @@ next
     );
 
     pretty_assert_eq!(
-      server.index.runes().unwrap(),
+      server.index.dunes().unwrap(),
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           divisibility: 1,
           etching: txid,
-          spaced_rune: SpacedRune { rune, spacers: 0 },
+          spaced_dune: SpacedDune { dune, spacers: 0 },
           premine: u128::MAX,
           timestamp: id.block,
           ..default()
@@ -7119,7 +7119,7 @@ next
 
     server.mine_blocks(1);
 
-    // merge rune with two inscriptions
+    // merge dune with two inscriptions
     let txid = server.core.broadcast_tx(TransactionTemplate {
       inputs: &[
         (6, 0, 0, inscription("text/plain", "foo").to_witness()),
@@ -7141,9 +7141,9 @@ next
       utxo_recursive,
       api::UtxoRecursive {
         inscriptions: Some(vec![inscription_id, second_inscription_id]),
-        runes: Some(
+        dunes: Some(
           [(
-            SpacedRune { rune, spacers: 0 },
+            SpacedDune { dune, spacers: 0 },
             Pile {
               amount: u128::MAX,
               divisibility: 1,
@@ -7153,7 +7153,7 @@ next
           .into_iter()
           .collect()
         ),
-        sat_ranges: Some(vec![
+        koinu_ranges: Some(vec![
           (6 * 50 * COIN_VALUE, 7 * 50 * COIN_VALUE),
           (7 * 50 * COIN_VALUE, 8 * 50 * COIN_VALUE),
           (50 * COIN_VALUE, 2 * 50 * COIN_VALUE)
@@ -7165,7 +7165,7 @@ next
 
   #[test]
   fn utxo_recursive_endpoint_only_inscriptions() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -7185,8 +7185,8 @@ next
       utxo_recursive,
       api::UtxoRecursive {
         inscriptions: Some(vec![inscription_id]),
-        runes: None,
-        sat_ranges: None,
+        dunes: None,
+        koinu_ranges: None,
         value: 50 * COIN_VALUE,
       }
     );
@@ -7195,7 +7195,7 @@ next
   #[test]
   fn sat_recursive_endpoints() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -7331,7 +7331,7 @@ next
 
   #[test]
   fn children_recursive_endpoint() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -7403,7 +7403,7 @@ next
 
   #[test]
   fn children_json_endpoint() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -7477,7 +7477,7 @@ next
 
   #[test]
   fn parents_recursive_endpoint() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let mut parent_ids = Vec::new();
@@ -7546,7 +7546,7 @@ next
 
   #[test]
   fn child_inscriptions_recursive_endpoint() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let parent_txid = server.core.broadcast_tx(TransactionTemplate {
@@ -7643,7 +7643,7 @@ next
 
   #[test]
   fn parent_inscriptions_recursive_endpoint() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.mine_blocks(1);
 
     let mut builder = script::Builder::new();
@@ -7767,7 +7767,7 @@ next
   #[test]
   fn inscriptions_in_block_page() {
     let server = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .index_sats()
       .build();
 
@@ -7815,7 +7815,7 @@ next
   #[test]
   fn inscription_not_found() {
     TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .build()
       .assert_response(
         "/inscription/0",
@@ -7827,7 +7827,7 @@ next
   #[test]
   fn looking_up_inscription_by_sat_requires_sat_index() {
     TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .build()
       .assert_response(
         "/inscription/abcd",
@@ -7838,7 +7838,7 @@ next
 
   #[test]
   fn delegate() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -7902,7 +7902,7 @@ next
 
   #[test]
   fn undelegated_content() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -7977,7 +7977,7 @@ next
 
   #[test]
   fn content_proxy() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -7999,7 +7999,7 @@ next
     server.assert_response(format!("/content/{id}"), StatusCode::OK, "foo");
 
     let server_with_proxy = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
@@ -8011,7 +8011,7 @@ next
 
   #[test]
   fn metadata_proxy() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -8041,7 +8041,7 @@ next
     );
 
     let server_with_proxy = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
@@ -8062,7 +8062,7 @@ next
 
   #[test]
   fn children_proxy() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -8117,7 +8117,7 @@ next
     assert_eq!(first_child_id, children.ids[0]);
 
     let server_with_proxy = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
@@ -8136,7 +8136,7 @@ next
 
   #[test]
   fn inscription_proxy() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -8168,7 +8168,7 @@ next
         number: 0,
         output: OutPoint { txid, vout: 0 },
         sat: None,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0
         },
@@ -8179,7 +8179,7 @@ next
     );
 
     let server_with_proxy = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
@@ -8198,7 +8198,7 @@ next
         number: 0,
         output: OutPoint { txid, vout: 0 },
         sat: None,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0
         },
@@ -8221,7 +8221,7 @@ next
         number: 0,
         output: OutPoint { txid, vout: 0 },
         sat: None,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0
         },
@@ -8236,7 +8236,7 @@ next
   fn sat_at_index_proxy() {
     let server = TestServer::builder()
       .index_sats()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .build();
 
     server.mine_blocks(1);
@@ -8263,12 +8263,12 @@ next
     );
 
     let server_with_proxy = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
     let sat_indexed_server_with_proxy = TestServer::builder()
       .index_sats()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
@@ -8296,7 +8296,7 @@ next
   fn sat_at_index_content_proxy() {
     let server = TestServer::builder()
       .index_sats()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .build();
 
     server.mine_blocks(1);
@@ -8329,8 +8329,8 @@ next
         id,
         number: 0,
         output: OutPoint { txid, vout: 0 },
-        sat: Some(Sat(ordinal)),
-        satpoint: SatPoint {
+        sat: Some(Koinu(ordinal)),
+        satpoint: KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0
         },
@@ -8347,12 +8347,12 @@ next
     );
 
     let server_with_proxy = TestServer::builder()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
     let sat_indexed_server_with_proxy = TestServer::builder()
       .index_sats()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
@@ -8477,7 +8477,7 @@ next
   #[test]
   fn inscriptions_can_be_hidden_with_config() {
     let core = mockcore::builder()
-      .network(Chain::Regtest.network())
+      .network(Chain::DogecoinRegtest.network())
       .build();
 
     core.mine_blocks(1);
@@ -8513,7 +8513,7 @@ next
 
   #[test]
   fn burned_charm() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -8553,7 +8553,7 @@ next
         number: 0,
         output: OutPoint { txid, vout: 0 },
         sat: None,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0
         },
@@ -8566,7 +8566,7 @@ next
 
   #[test]
   fn burned_charm_on_transfer() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
 
     server.mine_blocks(1);
 
@@ -8605,7 +8605,7 @@ next
           vout: 0
         },
         sat: None,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint {
             txid: create_txid,
             vout: 0
@@ -8650,7 +8650,7 @@ next
           vout: 0
         },
         sat: None,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint {
             txid: transfer_txid,
             vout: 0
@@ -8666,7 +8666,7 @@ next
 
   #[test]
   fn unknown_output_returns_404() {
-    let server = TestServer::builder().chain(Chain::Regtest).build();
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
     server.assert_response(
       "/output/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef:123",
       StatusCode::NOT_FOUND,
@@ -8678,10 +8678,10 @@ next
   fn satscard_form_with_coinkite_url_redirects_to_query() {
     TestServer::new().assert_redirect(
       &format!(
-        "/satscard?url={}",
-        urlencoding::encode(satscard::tests::COINKITE_URL)
+        "/koinucard?url={}",
+        urlencoding::encode(koinucard::tests::COINKITE_URL)
       ),
-      &format!("/satscard?{}", satscard::tests::coinkite_fragment()),
+      &format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
     );
   }
 
@@ -8689,48 +8689,48 @@ next
   fn satscard_form_with_ordinals_url_redirects_to_query() {
     TestServer::new().assert_redirect(
       &format!(
-        "/satscard?url={}",
-        urlencoding::encode(satscard::tests::ORDINALS_URL)
+        "/koinucard?url={}",
+        urlencoding::encode(koinucard::tests::ORDINALS_URL)
       ),
-      &format!("/satscard?{}", satscard::tests::ordinals_query()),
+      &format!("/koinucard?{}", koinucard::tests::ordinals_query()),
     );
   }
 
   #[test]
   fn satscard_missing_form_query_is_error() {
     TestServer::new().assert_response(
-      "/satscard?url=https://foo.com",
+      "/koinucard?url=https://foo.com",
       StatusCode::BAD_REQUEST,
-      "satscard URL missing fragment",
+      "koinucard URL missing fragment",
     );
   }
 
   #[test]
   fn satscard_invalid_query_parameters() {
     TestServer::new().assert_response(
-      "/satscard?foo=bar",
+      "/koinucard?foo=bar",
       StatusCode::BAD_REQUEST,
-      "invalid satscard query parameters: unknown key `foo`",
+      "invalid koinucard query parameters: unknown key `foo`",
     );
   }
 
   #[test]
   fn satscard_empty_query_parameters_are_allowed() {
     TestServer::builder()
-      .chain(Chain::Mainnet)
+      .chain(Chain::Dogecoin)
       .build()
-      .assert_html("/satscard?", SatscardHtml { satscard: None });
+      .assert_html("/koinucard?", SatscardHtml { koinucard: None });
   }
 
   #[test]
   fn satscard_display_without_address_index() {
     TestServer::builder()
-      .chain(Chain::Mainnet)
+      .chain(Chain::Dogecoin)
       .build()
       .assert_html(
-        format!("/satscard?{}", satscard::tests::coinkite_fragment()),
+        format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
         SatscardHtml {
-          satscard: Some((satscard::tests::coinkite_satscard(), None)),
+          koinucard: Some((koinucard::tests::coinkite_satscard(), None)),
         },
       );
   }
@@ -8738,16 +8738,16 @@ next
   #[test]
   fn satscard_coinkite_display_with_address_index_empty() {
     TestServer::builder()
-      .chain(Chain::Mainnet)
+      .chain(Chain::Dogecoin)
       .index_addresses()
       .build()
       .assert_html(
-        format!("/satscard?{}", satscard::tests::coinkite_fragment()),
+        format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
         SatscardHtml {
-          satscard: Some((
-            satscard::tests::coinkite_satscard(),
+          koinucard: Some((
+            koinucard::tests::coinkite_satscard(),
             Some(AddressHtml {
-              address: satscard::tests::coinkite_address(),
+              address: koinucard::tests::coinkite_address(),
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
@@ -8762,16 +8762,16 @@ next
   #[test]
   fn satscard_ordinals_display_with_address_index_empty() {
     TestServer::builder()
-      .chain(Chain::Mainnet)
+      .chain(Chain::Dogecoin)
       .index_addresses()
       .build()
       .assert_html(
-        format!("/satscard?{}", satscard::tests::ordinals_query()),
+        format!("/koinucard?{}", koinucard::tests::ordinals_query()),
         SatscardHtml {
-          satscard: Some((
-            satscard::tests::ordinals_satscard(),
+          koinucard: Some((
+            koinucard::tests::ordinals_satscard(),
             Some(AddressHtml {
-              address: satscard::tests::ordinals_address(),
+              address: koinucard::tests::ordinals_address(),
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
@@ -8786,12 +8786,12 @@ next
   #[test]
   fn satscard_address_recovery_fails_on_wrong_chain() {
     TestServer::builder()
-      .chain(Chain::Testnet)
+      .chain(Chain::DogecoinTestnet)
       .build()
       .assert_response(
-        format!("/satscard?{}", satscard::tests::coinkite_fragment()),
+        format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
         StatusCode::BAD_REQUEST,
-        "invalid satscard query parameters: address recovery failed",
+        "invalid koinucard query parameters: address recovery failed",
       );
   }
 
@@ -8799,7 +8799,7 @@ next
   fn sat_inscription_at_index_content_endpoint() {
     let server = TestServer::builder()
       .index_sats()
-      .chain(Chain::Regtest)
+      .chain(Chain::DogecoinRegtest)
       .build();
 
     server.mine_blocks(1);

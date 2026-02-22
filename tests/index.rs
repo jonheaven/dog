@@ -55,16 +55,16 @@ fn re_opening_database_does_not_trigger_schema_check() {
 #[test]
 fn export_inscription_number_to_id_tsv() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let temp_dir = TempDir::new().unwrap();
 
-  inscribe(&core, &ord);
-  inscribe(&core, &ord);
+  inscribe(&core, &dog);
+  inscribe(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -73,13 +73,13 @@ fn export_inscription_number_to_id_tsv() {
     .temp_dir(Arc::new(temp_dir))
     .run_and_extract_file("foo.tsv");
 
-  let entries: BTreeMap<i64, ord::Object> = tsv
+  let entries: BTreeMap<i64, dog::Object> = tsv
     .lines()
     .filter(|line| !line.is_empty() && !line.starts_with('#'))
     .map(|line| {
       let value = line.split('\t').collect::<Vec<&str>>();
       let inscription_number = i64::from_str(value[0]).unwrap();
-      let inscription_id = ord::Object::from_str(value[1]).unwrap();
+      let inscription_id = dog::Object::from_str(value[1]).unwrap();
 
       (inscription_number, inscription_id)
     })
@@ -87,6 +87,6 @@ fn export_inscription_number_to_id_tsv() {
 
   assert_eq!(
     entries.get(&2).unwrap(),
-    &ord::Object::InscriptionId(inscription),
+    &dog::Object::InscriptionId(inscription),
   );
 }

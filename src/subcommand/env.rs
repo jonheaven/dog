@@ -82,7 +82,7 @@ rpcport={bitcoind_port}
     let yaml = serde_yaml::to_string(&batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune: "FOO".parse::<SpacedRune>().unwrap(),
+        dune: "FOO".parse::<SpacedDune>().unwrap(),
         supply: "2000".parse().unwrap(),
         premine: "1000".parse().unwrap(),
         symbol: '¢',
@@ -134,12 +134,12 @@ rpcport={bitcoind_port}
       )?;
     }
 
-    let ord = std::env::current_exe()?;
+    let dog = std::env::current_exe()?;
 
     let decompress = self.decompress;
     let proxy = self.proxy.map(|url| url.to_string());
 
-    let mut command = Command::new(&ord);
+    let mut command = Command::new(&dog);
     let ord_server = command
       .arg("--datadir")
       .arg(&absolute)
@@ -156,12 +156,12 @@ rpcport={bitcoind_port}
       ord_server.arg("--proxy").arg(proxy);
     }
 
-    let _ord = KillOnDrop(ord_server.spawn()?);
+    let _dog = KillOnDrop(ord_server.spawn()?);
 
     thread::sleep(Duration::from_millis(250));
 
-    if !absolute.join("regtest/wallets/ord").try_exists()? {
-      let status = Command::new(&ord)
+    if !absolute.join("regtest/wallets/dog").try_exists()? {
+      let status = Command::new(&dog)
         .arg("--datadir")
         .arg(&absolute)
         .arg("wallet")
@@ -170,7 +170,7 @@ rpcport={bitcoind_port}
 
       ensure!(status.success(), "failed to create wallet: {status}");
 
-      let output = Command::new(&ord)
+      let output = Command::new(&dog)
         .arg("--datadir")
         .arg(&absolute)
         .arg("wallet")
@@ -209,7 +209,7 @@ rpcport={bitcoind_port}
         ord_port,
         bitcoin_cli_command: vec!["bitcoin-cli".into(), format!("-datadir={relative}")],
         ord_wallet_command: vec![
-          ord.to_str().unwrap().into(),
+          dog.to_str().unwrap().into(),
           "--datadir".into(),
           absolute.to_str().unwrap().into(),
           "wallet".into(),
@@ -233,10 +233,10 @@ rpcport={bitcoind_port}
 bitcoin-cli -datadir={datadir} getblockchaininfo
 {}
 {} --datadir {datadir} wallet balance",
-      "`ord` server URL:".blue().bold(),
+      "`dog` server URL:".blue().bold(),
       "Example `bitcoin-cli` command:".blue().bold(),
-      "Example `ord` command:".blue().bold(),
-      ord.display(),
+      "Example `dog` command:".blue().bold(),
+      dog.display(),
     );
 
     loop {

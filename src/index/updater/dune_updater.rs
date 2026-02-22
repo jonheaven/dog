@@ -1,29 +1,29 @@
 use super::*;
 
-pub(super) struct RuneUpdater<'a, 'tx, 'client> {
+pub(super) struct DuneUpdater<'a, 'tx, 'client> {
   pub(super) block_time: u32,
-  pub(super) burned: HashMap<RuneId, Lot>,
+  pub(super) burned: HashMap<DuneId, Lot>,
   pub(super) client: &'client Client,
   pub(super) event_sender: Option<&'a mpsc::Sender<Event>>,
   pub(super) height: u32,
-  pub(super) id_to_entry: &'a mut Table<'tx, RuneIdValue, RuneEntryValue>,
+  pub(super) id_to_entry: &'a mut Table<'tx, DuneIdValue, DuneEntryValue>,
   pub(super) inscription_id_to_sequence_number: &'a Table<'tx, InscriptionIdValue, u32>,
-  pub(super) minimum: Rune,
+  pub(super) minimum: Dune,
   pub(super) outpoint_to_balances: &'a mut Table<'tx, &'static OutPointValue, &'static [u8]>,
-  pub(super) rune_to_id: &'a mut Table<'tx, u128, RuneIdValue>,
-  pub(super) runes: u64,
-  pub(super) sequence_number_to_rune_id: &'a mut Table<'tx, u32, RuneIdValue>,
+  pub(super) rune_to_id: &'a mut Table<'tx, u128, DuneIdValue>,
+  pub(super) dunes: u64,
+  pub(super) sequence_number_to_dune_id: &'a mut Table<'tx, u32, DuneIdValue>,
   pub(super) statistic_to_count: &'a mut Table<'tx, u64, u64>,
   pub(super) transaction_id_to_rune: &'a mut Table<'tx, &'static TxidValue, u128>,
 }
 
-impl RuneUpdater<'_, '_, '_> {
+impl DuneUpdater<'_, '_, '_> {
   pub(super) fn index_runes(&mut self, tx_index: u32, tx: &Transaction, txid: Txid) -> Result<()> {
-    let artifact = Runestone::decipher(tx);
+    let artifact = Dunestone::decipher(tx);
 
     let mut unallocated = self.unallocated(tx)?;
 
-    let mut allocated: Vec<HashMap<RuneId, Lot>> = vec![HashMap::new(); tx.output.len()];
+    let mut allocated: Vec<HashMap<DuneId, Lot>> = vec![HashMap::new(); tx.output.len()];
 
     if let Some(artifact) = &artifact {
       if let Some(id) = artifact.mint()
@@ -35,7 +35,7 @@ impl RuneUpdater<'_, '_, '_> {
           sender.blocking_send(Event::RuneMinted {
             block_height: self.height,
             txid,
-            rune_id: id,
+            dune_id: id,
             amount: amount.n(),
           })?;
         }
@@ -43,13 +43,13 @@ impl RuneUpdater<'_, '_, '_> {
 
       let etched = self.etched(tx_index, tx, artifact)?;
 
-      if let Artifact::Runestone(runestone) = artifact {
+      if let Artifact::Dunestone(dunestone) = artifact {
         if let Some((id, ..)) = etched {
           *unallocated.entry(id).or_default() +=
-            runestone.etching.unwrap().premine.unwrap_or_default();
+            dunestone.etching.unwrap().premine.unwrap_or_default();
         }
 
-        for Edict { id, amount, output } in runestone.edicts.iter().copied() {
+        for Edict { id, amount, output } in dunestone.edicts.iter().copied() {
           let amount = Lot(amount);
 
           // edicts with output values greater than the number of outputs
@@ -57,7 +57,7 @@ impl RuneUpdater<'_, '_, '_> {
           let output = usize::try_from(output).unwrap();
           assert!(output <= tx.output.len());
 
-          let id = if id == RuneId::default() {
+          let id = if id == DuneId::default() {
             let Some((id, ..)) = etched else {
               continue;
             };
@@ -122,12 +122,12 @@ impl RuneUpdater<'_, '_, '_> {
         }
       }
 
-      if let Some((id, rune)) = etched {
-        self.create_rune_entry(txid, artifact, id, rune)?;
+      if let Some((id, dune)) = etched {
+        self.create_rune_entry(txid, artifact, id, dune)?;
       }
     }
 
-    let mut burned: HashMap<RuneId, Lot> = HashMap::new();
+    let mut burned: HashMap<DuneId, Lot> = HashMap::new();
 
     if let Some(Artifact::Cenotaph(_)) = artifact {
       for (id, balance) in unallocated {
@@ -136,12 +136,12 @@ impl RuneUpdater<'_, '_, '_> {
     } else {
       let pointer = artifact
         .map(|artifact| match artifact {
-          Artifact::Runestone(runestone) => runestone.pointer,
+          Artifact::Dunestone(dunestone) => dunestone.pointer,
           Artifact::Cenotaph(_) => unreachable!(),
         })
         .unwrap_or_default();
 
-      // assign all un-allocated runes to the default output, or the first non
+      // assign all un-allocated dunes to the default output, or the first non
       // OP_RETURN output if there is no default
       if let Some(vout) = pointer
         .map(|pointer| pointer.into_usize())
@@ -185,7 +185,7 @@ impl RuneUpdater<'_, '_, '_> {
 
       buffer.clear();
 
-      let mut balances = balances.into_iter().collect::<Vec<(RuneId, Lot)>>();
+      let mut balances = balances.into_iter().collect::<Vec<(DuneId, Lot)>>();
 
       // Sort balances by id so tests can assert balances in a fixed order
       balances.sort();
@@ -203,7 +203,7 @@ impl RuneUpdater<'_, '_, '_> {
             outpoint,
             block_height: self.height,
             txid,
-            rune_id: id,
+            dune_id: id,
             amount: balance.0,
           })?;
         }
@@ -214,7 +214,7 @@ impl RuneUpdater<'_, '_, '_> {
         .insert(&outpoint.store(), buffer.as_slice())?;
     }
 
-    // increment entries with burned runes
+    // increment entries with burned dunes
     for (id, amount) in burned {
       *self.burned.entry(id).or_default() += amount;
 
@@ -222,7 +222,7 @@ impl RuneUpdater<'_, '_, '_> {
         sender.blocking_send(Event::RuneBurned {
           block_height: self.height,
           txid,
-          rune_id: id,
+          dune_id: id,
           amount: amount.n(),
         })?;
       }
@@ -232,10 +232,10 @@ impl RuneUpdater<'_, '_, '_> {
   }
 
   pub(super) fn update(self) -> Result {
-    for (rune_id, burned) in self.burned {
-      let mut entry = RuneEntry::load(self.id_to_entry.get(&rune_id.store())?.unwrap().value());
+    for (dune_id, burned) in self.burned {
+      let mut entry = DuneEntry::load(self.id_to_entry.get(&dune_id.store())?.unwrap().value());
       entry.burned = entry.burned.checked_add(burned.n()).unwrap();
-      self.id_to_entry.insert(&rune_id.store(), entry.store())?;
+      self.id_to_entry.insert(&dune_id.store(), entry.store())?;
     }
 
     Ok(())
@@ -245,23 +245,23 @@ impl RuneUpdater<'_, '_, '_> {
     &mut self,
     txid: Txid,
     artifact: &Artifact,
-    id: RuneId,
-    rune: Rune,
+    id: DuneId,
+    dune: Dune,
   ) -> Result {
-    self.rune_to_id.insert(rune.store(), id.store())?;
+    self.rune_to_id.insert(dune.store(), id.store())?;
     self
       .transaction_id_to_rune
-      .insert(&txid.store(), rune.store())?;
+      .insert(&txid.store(), dune.store())?;
 
-    let number = self.runes;
-    self.runes += 1;
+    let number = self.dunes;
+    self.dunes += 1;
 
     self
       .statistic_to_count
-      .insert(&Statistic::Runes.into(), self.runes)?;
+      .insert(&Statistic::Runes.into(), self.dunes)?;
 
     let entry = match artifact {
-      Artifact::Cenotaph(_) => RuneEntry {
+      Artifact::Cenotaph(_) => DuneEntry {
         block: id.block,
         burned: 0,
         divisibility: 0,
@@ -270,12 +270,12 @@ impl RuneUpdater<'_, '_, '_> {
         mints: 0,
         number,
         premine: 0,
-        spaced_rune: SpacedRune { rune, spacers: 0 },
+        spaced_dune: SpacedDune { dune, spacers: 0 },
         symbol: None,
         timestamp: self.block_time.into(),
         turbo: false,
       },
-      Artifact::Runestone(Runestone { etching, .. }) => {
+      Artifact::Dunestone(Dunestone { etching, .. }) => {
         let Etching {
           divisibility,
           terms,
@@ -286,7 +286,7 @@ impl RuneUpdater<'_, '_, '_> {
           ..
         } = etching.unwrap();
 
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           burned: 0,
           divisibility: divisibility.unwrap_or_default(),
@@ -295,8 +295,8 @@ impl RuneUpdater<'_, '_, '_> {
           mints: 0,
           number,
           premine: premine.unwrap_or_default(),
-          spaced_rune: SpacedRune {
-            rune,
+          spaced_dune: SpacedDune {
+            dune,
             spacers: spacers.unwrap_or_default(),
           },
           symbol,
@@ -312,7 +312,7 @@ impl RuneUpdater<'_, '_, '_> {
       sender.blocking_send(Event::RuneEtched {
         block_height: self.height,
         txid,
-        rune_id: id,
+        dune_id: id,
       })?;
     }
 
@@ -323,7 +323,7 @@ impl RuneUpdater<'_, '_, '_> {
       .get(&inscription_id.store())?
     {
       self
-        .sequence_number_to_rune_id
+        .sequence_number_to_dune_id
         .insert(sequence_number.value(), id.store())?;
     }
 
@@ -335,27 +335,27 @@ impl RuneUpdater<'_, '_, '_> {
     tx_index: u32,
     tx: &Transaction,
     artifact: &Artifact,
-  ) -> Result<Option<(RuneId, Rune)>> {
-    let rune = match artifact {
-      Artifact::Runestone(runestone) => match runestone.etching {
-        Some(etching) => etching.rune,
+  ) -> Result<Option<(DuneId, Dune)>> {
+    let dune = match artifact {
+      Artifact::Dunestone(dunestone) => match dunestone.etching {
+        Some(etching) => etching.dune,
         None => return Ok(None),
       },
       Artifact::Cenotaph(cenotaph) => match cenotaph.etching {
-        Some(rune) => Some(rune),
+        Some(dune) => Some(dune),
         None => return Ok(None),
       },
     };
 
-    let rune = if let Some(rune) = rune {
-      if rune < self.minimum
-        || rune.is_reserved()
-        || self.rune_to_id.get(rune.0)?.is_some()
-        || !self.tx_commits_to_rune(tx, rune)?
+    let dune = if let Some(dune) = dune {
+      if dune < self.minimum
+        || dune.is_reserved()
+        || self.rune_to_id.get(dune.0)?.is_some()
+        || !self.tx_commits_to_rune(tx, dune)?
       {
         return Ok(None);
       }
-      rune
+      dune
     } else {
       let reserved_runes = self
         .statistic_to_count
@@ -367,24 +367,24 @@ impl RuneUpdater<'_, '_, '_> {
         .statistic_to_count
         .insert(&Statistic::ReservedRunes.into(), reserved_runes + 1)?;
 
-      Rune::reserved(self.height.into(), tx_index)
+      Dune::reserved(self.height.into(), tx_index)
     };
 
     Ok(Some((
-      RuneId {
+      DuneId {
         block: self.height.into(),
         tx: tx_index,
       },
-      rune,
+      dune,
     )))
   }
 
-  fn mint(&mut self, id: RuneId) -> Result<Option<Lot>> {
+  fn mint(&mut self, id: DuneId) -> Result<Option<Lot>> {
     let Some(entry) = self.id_to_entry.get(&id.store())? else {
       return Ok(None);
     };
 
-    let mut rune_entry = RuneEntry::load(entry.value());
+    let mut rune_entry = DuneEntry::load(entry.value());
 
     let Ok(amount) = rune_entry.mintable(self.height.into()) else {
       return Ok(None);
@@ -399,8 +399,8 @@ impl RuneUpdater<'_, '_, '_> {
     Ok(Some(Lot(amount)))
   }
 
-  fn tx_commits_to_rune(&self, tx: &Transaction, rune: Rune) -> Result<bool> {
-    let commitment = rune.commitment();
+  fn tx_commits_to_rune(&self, tx: &Transaction, dune: Dune) -> Result<bool> {
+    let commitment = dune.commitment();
 
     for input in &tx.input {
       // extracting a tapscript does not indicate that the input being spent
@@ -457,7 +457,7 @@ impl RuneUpdater<'_, '_, '_> {
           .unwrap()
           + 1;
 
-        if confirmations >= u32::from(Runestone::COMMIT_CONFIRMATIONS) {
+        if confirmations >= u32::from(Dunestone::COMMIT_CONFIRMATIONS) {
           return Ok(true);
         }
       }
@@ -466,11 +466,11 @@ impl RuneUpdater<'_, '_, '_> {
     Ok(false)
   }
 
-  fn unallocated(&mut self, tx: &Transaction) -> Result<HashMap<RuneId, Lot>> {
-    // map of rune ID to un-allocated balance of that rune
-    let mut unallocated: HashMap<RuneId, Lot> = HashMap::new();
+  fn unallocated(&mut self, tx: &Transaction) -> Result<HashMap<DuneId, Lot>> {
+    // map of dune ID to un-allocated balance of that dune
+    let mut unallocated: HashMap<DuneId, Lot> = HashMap::new();
 
-    // increment unallocated runes with the runes in tx inputs
+    // increment unallocated dunes with the dunes in tx inputs
     for input in &tx.input {
       if let Some(guard) = self
         .outpoint_to_balances

@@ -1,6 +1,6 @@
 use {
   super::*,
-  ord::{
+  dog::{
     Attributes, Item, Properties, Trait, Traits, decimal::Decimal, subcommand::wallet::send,
     templates::ItemHtml,
   },
@@ -8,11 +8,11 @@ use {
   std::io::Read,
 };
 
-fn receive(core: &mockcore::Handle, ord: &TestServer) -> Address {
+fn receive(core: &mockcore::Handle, dog: &TestServer) -> Address {
   let address = CommandBuilder::new("wallet receive")
     .core(core)
-    .ord(ord)
-    .run_and_deserialize_output::<ord::subcommand::wallet::receive::Output>()
+    .dog(dog)
+    .run_and_deserialize_output::<dog::subcommand::wallet::receive::Output>()
     .addresses
     .into_iter()
     .next()
@@ -25,9 +25,9 @@ fn receive(core: &mockcore::Handle, ord: &TestServer) -> Address {
 fn batch_inscribe_fails_if_batchfile_has_no_inscriptions() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -35,7 +35,7 @@ fn batch_inscribe_fails_if_batchfile_has_no_inscriptions() {
     .write("inscription.txt", "Hello World")
     .write("batch.yaml", "mode: shared-output\ninscriptions: []\n")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*batchfile must contain at least one inscription.*")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -45,9 +45,9 @@ fn batch_inscribe_fails_if_batchfile_has_no_inscriptions() {
 fn batch_inscribe_can_create_one_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -70,14 +70,14 @@ inscriptions:
 ",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
   assert_eq!(core.descriptors().len(), 3);
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[0].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[0].id));
 
   assert_eq!(request.status(), 200);
   assert_eq!(
@@ -86,7 +86,7 @@ inscriptions:
   );
   assert_eq!(request.text().unwrap(), "Hello World");
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     concat!(
       r".*",
@@ -113,9 +113,9 @@ inscriptions:
 fn trait_names_may_not_be_duplicated() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -136,7 +136,7 @@ inscriptions:
 ",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(r"error: inscriptions\[0\]: duplicate trait foo at line 4 column 3\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -146,9 +146,9 @@ inscriptions:
 fn batch_inscribe_with_multiple_inscriptions() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -161,14 +161,14 @@ fn batch_inscribe_with_multiple_inscriptions() {
       "mode: shared-output\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n"
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
   assert_eq!(core.descriptors().len(), 3);
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[0].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[0].id));
   assert_eq!(request.status(), 200);
   assert_eq!(
     request.headers().get("content-type").unwrap(),
@@ -176,11 +176,11 @@ fn batch_inscribe_with_multiple_inscriptions() {
   );
   assert_eq!(request.text().unwrap(), "Hello World");
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[1].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[1].id));
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "image/png");
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[2].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[2].id));
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "audio/wav");
 }
@@ -189,16 +189,16 @@ fn batch_inscribe_with_multiple_inscriptions() {
 fn batch_inscribe_with_multiple_inscriptions_with_parent() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -216,22 +216,22 @@ fn batch_inscribe_with_multiple_inscriptions_with_parent() {
       format!("parents:\n- {parent_id}\nmode: shared-output\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     r".*<dt>parents</dt>\s*<dd>.*</dd>.*",
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     r".*<dt>parents</dt>\s*<dd>.*</dd>.*",
   );
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[2].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[2].id));
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "audio/wav");
 }
@@ -240,16 +240,16 @@ fn batch_inscribe_with_multiple_inscriptions_with_parent() {
 fn batch_inscribe_inscriptions_with_multiple_parents() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output_1 = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -257,7 +257,7 @@ fn batch_inscribe_inscriptions_with_multiple_parents() {
   let parent_output_2 = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -265,7 +265,7 @@ fn batch_inscribe_inscriptions_with_multiple_parents() {
   let parent_output_3 = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -283,17 +283,17 @@ fn batch_inscribe_inscriptions_with_multiple_parents() {
       format!("parents:\n- {parent_id_1}\n- {parent_id_2}\n- {parent_id_3}\nmode: separate-outputs\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id_1}.*{parent_id_2}.*{parent_id_3}.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id_1}.*{parent_id_2}.*{parent_id_3}.*",),
   );
@@ -303,16 +303,16 @@ fn batch_inscribe_inscriptions_with_multiple_parents() {
 fn batch_inscribe_and_etch_with_two_parents() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output_1 = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -320,7 +320,7 @@ fn batch_inscribe_and_etch_with_two_parents() {
   let parent_output_2 = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -339,22 +339,22 @@ fn batch_inscribe_and_etch_with_two_parents() {
       format!("parents:\n- {parent_id_1}\n- {parent_id_2}\nmode: shared-output\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id_1}.*{parent_id_2}.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id_1}.*{parent_id_2}.*",),
   );
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[2].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[2].id));
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "audio/wav");
 }
@@ -363,9 +363,9 @@ fn batch_inscribe_and_etch_with_two_parents() {
 fn batch_inscribe_respects_dry_run_flag() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -376,14 +376,14 @@ fn batch_inscribe_respects_dry_run_flag() {
       "mode: shared-output\ninscriptions:\n- file: inscription.txt\n",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
   assert!(core.mempool().is_empty());
 
-  let request = ord.request(format!("/content/{}", output.inscriptions[0].id));
+  let request = dog.request(format!("/content/{}", output.inscriptions[0].id));
 
   assert_eq!(request.status(), 404);
 }
@@ -392,9 +392,9 @@ fn batch_inscribe_respects_dry_run_flag() {
 fn batch_in_same_output_but_different_satpoints() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -407,14 +407,14 @@ fn batch_in_same_output_but_different_satpoints() {
       "mode: shared-output\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n"
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   let outpoint = output.inscriptions[0].location.outpoint;
   for (i, inscription) in output.inscriptions.iter().enumerate() {
     assert_eq!(
       inscription.location,
-      SatPoint {
+      KoinuPoint {
         outpoint,
         offset: u64::try_from(i).unwrap() * 10_000,
       }
@@ -425,22 +425,22 @@ fn batch_in_same_output_but_different_satpoints() {
 
   let outpoint = output.inscriptions[0].location.outpoint;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>location</dt>.*{outpoint}:10000.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(r".*<dt>location</dt>.*{outpoint}:20000.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/output/{}", output.inscriptions[0].location.outpoint),
     format!(r".*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*", output.inscriptions[0].id, output.inscriptions[1].id, output.inscriptions[2].id),
   );
@@ -450,9 +450,9 @@ fn batch_in_same_output_but_different_satpoints() {
 fn batch_in_same_output_with_non_default_postage() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -465,7 +465,7 @@ fn batch_in_same_output_with_non_default_postage() {
       "mode: shared-output\npostage: 777\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n"
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   let outpoint = output.inscriptions[0].location.outpoint;
@@ -473,7 +473,7 @@ fn batch_in_same_output_with_non_default_postage() {
   for (i, inscription) in output.inscriptions.iter().enumerate() {
     assert_eq!(
       inscription.location,
-      SatPoint {
+      KoinuPoint {
         outpoint,
         offset: u64::try_from(i).unwrap() * 777,
       }
@@ -484,22 +484,22 @@ fn batch_in_same_output_with_non_default_postage() {
 
   let outpoint = output.inscriptions[0].location.outpoint;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>location</dt>.*{outpoint}:777.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(r".*<dt>location</dt>.*{outpoint}:1554.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/output/{}", output.inscriptions[0].location.outpoint),
     format!(r".*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*", output.inscriptions[0].id, output.inscriptions[1].id, output.inscriptions[2].id),
   );
@@ -509,16 +509,16 @@ fn batch_in_same_output_with_non_default_postage() {
 fn batch_in_separate_outputs_with_parent() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -536,7 +536,7 @@ fn batch_in_separate_outputs_with_parent() {
       format!("parents:\n- {parent_id}\nmode: separate-outputs\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   for inscription in &output.inscriptions {
@@ -558,21 +558,21 @@ fn batch_in_separate_outputs_with_parent() {
   let output_2 = output.inscriptions[1].location.outpoint;
   let output_3 = output.inscriptions[2].location.outpoint;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(
       r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>10000</dd>.*.*<dt>location</dt>.*{output_1}:0.*"
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(
       r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>10000</dd>.*.*<dt>location</dt>.*{output_2}:0.*"
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(
       r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>10000</dd>.*.*<dt>location</dt>.*{output_3}:0.*"
@@ -584,16 +584,16 @@ fn batch_in_separate_outputs_with_parent() {
 fn batch_in_separate_outputs_with_parent_and_non_default_postage() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -611,7 +611,7 @@ fn batch_in_separate_outputs_with_parent_and_non_default_postage() {
       format!("parents:\n- {parent_id}\nmode: separate-outputs\npostage: 777\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   for inscription in &output.inscriptions {
@@ -633,21 +633,21 @@ fn batch_in_separate_outputs_with_parent_and_non_default_postage() {
   let output_2 = output.inscriptions[1].location.outpoint;
   let output_3 = output.inscriptions[2].location.outpoint;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(
       r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>777</dd>.*.*<dt>location</dt>.*{output_1}:0.*"
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(
       r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>777</dd>.*.*<dt>location</dt>.*{output_2}:0.*"
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(
       r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>777</dd>.*.*<dt>location</dt>.*{output_3}:0.*"
@@ -659,9 +659,9 @@ fn batch_in_separate_outputs_with_parent_and_non_default_postage() {
 fn batch_inscribe_fails_if_invalid_network_destination_address() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -669,7 +669,7 @@ fn batch_inscribe_fails_if_invalid_network_destination_address() {
     .write("inscription.txt", "Hello World")
     .write("batch.yaml", "mode: separate-outputs\ninscriptions:\n- file: inscription.txt\n  destination: bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex("error: validation error\n\nbecause:\n- address bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4 is not valid on regtest\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -679,9 +679,9 @@ fn batch_inscribe_fails_if_invalid_network_destination_address() {
 fn batch_inscribe_fails_with_shared_output_or_same_sat_and_destination_set() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -690,7 +690,7 @@ fn batch_inscribe_fails_with_shared_output_or_same_sat_and_destination_set() {
     .write("tulip.png", "")
     .write("batch.yaml", "mode: shared-output\ninscriptions:\n- file: inscription.txt\n  destination: bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4\n- file: tulip.png")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .stderr_regex("error: individual inscription destinations cannot be set in `shared-output` or `same-sat` mode\n")
     .run_and_extract_stdout();
@@ -700,7 +700,7 @@ fn batch_inscribe_fails_with_shared_output_or_same_sat_and_destination_set() {
     .write("tulip.png", "")
     .write("batch.yaml", "mode: same-sat\nsat: 5000000000\ninscriptions:\n- file: inscription.txt\n  destination: bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4\n- file: tulip.png")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .stderr_regex("error: individual inscription destinations cannot be set in `shared-output` or `same-sat` mode\n")
     .run_and_extract_stdout();
@@ -710,9 +710,9 @@ fn batch_inscribe_fails_with_shared_output_or_same_sat_and_destination_set() {
 fn batch_inscribe_works_with_some_destinations_set_and_others_not() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -733,21 +733,21 @@ inscriptions:
 ",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
   assert_eq!(core.descriptors().len(), 3);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     ".*
   <dt>address</dt>
   <dd><a class=collapse href=/address/bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4>bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4</a></dd>.*",
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(
       ".*
@@ -757,7 +757,7 @@ inscriptions:
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     ".*
   <dt>address</dt>
@@ -769,9 +769,9 @@ inscriptions:
 fn batch_same_sat() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -784,7 +784,7 @@ fn batch_same_sat() {
       "mode: same-sat\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n"
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   assert_eq!(
@@ -800,22 +800,22 @@ fn batch_same_sat() {
 
   let outpoint = output.inscriptions[0].location.outpoint;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/output/{}", output.inscriptions[0].location.outpoint),
     format!(r".*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*", output.inscriptions[0].id, output.inscriptions[1].id, output.inscriptions[2].id),
   );
@@ -825,16 +825,16 @@ fn batch_same_sat() {
 fn batch_same_sat_with_parent() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -850,7 +850,7 @@ fn batch_same_sat_with_parent() {
       format!("mode: same-sat\nparents:\n- {parent_id}\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   assert_eq!(
@@ -866,27 +866,27 @@ fn batch_same_sat_with_parent() {
 
   let txid = output.inscriptions[0].location.outpoint.txid;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{parent_id}"),
     format!(r".*<dt>location</dt>.*{txid}:0:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>location</dt>.*{txid}:1:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>location</dt>.*{txid}:1:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(r".*<dt>location</dt>.*{txid}:1:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/output/{}", output.inscriptions[0].location.outpoint),
     format!(r".*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*", output.inscriptions[0].id, output.inscriptions[1].id, output.inscriptions[2].id),
   );
@@ -896,16 +896,16 @@ fn batch_same_sat_with_parent() {
 fn batch_same_sat_with_satpoint_and_reinscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let output = CommandBuilder::new("wallet inscribe --fee-rate 5.0 --file parent.png")
     .write("parent.png", [1; 520])
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -922,7 +922,7 @@ fn batch_same_sat_with_satpoint_and_reinscription() {
       format!("mode: same-sat\nsatpoint: {satpoint}\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .stderr_regex(".*error: sat at .*:0:0 already inscribed.*")
     .run_and_extract_stdout();
@@ -936,7 +936,7 @@ fn batch_same_sat_with_satpoint_and_reinscription() {
       format!("mode: same-sat\nsatpoint: {satpoint}\nreinscribe: true\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   assert_eq!(
@@ -952,27 +952,27 @@ fn batch_same_sat_with_satpoint_and_reinscription() {
 
   let outpoint = output.inscriptions[0].location.outpoint;
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{inscription_id}"),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[0].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[1].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", output.inscriptions[2].id),
     format!(r".*<dt>location</dt>.*{outpoint}:0.*",),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/output/{}", output.inscriptions[0].location.outpoint),
     format!(r".*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*<a href=/inscription/{}>.*</a>.*", inscription_id, output.inscriptions[0].id, output.inscriptions[1].id, output.inscriptions[2].id),
   );
@@ -982,17 +982,17 @@ fn batch_same_sat_with_satpoint_and_reinscription() {
 fn batch_inscribe_with_sat_argument_with_parent() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output =
-    CommandBuilder::new("--index-sats wallet inscribe --fee-rate 5.0 --file parent.png")
+    CommandBuilder::new("--index-koinu wallet inscribe --fee-rate 5.0 --file parent.png")
       .write("parent.png", [1; 520])
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -1001,7 +1001,7 @@ fn batch_inscribe_with_sat_argument_with_parent() {
 
   let parent_id = parent_output.inscriptions[0].id;
 
-  let output = CommandBuilder::new("--index-sats wallet batch --fee-rate 1 --batch batch.yaml")
+  let output = CommandBuilder::new("--index-koinu wallet batch --fee-rate 1 --batch batch.yaml")
     .write("inscription.txt", "Hello World")
     .write("tulip.png", [0; 555])
     .write("meow.wav", [0; 2048])
@@ -1010,12 +1010,12 @@ fn batch_inscribe_with_sat_argument_with_parent() {
       format!("parents:\n- {parent_id}\nmode: same-sat\nsat: 5000111111\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n")
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     "/sat/5000111111",
     format!(
       ".*<a href=/inscription/{}>.*<a href=/inscription/{}>.*<a href=/inscription/{}>.*",
@@ -1028,9 +1028,9 @@ fn batch_inscribe_with_sat_argument_with_parent() {
 fn batch_inscribe_with_sat_arg_fails_if_wrong_mode() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -1043,7 +1043,7 @@ fn batch_inscribe_with_sat_arg_fails_if_wrong_mode() {
       "mode: shared-output\nsat: 5000111111\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n"
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr("error: `sat` or `satpoint` can only be set in `same-sat` mode\n")
     .run_and_extract_stdout();
@@ -1053,9 +1053,9 @@ fn batch_inscribe_with_sat_arg_fails_if_wrong_mode() {
 fn batch_inscribe_with_satpoint() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let txid = core.mine_blocks(1)[0].txdata[0].compute_txid();
 
@@ -1068,12 +1068,12 @@ fn batch_inscribe_with_satpoint() {
       format!("mode: same-sat\nsatpoint: {txid}:0:55555\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n", )
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     "/sat/5000055555",
     format!(
       ".*<a href=/inscription/{}>.*<a href=/inscription/{}>.*<a href=/inscription/{}>.*",
@@ -1086,15 +1086,15 @@ fn batch_inscribe_with_satpoint() {
 fn batch_inscribe_with_fee_rate() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(2);
 
   let set_fee_rate = 1.0;
 
-  let output = CommandBuilder::new(format!("--index-sats wallet batch --fee-rate {set_fee_rate} --batch batch.yaml"))
+  let output = CommandBuilder::new(format!("--index-koinu wallet batch --fee-rate {set_fee_rate} --batch batch.yaml"))
     .write("inscription.txt", "Hello World")
     .write("tulip.png", [0; 555])
     .write("meow.wav", [0; 2048])
@@ -1103,7 +1103,7 @@ fn batch_inscribe_with_fee_rate() {
       "mode: same-sat\nsat: 5000111111\ninscriptions:\n- file: inscription.txt\n- file: tulip.png\n- file: meow.wav\n"
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   let commit_tx = &core.mempool()[0];
@@ -1129,7 +1129,7 @@ fn batch_inscribe_with_fee_rate() {
   pretty_assert_eq!(fee_rate, set_fee_rate);
 
   assert_eq!(
-    ord::FeeRate::try_from(set_fee_rate)
+    dog::FeeRate::try_from(set_fee_rate)
       .unwrap()
       .fee(commit_tx.vsize() + reveal_tx.vsize())
       .to_sat(),
@@ -1141,13 +1141,13 @@ fn batch_inscribe_with_fee_rate() {
 fn batch_inscribe_with_delegate_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (delegate, _) = inscribe(&core, &ord);
+  let (delegate, _) = inscribe(&core, &dog);
 
   let inscribe = CommandBuilder::new("wallet batch --fee-rate 1.0 --batch batch.yaml")
     .write("inscription.txt", "INSCRIPTION")
@@ -1161,26 +1161,26 @@ inscriptions:
       ),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscribe.inscriptions[0].id),
     format!(r#".*<dt>delegate</dt>\s*<dd><a href=/inscription/{delegate}>{delegate}</a></dd>.*"#,),
   );
 
-  ord.assert_response(format!("/content/{}", inscribe.inscriptions[0].id), "FOO");
+  dog.assert_response(format!("/content/{}", inscribe.inscriptions[0].id), "FOO");
 }
 
 #[test]
 fn batch_inscribe_with_non_existent_delegate_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -1199,7 +1199,7 @@ inscriptions:
       ),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr(format!("error: delegate {delegate} does not exist\n"))
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -1209,17 +1209,17 @@ inscriptions:
 fn batch_inscribe_with_satpoints_with_parent() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let parent_output =
-    CommandBuilder::new("--index-sats wallet inscribe --fee-rate 5.0 --file parent.png")
+    CommandBuilder::new("--index-koinu wallet inscribe --fee-rate 5.0 --file parent.png")
       .write("parent.png", [1; 520])
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -1230,7 +1230,7 @@ fn batch_inscribe_with_satpoints_with_parent() {
     .map(|block| block.txdata[0].compute_txid())
     .collect::<Vec<Txid>>();
 
-  let satpoint_1 = SatPoint {
+  let satpoint_1 = KoinuPoint {
     outpoint: OutPoint {
       txid: txids[0],
       vout: 0,
@@ -1238,7 +1238,7 @@ fn batch_inscribe_with_satpoints_with_parent() {
     offset: 0,
   };
 
-  let satpoint_2 = SatPoint {
+  let satpoint_2 = KoinuPoint {
     outpoint: OutPoint {
       txid: txids[1],
       vout: 0,
@@ -1246,7 +1246,7 @@ fn batch_inscribe_with_satpoints_with_parent() {
     offset: 0,
   };
 
-  let satpoint_3 = SatPoint {
+  let satpoint_3 = KoinuPoint {
     outpoint: OutPoint {
       txid: txids[2],
       vout: 0,
@@ -1255,41 +1255,41 @@ fn batch_inscribe_with_satpoints_with_parent() {
   };
 
   let sat_1 = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{}", satpoint_1.outpoint))
       .text()
       .unwrap(),
   )
   .unwrap()
-  .sat_ranges
+  .koinu_ranges
   .unwrap()[0]
     .0;
 
   let sat_2 = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{}", satpoint_2.outpoint))
       .text()
       .unwrap(),
   )
   .unwrap()
-  .sat_ranges
+  .koinu_ranges
   .unwrap()[0]
     .0;
 
   let sat_3 = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{}", satpoint_3.outpoint))
       .text()
       .unwrap(),
   )
   .unwrap()
-  .sat_ranges
+  .koinu_ranges
   .unwrap()[0]
     .0;
 
   let parent_id = parent_output.inscriptions[0].id;
 
-  let output = CommandBuilder::new("--index-sats wallet batch --fee-rate 1 --batch batch.yaml")
+  let output = CommandBuilder::new("--index-koinu wallet batch --fee-rate 1 --batch batch.yaml")
     .write("inscription.txt", "Hello World")
     .write("tulip.png", [0; 555])
     .write("meow.wav", [0; 2048])
@@ -1311,12 +1311,12 @@ inscriptions:
       ),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{parent_id}"),
     format!(r".*<dt>location</dt>.*{}:0:0.*", output.reveal),
   );
@@ -1337,7 +1337,7 @@ inscriptions:
   let inscription_2 = &output.inscriptions[1];
   let inscription_3 = &output.inscriptions[2];
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscription_1.id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>{}</dd>.*<dt>sat</dt>.*<dd>.*{}.*</dd>.*<dt>location</dt>.*{}</a></dd>.*",
       50 * COIN_VALUE,
@@ -1346,7 +1346,7 @@ inscriptions:
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscription_2.id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>{}</dd>.*<dt>sat</dt>.*<dd>.*{}.*</dd>.*<dt>location</dt>.*{}</a></dd>.*",
        50 * COIN_VALUE,
@@ -1355,7 +1355,7 @@ inscriptions:
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscription_3.id),
     format!(r".*<dt>parents</dt>\s*<dd>.*{parent_id}.*</dd>.*<dt>value</dt>.*<dd>{}</dd>.*<dt>sat</dt>.*<dd>.*{}.*</dd>.*<dt>location</dt>.*{}</a></dd>.*",
       50 * COIN_VALUE,
@@ -1369,22 +1369,22 @@ inscriptions:
 fn batch_inscribe_with_satpoints_with_different_sizes() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let address_1 = receive(&core, &ord);
-  let address_2 = receive(&core, &ord);
-  let address_3 = receive(&core, &ord);
+  let address_1 = receive(&core, &dog);
+  let address_2 = receive(&core, &dog);
+  let address_3 = receive(&core, &dog);
 
   core.mine_blocks(3);
 
   let outpoint_1 = OutPoint {
     txid: CommandBuilder::new(format!(
-      "--index-sats wallet send --fee-rate 1 {address_1} 25btc"
+      "--index-koinu wallet send --fee-rate 1 {address_1} 25btc"
     ))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<send::Output>()
     .txid,
@@ -1395,10 +1395,10 @@ fn batch_inscribe_with_satpoints_with_different_sizes() {
 
   let outpoint_2 = OutPoint {
     txid: CommandBuilder::new(format!(
-      "--index-sats wallet send --fee-rate 1 {address_2} 1btc"
+      "--index-koinu wallet send --fee-rate 1 {address_2} 1btc"
     ))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<send::Output>()
     .txid,
@@ -1409,10 +1409,10 @@ fn batch_inscribe_with_satpoints_with_different_sizes() {
 
   let outpoint_3 = OutPoint {
     txid: CommandBuilder::new(format!(
-      "--index-sats wallet send --fee-rate 1 {address_3} 3btc"
+      "--index-koinu wallet send --fee-rate 1 {address_3} 3btc"
     ))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<send::Output>()
     .txid,
@@ -1421,23 +1421,23 @@ fn batch_inscribe_with_satpoints_with_different_sizes() {
 
   core.mine_blocks(1);
 
-  let satpoint_1 = SatPoint {
+  let satpoint_1 = KoinuPoint {
     outpoint: outpoint_1,
     offset: 0,
   };
 
-  let satpoint_2 = SatPoint {
+  let satpoint_2 = KoinuPoint {
     outpoint: outpoint_2,
     offset: 0,
   };
 
-  let satpoint_3 = SatPoint {
+  let satpoint_3 = KoinuPoint {
     outpoint: outpoint_3,
     offset: 0,
   };
 
   let output_1 = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{}", satpoint_1.outpoint))
       .text()
       .unwrap(),
@@ -1446,7 +1446,7 @@ fn batch_inscribe_with_satpoints_with_different_sizes() {
   assert_eq!(output_1.value, 25 * COIN_VALUE);
 
   let output_2 = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{}", satpoint_2.outpoint))
       .text()
       .unwrap(),
@@ -1455,7 +1455,7 @@ fn batch_inscribe_with_satpoints_with_different_sizes() {
   assert_eq!(output_2.value, COIN_VALUE);
 
   let output_3 = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{}", satpoint_3.outpoint))
       .text()
       .unwrap(),
@@ -1463,11 +1463,11 @@ fn batch_inscribe_with_satpoints_with_different_sizes() {
   .unwrap();
   assert_eq!(output_3.value, 3 * COIN_VALUE);
 
-  let sat_1 = output_1.sat_ranges.unwrap()[0].0;
-  let sat_2 = output_2.sat_ranges.unwrap()[0].0;
-  let sat_3 = output_3.sat_ranges.unwrap()[0].0;
+  let sat_1 = output_1.koinu_ranges.unwrap()[0].0;
+  let sat_2 = output_2.koinu_ranges.unwrap()[0].0;
+  let sat_3 = output_3.koinu_ranges.unwrap()[0].0;
 
-  let output = CommandBuilder::new("--index-sats wallet batch --fee-rate 1 --batch batch.yaml")
+  let output = CommandBuilder::new("--index-koinu wallet batch --fee-rate 1 --batch batch.yaml")
     .write("inscription.txt", "Hello World")
     .write("tulip.png", [0; 5])
     .write("meow.wav", [0; 2])
@@ -1487,7 +1487,7 @@ inscriptions:
       ),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -1508,7 +1508,7 @@ inscriptions:
   let inscription_2 = &output.inscriptions[1];
   let inscription_3 = &output.inscriptions[2];
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscription_1.id),
     format!(
       r".*<dt>value</dt>.*<dd>{}</dd>.*<dt>sat</dt>.*<dd>.*{}.*</dd>.*<dt>location</dt>.*{}.*",
@@ -1518,7 +1518,7 @@ inscriptions:
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscription_2.id),
     format!(
       r".*<dt>value</dt>.*<dd>{}</dd>.*<dt>sat</dt>.*<dd>.*{}.*</dd>.*<dt>location</dt>.*{}.*",
@@ -1526,7 +1526,7 @@ inscriptions:
     ),
   );
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{}", inscription_3.id),
     format!(
       r".*<dt>value</dt>.*<dd>{}</dd>.*<dt>sat</dt>.*<dd>.*{}.*</dd>.*<dt>location</dt>.*{}.*",
@@ -1541,24 +1541,24 @@ inscriptions:
 fn batch_can_etch_rune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let rune = SpacedRune {
-    rune: Rune(RUNE),
+  let dune = SpacedDune {
+    dune: Dune(RUNE),
     spacers: 0,
   };
 
   let batch = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune,
+        dune,
         supply: "1000".parse().unwrap(),
         premine: "1000".parse().unwrap(),
         symbol: '¢',
@@ -1575,19 +1575,19 @@ fn batch_can_etch_rune() {
 
   let parent = batch.output.inscriptions[0].id;
 
-  let request = ord.request(format!("/content/{parent}"));
+  let request = dog.request(format!("/content/{parent}"));
 
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "image/jpeg");
   assert_eq!(request.text().unwrap(), "inscription");
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{parent}"),
-    r".*<dt>rune</dt>\s*<dd><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
+    r".*<dt>dune</dt>\s*<dd><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
   );
 
-  ord.assert_response_regex(
-    "/rune/AAAAAAAAAAAAA",
+  dog.assert_response_regex(
+    "/dune/AAAAAAAAAAAAA",
     format!(
       r".*\s*<dt>turbo</dt>\s*<dd>false</dd>.*<dt>parent</dt>\s*<dd><a class=collapse href=/inscription/{parent}>{parent}</a></dd>.*"
     ),
@@ -1595,7 +1595,7 @@ fn batch_can_etch_rune() {
 
   let destination = batch
     .output
-    .rune
+    .dune
     .unwrap()
     .destination
     .unwrap()
@@ -1608,16 +1608,16 @@ fn batch_can_etch_rune() {
 
   assert_eq!(
     reveal.input[0].sequence,
-    Sequence::from_height(Runestone::COMMIT_CONFIRMATIONS - 1)
+    Sequence::from_height(Dunestone::COMMIT_CONFIRMATIONS - 1)
   );
 
-  let Artifact::Runestone(runestone) = Runestone::decipher(&reveal).unwrap() else {
+  let Artifact::Dunestone(dunestone) = Dunestone::decipher(&reveal).unwrap() else {
     panic!();
   };
 
   let pointer = reveal.output.len() - 2;
 
-  assert_eq!(runestone.pointer, Some(pointer.try_into().unwrap()));
+  assert_eq!(dunestone.pointer, Some(pointer.try_into().unwrap()));
 
   assert_eq!(
     reveal.output[pointer].script_pubkey,
@@ -1627,15 +1627,15 @@ fn batch_can_etch_rune() {
   assert_eq!(
     CommandBuilder::new("--regtest wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 39999980000,
       ordinal: 10000,
       runic: Some(10000),
-      runes: Some(
+      dunes: Some(
         vec![(
-          rune,
+          dune,
           Decimal {
             value: 1000,
             scale: 0,
@@ -1653,24 +1653,24 @@ fn batch_can_etch_rune() {
 fn batch_can_etch_turbo_rune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let rune = SpacedRune {
-    rune: Rune(RUNE),
+  let dune = SpacedDune {
+    dune: Dune(RUNE),
     spacers: 0,
   };
 
   let batch = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune,
+        dune,
         supply: "1000".parse().unwrap(),
         premine: "1000".parse().unwrap(),
         symbol: '¢',
@@ -1687,8 +1687,8 @@ fn batch_can_etch_turbo_rune() {
 
   let parent = batch.output.inscriptions[0].id;
 
-  ord.assert_response_regex(
-    "/rune/AAAAAAAAAAAAA",
+  dog.assert_response_regex(
+    "/dune/AAAAAAAAAAAAA",
     format!(
       r".*\s*<dt>turbo</dt>\s*<dd>true</dd>.*<dt>parent</dt>\s*<dd><a class=collapse href=/inscription/{parent}>{parent}</a></dd>.*"
     ),
@@ -1699,24 +1699,24 @@ fn batch_can_etch_turbo_rune() {
 fn batch_can_etch_rune_without_premine() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let rune = SpacedRune {
-    rune: Rune(RUNE),
+  let dune = SpacedDune {
+    dune: Dune(RUNE),
     spacers: 0,
   };
 
   let batch = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune,
+        dune,
         supply: "1000".parse().unwrap(),
         premine: "0".parse().unwrap(),
         symbol: '¢',
@@ -1738,43 +1738,43 @@ fn batch_can_etch_rune_without_premine() {
 
   let parent = batch.output.inscriptions[0].id;
 
-  let request = ord.request(format!("/content/{parent}"));
+  let request = dog.request(format!("/content/{parent}"));
 
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "image/jpeg");
   assert_eq!(request.text().unwrap(), "inscription");
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{parent}"),
-    r".*<dt>rune</dt>\s*<dd><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
+    r".*<dt>dune</dt>\s*<dd><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
   );
 
-  ord.assert_response_regex(
-    "/rune/AAAAAAAAAAAAA",
+  dog.assert_response_regex(
+    "/dune/AAAAAAAAAAAAA",
     format!(
       r".*<dt>parent</dt>\s*<dd><a class=collapse href=/inscription/{parent}>{parent}</a></dd>.*"
     ),
   );
 
-  assert_eq!(batch.output.rune.unwrap().destination, None);
+  assert_eq!(batch.output.dune.unwrap().destination, None);
 
   let reveal = core.tx_by_id(batch.output.reveal);
 
   assert_eq!(
     reveal.input[0].sequence,
-    Sequence::from_height(Runestone::COMMIT_CONFIRMATIONS - 1)
+    Sequence::from_height(Dunestone::COMMIT_CONFIRMATIONS - 1)
   );
 
   assert_eq!(
     CommandBuilder::new("--regtest wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 39999990000,
       ordinal: 10000,
       runic: Some(0),
-      runes: Some(default()),
+      dunes: Some(default()),
       total: 400 * COIN_VALUE,
     }
   );
@@ -1784,20 +1784,20 @@ fn batch_can_etch_rune_without_premine() {
 fn batch_inscribe_can_etch_rune_with_offset() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batch = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune: SpacedRune {
-          rune: Rune(RUNE),
+        dune: SpacedDune {
+          dune: Dune(RUNE),
           spacers: 0,
         },
         supply: "10000".parse().unwrap(),
@@ -1824,19 +1824,19 @@ fn batch_inscribe_can_etch_rune_with_offset() {
 
   let parent = batch.output.inscriptions[0].id;
 
-  let request = ord.request(format!("/content/{parent}"));
+  let request = dog.request(format!("/content/{parent}"));
 
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "image/jpeg");
   assert_eq!(request.text().unwrap(), "inscription");
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{parent}"),
-    r".*<dt>rune</dt>\s*<dd><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
+    r".*<dt>dune</dt>\s*<dd><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
   );
 
-  ord.assert_response_regex(
-    "/rune/AAAAAAAAAAAAA",
+  dog.assert_response_regex(
+    "/dune/AAAAAAAAAAAAA",
     format!(
       r".*<dt>parent</dt>\s*<dd><a class=collapse href=/inscription/{parent}>{parent}</a></dd>.*"
     ),
@@ -1846,7 +1846,7 @@ fn batch_inscribe_can_etch_rune_with_offset() {
     core.state().is_wallet_address(
       &batch
         .output
-        .rune
+        .dune
         .unwrap()
         .destination
         .unwrap()
@@ -1860,20 +1860,20 @@ fn batch_inscribe_can_etch_rune_with_offset() {
 fn batch_inscribe_can_etch_rune_with_height() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batch = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune: SpacedRune {
-          rune: Rune(RUNE),
+        dune: SpacedDune {
+          dune: Dune(RUNE),
           spacers: 0,
         },
         supply: "10000".parse().unwrap(),
@@ -1900,19 +1900,19 @@ fn batch_inscribe_can_etch_rune_with_height() {
 
   let parent = batch.output.inscriptions[0].id;
 
-  let request = ord.request(format!("/content/{parent}"));
+  let request = dog.request(format!("/content/{parent}"));
 
   assert_eq!(request.status(), 200);
   assert_eq!(request.headers().get("content-type").unwrap(), "image/jpeg");
   assert_eq!(request.text().unwrap(), "inscription");
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{parent}"),
-    r".*<dt>rune</dt>\s*<dd><a href=/rune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
+    r".*<dt>dune</dt>\s*<dd><a href=/dune/AAAAAAAAAAAAA>AAAAAAAAAAAAA</a></dd>.*",
   );
 
-  ord.assert_response_regex(
-    "/rune/AAAAAAAAAAAAA",
+  dog.assert_response_regex(
+    "/dune/AAAAAAAAAAAAA",
     format!(
       r".*<dt>parent</dt>\s*<dd><a class=collapse href=/inscription/{parent}>{parent}</a></dd>.*"
     ),
@@ -1922,7 +1922,7 @@ fn batch_inscribe_can_etch_rune_with_height() {
     core.state().is_wallet_address(
       &batch
         .output
-        .rune
+        .dune
         .unwrap()
         .destination
         .unwrap()
@@ -1936,21 +1936,21 @@ fn batch_inscribe_can_etch_rune_with_height() {
 fn etch_existing_rune_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 1,
           },
           supply: "1000".parse().unwrap(),
@@ -1968,8 +1968,8 @@ fn etch_existing_rune_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: rune `AAAAAAAAAAAAA` has already been etched\n")
+    .dog(&dog)
+    .expected_stderr("error: dune `AAAAAAAAAAAAA` has already been etched\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -1978,21 +1978,21 @@ fn etch_existing_rune_error() {
 fn etch_reserved_rune_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune::reserved(0, 0),
+          dune: SpacedDune {
+            dune: Dune::reserved(0, 0),
             spacers: 0,
           },
           premine: "1000".parse().unwrap(),
@@ -2010,8 +2010,8 @@ fn etch_reserved_rune_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: rune `AAAAAAAAAAAAAAAAAAAAAAAAAAA` is reserved\n")
+    .dog(&dog)
+    .expected_stderr("error: dune `AAAAAAAAAAAAAAAAAAAAAAAAAAA` is reserved\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -2020,21 +2020,21 @@ fn etch_reserved_rune_error() {
 fn etch_sub_minimum_rune_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(0),
+          dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0,
           },
           supply: "1000".parse().unwrap(),
@@ -2052,8 +2052,8 @@ fn etch_sub_minimum_rune_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: rune is less than minimum for next block: A < ZZRZCNJJBILX\n")
+    .dog(&dog)
+    .expected_stderr("error: dune is less than minimum for next block: A < ZZRZCNJJBILX\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -2062,21 +2062,21 @@ fn etch_sub_minimum_rune_error() {
 fn etch_requires_rune_index() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "1000".parse().unwrap(),
@@ -2094,8 +2094,8 @@ fn etch_requires_rune_index() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: etching runes requires index created with `--index-runes`\n")
+    .dog(&dog)
+    .expected_stderr("error: etching dunes requires index created with `--index-dunes`\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -2104,21 +2104,21 @@ fn etch_requires_rune_index() {
 fn etch_divisibility_over_maximum_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 39,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "1000".parse().unwrap(),
@@ -2136,7 +2136,7 @@ fn etch_divisibility_over_maximum_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: <DIVISIBILITY> must be less than or equal 38\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2146,21 +2146,21 @@ fn etch_divisibility_over_maximum_error() {
 fn etch_mintable_overflow_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: default(),
@@ -2186,7 +2186,7 @@ fn etch_mintable_overflow_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `terms.cap` * `terms.amount` over maximum\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2196,21 +2196,21 @@ fn etch_mintable_overflow_error() {
 fn etch_mintable_plus_premine_overflow_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: default(),
@@ -2236,7 +2236,7 @@ fn etch_mintable_plus_premine_overflow_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `premine` + `terms.cap` * `terms.amount` over maximum\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2246,21 +2246,21 @@ fn etch_mintable_plus_premine_overflow_error() {
 fn incorrect_supply_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2286,7 +2286,7 @@ fn incorrect_supply_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `supply` not equal to `premine` + `terms.cap` * `terms.amount`\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2296,21 +2296,21 @@ fn incorrect_supply_error() {
 fn zero_offset_interval_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2336,7 +2336,7 @@ fn zero_offset_interval_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `terms.offset.end` must be greater than `terms.offset.start`\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2346,21 +2346,21 @@ fn zero_offset_interval_error() {
 fn zero_height_interval_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2386,7 +2386,7 @@ fn zero_height_interval_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `terms.height.end` must be greater than `terms.height.start`\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2396,21 +2396,21 @@ fn zero_height_interval_error() {
 fn invalid_start_height_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2436,7 +2436,7 @@ fn invalid_start_height_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr(
       "error: `terms.height.start` must be greater than the reveal transaction block height of 7\n",
     )
@@ -2448,21 +2448,21 @@ fn invalid_start_height_error() {
 fn invalid_end_height_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "2".parse().unwrap(),
@@ -2488,7 +2488,7 @@ fn invalid_end_height_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr(
       "error: `terms.height.end` must be greater than the reveal transaction block height of 7\n",
     )
@@ -2500,21 +2500,21 @@ fn invalid_end_height_error() {
 fn zero_supply_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "0".parse().unwrap(),
@@ -2532,7 +2532,7 @@ fn zero_supply_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `supply` must be greater than zero\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2542,21 +2542,21 @@ fn zero_supply_error() {
 fn zero_cap_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2579,7 +2579,7 @@ fn zero_cap_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `terms.cap` must be greater than zero\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -2589,21 +2589,21 @@ fn zero_cap_error() {
 fn zero_amount_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2626,31 +2626,31 @@ fn zero_amount_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: `terms.amount` must be greater than zero\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
 
 #[test]
-fn oversize_runestone_error() {
+fn oversize_dunestone_error() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(6402364363415443603228541259936211926 - 1),
+          dune: SpacedDune {
+            dune: Dune(6402364363415443603228541259936211926 - 1),
             spacers: 0b00000111_11111111_11111111_11111111,
           },
           supply: u128::MAX.to_string().parse().unwrap(),
@@ -2679,24 +2679,24 @@ fn oversize_runestone_error() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: runestone greater than maximum OP_RETURN size: 104 > 83\n")
+    .dog(&dog)
+    .expected_stderr("error: dunestone greater than maximum OP_RETURN size: 104 > 83\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
 
 #[test]
-fn oversize_runestones_are_allowed_with_no_limit() {
+fn oversize_dunestones_are_allowed_with_no_limit() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   CommandBuilder::new(
-    "--regtest --index-runes wallet batch --fee-rate 0 --dry-run --no-limit --batch batch.yaml",
+    "--regtest --index-dunes wallet batch --fee-rate 0 --dry-run --no-limit --batch batch.yaml",
   )
   .write("inscription.txt", "foo")
   .write(
@@ -2704,8 +2704,8 @@ fn oversize_runestones_are_allowed_with_no_limit() {
     serde_yaml::to_string(&batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
-        rune: SpacedRune {
-          rune: Rune(6402364363415443603228541259936211926 - 1),
+        dune: SpacedDune {
+          dune: Dune(6402364363415443603228541259936211926 - 1),
           spacers: 0b00000111_11111111_11111111_11111111,
         },
         supply: u128::MAX.to_string().parse().unwrap(),
@@ -2734,7 +2734,7 @@ fn oversize_runestones_are_allowed_with_no_limit() {
     .unwrap(),
   )
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Batch>();
 }
 
@@ -2748,17 +2748,17 @@ fn batch_inscribe_errors_if_pending_etchings() {
 
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batchfile = batch::File {
     etching: Some(batch::Etching {
       divisibility: 0,
-      rune: SpacedRune {
-        rune: Rune(RUNE),
+      dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       supply: "1000".parse().unwrap(),
@@ -2777,12 +2777,12 @@ fn batch_inscribe_errors_if_pending_etchings() {
 
   {
     let mut spawn =
-      CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+      CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
         .temp_dir(tempdir.clone())
         .write("batch.yaml", serde_yaml::to_string(&batchfile).unwrap())
         .write("inscription.jpeg", "inscription")
         .core(&core)
-        .ord(&ord)
+        .dog(&dog)
         .expected_exit_code(1)
         .spawn();
 
@@ -2794,7 +2794,7 @@ fn batch_inscribe_errors_if_pending_etchings() {
 
     assert_regex_match!(
       buffer,
-      "Waiting for rune .* commitment [[:xdigit:]]{64} to mature…\n"
+      "Waiting for dune .* commitment [[:xdigit:]]{64} to mature…\n"
     );
 
     core.mine_blocks(1);
@@ -2819,13 +2819,13 @@ fn batch_inscribe_errors_if_pending_etchings() {
     spawn.child.wait().unwrap();
   }
 
-  CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .temp_dir(tempdir)
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr(
-      "error: rune `AAAAAAAAAAAAA` has pending etching, resume with `ord wallet resume`\n",
+      "error: dune `AAAAAAAAAAAAA` has pending etching, resume with `dog wallet resume`\n",
     )
     .run_and_extract_stdout();
 }
@@ -2834,21 +2834,21 @@ fn batch_inscribe_errors_if_pending_etchings() {
 fn forbid_etching_below_rune_activation_height() {
   let core = mockcore::builder().build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  CommandBuilder::new("--index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+  CommandBuilder::new("--index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
     .write("inscription.txt", "foo")
     .write(
       "batch.yaml",
       serde_yaml::to_string(&batch::File {
         etching: Some(batch::Etching {
           divisibility: 0,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           supply: "1".parse().unwrap(),
@@ -2866,8 +2866,8 @@ fn forbid_etching_below_rune_activation_height() {
       .unwrap(),
     )
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: rune reveal height below rune activation height: 7 < 840000\n")
+    .dog(&dog)
+    .expected_stderr("error: dune reveal height below dune activation height: 7 < 840000\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -2876,12 +2876,12 @@ fn forbid_etching_below_rune_activation_height() {
 fn batch_inscribe_can_create_inscription_with_gallery() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (id0, _) = inscribe(&core, &ord);
-  let (id1, _) = inscribe(&core, &ord);
+  let (id0, _) = inscribe(&core, &dog);
+  let (id1, _) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -2907,14 +2907,14 @@ inscriptions:
       ),
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   let gallery = output.inscriptions[0].id;
 
   core.mine_blocks(1);
 
-  let request = ord.request(format!("/content/{gallery}"));
+  let request = dog.request(format!("/content/{gallery}"));
 
   assert_eq!(request.status(), 200);
   assert_eq!(
@@ -2923,7 +2923,7 @@ inscriptions:
   );
   assert_eq!(request.text().unwrap(), "Hello World");
 
-  ord.assert_response_regex(
+  dog.assert_response_regex(
     format!("/inscription/{gallery}"),
     format!(
       r".*
@@ -2941,9 +2941,9 @@ inscriptions:
     ),
   );
 
-  ord.assert_html(
+  dog.assert_html(
     format!("/gallery/{gallery}/0"),
-    Chain::Mainnet,
+    Chain::Dogecoin,
     ItemHtml {
       gallery_id: gallery,
       gallery_number: -1,
@@ -2960,9 +2960,9 @@ inscriptions:
     },
   );
 
-  ord.assert_html(
+  dog.assert_html(
     format!("/gallery/{gallery}/1"),
-    Chain::Mainnet,
+    Chain::Dogecoin,
     ItemHtml {
       gallery_id: gallery,
       gallery_number: -1,
@@ -2979,21 +2979,21 @@ inscriptions:
     },
   );
 
-  let request = ord.request(format!("/gallery/{gallery}/2"));
+  let request = dog.request(format!("/gallery/{gallery}/2"));
   assert_eq!(request.status(), 404);
   assert_eq!(
     request.text().unwrap(),
     format!("gallery {gallery} item 2 not found"),
   );
 
-  let request = ord.request("/gallery/100/2");
+  let request = dog.request("/gallery/100/2");
   assert_eq!(request.status(), 404);
   assert_eq!(
     request.text().unwrap(),
     format!("inscription 100 not found"),
   );
 
-  let request = ord.request("/gallery/hello/2");
+  let request = dog.request("/gallery/hello/2");
   assert_eq!(request.status(), 404);
   assert_eq!(request.text().unwrap(), format!("sat index required"));
 }
@@ -3002,9 +3002,9 @@ inscriptions:
 fn batch_inscribe_fails_if_gallery_inscription_does_not_exist() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -3021,7 +3021,7 @@ inscriptions:
 ",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr(
       "error: gallery item does not exist: \
       0000000000000000000000000000000000000000000000000000000000000000i0\n",
@@ -3033,9 +3033,9 @@ inscriptions:
 #[test]
 fn batch_can_compress() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
   core.mine_blocks(1);
 
   let title = "a]".repeat(100);
@@ -3048,12 +3048,12 @@ fn batch_can_compress() {
       )
       .write("foo.txt", [0; 350_000])
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output();
 
   core.mine_blocks(1);
 
-  let response = ord.json_request(format!("/decode/{reveal}"));
+  let response = dog.json_request(format!("/decode/{reveal}"));
   assert_eq!(response.status(), StatusCode::OK);
 
   let decode: api::Decode = serde_json::from_str(&response.text().unwrap()).unwrap();

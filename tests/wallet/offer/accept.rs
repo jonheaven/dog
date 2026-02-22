@@ -1,19 +1,19 @@
 use super::*;
 
-type Accept = ord::subcommand::wallet::offer::accept::Output;
-type Create = ord::subcommand::wallet::offer::create::Output;
+type Accept = dog::subcommand::wallet::offer::accept::Output;
+type Create = dog::subcommand::wallet::offer::create::Output;
 
 #[test]
 fn accepted_offer_works() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let postage = 9000;
 
-  let (inscription, txid) = inscribe_with_options(&core, &ord, Some(postage), 0);
+  let (inscription, txid) = inscribe_with_options(&core, &dog, Some(postage), 0);
 
   let inscription_address = Address::from_script(
     &core.tx_by_id(txid).output[0].script_pubkey,
@@ -29,7 +29,7 @@ fn accepted_offer_works() {
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Create>();
 
   let mut buyer_addresses = core.state().clear_wallet_addresses();
@@ -42,14 +42,14 @@ fn accepted_offer_works() {
     create.psbt
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Accept>();
 
   core.mine_blocks(1);
 
   let balance = CommandBuilder::new("wallet balance")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Balance>();
 
   assert_eq!(balance.ordinal, postage);
@@ -60,14 +60,14 @@ fn accepted_offer_works() {
     create.psbt
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Accept>();
 
   core.mine_blocks(1);
 
   let balance = CommandBuilder::new("wallet balance")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Balance>();
 
   assert_eq!(balance.ordinal, 0);
@@ -83,7 +83,7 @@ fn accepted_offer_works() {
 
   let inscriptions = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(
@@ -94,7 +94,7 @@ fn accepted_offer_works() {
 
   let balance = CommandBuilder::new("wallet balance")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Balance>();
 
   assert_eq!(balance.ordinal, postage);
@@ -105,7 +105,7 @@ fn accepted_offer_works() {
 }
 
 #[track_caller]
-fn error_case(core: &mockcore::Handle, ord: &TestServer, tx: Transaction, message: &str) {
+fn error_case(core: &mockcore::Handle, dog: &TestServer, tx: Transaction, message: &str) {
   let psbt = Psbt::from_unsigned_tx(tx).unwrap();
 
   let base64 = base64_encode(&psbt.serialize());
@@ -122,7 +122,7 @@ fn error_case(core: &mockcore::Handle, ord: &TestServer, tx: Transaction, messag
     &base64,
   ])
   .core(core)
-  .ord(ord)
+  .dog(dog)
   .expected_exit_code(1)
   .expected_stderr(message)
   .run_and_extract_stdout();
@@ -132,13 +132,13 @@ fn error_case(core: &mockcore::Handle, ord: &TestServer, tx: Transaction, messag
 fn psbt_may_not_contain_no_inputs_owned_by_wallet() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   error_case(
     &core,
-    &ord,
+    &dog,
     Transaction {
       version: Version(2),
       lock_time: LockTime::ZERO,
@@ -153,20 +153,20 @@ fn psbt_may_not_contain_no_inputs_owned_by_wallet() {
 fn psbt_may_not_contain_more_than_one_input_owned_by_wallet() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(2);
 
   let outputs = CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<Vec<ord::subcommand::wallet::outputs::Output>>();
+    .dog(&dog)
+    .run_and_deserialize_output::<Vec<dog::subcommand::wallet::outputs::Output>>();
 
   error_case(
     &core,
-    &ord,
+    &dog,
     Transaction {
       version: Version(2),
       lock_time: LockTime::ZERO,
@@ -194,9 +194,9 @@ fn psbt_may_not_contain_more_than_one_input_owned_by_wallet() {
 fn error_on_base64_psbt_decode() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   CommandBuilder::new([
     "wallet",
@@ -210,7 +210,7 @@ fn error_on_base64_psbt_decode() {
     "=",
   ])
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .stderr_regex("error: failed to base64 decode PSBT\n.*")
   .run_and_extract_stdout();
@@ -220,9 +220,9 @@ fn error_on_base64_psbt_decode() {
 fn error_on_psbt_deserialize() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   CommandBuilder::new([
     "wallet",
@@ -236,7 +236,7 @@ fn error_on_psbt_deserialize() {
     "",
   ])
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .stderr_regex("error: failed to deserialize PSBT\n.*")
   .run_and_extract_stdout();
@@ -246,20 +246,20 @@ fn error_on_psbt_deserialize() {
 fn outgoing_may_not_contain_no_inscriptions() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let outputs = CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<Vec<ord::subcommand::wallet::outputs::Output>>();
+    .dog(&dog)
+    .run_and_deserialize_output::<Vec<dog::subcommand::wallet::outputs::Output>>();
 
   error_case(
     &core,
-    &ord,
+    &dog,
     Transaction {
       version: Version(2),
       lock_time: LockTime::ZERO,
@@ -279,17 +279,17 @@ fn outgoing_may_not_contain_no_inscriptions() {
 fn expected_outgoing_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, txid) = inscribe_with_options(&core, &ord, None, 0);
+  let (inscription, txid) = inscribe_with_options(&core, &dog, None, 0);
 
   error_case(
     &core,
-    &ord,
+    &dog,
     Transaction {
       version: Version(2),
       lock_time: LockTime::ZERO,
@@ -309,13 +309,13 @@ fn expected_outgoing_inscription() {
 fn unexpected_balance_change() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, txid) = inscribe_with_options(&core, &ord, None, 0);
+  let (inscription, txid) = inscribe_with_options(&core, &dog, None, 0);
 
   let tx = Transaction {
     version: Version(2),
@@ -348,7 +348,7 @@ fn unexpected_balance_change() {
     &base64,
   ])
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: unexpected balance change of -0.000099 BTC\n")
   .run_and_extract_stdout();
@@ -358,9 +358,9 @@ fn unexpected_balance_change() {
 fn outgoing_may_not_contain_more_than_one_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -376,7 +376,7 @@ inscriptions:
 ",
     )
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks(1);
@@ -400,7 +400,7 @@ inscriptions:
 
   error_case(
     &core,
-    &ord,
+    &dog,
     tx,
     &format!("error: outgoing input {outpoint} contains 2 inscriptions\n"),
   );
@@ -410,11 +410,11 @@ inscriptions:
 fn outgoing_does_not_contain_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let a = etch(&core, &ord, Rune(RUNE));
+  let a = etch(&core, &dog, Dune(RUNE));
 
   let (block, tx) = core.tx_index(a.output.reveal);
 
@@ -422,8 +422,8 @@ fn outgoing_does_not_contain_runes() {
 
   let address = CommandBuilder::new("--regtest wallet receive")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::wallet::receive::Output>()
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::wallet::receive::Output>()
     .addresses
     .into_iter()
     .next()
@@ -474,9 +474,9 @@ fn outgoing_does_not_contain_runes() {
     &base64,
   ])
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
-  .expected_stderr(format!("error: outgoing input {outpoint} contains runes\n"))
+  .expected_stderr(format!("error: outgoing input {outpoint} contains dunes\n"))
   .run_and_extract_stdout();
 }
 
@@ -484,17 +484,17 @@ fn outgoing_does_not_contain_runes() {
 fn must_have_inscription_index_to_accept() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(
+  let dog = TestServer::spawn_with_server_args(
     &core,
     &["--no-index-inscriptions", "--index-addresses"],
     &[],
   );
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (inscription, txid) = inscribe_with_options(&core, &ord, None, 0);
+  let (inscription, txid) = inscribe_with_options(&core, &dog, None, 0);
 
   let tx = Transaction {
     version: Version(2),
@@ -524,7 +524,7 @@ fn must_have_inscription_index_to_accept() {
     &base64,
   ])
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: index must have inscription index to accept PSBT\n")
   .run_and_extract_stdout();
@@ -534,13 +534,13 @@ fn must_have_inscription_index_to_accept() {
 fn buyer_inputs_must_be_signed() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let postage = 9000;
 
-  let (inscription, txid) = inscribe_with_options(&core, &ord, Some(postage), 0);
+  let (inscription, txid) = inscribe_with_options(&core, &dog, Some(postage), 0);
 
   let inscription_address = Address::from_script(
     &core.tx_by_id(txid).output[0].script_pubkey,
@@ -556,7 +556,7 @@ fn buyer_inputs_must_be_signed() {
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Create>();
 
   let mut psbt = Psbt::deserialize(&base64_decode(&create.psbt).unwrap()).unwrap();
@@ -573,7 +573,7 @@ fn buyer_inputs_must_be_signed() {
     base64_encode(&psbt.serialize()),
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr(format!(
     "error: buyer input `{}` is unsigned: buyer inputs must be signed\n",
@@ -586,13 +586,13 @@ fn buyer_inputs_must_be_signed() {
 fn seller_input_must_not_be_signed() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let postage = 9000;
 
-  let (inscription, txid) = inscribe_with_options(&core, &ord, Some(postage), 0);
+  let (inscription, txid) = inscribe_with_options(&core, &dog, Some(postage), 0);
 
   let inscription_address = Address::from_script(
     &core.tx_by_id(txid).output[0].script_pubkey,
@@ -608,7 +608,7 @@ fn seller_input_must_not_be_signed() {
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 0"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Create>();
 
   let mut psbt = Psbt::deserialize(&base64_decode(&create.psbt).unwrap()).unwrap();
@@ -625,7 +625,7 @@ fn seller_input_must_not_be_signed() {
     base64_encode(&psbt.serialize()),
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr(format!(
     "error: seller input `{}` is signed: seller input must not be signed\n",

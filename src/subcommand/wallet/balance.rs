@@ -5,7 +5,7 @@ pub struct Output {
   pub cardinal: u64,
   pub ordinal: u64,
   #[serde(default, skip_serializing_if = "Option::is_none")]
-  pub runes: Option<BTreeMap<SpacedRune, Decimal>>,
+  pub dunes: Option<BTreeMap<SpacedDune, Decimal>>,
   #[serde(default, skip_serializing_if = "Option::is_none")]
   pub runic: Option<u64>,
   pub total: u64,
@@ -22,7 +22,7 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
 
   let mut cardinal = 0;
   let mut ordinal = 0;
-  let mut runes = BTreeMap::new();
+  let mut dunes = BTreeMap::new();
   let mut runic = 0;
 
   for (output, txout) in unspent_outputs {
@@ -38,9 +38,9 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
     }
 
     if is_runic {
-      for (spaced_rune, pile) in rune_balances {
-        runes
-          .entry(spaced_rune)
+      for (spaced_dune, pile) in rune_balances {
+        dunes
+          .entry(spaced_dune)
           .and_modify(|decimal: &mut Decimal| {
             assert_eq!(decimal.scale, pile.divisibility);
             decimal.value += pile.amount;
@@ -58,14 +58,14 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
     }
 
     if is_ordinal && is_runic {
-      eprintln!("warning: output {output} contains both inscriptions and runes");
+      eprintln!("warning: output {output} contains both inscriptions and dunes");
     }
   }
 
   Ok(Some(Box::new(Output {
     cardinal,
     ordinal,
-    runes: wallet.has_rune_index().then_some(runes),
+    dunes: wallet.has_rune_index().then_some(dunes),
     runic: wallet.has_rune_index().then_some(runic),
     total: cardinal + ordinal + runic,
   })))
@@ -81,7 +81,7 @@ mod tests {
       serde_json::to_string(&Output {
         cardinal: 0,
         ordinal: 0,
-        runes: None,
+        dunes: None,
         runic: None,
         total: 0
       })

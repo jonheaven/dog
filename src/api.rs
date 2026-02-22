@@ -6,7 +6,7 @@ use {
 pub use crate::{
   subcommand::decode::RawOutput as Decode,
   templates::{
-    BlocksHtml as Blocks, RuneHtml as Rune, RunesHtml as Runes, StatusHtml as Status,
+    BlocksHtml as Blocks, RuneHtml as Dune, RunesHtml as Runes, StatusHtml as Status,
     TransactionHtml as Transaction,
   },
 };
@@ -17,7 +17,7 @@ pub struct Block {
   pub hash: BlockHash,
   pub height: u32,
   pub inscriptions: Vec<InscriptionId>,
-  pub runes: Vec<SpacedRune>,
+  pub dunes: Vec<SpacedDune>,
   pub target: BlockHash,
   pub transactions: Vec<bitcoin::blockdata::transaction::Transaction>,
 }
@@ -28,7 +28,7 @@ impl Block {
     height: Height,
     best_height: Height,
     inscriptions: Vec<InscriptionId>,
-    runes: Vec<SpacedRune>,
+    dunes: Vec<SpacedDune>,
   ) -> Self {
     Self {
       hash: block.header.block_hash(),
@@ -36,7 +36,7 @@ impl Block {
       height: height.0,
       best_height: best_height.0,
       inscriptions,
-      runes,
+      dunes,
       transactions: block.txdata,
     }
   }
@@ -114,9 +114,9 @@ pub struct Inscription {
   pub parents: Vec<InscriptionId>,
   pub previous: Option<InscriptionId>,
   pub properties: Properties,
-  pub rune: Option<SpacedRune>,
-  pub sat: Option<ordinals::Sat>,
-  pub satpoint: SatPoint,
+  pub dune: Option<SpacedDune>,
+  pub sat: Option<ordinals::Koinu>,
+  pub satpoint: KoinuPoint,
   pub timestamp: i64,
   pub value: Option<u64>,
 }
@@ -132,8 +132,8 @@ pub struct InscriptionRecursive {
   pub id: InscriptionId,
   pub number: i32,
   pub output: OutPoint,
-  pub sat: Option<ordinals::Sat>,
-  pub satpoint: SatPoint,
+  pub sat: Option<ordinals::Koinu>,
+  pub satpoint: KoinuPoint,
   pub timestamp: i64,
   pub value: Option<u64>,
   pub address: Option<String>,
@@ -147,8 +147,8 @@ pub struct RelativeInscriptionRecursive {
   pub id: InscriptionId,
   pub number: i32,
   pub output: OutPoint,
-  pub sat: Option<ordinals::Sat>,
-  pub satpoint: SatPoint,
+  pub sat: Option<ordinals::Koinu>,
+  pub satpoint: KoinuPoint,
   pub timestamp: i64,
 }
 
@@ -162,8 +162,8 @@ pub struct Inscriptions {
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct UtxoRecursive {
   pub inscriptions: Option<Vec<InscriptionId>>,
-  pub runes: Option<BTreeMap<SpacedRune, Pile>>,
-  pub sat_ranges: Option<Vec<(u64, u64)>>,
+  pub dunes: Option<BTreeMap<SpacedDune, Pile>>,
+  pub koinu_ranges: Option<Vec<(u64, u64)>>,
   pub value: u64,
 }
 
@@ -174,8 +174,8 @@ pub struct Output {
   pub indexed: bool,
   pub inscriptions: Option<Vec<InscriptionId>>,
   pub outpoint: OutPoint,
-  pub runes: Option<BTreeMap<SpacedRune, Pile>>,
-  pub sat_ranges: Option<Vec<(u64, u64)>>,
+  pub dunes: Option<BTreeMap<SpacedDune, Pile>>,
+  pub koinu_ranges: Option<Vec<(u64, u64)>>,
   pub script_pubkey: ScriptBuf,
   pub spent: bool,
   pub transaction: Txid,
@@ -190,8 +190,8 @@ impl Output {
     outpoint: OutPoint,
     tx_out: TxOut,
     indexed: bool,
-    runes: Option<BTreeMap<SpacedRune, Pile>>,
-    sat_ranges: Option<Vec<(u64, u64)>>,
+    dunes: Option<BTreeMap<SpacedDune, Pile>>,
+    koinu_ranges: Option<Vec<(u64, u64)>>,
     spent: bool,
   ) -> Self {
     Self {
@@ -203,8 +203,8 @@ impl Output {
       indexed,
       inscriptions,
       outpoint,
-      runes,
-      sat_ranges,
+      dunes,
+      koinu_ranges,
       script_pubkey: tx_out.script_pubkey,
       spent,
       transaction: outpoint.txid,
@@ -214,7 +214,7 @@ impl Output {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub struct Sat {
+pub struct Koinu {
   pub address: Option<String>,
   pub block: u32,
   pub charms: Vec<Charm>,
@@ -229,7 +229,7 @@ pub struct Sat {
   pub percentile: String,
   pub period: u32,
   pub rarity: Rarity,
-  pub satpoint: Option<SatPoint>,
+  pub satpoint: Option<KoinuPoint>,
   pub timestamp: i64,
 }
 
@@ -250,7 +250,7 @@ pub struct AddressInfo {
   pub outputs: Vec<OutPoint>,
   pub inscriptions: Option<Vec<InscriptionId>>,
   pub sat_balance: u64,
-  pub runes_balances: Option<Vec<(SpacedRune, Decimal, Option<char>)>>,
+  pub runes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

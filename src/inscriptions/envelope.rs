@@ -56,7 +56,7 @@ impl From<RawEnvelope> for ParsedEnvelope {
     let pointer = Tag::Pointer.take(&mut fields);
     let properties = Tag::Properties.take(&mut fields);
     let property_encoding = Tag::PropertyEncoding.take(&mut fields);
-    let rune = Tag::Rune.take(&mut fields);
+    let dune = Tag::Dune.take(&mut fields);
 
     let unrecognized_even_field = fields
       .keys()
@@ -82,7 +82,7 @@ impl From<RawEnvelope> for ParsedEnvelope {
         pointer,
         properties,
         property_encoding,
-        rune,
+        dune,
         unrecognized_even_field,
       },
       input: envelope.input,

@@ -3,29 +3,29 @@ use super::*;
 #[derive(
   Copy, Clone, Debug, PartialEq, Ord, PartialOrd, Eq, Default, DeserializeFromStr, SerializeDisplay,
 )]
-pub struct SpacedRune {
-  pub rune: Rune,
+pub struct SpacedDune {
+  pub dune: Dune,
   pub spacers: u32,
 }
 
-impl SpacedRune {
-  pub fn new(rune: Rune, spacers: u32) -> Self {
-    Self { rune, spacers }
+impl SpacedDune {
+  pub fn new(dune: Dune, spacers: u32) -> Self {
+    Self { dune, spacers }
   }
 }
 
-impl FromStr for SpacedRune {
+impl FromStr for SpacedDune {
   type Err = Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    let mut rune = String::new();
+    let mut dune = String::new();
     let mut spacers = 0u32;
 
     for c in s.chars() {
       match c {
-        'A'..='Z' => rune.push(c),
+        'A'..='Z' => dune.push(c),
         '.' | '•' => {
-          let flag = 1 << rune.len().checked_sub(1).ok_or(Error::LeadingSpacer)?;
+          let flag = 1 << dune.len().checked_sub(1).ok_or(Error::LeadingSpacer)?;
           if spacers & flag != 0 {
             return Err(Error::DoubleSpacer);
           }
@@ -35,25 +35,25 @@ impl FromStr for SpacedRune {
       }
     }
 
-    if 32 - spacers.leading_zeros() >= rune.len().try_into().unwrap() {
+    if 32 - spacers.leading_zeros() >= dune.len().try_into().unwrap() {
       return Err(Error::TrailingSpacer);
     }
 
-    Ok(SpacedRune {
-      rune: rune.parse().map_err(Error::Rune)?,
+    Ok(SpacedDune {
+      dune: dune.parse().map_err(Error::Dune)?,
       spacers,
     })
   }
 }
 
-impl Display for SpacedRune {
+impl Display for SpacedDune {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    let rune = self.rune.to_string();
+    let dune = self.dune.to_string();
 
-    for (i, c) in rune.chars().enumerate() {
+    for (i, c) in dune.chars().enumerate() {
       write!(f, "{c}")?;
 
-      if i < rune.len() - 1 && self.spacers & (1 << i) != 0 {
+      if i < dune.len() - 1 && self.spacers & (1 << i) != 0 {
         write!(f, "•")?;
       }
     }
@@ -68,7 +68,7 @@ pub enum Error {
   TrailingSpacer,
   DoubleSpacer,
   Character(char),
-  Rune(rune::Error),
+  Dune(dune::Error),
 }
 
 impl Display for Error {
@@ -78,7 +78,7 @@ impl Display for Error {
       Self::DoubleSpacer => write!(f, "double spacer"),
       Self::LeadingSpacer => write!(f, "leading spacer"),
       Self::TrailingSpacer => write!(f, "trailing spacer"),
-      Self::Rune(err) => write!(f, "{err}"),
+      Self::Dune(err) => write!(f, "{err}"),
     }
   }
 }
@@ -91,11 +91,11 @@ mod tests {
 
   #[test]
   fn display() {
-    assert_eq!("A.B".parse::<SpacedRune>().unwrap().to_string(), "A•B");
-    assert_eq!("A.B.C".parse::<SpacedRune>().unwrap().to_string(), "A•B•C");
+    assert_eq!("A.B".parse::<SpacedDune>().unwrap().to_string(), "A•B");
+    assert_eq!("A.B.C".parse::<SpacedDune>().unwrap().to_string(), "A•B•C");
     assert_eq!(
-      SpacedRune {
-        rune: Rune(0),
+      SpacedDune {
+        dune: Dune(0),
         spacers: 1
       }
       .to_string(),
@@ -106,33 +106,33 @@ mod tests {
   #[test]
   fn from_str() {
     #[track_caller]
-    fn case(s: &str, rune: &str, spacers: u32) {
+    fn case(s: &str, dune: &str, spacers: u32) {
       assert_eq!(
-        s.parse::<SpacedRune>().unwrap(),
-        SpacedRune {
-          rune: rune.parse().unwrap(),
+        s.parse::<SpacedDune>().unwrap(),
+        SpacedDune {
+          dune: dune.parse().unwrap(),
           spacers
         },
       );
     }
 
     assert_eq!(
-      ".A".parse::<SpacedRune>().unwrap_err(),
+      ".A".parse::<SpacedDune>().unwrap_err(),
       Error::LeadingSpacer,
     );
 
     assert_eq!(
-      "A..B".parse::<SpacedRune>().unwrap_err(),
+      "A..B".parse::<SpacedDune>().unwrap_err(),
       Error::DoubleSpacer,
     );
 
     assert_eq!(
-      "A.".parse::<SpacedRune>().unwrap_err(),
+      "A.".parse::<SpacedDune>().unwrap_err(),
       Error::TrailingSpacer,
     );
 
     assert_eq!(
-      "Ax".parse::<SpacedRune>().unwrap_err(),
+      "Ax".parse::<SpacedDune>().unwrap_err(),
       Error::Character('x')
     );
 
@@ -145,15 +145,15 @@ mod tests {
 
   #[test]
   fn serde() {
-    let spaced_rune = SpacedRune {
-      rune: Rune(26),
+    let spaced_dune = SpacedDune {
+      dune: Dune(26),
       spacers: 1,
     };
     let json = "\"A•A\"";
-    assert_eq!(serde_json::to_string(&spaced_rune).unwrap(), json);
+    assert_eq!(serde_json::to_string(&spaced_dune).unwrap(), json);
     assert_eq!(
-      serde_json::from_str::<SpacedRune>(json).unwrap(),
-      spaced_rune
+      serde_json::from_str::<SpacedDune>(json).unwrap(),
+      spaced_dune
     );
   }
 }

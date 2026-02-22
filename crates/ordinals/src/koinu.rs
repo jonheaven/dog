@@ -2,9 +2,9 @@ use {super::*, std::num::ParseFloatError};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Display, Ord, PartialOrd, Deserialize, Serialize)]
 #[serde(transparent)]
-pub struct Sat(pub u64);
+pub struct Koinu(pub u64);
 
-impl Sat {
+impl Koinu {
   pub const LAST: Self = Self(Self::SUPPLY - 1);
   // Dogecoin has no hard supply cap; 200 billion DOGE (with 8 decimal places)
   // is used as a practical ceiling that won't overflow u64 and comfortably
@@ -66,7 +66,7 @@ impl Sat {
     self.0 - self.epoch().starting_sat().0
   }
 
-  pub fn decimal(self) -> DecimalSat {
+  pub fn decimal(self) -> DecimalKoinu {
     self.into()
   }
 
@@ -74,7 +74,7 @@ impl Sat {
     self.into()
   }
 
-  /// Is this sat common or not?  Much faster than `Sat::rarity()`.
+  /// Is this sat common or not?  Much faster than `Koinu::rarity()`.
   pub fn common(self) -> bool {
     // The block rewards for epochs 0 through 9 are all multiples
     // of 9765625 (the epoch 9 reward), so any sat from epoch 9 or
@@ -147,7 +147,7 @@ impl Sat {
         _ => return Err(ErrorKind::NameCharacter.error(s)),
       }
     }
-    Ok(Sat(Self::SUPPLY - x))
+    Ok(Koinu(Self::SUPPLY - x))
   }
 
   fn from_degree(degree: &str) -> Result<Self, Error> {
@@ -265,7 +265,7 @@ impl Sat {
       return Err(ErrorKind::Percentile.error(percentile_string));
     }
 
-    let last = Sat::LAST.n() as f64;
+    let last = Koinu::LAST.n() as f64;
 
     let n = (percentile / 100.0 * last).round();
 
@@ -274,7 +274,7 @@ impl Sat {
     }
 
     #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-    Ok(Sat(n as u64))
+    Ok(Koinu(n as u64))
   }
 }
 
@@ -343,33 +343,33 @@ impl Display for ErrorKind {
   }
 }
 
-impl PartialEq<u64> for Sat {
+impl PartialEq<u64> for Koinu {
   fn eq(&self, other: &u64) -> bool {
     self.0 == *other
   }
 }
 
-impl PartialOrd<u64> for Sat {
+impl PartialOrd<u64> for Koinu {
   fn partial_cmp(&self, other: &u64) -> Option<cmp::Ordering> {
     self.0.partial_cmp(other)
   }
 }
 
-impl Add<u64> for Sat {
+impl Add<u64> for Koinu {
   type Output = Self;
 
-  fn add(self, other: u64) -> Sat {
-    Sat(self.0 + other)
+  fn add(self, other: u64) -> Koinu {
+    Koinu(self.0 + other)
   }
 }
 
-impl AddAssign<u64> for Sat {
+impl AddAssign<u64> for Koinu {
   fn add_assign(&mut self, other: u64) {
-    *self = Sat(self.0 + other);
+    *self = Koinu(self.0 + other);
   }
 }
 
-impl FromStr for Sat {
+impl FromStr for Koinu {
   type Err = Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -401,94 +401,94 @@ mod tests {
 
   #[test]
   fn n() {
-    assert_eq!(Sat(1).n(), 1);
-    assert_eq!(Sat(100).n(), 100);
+    assert_eq!(Koinu(1).n(), 1);
+    assert_eq!(Koinu(100).n(), 100);
   }
 
   #[test]
   fn height() {
-    assert_eq!(Sat(0).height(), 0);
-    assert_eq!(Sat(1).height(), 0);
-    assert_eq!(Sat(Epoch(0).subsidy()).height(), 1);
-    assert_eq!(Sat(Epoch(0).subsidy() * 2).height(), 2);
+    assert_eq!(Koinu(0).height(), 0);
+    assert_eq!(Koinu(1).height(), 0);
+    assert_eq!(Koinu(Epoch(0).subsidy()).height(), 1);
+    assert_eq!(Koinu(Epoch(0).subsidy() * 2).height(), 2);
     assert_eq!(
       Epoch(2).starting_sat().height(),
       SUBSIDY_HALVING_INTERVAL * 2
     );
-    assert_eq!(Sat(50 * COIN_VALUE).height(), 1);
-    assert_eq!(Sat(2099999997689999).height(), 6929999);
-    assert_eq!(Sat(2099999997689998).height(), 6929998);
+    assert_eq!(Koinu(50 * COIN_VALUE).height(), 1);
+    assert_eq!(Koinu(2099999997689999).height(), 6929999);
+    assert_eq!(Koinu(2099999997689998).height(), 6929998);
   }
 
   #[test]
   fn name() {
-    assert_eq!(Sat(0).name(), "nvtdijuwxlp");
-    assert_eq!(Sat(1).name(), "nvtdijuwxlo");
-    assert_eq!(Sat(26).name(), "nvtdijuwxkp");
-    assert_eq!(Sat(27).name(), "nvtdijuwxko");
-    assert_eq!(Sat(2099999997689999).name(), "a");
-    assert_eq!(Sat(2099999997689999 - 1).name(), "b");
-    assert_eq!(Sat(2099999997689999 - 25).name(), "z");
-    assert_eq!(Sat(2099999997689999 - 26).name(), "aa");
+    assert_eq!(Koinu(0).name(), "nvtdijuwxlp");
+    assert_eq!(Koinu(1).name(), "nvtdijuwxlo");
+    assert_eq!(Koinu(26).name(), "nvtdijuwxkp");
+    assert_eq!(Koinu(27).name(), "nvtdijuwxko");
+    assert_eq!(Koinu(2099999997689999).name(), "a");
+    assert_eq!(Koinu(2099999997689999 - 1).name(), "b");
+    assert_eq!(Koinu(2099999997689999 - 25).name(), "z");
+    assert_eq!(Koinu(2099999997689999 - 26).name(), "aa");
   }
 
   #[test]
   fn number() {
-    assert_eq!(Sat(2099999997689999).n(), 2099999997689999);
+    assert_eq!(Koinu(2099999997689999).n(), 2099999997689999);
   }
 
   #[test]
   fn degree() {
-    assert_eq!(Sat(0).degree().to_string(), "0°0′0″0‴");
-    assert_eq!(Sat(1).degree().to_string(), "0°0′0″1‴");
+    assert_eq!(Koinu(0).degree().to_string(), "0°0′0″0‴");
+    assert_eq!(Koinu(1).degree().to_string(), "0°0′0″1‴");
     assert_eq!(
-      Sat(50 * COIN_VALUE - 1).degree().to_string(),
+      Koinu(50 * COIN_VALUE - 1).degree().to_string(),
       "0°0′0″4999999999‴"
     );
-    assert_eq!(Sat(50 * COIN_VALUE).degree().to_string(), "0°1′1″0‴");
-    assert_eq!(Sat(50 * COIN_VALUE + 1).degree().to_string(), "0°1′1″1‴");
+    assert_eq!(Koinu(50 * COIN_VALUE).degree().to_string(), "0°1′1″0‴");
+    assert_eq!(Koinu(50 * COIN_VALUE + 1).degree().to_string(), "0°1′1″1‴");
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) - 1)
+      Koinu(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) - 1)
         .degree()
         .to_string(),
       "0°2015′2015″4999999999‴"
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL))
+      Koinu(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL))
         .degree()
         .to_string(),
       "0°2016′0″0‴"
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) + 1)
+      Koinu(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) + 1)
         .degree()
         .to_string(),
       "0°2016′0″1‴"
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) - 1)
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) - 1)
         .degree()
         .to_string(),
       "0°209999′335″4999999999‴"
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL))
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL))
         .degree()
         .to_string(),
       "0°0′336″0‴"
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) + 1)
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) + 1)
         .degree()
         .to_string(),
       "0°0′336″1‴"
     );
     assert_eq!(
-      Sat(2067187500000000 - 1).degree().to_string(),
+      Koinu(2067187500000000 - 1).degree().to_string(),
       "0°209999′2015″156249999‴"
     );
-    assert_eq!(Sat(2067187500000000).degree().to_string(), "1°0′0″0‴");
-    assert_eq!(Sat(2067187500000000 + 1).degree().to_string(), "1°0′0″1‴");
+    assert_eq!(Koinu(2067187500000000).degree().to_string(), "1°0′0″0‴");
+    assert_eq!(Koinu(2067187500000000 + 1).degree().to_string(), "1°0′0″1‴");
   }
 
   #[test]
@@ -500,16 +500,16 @@ mod tests {
     //   // 0°1680′0″0‴
     //   let degree = expected.degree();
     //   // 2034637500000000
-    //   let actual = degree.to_string().parse::<Sat>().unwrap();
+    //   let actual = degree.to_string().parse::<Koinu>().unwrap();
     //   assert_eq!(
     //     actual, expected,
-    //     "Sat at height {height} did not round-trip from degree {degree} successfully"
+    //     "Koinu at height {height} did not round-trip from degree {degree} successfully"
     //   );
     // }
-    assert_eq!(Sat(1054200000000000).degree().to_string(), "0°1680′0″0‴");
+    assert_eq!(Koinu(1054200000000000).degree().to_string(), "0°1680′0″0‴");
     assert_eq!(parse("0°1680′0″0‴").unwrap(), 1054200000000000);
     assert_eq!(
-      Sat(1914226250000000).degree().to_string(),
+      Koinu(1914226250000000).degree().to_string(),
       "0°122762′794″0‴"
     );
     assert_eq!(parse("0°122762′794″0‴").unwrap(), 1914226250000000);
@@ -517,26 +517,26 @@ mod tests {
 
   #[test]
   fn period() {
-    assert_eq!(Sat(0).period(), 0);
-    assert_eq!(Sat(10080000000000).period(), 1);
-    assert_eq!(Sat(2099999997689999).period(), 3437);
-    assert_eq!(Sat(10075000000000).period(), 0);
-    assert_eq!(Sat(10080000000000 - 1).period(), 0);
-    assert_eq!(Sat(10080000000000).period(), 1);
-    assert_eq!(Sat(10080000000000 + 1).period(), 1);
-    assert_eq!(Sat(10085000000000).period(), 1);
-    assert_eq!(Sat(2099999997689999).period(), 3437);
+    assert_eq!(Koinu(0).period(), 0);
+    assert_eq!(Koinu(10080000000000).period(), 1);
+    assert_eq!(Koinu(2099999997689999).period(), 3437);
+    assert_eq!(Koinu(10075000000000).period(), 0);
+    assert_eq!(Koinu(10080000000000 - 1).period(), 0);
+    assert_eq!(Koinu(10080000000000).period(), 1);
+    assert_eq!(Koinu(10080000000000 + 1).period(), 1);
+    assert_eq!(Koinu(10085000000000).period(), 1);
+    assert_eq!(Koinu(2099999997689999).period(), 3437);
   }
 
   #[test]
   fn epoch() {
-    assert_eq!(Sat(0).epoch(), 0);
-    assert_eq!(Sat(1).epoch(), 0);
+    assert_eq!(Koinu(0).epoch(), 0);
+    assert_eq!(Koinu(1).epoch(), 0);
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL)).epoch(),
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL)).epoch(),
       1
     );
-    assert_eq!(Sat(2099999997689999).epoch(), 32);
+    assert_eq!(Koinu(2099999997689999).epoch(), 32);
   }
 
   #[test]
@@ -549,19 +549,19 @@ mod tests {
 
   #[test]
   fn subsidy_position() {
-    assert_eq!(Sat(0).third(), 0);
-    assert_eq!(Sat(1).third(), 1);
+    assert_eq!(Koinu(0).third(), 0);
+    assert_eq!(Koinu(1).third(), 1);
     assert_eq!(
-      Sat(Height(0).subsidy() - 1).third(),
+      Koinu(Height(0).subsidy() - 1).third(),
       Height(0).subsidy() - 1
     );
-    assert_eq!(Sat(Height(0).subsidy()).third(), 0);
-    assert_eq!(Sat(Height(0).subsidy() + 1).third(), 1);
+    assert_eq!(Koinu(Height(0).subsidy()).third(), 0);
+    assert_eq!(Koinu(Height(0).subsidy() + 1).third(), 1);
     assert_eq!(
-      Sat(Epoch(1).starting_sat().n() + Epoch(1).subsidy()).third(),
+      Koinu(Epoch(1).starting_sat().n() + Epoch(1).subsidy()).third(),
       0
     );
-    assert_eq!(Sat::LAST.third(), 0);
+    assert_eq!(Koinu::LAST.third(), 0);
   }
 
   #[test]
@@ -578,43 +578,43 @@ mod tests {
       mined += subsidy;
     }
 
-    assert_eq!(Sat::SUPPLY, mined);
+    assert_eq!(Koinu::SUPPLY, mined);
   }
 
   #[test]
   fn last() {
-    assert_eq!(Sat::LAST, Sat::SUPPLY - 1);
+    assert_eq!(Koinu::LAST, Koinu::SUPPLY - 1);
   }
 
   #[test]
   fn eq() {
-    assert_eq!(Sat(0), 0);
-    assert_eq!(Sat(1), 1);
+    assert_eq!(Koinu(0), 0);
+    assert_eq!(Koinu(1), 1);
   }
 
   #[test]
   fn partial_ord() {
-    assert!(Sat(1) > 0);
-    assert!(Sat(0) < 1);
+    assert!(Koinu(1) > 0);
+    assert!(Koinu(0) < 1);
   }
 
   #[test]
   fn add() {
-    assert_eq!(Sat(0) + 1, 1);
-    assert_eq!(Sat(1) + 100, 101);
+    assert_eq!(Koinu(0) + 1, 1);
+    assert_eq!(Koinu(1) + 100, 101);
   }
 
   #[test]
   fn add_assign() {
-    let mut sat = Sat(0);
+    let mut sat = Koinu(0);
     sat += 1;
     assert_eq!(sat, 1);
     sat += 100;
     assert_eq!(sat, 101);
   }
 
-  fn parse(s: &str) -> Result<Sat, String> {
-    s.parse::<Sat>().map_err(|e| e.to_string())
+  fn parse(s: &str) -> Result<Koinu, String> {
+    s.parse::<Koinu>().map_err(|e| e.to_string())
   }
 
   #[test]
@@ -726,47 +726,47 @@ mod tests {
       0
     );
 
-    assert_eq!(Sat(0).cycle(), 0);
-    assert_eq!(Sat(2067187500000000 - 1).cycle(), 0);
-    assert_eq!(Sat(2067187500000000).cycle(), 1);
-    assert_eq!(Sat(2067187500000000 + 1).cycle(), 1);
+    assert_eq!(Koinu(0).cycle(), 0);
+    assert_eq!(Koinu(2067187500000000 - 1).cycle(), 0);
+    assert_eq!(Koinu(2067187500000000).cycle(), 1);
+    assert_eq!(Koinu(2067187500000000 + 1).cycle(), 1);
   }
 
   #[test]
   fn third() {
-    assert_eq!(Sat(0).third(), 0);
-    assert_eq!(Sat(50 * COIN_VALUE - 1).third(), 4999999999);
-    assert_eq!(Sat(50 * COIN_VALUE).third(), 0);
-    assert_eq!(Sat(50 * COIN_VALUE + 1).third(), 1);
+    assert_eq!(Koinu(0).third(), 0);
+    assert_eq!(Koinu(50 * COIN_VALUE - 1).third(), 4999999999);
+    assert_eq!(Koinu(50 * COIN_VALUE).third(), 0);
+    assert_eq!(Koinu(50 * COIN_VALUE + 1).third(), 1);
   }
 
   #[test]
   fn percentile() {
-    assert_eq!(Sat(0).percentile(), "0%");
-    assert_eq!(Sat(Sat::LAST.n() / 2).percentile(), "49.99999999999998%");
-    assert_eq!(Sat::LAST.percentile(), "100%");
+    assert_eq!(Koinu(0).percentile(), "0%");
+    assert_eq!(Koinu(Koinu::LAST.n() / 2).percentile(), "49.99999999999998%");
+    assert_eq!(Koinu::LAST.percentile(), "100%");
   }
 
   #[test]
   fn from_percentile() {
-    "-1%".parse::<Sat>().unwrap_err();
-    "101%".parse::<Sat>().unwrap_err();
+    "-1%".parse::<Koinu>().unwrap_err();
+    "101%".parse::<Koinu>().unwrap_err();
   }
 
   #[test]
   fn percentile_round_trip() {
     #[track_caller]
     fn case(n: u64) {
-      let expected = Sat(n);
-      let actual = expected.percentile().parse::<Sat>().unwrap();
+      let expected = Koinu(n);
+      let actual = expected.percentile().parse::<Koinu>().unwrap();
       assert_eq!(expected, actual);
     }
 
     for n in 0..1024 {
       case(n);
-      case(Sat::LAST.n() / 2 + n);
-      case(Sat::LAST.n() - n);
-      case(Sat::LAST.n() / (n + 1));
+      case(Koinu::LAST.n() / 2 + n);
+      case(Koinu::LAST.n() - n);
+      case(Koinu::LAST.n() / (n + 1));
     }
   }
 
@@ -774,7 +774,7 @@ mod tests {
   fn common() {
     #[track_caller]
     fn case(n: u64) {
-      assert_eq!(Sat(n).common(), Sat(n).rarity() == Rarity::Common);
+      assert_eq!(Koinu(n).common(), Koinu(n).rarity() == Rarity::Common);
     }
 
     case(0);
@@ -789,26 +789,26 @@ mod tests {
 
   #[test]
   fn common_fast_path() {
-    // Exhaustively test the Sat::common() fast path on every
+    // Exhaustively test the Koinu::common() fast path on every
     // uncommon sat.
     for height in 0..Epoch::FIRST_POST_SUBSIDY.starting_height().0 {
       let height = Height(height);
-      assert!(!Sat::common(height.starting_sat()));
+      assert!(!Koinu::common(height.starting_sat()));
     }
   }
 
   #[test]
   fn coin() {
-    assert!(Sat(0).coin());
-    assert!(!Sat(COIN_VALUE - 1).coin());
-    assert!(Sat(COIN_VALUE).coin());
-    assert!(!Sat(COIN_VALUE + 1).coin());
+    assert!(Koinu(0).coin());
+    assert!(!Koinu(COIN_VALUE - 1).coin());
+    assert!(Koinu(COIN_VALUE).coin());
+    assert!(!Koinu(COIN_VALUE + 1).coin());
   }
 
   #[test]
   fn nineball() {
     for height in 0..10 {
-      let sat = Sat(height * 50 * COIN_VALUE);
+      let sat = Koinu(height * 50 * COIN_VALUE);
       assert_eq!(
         sat.nineball(),
         sat.height() == 9,
@@ -833,23 +833,23 @@ mod tests {
 
   #[test]
   fn palindrome() {
-    assert!(Sat(0).palindrome());
-    assert!(!Sat(10).palindrome());
-    assert!(Sat(11).palindrome());
+    assert!(Koinu(0).palindrome());
+    assert!(!Koinu(10).palindrome());
+    assert!(Koinu(11).palindrome());
   }
 
   #[test]
   fn palindrome_charm() {
-    assert!(Charm::Palindrome.is_set(Sat(0).charms()));
-    assert!(!Charm::Palindrome.is_set(Sat(10).charms()));
-    assert!(Charm::Palindrome.is_set(Sat(11).charms()));
+    assert!(Charm::Palindrome.is_set(Koinu(0).charms()));
+    assert!(!Charm::Palindrome.is_set(Koinu(10).charms()));
+    assert!(Charm::Palindrome.is_set(Koinu(11).charms()));
   }
 
   #[test]
   fn degree_examples() {
     #[track_caller]
     fn case(s: &str, rarity: Rarity) {
-      assert_eq!(s.parse::<Sat>().unwrap().rarity(), rarity);
+      assert_eq!(s.parse::<Koinu>().unwrap().rarity(), rarity);
     }
 
     case("0°0′0″1‴", Rarity::Common);

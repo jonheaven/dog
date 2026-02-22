@@ -1,21 +1,21 @@
 use {
   super::*,
-  ord::subcommand::wallet::{addresses::Output as AddressesOutput, sign::Output as SignOutput},
+  dog::subcommand::wallet::{addresses::Output as AddressesOutput, sign::Output as SignOutput},
 };
 
 #[test]
 fn sign() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let addresses = CommandBuilder::new("wallet addresses")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<BTreeMap<Address<NetworkUnchecked>, Vec<AddressesOutput>>>();
 
   let address = addresses.first_key_value().unwrap().0;
@@ -27,7 +27,7 @@ fn sign() {
     address.clone().assume_checked(),
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<SignOutput>();
 
   assert_eq!(address, &sign.address);
@@ -38,7 +38,7 @@ fn sign() {
     sign.witness,
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_extract_stdout();
 }
 
@@ -46,15 +46,15 @@ fn sign() {
 fn sign_file() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let addresses = CommandBuilder::new("wallet addresses")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<BTreeMap<Address<NetworkUnchecked>, Vec<AddressesOutput>>>();
 
   let address = addresses.first_key_value().unwrap().0;
@@ -65,7 +65,7 @@ fn sign_file() {
   ))
   .write("hello.txt", "Hello World")
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<SignOutput>();
 
   assert_eq!(address, &sign.address);
@@ -77,7 +77,7 @@ fn sign_file() {
   ))
   .write("hello.txt", "Hello World")
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_extract_stdout();
 
   CommandBuilder::new(format!(
@@ -87,7 +87,7 @@ fn sign_file() {
   ))
   .write("hello.txt", "FAIL")
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .stderr_regex("error: Invalid signature.*")
   .run_and_extract_stdout();
@@ -97,24 +97,24 @@ fn sign_file() {
 fn sign_for_inscription() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _reveal) = inscribe(&core, &ord);
+  let (inscription, _reveal) = inscribe(&core, &dog);
 
   core.mine_blocks(1);
 
   let addresses = CommandBuilder::new("wallet addresses")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<BTreeMap<Address<NetworkUnchecked>, Vec<AddressesOutput>>>();
 
   let text = "HelloWorld";
 
   let sign = CommandBuilder::new(format!("wallet sign --signer {inscription} --text {text}",))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<SignOutput>();
 
   assert!(addresses.contains_key(&sign.address));
@@ -124,15 +124,15 @@ fn sign_for_inscription() {
 fn sign_for_output() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let addresses = CommandBuilder::new("wallet addresses")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<BTreeMap<Address<NetworkUnchecked>, Vec<AddressesOutput>>>();
 
   let output = addresses.first_key_value().unwrap().1[0].output;
@@ -141,7 +141,7 @@ fn sign_for_output() {
 
   let sign = CommandBuilder::new(format!("wallet sign --signer {output} --text {text}",))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<SignOutput>();
 
   assert!(addresses.contains_key(&sign.address));

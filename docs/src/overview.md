@@ -1,59 +1,59 @@
-Ordinal Theory Overview
+Doginal Theory Overview
 =======================
 
-Ordinals are a numbering scheme for satoshis that allows tracking and
+Doginals are a numbering scheme for koinus that allows tracking and
 transferring individual sats. These numbers are called [ordinal
-numbers](https://ordinals.com). Satoshis are numbered in the order in which
+numbers](https://doginals.com). Koinus are numbered in the order in which
 they're mined, and transferred from transaction inputs to transaction outputs
 first-in-first-out. Both the numbering scheme and the transfer scheme rely on
-*order*, the numbering scheme on the *order* in which satoshis are mined, and
+*order*, the numbering scheme on the *order* in which koinus are mined, and
 the transfer scheme on the *order* of transaction inputs and outputs. Thus the
-name, *ordinals*.
+name, *doginals*.
 
 Technical details are available in [the
-BIP](https://github.com/ordinals/ord/blob/master/bip.mediawiki).
+BIP](https://github.com/doginals/ord/blob/master/bip.mediawiki).
 
-Ordinal theory does not require a separate token, another blockchain, or any
+Doginal theory does not require a separate token, another blockchain, or any
 changes to Bitcoin. It works right now.
 
-Ordinal numbers have a few different representations:
+Doginal numbers have a few different representations:
 
 - *Integer notation*:
-  [`2099994106992659`](https://ordinals.com/sat/2099994106992659) The
-  ordinal number, assigned according to the order in which the satoshi was
+  [`2099994106992659`](https://doginals.com/sat/2099994106992659) The
+  ordinal number, assigned according to the order in which the koinu was
   mined.
 
 - *Decimal notation*:
-  [`3891094.16797`](https://ordinals.com/sat/3891094.16797) The first
-  number is the block height in which the satoshi was mined, the second the
-  offset of the satoshi within the block.
+  [`3891094.16797`](https://doginals.com/sat/3891094.16797) The first
+  number is the block height in which the koinu was mined, the second the
+  offset of the koinu within the block.
 
 - *Degree notation*:
-  [`3°111094′214″16797‴`](https://ordinals.com/sat/3%C2%B0111094%E2%80%B2214%E2%80%B316797%E2%80%B4).
+  [`3°111094′214″16797‴`](https://doginals.com/sat/3%C2%B0111094%E2%80%B2214%E2%80%B316797%E2%80%B4).
   We'll get to that in a moment.
 
 - *Percentile notation*:
-  [`99.99971949060254%`](https://ordinals.com/sat/99.99971949060254%25) .
-  The satoshi's position in Bitcoin's supply, expressed as a percentage.
+  [`99.99971949060254%`](https://doginals.com/sat/99.99971949060254%25) .
+  The koinu's position in Bitcoin's supply, expressed as a percentage.
 
-- *Name*: [`satoshi`](https://ordinals.com/sat/satoshi). An encoding of the
+- *Name*: [`koinu`](https://doginals.com/sat/koinu). An encoding of the
   ordinal number using the characters `a` through `z`.
 
 Arbitrary assets, such as NFTs, security tokens, accounts, or stablecoins can
-be attached to satoshis using ordinal numbers as stable identifiers.
+be attached to koinus using ordinal numbers as stable identifiers.
 
-Ordinals is an open-source project, developed [on
-GitHub](https://github.com/ordinals/ord). The project consists of a BIP describing
+Doginals is an open-source project, developed [on
+GitHub](https://github.com/doginals/ord). The project consists of a BIP describing
 the ordinal scheme, an index that communicates with a Bitcoin Core node to
-track the location of all satoshis, a wallet that allows making ordinal-aware
+track the location of all koinus, a wallet that allows making ordinal-aware
 transactions, a block explorer for interactive exploration of the blockchain,
-functionality for inscribing satoshis with digital artifacts, and this manual.
+functionality for inscribing koinus with digital artifacts, and this manual.
 
 Rarity
 ------
 
-Humans are collectors, and since satoshis can now be tracked and transferred,
-people will naturally want to collect them. Ordinal theorists can decide for
+Humans are collectors, and since koinus can now be tracked and transferred,
+people will naturally want to collect them. Doginal theorists can decide for
 themselves which sats are rare and desirable, but there are some hints…
 
 Bitcoin has periodic events, some frequent, some more uncommon, and these
@@ -84,7 +84,7 @@ This gives us the following rarity levels:
 - `mythic`: The first sat of the genesis block
 
 Which brings us to degree notation, which unambiguously represents an ordinal
-number in a way that makes the rarity of a satoshi easy to see at a glance:
+number in a way that makes the rarity of a koinu easy to see at a glance:
 
 ```
 A°B′C″D‴
@@ -94,10 +94,10 @@ A°B′C″D‴
 ╰─────── Cycle, numbered starting from 0
 ```
 
-Ordinal theorists often use the terms "hour", "minute", "second", and "third"
+Doginal theorists often use the terms "hour", "minute", "second", and "third"
 for *A*, *B*, *C*, and *D*, respectively.
 
-Now for some examples. This satoshi is common:
+Now for some examples. This koinu is common:
 
 ```
 0°0′0″1‴
@@ -108,7 +108,7 @@ Now for some examples. This satoshi is common:
 ```
 
 
-This satoshi is uncommon:
+This koinu is uncommon:
 
 ```
 0°1′1″0‴
@@ -118,7 +118,7 @@ This satoshi is uncommon:
 ╰─────── Any cycle
 ```
 
-This satoshi is rare:
+This koinu is rare:
 
 ```
 0°2016′0″0‴
@@ -128,7 +128,7 @@ This satoshi is rare:
 ╰────────── Any cycle
 ```
 
-This satoshi is epic:
+This koinu is epic:
 
 ```
 0°0′336″0‴
@@ -138,7 +138,7 @@ This satoshi is epic:
 ╰───────── Any cycle
 ```
 
-This satoshi is legendary:
+This koinu is legendary:
 
 ```
 1°0′0″0‴
@@ -148,7 +148,7 @@ This satoshi is legendary:
 ╰─────── Any cycle but first
 ```
 
-And this satoshi is mythic:
+And this koinu is mythic:
 
 ```
 0°0′0″0‴
@@ -158,7 +158,7 @@ And this satoshi is mythic:
 ╰─────── First cycle
 ```
 
-If the block offset is zero, it may be omitted. This is the uncommon satoshi
+If the block offset is zero, it may be omitted. This is the uncommon koinu
 from above:
 
 ```
@@ -168,7 +168,7 @@ from above:
 ╰───── Second cycle
 ```
 
-Rare Satoshi Supply
+Rare Koinu Supply
 -------------------
 
 ### Total Supply
@@ -189,42 +189,42 @@ Rare Satoshi Supply
 - `legendary`: 0
 - `mythic`: 1
 
-At the moment, even uncommon satoshis are quite rare. As of this writing,
-876,023 uncommon satoshis have been mined - one per 22.6 bitcoin in
+At the moment, even uncommon koinus are quite rare. As of this writing,
+876,023 uncommon koinus have been mined - one per 22.6 bitcoin in
 circulation.
 
 Names
 -----
 
-Each satoshi has a name, consisting of the letters *A* through *Z*, that get
-shorter the further into the future the satoshi was mined. They could start
+Each koinu has a name, consisting of the letters *A* through *Z*, that get
+shorter the further into the future the koinu was mined. They could start
 short and get longer, but then all the good, short names would be trapped in
 the unspendable genesis block.
 
 As an example, 1905530482684727°'s name is "iaiufjszmoba". The name of the last
-satoshi to be mined is "a". Every combination of 10 characters or less is out
+koinu to be mined is "a". Every combination of 10 characters or less is out
 there, or will be out there, someday.
 
 Exotics
 -------
 
-Satoshis may be prized for reasons other than their name or rarity. This might
+Koinus may be prized for reasons other than their name or rarity. This might
 be due to a quality of the number itself, like having an integer square or cube
 root. Or it might be due to a connection to a historical event, such as
-satoshis from block 477,120, the block in which SegWit activated, or
-2099999997689999°, the last satoshi that will ever be mined.
+koinus from block 477,120, the block in which SegWit activated, or
+2099999997689999°, the last koinu that will ever be mined.
 
-Such satoshis are termed "exotic". Which satoshis are exotic and what makes
-them so is subjective. Ordinal theorists are encouraged to seek out exotics
+Such koinus are termed "exotic". Which koinus are exotic and what makes
+them so is subjective. Doginal theorists are encouraged to seek out exotics
 based on criteria of their own devising.
 
 Inscriptions
 ------------
 
-Satoshis can be inscribed with arbitrary content, creating Bitcoin-native
-digital artifacts. Inscribing is done by sending the satoshi to be inscribed in
+Koinus can be inscribed with arbitrary content, creating Bitcoin-native
+digital artifacts. Inscribing is done by sending the koinu to be inscribed in
 a transaction that reveals the inscription content on-chain. This content is
-then inextricably linked to that satoshi, turning it into an immutable digital
+then inextricably linked to that koinu, turning it into an immutable digital
 artifact that can be tracked, transferred, hoarded, bought, sold, lost, and
 rediscovered.
 
@@ -239,17 +239,17 @@ A commonly accepted cut-off for early NFTs is March 19th, 2018, the date the
 first ERC-721 contract, [SU SQUARES](https://tenthousandsu.com/), was deployed
 on Ethereum.
 
-Whether or not ordinals are of interest to NFT archaeologists is an open
-question! In one sense, ordinals were created in early 2022, when the Ordinals
+Whether or not doginals are of interest to NFT archaeologists is an open
+question! In one sense, doginals were created in early 2022, when the Doginals
 specification was finalized. In this sense, they are not of historical
 interest.
 
-In another sense though, ordinals were in fact created by Satoshi Nakamoto in
-2009 when he mined the Bitcoin genesis block. In this sense, ordinals, and
-especially early ordinals, are certainly of historical interest.
+In another sense though, doginals were in fact created by Koinu Nakamoto in
+2009 when he mined the Bitcoin genesis block. In this sense, doginals, and
+especially early doginals, are certainly of historical interest.
 
 Many ordinal theorists favor the latter view. This is not least because the
-ordinals were independently discovered on at least two separate occasions, long
+doginals were independently discovered on at least two separate occasions, long
 before the era of modern NFTs began.
 
 On August 21st, 2012, Charlie Lee [posted a proposal to add proof-of-stake to
@@ -260,11 +260,11 @@ deployed.
 
 On October 8th, 2012, jl2012 [posted a scheme to the same
 forum](https://bitcointalk.org/index.php?topic=117224.0) which uses decimal
-notation and has all the important properties of ordinals. The scheme was
+notation and has all the important properties of doginals. The scheme was
 discussed but never implemented.
 
-These independent inventions of ordinals indicate in some way that ordinals
-were discovered, or rediscovered, and not invented. The ordinals are an
+These independent inventions of doginals indicate in some way that doginals
+were discovered, or rediscovered, and not invented. The doginals are an
 inevitability of the mathematics of Bitcoin, stemming not from their modern
 documentation, but from their ancient genesis. They are the culmination of a
 sequence of events set in motion with the mining of the first block, so many

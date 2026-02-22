@@ -1,14 +1,14 @@
-Collecting Inscriptions and Ordinals with Sparrow Wallet
+Collecting Inscriptions and Doginals with Sparrow Wallet
 =====================
 
-Users who cannot or have not yet set up the [ord](https://github.com/ordinals/ord) wallet can receive inscriptions and ordinals with alternative bitcoin wallets, as long as they are _very_ careful about how they spend from that wallet.
+Users who cannot or have not yet set up the [ord](https://github.com/doginals/ord) wallet can receive inscriptions and doginals with alternative bitcoin wallets, as long as they are _very_ careful about how they spend from that wallet.
 
 This guide gives some basic steps on how to create a wallet with [Sparrow Wallet](https://sparrowwallet.com/) which is compatible with `ord` and can be later imported into `ord`
 
 ## ⚠️⚠️ Warning!! ⚠️⚠️
 As a general rule if you take this approach, you should use this wallet with the Sparrow software as a receive-only wallet.
 
-Do not spend any satoshis from this wallet unless you are sure you know what you are doing. You could very easily inadvertently lose access to your ordinals and inscriptions if you don't heed this warning.
+Do not spend any koinus from this wallet unless you are sure you know what you are doing. You could very easily inadvertently lose access to your doginals and inscriptions if you don't heed this warning.
 
 ## Wallet Setup & Receiving
 
@@ -44,7 +44,7 @@ Click `Apply`. Add a password for the wallet if you want to.
 
 ![](images/wallet_setup_07.png)
 
-You now have a wallet which is compatible with `ord`, and can be imported into `ord` using the [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) Seed Phrase. To receive ordinals or inscriptions, click on the `Receive` tab and copy a new address.
+You now have a wallet which is compatible with `ord`, and can be imported into `ord` using the [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) Seed Phrase. To receive doginals or inscriptions, click on the `Receive` tab and copy a new address.
 
 Each time you want to receive you should use a brand-new address, and not re-use existing addresses.
 
@@ -66,7 +66,7 @@ To track the status of your transaction you can right-click on it,  select `Copy
 
 ![](images/validating_viewing_02.png)
 
-Once the transaction has confirmed, you can validate and view your inscription by heading over to the `UTXOs` tab, finding the UTXO you want to check, right-clicking on the `Output` and selecting `Copy Transaction Output`. This transaction output id can then be pasted into the [ordinals.com](https://ordinals.com) search.
+Once the transaction has confirmed, you can validate and view your inscription by heading over to the `UTXOs` tab, finding the UTXO you want to check, right-clicking on the `Output` and selecting `Copy Transaction Output`. This transaction output id can then be pasted into the [doginals.com](https://doginals.com) search.
 
 
 ## Freezing UTXO's
@@ -82,7 +82,7 @@ For details on setting up Bitcoin Core and the `ord` wallet check out the [Walle
 
 When setting up `ord`, instead of running `ord wallet create` to create a brand-new wallet, you can import your existing wallet using `ord wallet restore "BIP39 SEED PHRASE"` using the seed phrase you generated with Sparrow Wallet.
 
-There is currently a [bug](https://github.com/ordinals/ord/issues/1589) which causes an imported wallet to not be automatically rescanned against the blockchain. To work around this you will need to manually trigger a rescan using the bitcoin core cli:
+There is currently a [bug](https://github.com/doginals/ord/issues/1589) which causes an imported wallet to not be automatically rescanned against the blockchain. To work around this you will need to manually trigger a rescan using the bitcoin core cli:
 `bitcoin-cli -rpcwallet=ord rescanblockchain 767430`
 
 You can then check your wallet's inscriptions using `ord wallet inscriptions`
@@ -111,11 +111,11 @@ Before sending any transaction it's important that you have a good mental model 
 Some Bitcoin wallets do not expose this level of detail, and they just show you a single summed up value of all the bitcoin in your wallet. However, when sending inscriptions it is important that you use a wallet like Sparrow which allows for UTXO control.
 
 #### Inspecting your inscription before sending
-Like we have previously described inscriptions are inscribed onto sats, and sats are stored within UTXOs. UTXO's are a collection of satoshis with some particular value of the number of satoshis (the output value). Usually (but not always) the inscription will be inscribed on the first satoshi in the UTXO.
+Like we have previously described inscriptions are inscribed onto sats, and sats are stored within UTXOs. UTXO's are a collection of koinus with some particular value of the number of koinus (the output value). Usually (but not always) the inscription will be inscribed on the first koinu in the UTXO.
 
-When inspecting your inscription before sending the main thing you will want to check is which satoshi in the UTXO your inscription is inscribed on.
+When inspecting your inscription before sending the main thing you will want to check is which koinu in the UTXO your inscription is inscribed on.
 
-To do this, you can follow the [Validating / Viewing Received Inscriptions](./sparrow-wallet.md#validating--viewing-received-inscriptions) described above to find the inscription page for your inscription on ordinals.com
+To do this, you can follow the [Validating / Viewing Received Inscriptions](./sparrow-wallet.md#validating--viewing-received-inscriptions) described above to find the inscription page for your inscription on doginals.com
 
 There you will find some metadata about your inscription which looks like the following:
 
@@ -168,7 +168,7 @@ And then actually you get very very last chance to check everything before hitti
 
 If you want to track the status of your transaction you can copy the `Transaction Id (Txid)` and paste that into [mempool.space](https://mempool.space)
 
-Once the transaction has confirmed you can check the inscription page on [ordinals.com](https://ordinals.com) to validate that it has moved to the new output location and address.
+Once the transaction has confirmed you can check the inscription page on [doginals.com](https://doginals.com) to validate that it has moved to the new output location and address.
 
 ## Troubleshooting
 

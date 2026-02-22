@@ -27,7 +27,7 @@ impl Entry for Header {
   }
 }
 
-impl Entry for Rune {
+impl Entry for Dune {
   type Value = u128;
 
   fn load(value: Self::Value) -> Self {
@@ -40,7 +40,7 @@ impl Entry for Rune {
 }
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
-pub struct RuneEntry {
+pub struct DuneEntry {
   pub block: u64,
   pub burned: u128,
   pub divisibility: u8,
@@ -48,14 +48,14 @@ pub struct RuneEntry {
   pub mints: u128,
   pub number: u64,
   pub premine: u128,
-  pub spaced_rune: SpacedRune,
+  pub spaced_dune: SpacedDune,
   pub symbol: Option<char>,
   pub terms: Option<Terms>,
   pub timestamp: u64,
   pub turbo: bool,
 }
 
-impl RuneEntry {
+impl DuneEntry {
   pub fn mintable(&self, height: u64) -> Result<u128, MintError> {
     let Some(terms) = self.terms else {
       return Err(MintError::Unmintable);
@@ -150,7 +150,7 @@ type TermsEntryValue = (
   (Option<u64>, Option<u64>), // offset
 );
 
-pub(super) type RuneEntryValue = (
+pub(super) type DuneEntryValue = (
   u64,                     // block
   u128,                    // burned
   u8,                      // divisibility
@@ -158,14 +158,14 @@ pub(super) type RuneEntryValue = (
   u128,                    // mints
   u64,                     // number
   u128,                    // premine
-  (u128, u32),             // spaced rune
+  (u128, u32),             // spaced dune
   Option<char>,            // symbol
   Option<TermsEntryValue>, // terms
   u64,                     // timestamp
   bool,                    // turbo
 );
 
-impl Default for RuneEntry {
+impl Default for DuneEntry {
   fn default() -> Self {
     Self {
       block: 0,
@@ -175,7 +175,7 @@ impl Default for RuneEntry {
       mints: 0,
       number: 0,
       premine: 0,
-      spaced_rune: SpacedRune::default(),
+      spaced_dune: SpacedDune::default(),
       symbol: None,
       terms: None,
       timestamp: 0,
@@ -184,8 +184,8 @@ impl Default for RuneEntry {
   }
 }
 
-impl Entry for RuneEntry {
-  type Value = RuneEntryValue;
+impl Entry for DuneEntry {
+  type Value = DuneEntryValue;
 
   fn load(
     (
@@ -196,12 +196,12 @@ impl Entry for RuneEntry {
       mints,
       number,
       premine,
-      (rune, spacers),
+      (dune, spacers),
       symbol,
       terms,
       timestamp,
       turbo,
-    ): RuneEntryValue,
+    ): DuneEntryValue,
   ) -> Self {
     Self {
       block,
@@ -220,8 +220,8 @@ impl Entry for RuneEntry {
       mints,
       number,
       premine,
-      spaced_rune: SpacedRune {
-        rune: Rune(rune),
+      spaced_dune: SpacedDune {
+        dune: Dune(dune),
         spacers,
       },
       symbol,
@@ -257,7 +257,7 @@ impl Entry for RuneEntry {
       self.mints,
       self.number,
       self.premine,
-      (self.spaced_rune.rune.0, self.spaced_rune.spacers),
+      (self.spaced_dune.dune.0, self.spaced_dune.spacers),
       self.symbol,
       self.terms.map(
         |Terms {
@@ -273,10 +273,10 @@ impl Entry for RuneEntry {
   }
 }
 
-pub(super) type RuneIdValue = (u64, u32);
+pub(super) type DuneIdValue = (u64, u32);
 
-impl Entry for RuneId {
-  type Value = RuneIdValue;
+impl Entry for DuneId {
+  type Value = DuneIdValue;
 
   fn load((block, tx): Self::Value) -> Self {
     Self { block, tx }
@@ -295,7 +295,7 @@ pub struct InscriptionEntry {
   pub id: InscriptionId,
   pub inscription_number: i32,
   pub parents: Vec<u32>,
-  pub sat: Option<Sat>,
+  pub sat: Option<Koinu>,
   pub sequence_number: u32,
   pub timestamp: u32,
 }
@@ -336,7 +336,7 @@ impl Entry for InscriptionEntry {
       id: InscriptionId::load(id),
       inscription_number,
       parents,
-      sat: sat.map(Sat),
+      sat: sat.map(Koinu),
       sequence_number,
       timestamp,
     }
@@ -350,7 +350,7 @@ impl Entry for InscriptionEntry {
       self.id.store(),
       self.inscription_number,
       self.parents,
-      self.sat.map(Sat::n),
+      self.sat.map(Koinu::n),
       self.sequence_number,
       self.timestamp,
     )
@@ -431,10 +431,10 @@ impl Entry for OutPoint {
   }
 }
 
-pub(super) type SatPointValue = [u8; 44];
+pub(super) type KoinuPointValue = [u8; 44];
 
-impl Entry for SatPoint {
-  type Value = SatPointValue;
+impl Entry for KoinuPoint {
+  type Value = KoinuPointValue;
 
   fn load(value: Self::Value) -> Self {
     Decodable::consensus_decode(&mut bitcoin::io::Cursor::new(value)).unwrap()
@@ -505,7 +505,7 @@ mod tests {
       id,
       inscription_number: 3,
       parents: vec![4, 5, 6],
-      sat: Some(Sat(7)),
+      sat: Some(Koinu(7)),
       sequence_number: 8,
       timestamp: 9,
     };
@@ -562,7 +562,7 @@ mod tests {
 
   #[test]
   fn rune_entry() {
-    let entry = RuneEntry {
+    let entry = DuneEntry {
       block: 12,
       burned: 1,
       divisibility: 3,
@@ -580,8 +580,8 @@ mod tests {
       mints: 11,
       number: 6,
       premine: 12,
-      spaced_rune: SpacedRune {
-        rune: Rune(7),
+      spaced_dune: SpacedDune {
+        dune: Dune(7),
         spacers: 8,
       },
       symbol: Some('a'),
@@ -608,14 +608,14 @@ mod tests {
     );
 
     assert_eq!(entry.store(), value);
-    assert_eq!(RuneEntry::load(value), entry);
+    assert_eq!(DuneEntry::load(value), entry);
   }
 
   #[test]
-  fn rune_id_entry() {
-    assert_eq!(RuneId { block: 1, tx: 2 }.store(), (1, 2),);
+  fn dune_id_entry() {
+    assert_eq!(DuneId { block: 1, tx: 2 }.store(), (1, 2),);
 
-    assert_eq!(RuneId { block: 1, tx: 2 }, RuneId::load((1, 2)),);
+    assert_eq!(DuneId { block: 1, tx: 2 }, DuneId::load((1, 2)),);
   }
 
   #[test]
@@ -635,13 +635,13 @@ mod tests {
 
   #[test]
   fn mintable_default() {
-    assert_eq!(RuneEntry::default().mintable(0), Err(MintError::Unmintable));
+    assert_eq!(DuneEntry::default().mintable(0), Err(MintError::Unmintable));
   }
 
   #[test]
   fn mintable_cap() {
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: Some(1),
           amount: Some(1000),
@@ -655,7 +655,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: Some(1),
           amount: Some(1000),
@@ -669,7 +669,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: None,
           amount: Some(1000),
@@ -686,7 +686,7 @@ mod tests {
   #[test]
   fn mintable_offset_start() {
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         block: 1,
         terms: Some(Terms {
           cap: Some(1),
@@ -702,7 +702,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         block: 1,
         terms: Some(Terms {
           cap: Some(1),
@@ -721,7 +721,7 @@ mod tests {
   #[test]
   fn mintable_offset_end() {
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         block: 1,
         terms: Some(Terms {
           cap: Some(1),
@@ -737,7 +737,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         block: 1,
         terms: Some(Terms {
           cap: Some(1),
@@ -756,7 +756,7 @@ mod tests {
   #[test]
   fn mintable_height_start() {
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: Some(1),
           amount: Some(1000),
@@ -771,7 +771,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: Some(1),
           amount: Some(1000),
@@ -789,7 +789,7 @@ mod tests {
   #[test]
   fn mintable_height_end() {
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: Some(1),
           amount: Some(1000),
@@ -804,7 +804,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           cap: Some(1),
           amount: Some(1000),
@@ -821,7 +821,7 @@ mod tests {
 
   #[test]
   fn mintable_multiple_terms() {
-    let entry = RuneEntry {
+    let entry = DuneEntry {
       terms: Some(Terms {
         cap: Some(1),
         amount: Some(1000),
@@ -869,7 +869,7 @@ mod tests {
   #[test]
   fn supply() {
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -882,7 +882,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -895,7 +895,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -909,7 +909,7 @@ mod tests {
     );
 
     assert_eq!(
-      RuneEntry {
+      DuneEntry {
         terms: Some(Terms {
           amount: Some(1000),
           ..default()

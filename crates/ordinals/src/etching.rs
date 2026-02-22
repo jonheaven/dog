@@ -4,7 +4,7 @@ use super::*;
 pub struct Etching {
   pub divisibility: Option<u8>,
   pub premine: Option<u128>,
-  pub rune: Option<Rune>,
+  pub dune: Option<Dune>,
   pub spacers: Option<u32>,
   pub symbol: Option<char>,
   pub terms: Option<Terms>,
@@ -32,19 +32,19 @@ mod tests {
 
   #[test]
   fn max_spacers() {
-    let mut rune = String::new();
+    let mut dune = String::new();
 
-    for (i, c) in Rune(u128::MAX).to_string().chars().enumerate() {
+    for (i, c) in Dune(u128::MAX).to_string().chars().enumerate() {
       if i > 0 {
-        rune.push('•');
+        dune.push('•');
       }
 
-      rune.push(c);
+      dune.push(c);
     }
 
     assert_eq!(
       Etching::MAX_SPACERS,
-      rune.parse::<SpacedRune>().unwrap().spacers
+      dune.parse::<SpacedDune>().unwrap().spacers
     );
   }
 

@@ -3,21 +3,21 @@ use super::*;
 #[derive(Debug, Parser)]
 pub(crate) struct Find {
   #[arg(help = "Find output and offset of <SAT>.")]
-  sat: Sat,
-  #[clap(help = "Find output and offset of all sats in the range [<SAT>, <END>).")]
-  end: Option<Sat>,
+  sat: Koinu,
+  #[clap(help = "Find output and offset of all koinu in the range [<SAT>, <END>).")]
+  end: Option<Koinu>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Output {
-  pub satpoint: SatPoint,
+  pub satpoint: KoinuPoint,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct FindRangeOutput {
   pub start: u64,
   pub size: u64,
-  pub satpoint: SatPoint,
+  pub satpoint: KoinuPoint,
 }
 
 impl Find {
@@ -25,7 +25,7 @@ impl Find {
     let index = Index::open(&settings)?;
 
     if !index.has_sat_index() {
-      bail!("find requires index created with `--index-sats` flag");
+      bail!("find requires index created with `--index-koinu` flag");
     }
 
     index.update()?;

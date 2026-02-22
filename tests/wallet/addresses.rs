@@ -1,23 +1,23 @@
-use {super::*, ord::subcommand::wallet::addresses::Output};
+use {super::*, dog::subcommand::wallet::addresses::Output};
 
 #[test]
 fn addresses() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
   let etched = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 3,
         premine: "1.111".parse().unwrap(),
-        rune: SpacedRune { rune, spacers: 1 },
+        dune: SpacedDune { dune, spacers: 1 },
         supply: "2.222".parse().unwrap(),
         symbol: '¢',
         terms: Some(batch::Terms {
@@ -35,23 +35,23 @@ fn addresses() {
     },
   );
 
-  let output = CommandBuilder::new("--regtest --index-runes wallet addresses")
+  let output = CommandBuilder::new("--regtest --index-dunes wallet addresses")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<BTreeMap<Address<NetworkUnchecked>, Vec<Output>>>();
 
   pretty_assert_eq!(
     output
-      .get(&etched.output.rune.clone().unwrap().destination.unwrap())
+      .get(&etched.output.dune.clone().unwrap().destination.unwrap())
       .unwrap(),
     &vec![Output {
-      output: etched.output.rune.unwrap().location.unwrap(),
+      output: etched.output.dune.unwrap().location.unwrap(),
       amount: 10000,
       inscriptions: Some(Vec::new()),
-      runes: Some(
+      dunes: Some(
         vec![(
-          SpacedRune { rune, spacers: 1 },
-          ord::decimal::Decimal {
+          SpacedDune { dune, spacers: 1 },
+          dog::decimal::Decimal {
             value: 1111,
             scale: 3,
           }
@@ -70,7 +70,7 @@ fn addresses() {
       output: etched.output.inscriptions[0].location.outpoint,
       amount: 10000,
       inscriptions: Some(vec![etched.output.inscriptions[0].id]),
-      runes: Some(BTreeMap::new()),
+      dunes: Some(BTreeMap::new()),
     }]
   );
 }

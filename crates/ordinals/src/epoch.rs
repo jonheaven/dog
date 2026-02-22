@@ -60,7 +60,7 @@ pub fn dogecoin_starting_sats(height: u32) -> u64 {
   if h < STARTING_SATS.len() {
     return STARTING_SATS[h];
   }
-  // Sum up all wonky-era sats then add standard-era rewards.
+  // Sum up all wonky-era koinu then add standard-era rewards.
   let wonky_total = *STARTING_SATS.last().unwrap_or(&0);
   let post_wonky = cumulative_post_wonky_sats(height);
   wonky_total.saturating_add(post_wonky)
@@ -133,8 +133,8 @@ impl Epoch {
     dogecoin_block_subsidy(self.0)
   }
 
-  pub fn starting_sat(self) -> Sat {
-    Sat(dogecoin_starting_sats(self.0))
+  pub fn starting_sat(self) -> Koinu {
+    Koinu(dogecoin_starting_sats(self.0))
   }
 
   pub fn starting_height(self) -> Height {
@@ -144,8 +144,8 @@ impl Epoch {
 
   /// Iterator over every epoch's starting sat (from `starting_sats.json`).
   /// Used by the `ord epochs` subcommand.
-  pub fn all_starting_sats() -> impl Iterator<Item = Sat> {
-    STARTING_SATS.iter().copied().map(Sat)
+  pub fn all_starting_sats() -> impl Iterator<Item = Koinu> {
+    STARTING_SATS.iter().copied().map(Koinu)
   }
 }
 
@@ -155,8 +155,8 @@ impl PartialEq<u32> for Epoch {
   }
 }
 
-impl From<Sat> for Epoch {
-  fn from(sat: Sat) -> Self {
+impl From<Koinu> for Epoch {
+  fn from(sat: Koinu) -> Self {
     // Binary search through the STARTING_SATS array, then fall back to
     // post-wonky computation.
     let starting_sats = &*STARTING_SATS;
@@ -228,7 +228,7 @@ mod tests {
 
   #[test]
   fn starting_sat_block_0_is_zero() {
-    assert_eq!(Epoch(0).starting_sat(), Sat(0));
+    assert_eq!(Epoch(0).starting_sat(), Koinu(0));
   }
 
   #[test]

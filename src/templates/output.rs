@@ -7,8 +7,8 @@ pub(crate) struct OutputHtml {
   pub(crate) inscriptions: Option<Vec<InscriptionId>>,
   pub(crate) outpoint: OutPoint,
   pub(crate) output: TxOut,
-  pub(crate) runes: Option<BTreeMap<SpacedRune, Pile>>,
-  pub(crate) sat_ranges: Option<Vec<(u64, u64)>>,
+  pub(crate) dunes: Option<BTreeMap<SpacedDune, Pile>>,
+  pub(crate) koinu_ranges: Option<Vec<(u64, u64)>>,
   pub(crate) spent: bool,
 }
 
@@ -29,13 +29,13 @@ mod tests {
   fn unspent_output() {
     assert_regex_match!(
       OutputHtml {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         confirmations: 6,
         inscriptions: Some(Vec::new()),
         outpoint: outpoint(1),
         output: TxOut { value: Amount::from_sat(3), script_pubkey: ScriptBuf::new_p2pkh(&PubkeyHash::all_zeros()), },
-        runes: Some(BTreeMap::new()),
-        sat_ranges: Some(vec![(0, 1), (1, 3)]),
+        dunes: Some(BTreeMap::new()),
+        koinu_ranges: Some(vec![(0, 1), (1, 3)]),
         spent: false,
       },
       "
@@ -48,10 +48,10 @@ mod tests {
           <dt>confirmations</dt><dd>6</dd>
           <dt>spent</dt><dd>false</dd>
         </dl>
-        <h2>2 Sat Ranges</h2>
+        <h2>2 Koinu Ranges</h2>
         <ul class=monospace>
           <li><a href=/sat/0 class=mythic>0</a></li>
-          <li><a href=/sat/1 class=common>1</a>-<a href=/sat/2 class=common>2</a> \\(2 sats\\)</li>
+          <li><a href=/sat/1 class=common>1</a>-<a href=/sat/2 class=common>2</a> \\(2 koinu\\)</li>
         </ul>
       "
       .unindent()
@@ -62,7 +62,7 @@ mod tests {
   fn spent_output() {
     assert_regex_match!(
       OutputHtml {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         confirmations: 10,
         inscriptions: None,
         outpoint: outpoint(1),
@@ -70,8 +70,8 @@ mod tests {
           value: Amount::from_sat(1),
           script_pubkey: script::Builder::new().push_int(0).into_script(),
         },
-        runes: None,
-        sat_ranges: None,
+        dunes: None,
+        koinu_ranges: None,
         spent: true,
       },
       "
@@ -92,13 +92,13 @@ mod tests {
   fn spent_output_with_ranges() {
     assert_regex_match!(
       OutputHtml {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         confirmations: 6,
         inscriptions: None,
         outpoint: outpoint(1),
         output: TxOut { value: Amount::from_sat(3), script_pubkey: ScriptBuf::new_p2pkh(&PubkeyHash::all_zeros()), },
-        runes: None,
-        sat_ranges: Some(vec![(0, 1), (1, 3)]),
+        dunes: None,
+        koinu_ranges: Some(vec![(0, 1), (1, 3)]),
         spent: true,
       },
       "
@@ -111,10 +111,10 @@ mod tests {
           <dt>confirmations</dt><dd>6</dd>
           <dt>spent</dt><dd>true</dd>
         </dl>
-        <h2>2 Sat Ranges</h2>
+        <h2>2 Koinu Ranges</h2>
         <ul class=monospace>
           <li><a href=/sat/0 class=mythic>0</a></li>
-          <li><a href=/sat/1 class=common>1</a>-<a href=/sat/2 class=common>2</a> \\(2 sats\\)</li>
+          <li><a href=/sat/1 class=common>1</a>-<a href=/sat/2 class=common>2</a> \\(2 koinu\\)</li>
         </ul>
       "
       .unindent()
@@ -125,13 +125,13 @@ mod tests {
   fn no_list() {
     assert_regex_match!(
       OutputHtml {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         confirmations: 6,
         inscriptions: None,
         outpoint: outpoint(1),
         output: TxOut { value: Amount::from_sat(3), script_pubkey: ScriptBuf::new_p2pkh(&PubkeyHash::all_zeros()), },
-        runes: None,
-        sat_ranges: None,
+        dunes: None,
+        koinu_ranges: None,
         spent: false,
       }
       .to_string(),
@@ -154,7 +154,7 @@ mod tests {
   fn with_inscriptions() {
     assert_regex_match!(
       OutputHtml {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         confirmations: 6,
         inscriptions: Some(vec![inscription_id(1)]),
         outpoint: outpoint(1),
@@ -162,8 +162,8 @@ mod tests {
           value: Amount::from_sat(3),
           script_pubkey: ScriptBuf::new_p2pkh(&PubkeyHash::all_zeros()),
         },
-        runes: None,
-        sat_ranges: None,
+        dunes: None,
+        koinu_ranges: None,
         spent: false,
       },
       "
@@ -184,7 +184,7 @@ mod tests {
   fn with_runes() {
     assert_regex_match!(
       OutputHtml {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         confirmations: 6,
         inscriptions: None,
         outpoint: outpoint(1),
@@ -192,10 +192,10 @@ mod tests {
           value: Amount::from_sat(3),
           script_pubkey: ScriptBuf::new_p2pkh(&PubkeyHash::all_zeros()),
         },
-        runes: Some(
+        dunes: Some(
           vec![(
-            SpacedRune {
-              rune: Rune(26),
+            SpacedDune {
+              dune: Dune(26),
               spacers: 1
             },
             Pile {
@@ -207,21 +207,21 @@ mod tests {
           .into_iter()
           .collect()
         ),
-        sat_ranges: None,
+        koinu_ranges: None,
         spent: false,
       },
       "
         <h1>Output <span class=monospace>1{64}:1</span></h1>
         <dl>
-          <dt>runes</dt>
+          <dt>dunes</dt>
           <dd>
             <table>
               <tr>
-                <th>rune</th>
+                <th>dune</th>
                 <th>balance</th>
               </tr>
               <tr>
-                <td><a href=/rune/A•A>A•A</a></td>
+                <td><a href=/dune/A•A>A•A</a></td>
                 <td>1.1\u{A0}¤</td>
               </tr>
             </table>

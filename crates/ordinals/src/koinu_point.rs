@@ -22,18 +22,18 @@ use {super::*, bitcoin::transaction::ParseOutPointError};
   DeserializeFromStr,
   SerializeDisplay,
 )]
-pub struct SatPoint {
+pub struct KoinuPoint {
   pub outpoint: OutPoint,
   pub offset: u64,
 }
 
-impl Display for SatPoint {
+impl Display for KoinuPoint {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}:{}", self.outpoint, self.offset)
   }
 }
 
-impl Encodable for SatPoint {
+impl Encodable for KoinuPoint {
   fn consensus_encode<S: bitcoin::io::Write + ?Sized>(
     &self,
     s: &mut S,
@@ -43,24 +43,24 @@ impl Encodable for SatPoint {
   }
 }
 
-impl Decodable for SatPoint {
+impl Decodable for KoinuPoint {
   fn consensus_decode<D: bitcoin::io::Read + ?Sized>(
     d: &mut D,
   ) -> Result<Self, bitcoin::consensus::encode::Error> {
-    Ok(SatPoint {
+    Ok(KoinuPoint {
       outpoint: Decodable::consensus_decode(d)?,
       offset: Decodable::consensus_decode(d)?,
     })
   }
 }
 
-impl FromStr for SatPoint {
+impl FromStr for KoinuPoint {
   type Err = Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     let (outpoint, offset) = s.rsplit_once(':').ok_or_else(|| Error::Colon(s.into()))?;
 
-    Ok(SatPoint {
+    Ok(KoinuPoint {
       outpoint: outpoint
         .parse::<OutPoint>()
         .map_err(|err| Error::Outpoint {
@@ -95,18 +95,18 @@ mod tests {
   #[test]
   fn error() {
     assert_eq!(
-      "foo".parse::<SatPoint>().unwrap_err().to_string(),
+      "foo".parse::<KoinuPoint>().unwrap_err().to_string(),
       "satpoint `foo` missing colon"
     );
 
     assert_eq!(
-      "foo:bar".parse::<SatPoint>().unwrap_err().to_string(),
+      "foo:bar".parse::<KoinuPoint>().unwrap_err().to_string(),
       "satpoint outpoint `foo` invalid: OutPoint not in <txid>:<vout> format"
     );
 
     assert_eq!(
       "1111111111111111111111111111111111111111111111111111111111111111:1:bar"
-        .parse::<SatPoint>()
+        .parse::<KoinuPoint>()
         .unwrap_err()
         .to_string(),
       "satpoint offset `bar` invalid: invalid digit found in string"
@@ -117,9 +117,9 @@ mod tests {
   fn from_str_ok() {
     assert_eq!(
       "1111111111111111111111111111111111111111111111111111111111111111:1:1"
-        .parse::<SatPoint>()
+        .parse::<KoinuPoint>()
         .unwrap(),
-      SatPoint {
+      KoinuPoint {
         outpoint: "1111111111111111111111111111111111111111111111111111111111111111:1"
           .parse()
           .unwrap(),
@@ -130,27 +130,27 @@ mod tests {
 
   #[test]
   fn from_str_err() {
-    "abc".parse::<SatPoint>().unwrap_err();
+    "abc".parse::<KoinuPoint>().unwrap_err();
 
-    "abc:xyz".parse::<SatPoint>().unwrap_err();
+    "abc:xyz".parse::<KoinuPoint>().unwrap_err();
 
     "1111111111111111111111111111111111111111111111111111111111111111:1"
-      .parse::<SatPoint>()
+      .parse::<KoinuPoint>()
       .unwrap_err();
 
     "1111111111111111111111111111111111111111111111111111111111111111:1:foo"
-      .parse::<SatPoint>()
+      .parse::<KoinuPoint>()
       .unwrap_err();
   }
 
   #[test]
   fn deserialize_ok() {
     assert_eq!(
-      serde_json::from_str::<SatPoint>(
+      serde_json::from_str::<KoinuPoint>(
         "\"1111111111111111111111111111111111111111111111111111111111111111:1:1\""
       )
       .unwrap(),
-      SatPoint {
+      KoinuPoint {
         outpoint: "1111111111111111111111111111111111111111111111111111111111111111:1"
           .parse()
           .unwrap(),

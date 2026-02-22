@@ -73,8 +73,8 @@ impl Display for Rarity {
   }
 }
 
-impl From<Sat> for Rarity {
-  fn from(sat: Sat) -> Self {
+impl From<Koinu> for Rarity {
+  fn from(sat: Koinu) -> Self {
     let Degree {
       hour,
       minute,
@@ -120,42 +120,42 @@ mod tests {
 
   #[test]
   fn rarity() {
-    assert_eq!(Sat(0).rarity(), Rarity::Mythic);
-    assert_eq!(Sat(1).rarity(), Rarity::Common);
+    assert_eq!(Koinu(0).rarity(), Rarity::Mythic);
+    assert_eq!(Koinu(1).rarity(), Rarity::Common);
 
-    assert_eq!(Sat(50 * COIN_VALUE - 1).rarity(), Rarity::Common);
-    assert_eq!(Sat(50 * COIN_VALUE).rarity(), Rarity::Uncommon);
-    assert_eq!(Sat(50 * COIN_VALUE + 1).rarity(), Rarity::Common);
+    assert_eq!(Koinu(50 * COIN_VALUE - 1).rarity(), Rarity::Common);
+    assert_eq!(Koinu(50 * COIN_VALUE).rarity(), Rarity::Uncommon);
+    assert_eq!(Koinu(50 * COIN_VALUE + 1).rarity(), Rarity::Common);
 
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) - 1).rarity(),
+      Koinu(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) - 1).rarity(),
       Rarity::Common
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL)).rarity(),
+      Koinu(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL)).rarity(),
       Rarity::Rare
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) + 1).rarity(),
+      Koinu(50 * COIN_VALUE * u64::from(DIFFCHANGE_INTERVAL) + 1).rarity(),
       Rarity::Common
     );
 
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) - 1).rarity(),
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) - 1).rarity(),
       Rarity::Common
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL)).rarity(),
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL)).rarity(),
       Rarity::Epic
     );
     assert_eq!(
-      Sat(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) + 1).rarity(),
+      Koinu(50 * COIN_VALUE * u64::from(SUBSIDY_HALVING_INTERVAL) + 1).rarity(),
       Rarity::Common
     );
 
-    assert_eq!(Sat(2067187500000000 - 1).rarity(), Rarity::Common);
-    assert_eq!(Sat(2067187500000000).rarity(), Rarity::Legendary);
-    assert_eq!(Sat(2067187500000000 + 1).rarity(), Rarity::Common);
+    assert_eq!(Koinu(2067187500000000 - 1).rarity(), Rarity::Common);
+    assert_eq!(Koinu(2067187500000000).rarity(), Rarity::Legendary);
+    assert_eq!(Koinu(2067187500000000 + 1).rarity(), Rarity::Common);
   }
 
   #[test]
@@ -207,7 +207,7 @@ mod tests {
         break;
       }
 
-      *supply.entry(Sat(i).rarity()).or_default() += 1;
+      *supply.entry(Koinu(i).rarity()).or_default() += 1;
 
       *supply.entry(Rarity::Common).or_default() += subsidy.saturating_sub(1);
 
@@ -222,7 +222,7 @@ mod tests {
       );
     }
 
-    assert_eq!(supply.values().sum::<u64>(), Sat::SUPPLY);
+    assert_eq!(supply.values().sum::<u64>(), Koinu::SUPPLY);
 
     assert_eq!(supply.len(), Rarity::ALL.len());
   }

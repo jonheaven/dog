@@ -62,7 +62,7 @@ pub(crate) enum Error {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Satscard {
+pub(crate) struct Koinucard {
   pub(crate) address: Address,
   pub(crate) nonce: [u8; 8],
   pub(crate) query_parameters: String,
@@ -70,7 +70,7 @@ pub(crate) struct Satscard {
   pub(crate) state: State,
 }
 
-impl Satscard {
+impl Koinucard {
   pub(crate) fn from_query_parameters(chain: Chain, query_parameters: &str) -> Result<Self, Error> {
     let mut address_suffix = None;
     let mut nonce = Option::<[u8; 8]>::None;
@@ -143,7 +143,7 @@ impl Satscard {
 
   fn recover_address(
     address_suffix: &str,
-    chain: Chain,
+    _chain: Chain,
     message: &str,
     signature: &secp256k1::ecdsa::Signature,
   ) -> Result<Address, Error> {
@@ -179,7 +179,7 @@ impl Satscard {
 
       let public_key = CompressedPublicKey::try_from(public_key).unwrap();
 
-      let address = Address::p2wpkh(&public_key, chain.bech32_hrp());
+      let address = Address::p2wpkh(&public_key, KnownHrp::Mainnet);
 
       if address.to_string().ends_with(&address_suffix) {
         return Ok(address);
@@ -195,7 +195,7 @@ pub(crate) mod tests {
   use super::*;
 
   pub(crate) const ORDINALS_URL: &str = concat!(
-    "https://ordinals.com/satscard",
+    "https://ordinals.com/koinucard",
     "?u=S",
     "&o=0",
     "&r=4w9rytlk",
@@ -209,8 +209,8 @@ pub(crate) mod tests {
     ORDINALS_URL.split_once('?').unwrap().1
   }
 
-  pub(crate) fn ordinals_satscard() -> Satscard {
-    Satscard::from_query_parameters(Chain::Mainnet, ordinals_query()).unwrap()
+  pub(crate) fn ordinals_satscard() -> Koinucard {
+    Koinucard::from_query_parameters(Chain::Dogecoin, ordinals_query()).unwrap()
   }
 
   pub(crate) fn ordinals_address() -> Address {
@@ -222,7 +222,7 @@ pub(crate) mod tests {
   }
 
   pub(crate) const COINKITE_URL: &str = concat!(
-    "https://satscard.com/start",
+    "https://koinucard.com/start",
     "#u=S",
     "&o=0",
     "&r=a5x2tplf",
@@ -236,7 +236,7 @@ pub(crate) mod tests {
   fn query_from_ordinals_url() {
     assert_eq!(
       ordinals_satscard(),
-      Satscard {
+      Koinucard {
         address: ordinals_address(),
         nonce: [0xb3, 0x7c, 0xca, 0xa6, 0x2a, 0xa8, 0x49, 0xe7],
         slot: 0,
@@ -250,8 +250,8 @@ pub(crate) mod tests {
     COINKITE_URL.split_once('#').unwrap().1
   }
 
-  pub(crate) fn coinkite_satscard() -> Satscard {
-    Satscard::from_query_parameters(Chain::Mainnet, coinkite_fragment()).unwrap()
+  pub(crate) fn coinkite_satscard() -> Koinucard {
+    Koinucard::from_query_parameters(Chain::Dogecoin, coinkite_fragment()).unwrap()
   }
 
   pub(crate) fn coinkite_address() -> Address {
@@ -266,7 +266,7 @@ pub(crate) mod tests {
   fn query_from_coinkite_url() {
     assert_eq!(
       coinkite_satscard(),
-      Satscard {
+      Koinucard {
         address: coinkite_address(),
         nonce: [0x76, 0x64, 0x16, 0x8a, 0x4e, 0xf7, 0xb8, 0xe8],
         slot: 0,

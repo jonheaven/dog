@@ -3,7 +3,7 @@ use super::*;
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct PendingOutput {
   pub commit: Txid,
-  pub rune: SpacedRune,
+  pub dune: SpacedDune,
 }
 #[derive(Debug, Parser)]
 pub(crate) struct Pending {}
@@ -14,10 +14,10 @@ impl Pending {
       .pending_etchings()?
       .into_iter()
       .map(|(_, entry)| {
-        let spaced_rune = entry.output.rune.unwrap().rune;
+        let spaced_dune = entry.output.dune.unwrap().dune;
 
         PendingOutput {
-          rune: spaced_rune,
+          dune: spaced_dune,
           commit: entry.commit.compute_txid(),
         }
       })

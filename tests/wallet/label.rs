@@ -4,17 +4,17 @@ use super::*;
 fn label() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(2);
 
-  let (inscription, _reveal) = inscribe(&core, &ord);
+  let (inscription, _reveal) = inscribe(&core, &dog);
 
   let output = CommandBuilder::new("wallet label")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(".*")
     .run_and_extract_stdout();
 

@@ -1,15 +1,15 @@
-use {super::*, ord::subcommand::wallet::receive};
+use {super::*, dog::subcommand::wallet::receive};
 
 #[test]
 fn receive() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let output = CommandBuilder::new("wallet receive")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<receive::Output>();
 
   assert!(

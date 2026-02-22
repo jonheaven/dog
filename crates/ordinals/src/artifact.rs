@@ -3,14 +3,14 @@ use super::*;
 #[derive(Serialize, Eq, PartialEq, Deserialize, Debug)]
 pub enum Artifact {
   Cenotaph(Cenotaph),
-  Runestone(Runestone),
+  Dunestone(Dunestone),
 }
 
 impl Artifact {
-  pub fn mint(&self) -> Option<RuneId> {
+  pub fn mint(&self) -> Option<DuneId> {
     match self {
       Self::Cenotaph(cenotaph) => cenotaph.mint,
-      Self::Runestone(runestone) => runestone.mint,
+      Self::Dunestone(dunestone) => dunestone.mint,
     }
   }
 }

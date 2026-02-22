@@ -11,25 +11,25 @@ struct SplitfileUnchecked {
 struct OutputUnchecked {
   address: Address<NetworkUnchecked>,
   value: Option<DeserializeFromStr<Amount>>,
-  runes: BTreeMap<SpacedRune, Decimal>,
+  dunes: BTreeMap<SpacedDune, Decimal>,
 }
 
 pub(crate) struct Splitfile {
   pub(crate) outputs: Vec<Output>,
-  pub(crate) rune_info: BTreeMap<Rune, RuneInfo>,
+  pub(crate) rune_info: BTreeMap<Dune, RuneInfo>,
 }
 
 pub(crate) struct Output {
   pub(crate) address: Address,
   pub(crate) value: Option<Amount>,
-  pub(crate) runes: BTreeMap<Rune, u128>,
+  pub(crate) dunes: BTreeMap<Dune, u128>,
 }
 
 #[derive(Clone, Copy)]
 pub(crate) struct RuneInfo {
   pub(crate) divisibility: u8,
-  pub(crate) id: RuneId,
-  pub(crate) spaced_rune: SpacedRune,
+  pub(crate) id: DuneId,
+  pub(crate) spaced_dune: SpacedDune,
   pub(crate) symbol: Option<char>,
 }
 
@@ -39,41 +39,41 @@ impl Splitfile {
 
     let unchecked = Self::load_unchecked(path)?;
 
-    let mut rune_info = BTreeMap::<Rune, RuneInfo>::new();
+    let mut rune_info = BTreeMap::<Dune, RuneInfo>::new();
 
     let mut outputs = Vec::new();
 
     for output in unchecked.outputs {
-      let mut runes = BTreeMap::new();
+      let mut dunes = BTreeMap::new();
 
-      for (spaced_rune, decimal) in output.runes {
-        let info = if let Some(info) = rune_info.get(&spaced_rune.rune) {
+      for (spaced_dune, decimal) in output.dunes {
+        let info = if let Some(info) = rune_info.get(&spaced_dune.dune) {
           info
         } else {
           let (id, entry, _parent) = wallet
-            .get_rune(spaced_rune.rune)?
-            .with_context(|| format!("rune `{}` has not been etched", spaced_rune.rune))?;
+            .get_rune(spaced_dune.dune)?
+            .with_context(|| format!("dune `{}` has not been etched", spaced_dune.dune))?;
           rune_info.insert(
-            spaced_rune.rune,
+            spaced_dune.dune,
             RuneInfo {
               divisibility: entry.divisibility,
               id,
-              spaced_rune: entry.spaced_rune,
+              spaced_dune: entry.spaced_dune,
               symbol: entry.symbol,
             },
           );
-          rune_info.get(&spaced_rune.rune).unwrap()
+          rune_info.get(&spaced_dune.dune).unwrap()
         };
 
         let amount = decimal.to_integer(info.divisibility)?;
 
-        runes.insert(spaced_rune.rune, amount);
+        dunes.insert(spaced_dune.dune, amount);
       }
 
       outputs.push(Output {
         address: output.address.require_network(network)?,
         value: output.value.map(|DeserializeFromStr(value)| value),
-        runes,
+        dunes,
       });
     }
 

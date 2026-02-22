@@ -16,9 +16,9 @@ pub struct InscriptionHtml {
   pub parents: Vec<InscriptionId>,
   pub previous: Option<InscriptionId>,
   pub properties: Properties,
-  pub rune: Option<SpacedRune>,
-  pub sat: Option<Sat>,
-  pub satpoint: SatPoint,
+  pub dune: Option<SpacedDune>,
+  pub sat: Option<Koinu>,
+  pub satpoint: KoinuPoint,
   pub timestamp: DateTime<Utc>,
 }
 
@@ -141,7 +141,7 @@ mod tests {
         id: inscription_id(1),
         number: 1,
         output: Some(tx_out(1, address(0))),
-        sat: Some(Sat(1)),
+        sat: Some(Koinu(1)),
         satpoint: satpoint(1, 0),
         ..default()
       },
@@ -199,7 +199,7 @@ mod tests {
         id: inscription_id(2),
         number: -1,
         output: Some(tx_out(1, address(0))),
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 0
         },
@@ -417,8 +417,8 @@ mod tests {
         id: inscription_id(1),
         number: 1,
         satpoint: satpoint(1, 0),
-        rune: Some(SpacedRune {
-          rune: Rune(26),
+        dune: Some(SpacedDune {
+          dune: Dune(26),
           spacers: 1
         }),
         ..default()
@@ -427,8 +427,8 @@ mod tests {
         <h1>Inscription 1</h1>
         .*
         <dl>
-          <dt>rune</dt>
-          <dd><a href=/rune/A•A>A•A</a></dd>
+          <dt>dune</dt>
+          <dd><a href=/dune/A•A>A•A</a></dd>
           .*
         </dl>
       "

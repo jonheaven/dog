@@ -1,21 +1,21 @@
-use {super::*, ord::subcommand::wallet::balance::Output};
+use {super::*, dog::subcommand::wallet::balance::Output};
 
 #[test]
 fn authentication() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(
+  let dog = TestServer::spawn_with_server_args(
     &core,
     &["--server-username", "foo", "--server-password", "bar"],
     &[],
   );
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   assert_eq!(
     CommandBuilder::new("--server-username foo --server-password bar wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Output>()
       .cardinal,
     0
@@ -26,13 +26,13 @@ fn authentication() {
   assert_eq!(
     CommandBuilder::new("--server-username foo --server-password bar wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Output>(),
     Output {
       cardinal: 50 * COIN_VALUE,
       ordinal: 0,
       runic: None,
-      runes: None,
+      dunes: None,
       total: 50 * COIN_VALUE,
     }
   );

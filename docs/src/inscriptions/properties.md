@@ -44,7 +44,7 @@ Traits = {
 Trait = bool / int / null / text;
 ```
 
-The above CDDL schema is provided as a convenience. As always, the ordinals
+The above CDDL schema is provided as a convenience. As always, the doginals
 reference implementation `ord` is the normative specification of inscriptions,
 and thus the properties field.
 

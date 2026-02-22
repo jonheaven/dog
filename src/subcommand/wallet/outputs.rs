@@ -15,9 +15,9 @@ pub struct Output {
   #[serde(skip_serializing_if = "Option::is_none")]
   pub inscriptions: Option<Vec<InscriptionId>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub runes: Option<BTreeMap<SpacedRune, Decimal>>,
+  pub dunes: Option<BTreeMap<SpacedDune, Decimal>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub sat_ranges: Option<Vec<String>>,
+  pub koinu_ranges: Option<Vec<String>>,
 }
 
 impl Outputs {
@@ -32,14 +32,14 @@ impl Outputs {
 
       let inscriptions = wallet.get_inscriptions_in_output(output)?;
 
-      let runes = wallet
+      let dunes = wallet
         .get_runes_balances_in_output(output)?
         .map(|balances| {
           balances
             .iter()
-            .map(|(rune, pile)| {
+            .map(|(dune, pile)| {
               (
-                *rune,
+                *dune,
                 Decimal {
                   value: pile.amount,
                   scale: pile.divisibility,
@@ -49,7 +49,7 @@ impl Outputs {
             .collect()
         });
 
-      let sat_ranges = if wallet.has_sat_index() && self.ranges {
+      let koinu_ranges = if wallet.has_sat_index() && self.ranges {
         Some(
           wallet
             .get_output_sat_ranges(output)?
@@ -66,8 +66,8 @@ impl Outputs {
         amount: txout.value.to_sat(),
         inscriptions,
         output: *output,
-        runes,
-        sat_ranges,
+        dunes,
+        koinu_ranges,
       });
     }
 

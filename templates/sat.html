@@ -39,12 +39,12 @@
 </dl>
 <div class=center>
 %% if self.sat.n() > 0 {
-<a class=prev href=/sat/{{self.sat.n() - 1}}>prev</a>
+<a class=prev href=/koinu/{{self.sat.n() - 1}}>prev</a>
 %% } else {
 prev
 %% }
-%% if self.sat < Sat::LAST {
-<a class=next href=/sat/{{self.sat.n() + 1}}>next</a>
+%% if self.sat < Koinu::LAST {
+<a class=next href=/koinu/{{self.sat.n() + 1}}>next</a>
 %% } else {
 next
 %% }

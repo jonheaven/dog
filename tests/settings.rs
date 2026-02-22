@@ -43,7 +43,7 @@ fn default() {
 fn config_is_loaded_from_config_option() {
   let tempdir = TempDir::new().unwrap();
 
-  let config = tempdir.path().join("ord.yaml");
+  let config = tempdir.path().join("dog.yaml");
 
   fs::write(&config, "chain: regtest").unwrap();
 
@@ -60,12 +60,12 @@ fn config_is_loaded_from_config_option() {
 fn config_invalid_error_message() {
   let tempdir = TempDir::new().unwrap();
 
-  let config = tempdir.path().join("ord.yaml");
+  let config = tempdir.path().join("dog.yaml");
 
   fs::write(&config, "foo").unwrap();
 
   CommandBuilder::new(format!("--config {} settings", config.to_str().unwrap()))
-    .stderr_regex("error: failed to deserialize config file `.*ord.yaml`\n\nbecause:.*")
+    .stderr_regex("error: failed to deserialize config file `.*dog.yaml`\n\nbecause:.*")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -74,10 +74,10 @@ fn config_invalid_error_message() {
 fn config_not_found_error_message() {
   let tempdir = TempDir::new().unwrap();
 
-  let config = tempdir.path().join("ord.yaml");
+  let config = tempdir.path().join("dog.yaml");
 
   CommandBuilder::new(format!("--config {} settings", config.to_str().unwrap()))
-    .stderr_regex("error: failed to open config file `.*ord.yaml`\n\nbecause:.*")
+    .stderr_regex("error: failed to open config file `.*dog.yaml`\n\nbecause:.*")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -86,7 +86,7 @@ fn config_not_found_error_message() {
 fn config_is_loaded_from_config_dir() {
   let tempdir = TempDir::new().unwrap();
 
-  fs::write(tempdir.path().join("ord.yaml"), "chain: regtest").unwrap();
+  fs::write(tempdir.path().join("dog.yaml"), "chain: regtest").unwrap();
 
   CommandBuilder::new(format!(
     "--config-dir {} settings",
@@ -103,7 +103,7 @@ fn config_is_loaded_from_config_dir() {
 #[test]
 fn config_is_loaded_from_data_dir() {
   CommandBuilder::new("settings")
-    .write("ord.yaml", "chain: regtest")
+    .write("dog.yaml", "chain: regtest")
     .stdout_regex(
       r#".*
   "chain": "regtest",

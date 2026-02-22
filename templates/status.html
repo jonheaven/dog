@@ -12,17 +12,17 @@
   <dd>{{ self.blessed_inscriptions }}</dd>
   <dt>cursed inscriptions</dt>
   <dd>{{ self.cursed_inscriptions }}</dd>
-  <dt>runes</dt>
-  <dd><a href=/runes>{{ self.runes }}</a></dd>
-  <dt>lost sats</dt>
-  <dd>{{ self.lost_sats }}</dd>
+  <dt>dunes</dt>
+  <dd><a href=/dunes>{{ self.dunes }}</a></dd>
+  <dt>lost koinu</dt>
+  <dd>{{ self.lost_koinu }}</dd>
   <dt>started</dt>
   <dd>{{ self.started }}</dd>
   <dt>uptime</dt>
   <dd>{{ humantime::format_duration(self.uptime) }}</dd>
   <dt>initial sync time</dt>
   <dd>{{ humantime::format_duration(self.initial_sync_time) }}</dd>
-  <dt>minimum rune for next block</dt>
+  <dt>minimum dune for next block</dt>
   <dd>{{ self.minimum_rune_for_next_block }}</dd>
   <dt>version</dt>
   <dd>{{ env!("CARGO_PKG_VERSION") }}</dd>
@@ -32,9 +32,9 @@
   <dd>{{ self.address_index }}</dd>
   <dt>inscription index</dt>
   <dd>{{ self.inscription_index }}</dd>
-  <dt>rune index</dt>
+  <dt>dune index</dt>
   <dd>{{ self.rune_index }}</dd>
-  <dt>sat index</dt>
+  <dt>koinu index</dt>
   <dd>{{ self.sat_index }}</dd>
   <dt>transaction index</dt>
   <dd>{{ self.transaction_index }}</dd>

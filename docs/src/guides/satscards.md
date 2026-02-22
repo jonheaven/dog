@@ -2,7 +2,7 @@ Satscard
 ========
 
 [Satscards](https://satscard.com/) are cards which can be used to store
-bitcoin, inscriptions, and runes.
+bitcoin, inscriptions, and dunes.
 
 Slots
 -----
@@ -42,8 +42,8 @@ contains the private key.
 `ord` supports viewing the contents of a satscard by entering the full URL into
 the `ord` explorer search bar, or the input field on the `/satscard` page.
 
-For `ordinals.com`, this is
-[ordinals.com/satscard](https://ordinals.com/satscard).
+For `doginals.com`, this is
+[doginals.com/satscard](https://doginals.com/satscard).
 
 Unsealing
 ---------

@@ -1,11 +1,11 @@
 Sat Hunting
 ===========
 
-Ordinal hunting is difficult but rewarding. The feeling of owning a wallet full
+Doginal hunting is difficult but rewarding. The feeling of owning a wallet full
 of UTXOs, redolent with the scent of rare and exotic sats, is beyond compare.
 
-Ordinals are numbers for satoshis. Every satoshi has an ordinal number and
-every ordinal number has a satoshi.
+Doginals are numbers for koinus. Every koinu has an ordinal number and
+every ordinal number has a koinu.
 
 Preparation
 -----------
@@ -35,7 +35,7 @@ There are a few things you'll need before you start.
 
 2. Second, you'll need a synced `ord` index.
 
-   - Get a copy of `ord` from [the repo](https://github.com/ordinals/ord/).
+   - Get a copy of `ord` from [the repo](https://github.com/doginals/ord/).
 
    - Run `ord --index-sats server`. It should connect to your bitcoin core node and start indexing.
      
@@ -43,13 +43,13 @@ There are a few things you'll need before you start.
 
 3. Third, you'll need a wallet with UTXOs that you want to search.
 
-Searching for Rare Ordinals
+Searching for Rare Doginals
 ---------------------------
 
-### Searching for Rare Ordinals in a Bitcoin Core Wallet
+### Searching for Rare Doginals in a Bitcoin Core Wallet
 
 The `ord wallet` command is just a wrapper around Bitcoin Core's RPC API, so
-searching for rare ordinals in a Bitcoin Core wallet is Easy. Assuming your
+searching for rare doginals in a Bitcoin Core wallet is Easy. Assuming your
 wallet is named `foo`:
 
 1. Load your wallet:
@@ -58,16 +58,16 @@ wallet is named `foo`:
    bitcoin-cli loadwallet foo
    ```
 
-2. Display any rare ordinals wallet `foo`'s UTXOs:
+2. Display any rare doginals wallet `foo`'s UTXOs:
 
    ```sh
    ord --index-sats wallet --name foo sats
    ```
 
-### Searching for Rare Ordinals in a Non-Bitcoin Core Wallet
+### Searching for Rare Doginals in a Non-Bitcoin Core Wallet
 
 The `ord wallet` command is just a wrapper around Bitcoin Core's RPC API, so to
-search for rare ordinals in a non-Bitcoin Core wallet, you'll need to import
+search for rare doginals in a non-Bitcoin Core wallet, you'll need to import
 your wallet's descriptors into Bitcoin Core.
 
 [Descriptors](https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md)
@@ -83,7 +83,7 @@ If your wallet's private key descriptor is compromised, an attacker can drain
 your wallet of funds.
 
 1. Get the wallet descriptor from the wallet whose UTXOs you want to search for
-   rare ordinals. It will look something like this:
+   rare doginals. It will look something like this:
 
    ```
    wpkh([bf1dd55e/84'/0'/0']xpub6CcJtWcvFQaMo39ANFi1MyXkEXM8T8ZhnxMtSjQAdPmVSTHYnc8Hwoc11VpuP8cb8JUTboZB5A7YYGDonYySij4XTawL6iNZvmZwdnSEEep/0/*)#csvefu29
@@ -121,13 +121,13 @@ your wallet of funds.
    bitcoin-cli getwalletinfo
    ```
 
-6. Display your wallet's rare ordinals:
+6. Display your wallet's rare doginals:
 
    ```sh
    ord wallet sats
    ```
 
-### Searching for Rare Ordinals in a Wallet that Exports Multi-path Descriptors
+### Searching for Rare Doginals in a Wallet that Exports Multi-path Descriptors
 
 Some descriptors describe multiple paths in one descriptor using angle brackets,
 e.g., `<0;1>`. Multi-path descriptors are not yet supported by Bitcoin Core, so
@@ -222,7 +222,7 @@ those multiple descriptors into Bitcoin Core.
    bitcoin-cli getwalletinfo
    ```
 
-7. Display your wallet's rare ordinals:
+7. Display your wallet's rare doginals:
 
    ```sh
    ord wallet sats
@@ -235,10 +235,10 @@ those multiple descriptors into Bitcoin Core.
 Navigate to the `Settings` tab, then to `Script Policy`, and press the edit
 button to display the descriptor.
 
-### Transferring Ordinals
+### Transferring Doginals
 
-The `ord` wallet supports transferring specific satoshis by using the
-name of the satoshi. To send the satoshi `zonefruits`, do:
+The `ord` wallet supports transferring specific koinus by using the
+name of the koinu. To send the koinu `zonefruits`, do:
 
 ```
 ord wallet send <RECEIVING_ADDRESS> zonefruits --fee-rate 21

@@ -13,8 +13,8 @@ pub struct Plan {
   pub(crate) postages: Vec<Amount>,
   pub(crate) reinscribe: bool,
   pub(crate) reveal_fee_rate: FeeRate,
-  pub(crate) reveal_satpoints: Vec<(SatPoint, TxOut)>,
-  pub(crate) satpoint: Option<SatPoint>,
+  pub(crate) reveal_satpoints: Vec<(KoinuPoint, TxOut)>,
+  pub(crate) satpoint: Option<KoinuPoint>,
 }
 
 impl Default for Plan {
@@ -52,7 +52,7 @@ impl Plan {
       reveal_tx,
       recovery_key_pair,
       total_fees,
-      rune,
+      dune,
     } = self.create_batch_transactions(
       wallet.inscriptions().clone(),
       wallet.chain(),
@@ -86,7 +86,7 @@ impl Plan {
         Some(base64_encode(&reveal_psbt.serialize())),
         total_fees,
         self.inscriptions.clone(),
-        rune,
+        dune,
       ))));
     }
 
@@ -129,7 +129,7 @@ impl Plan {
       .bitcoin_client()
       .send_raw_transaction(&signed_commit_tx)?;
 
-    if let Some(ref rune_info) = rune {
+    if let Some(ref rune_info) = dune {
       wallet.bitcoin_client().lock_unspent(&[OutPoint {
         txid: commit_txid,
         vout: commit_vout.try_into().unwrap(),
@@ -139,7 +139,7 @@ impl Plan {
       let reveal = consensus::encode::deserialize::<Transaction>(&signed_reveal_tx)?;
 
       wallet.save_etching(
-        &rune_info.rune.rune,
+        &rune_info.dune.dune,
         &commit,
         &reveal,
         self.output(
@@ -150,12 +150,12 @@ impl Plan {
           None,
           total_fees,
           self.inscriptions.clone(),
-          rune.clone(),
+          dune.clone(),
         ),
       )?;
 
       Ok(Some(Box::new(
-        wallet.wait_for_maturation(rune_info.rune.rune)?,
+        wallet.wait_for_maturation(rune_info.dune.dune)?,
       )))
     } else {
       let reveal = match wallet
@@ -178,7 +178,7 @@ impl Plan {
         None,
         total_fees,
         self.inscriptions.clone(),
-        rune,
+        dune,
       ))))
     }
   }
@@ -200,7 +200,7 @@ impl Plan {
     reveal_psbt: Option<String>,
     total_fees: u64,
     inscriptions: Vec<Inscription>,
-    rune: Option<RuneInfo>,
+    dune: Option<RuneInfo>,
   ) -> Output {
     let mut inscriptions_output = Vec::new();
     for i in 0..inscriptions.len() {
@@ -208,7 +208,7 @@ impl Plan {
 
       let vout = match self.mode {
         Mode::SharedOutput | Mode::SameSat => self.parent_info.len().try_into().unwrap(),
-        Mode::SeparateOutputs | Mode::SatPoints => {
+        Mode::SeparateOutputs | Mode::KoinuPoints => {
           index + u32::try_from(self.parent_info.len()).unwrap()
         }
       };
@@ -218,12 +218,12 @@ impl Plan {
           .iter()
           .map(|amount| amount.to_sat())
           .sum(),
-        Mode::SeparateOutputs | Mode::SameSat | Mode::SatPoints => 0,
+        Mode::SeparateOutputs | Mode::SameSat | Mode::KoinuPoints => 0,
       };
 
       let destination = match self.mode {
         Mode::SameSat | Mode::SharedOutput => &self.destinations[0],
-        Mode::SatPoints | Mode::SeparateOutputs => &self.destinations[i],
+        Mode::KoinuPoints | Mode::SeparateOutputs => &self.destinations[i],
       };
 
       inscriptions_output.push(InscriptionInfo {
@@ -232,7 +232,7 @@ impl Plan {
           index,
         },
         destination: uncheck(destination),
-        location: SatPoint {
+        location: KoinuPoint {
           outpoint: OutPoint { txid: reveal, vout },
           offset,
         },
@@ -247,14 +247,14 @@ impl Plan {
       reveal,
       reveal_broadcast,
       reveal_psbt,
-      rune,
+      dune,
       total_fees,
     }
   }
 
   pub(crate) fn create_batch_transactions(
     &self,
-    wallet_inscriptions: BTreeMap<SatPoint, Vec<InscriptionId>>,
+    wallet_inscriptions: BTreeMap<KoinuPoint, Vec<InscriptionId>>,
     chain: Chain,
     locked_utxos: BTreeSet<OutPoint>,
     runic_utxos: BTreeSet<OutPoint>,
@@ -286,7 +286,7 @@ impl Plan {
           "invariant: same-sat has only one destination"
         );
       }
-      Mode::SeparateOutputs | Mode::SatPoints => {
+      Mode::SeparateOutputs | Mode::KoinuPoints => {
         assert_eq!(
           self.destinations.len(),
           self.inscriptions.len(),
@@ -328,7 +328,7 @@ impl Plan {
             && !locked_utxos.contains(outpoint)
             && !runic_utxos.contains(outpoint)
         })
-        .map(|(outpoint, _amount)| SatPoint {
+        .map(|(outpoint, _amount)| KoinuPoint {
           outpoint: *outpoint,
           offset: 0,
         })
@@ -406,7 +406,7 @@ impl Plan {
       });
     }
 
-    if self.mode == Mode::SatPoints {
+    if self.mode == Mode::KoinuPoints {
       for (satpoint, _txout) in self.reveal_satpoints.iter() {
         reveal_inputs.push(satpoint.outpoint);
       }
@@ -418,15 +418,15 @@ impl Plan {
       reveal_outputs.push(TxOut {
         script_pubkey: destination.script_pubkey(),
         value: match self.mode {
-          Mode::SeparateOutputs | Mode::SatPoints => self.postages[i],
+          Mode::SeparateOutputs | Mode::KoinuPoints => self.postages[i],
           Mode::SharedOutput | Mode::SameSat => total_postage,
         },
       });
     }
 
-    let rune;
+    let dune;
     let premine;
-    let runestone;
+    let dunestone;
 
     if let Some(etching) = self.etching {
       let vout;
@@ -448,13 +448,13 @@ impl Plan {
         destination = None;
       }
 
-      let inner = Runestone {
+      let inner = Dunestone {
         edicts: Vec::new(),
         etching: Some(ordinals::Etching {
           divisibility: (etching.divisibility > 0).then_some(etching.divisibility),
           premine: (premine > 0).then_some(premine),
-          rune: Some(etching.rune.rune),
-          spacers: (etching.rune.spacers > 0).then_some(etching.rune.spacers),
+          dune: Some(etching.dune.dune),
+          spacers: (etching.dune.spacers > 0).then_some(etching.dune.spacers),
           symbol: Some(etching.symbol),
           terms: etching
             .terms
@@ -481,11 +481,11 @@ impl Plan {
 
       let script_pubkey = inner.encipher();
 
-      runestone = Some(inner);
+      dunestone = Some(inner);
 
       ensure!(
         self.no_limit || script_pubkey.len() <= MAX_STANDARD_OP_RETURN_SIZE,
-        "runestone greater than maximum OP_RETURN size: {} > {}",
+        "dunestone greater than maximum OP_RETURN size: {} > {}",
         script_pubkey.len(),
         MAX_STANDARD_OP_RETURN_SIZE,
       );
@@ -495,11 +495,11 @@ impl Plan {
         value: Amount::from_sat(0),
       });
 
-      rune = Some((destination, etching.rune, vout));
+      dune = Some((destination, etching.dune, vout));
     } else {
       premine = 0;
-      rune = None;
-      runestone = None;
+      dune = None;
+      dunestone = None;
     }
 
     let commit_input = self.parent_info.len() + self.reveal_satpoints.len();
@@ -511,12 +511,12 @@ impl Plan {
       reveal_outputs.clone(),
       reveal_inputs.clone(),
       &reveal_script,
-      rune.is_some(),
+      dune.is_some(),
     );
 
     let mut target_value = reveal_fee;
 
-    if self.mode != Mode::SatPoints {
+    if self.mode != Mode::KoinuPoints {
       target_value += total_postage;
     }
 
@@ -557,7 +557,7 @@ impl Plan {
       reveal_outputs.clone(),
       reveal_inputs,
       &reveal_script,
-      rune.is_some(),
+      dune.is_some(),
     );
 
     for output in reveal_tx.output.iter() {
@@ -573,7 +573,7 @@ impl Plan {
       prevouts.push(parent_info.tx_out.clone());
     }
 
-    if self.mode == Mode::SatPoints {
+    if self.mode == Mode::KoinuPoints {
       for (_satpoint, txout) in self.reveal_satpoints.iter() {
         prevouts.push(txout.clone());
       }
@@ -641,26 +641,26 @@ impl Plan {
     let total_fees =
       Self::calculate_fee(&unsigned_commit_tx, &utxos) + Self::calculate_fee(&reveal_tx, &utxos);
 
-    match (Runestone::decipher(&reveal_tx), runestone) {
+    match (Dunestone::decipher(&reveal_tx), dunestone) {
       (Some(actual), Some(expected)) => assert_eq!(
         actual,
-        Artifact::Runestone(expected),
-        "commit transaction runestone did not match expected runestone"
+        Artifact::Dunestone(expected),
+        "commit transaction dunestone did not match expected dunestone"
       ),
-      (Some(_), None) => panic!("commit transaction contained runestone, but none was expected"),
+      (Some(_), None) => panic!("commit transaction contained dunestone, but none was expected"),
       (None, Some(_)) => {
-        panic!("commit transaction did not contain runestone, but one was expected")
+        panic!("commit transaction did not contain dunestone, but one was expected")
       }
       (None, None) => {}
     }
 
-    let rune = rune.map(|(destination, rune, vout)| RuneInfo {
+    let dune = dune.map(|(destination, dune, vout)| RuneInfo {
       destination: destination.map(|destination| uncheck(&destination)),
       location: vout.map(|vout| OutPoint {
         txid: reveal_tx.compute_txid(),
         vout,
       }),
-      rune,
+      dune,
     });
 
     Ok(Transactions {
@@ -668,7 +668,7 @@ impl Plan {
       commit_vout: vout,
       recovery_key_pair,
       reveal_tx,
-      rune,
+      dune,
       total_fees,
     })
   }
@@ -725,7 +725,7 @@ impl Plan {
           script_sig: script::Builder::new().into_script(),
           witness: Witness::new(),
           sequence: if etching {
-            Sequence::from_height(Runestone::COMMIT_CONFIRMATIONS - 1)
+            Sequence::from_height(Dunestone::COMMIT_CONFIRMATIONS - 1)
           } else {
             Sequence::ENABLE_RBF_NO_LOCKTIME
           },

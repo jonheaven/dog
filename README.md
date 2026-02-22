@@ -8,13 +8,13 @@ You should periodically create checkpoints of the redb database that you can res
   <a href=https://crates.io/crates/ord>
     <img src=https://img.shields.io/crates/v/ord.svg alt="crates.io version">
   </a>
-  <a href=https://github.com/ordinals/ord/actions/workflows/ci.yaml>
-    <img src=https://github.com/ordinals/ord/actions/workflows/ci.yaml/badge.svg alt="build status">
+  <a href=https://github.com/doginals/ord/actions/workflows/ci.yaml>
+    <img src=https://github.com/doginals/ord/actions/workflows/ci.yaml/badge.svg alt="build status">
   </a>
-  <a href=https://github.com/ordinals/ord/releases>
-    <img src=https://img.shields.io/github/downloads/ordinals/ord/total.svg alt=downloads>
+  <a href=https://github.com/doginals/ord/releases>
+    <img src=https://img.shields.io/github/downloads/doginals/ord/total.svg alt=downloads>
   </a>
-  <a href=https://discord.gg/ordinals>
+  <a href=https://discord.gg/doginals>
     <img src=https://img.shields.io/discord/987504378242007100?logo=discord alt="chat on discord">
   </a>
 </div>
@@ -23,18 +23,18 @@ You should periodically create checkpoints of the redb database that you can res
 `ord` is an index, block explorer, and command-line wallet. It is experimental
 software with no warranty. See [LICENSE](LICENSE) for more details.
 
-Ordinal theory imbues satoshis with numismatic value, allowing them to
+Doginal theory imbues satoshis with numismatic value, allowing them to
 be collected and traded as curios.
 
-Ordinal numbers are serial numbers for satoshis, assigned in the order in which
+Doginal numbers are serial numbers for satoshis, assigned in the order in which
 they are mined, and preserved across transactions.
 
-See [the docs](https://docs.ordinals.com) for documentation and guides.
+See [the docs](https://docs.doginals.com) for documentation and guides.
 
 See [the BIP](bip.mediawiki) for a technical description of the assignment and
 transfer algorithm.
 
-See [the project board](https://github.com/orgs/ordinals/projects/1) for
+See [the project board](https://github.com/orgs/doginals/projects/1) for
 currently prioritized issues.
 
 Join [the Discord server](https://discord.gg/87cjuz4FYg) to chat with fellow
@@ -80,13 +80,13 @@ Installation
 ------------
 
 `ord` is written in Rust and can be built from
-[source](https://github.com/ordinals/ord). Pre-built binaries are available on the
-[releases page](https://github.com/ordinals/ord/releases).
+[source](https://github.com/doginals/ord). Pre-built binaries are available on the
+[releases page](https://github.com/doginals/ord/releases).
 
 You can install the latest pre-built binary from the command line with:
 
 ```sh
-curl --proto '=https' --tlsv1.2 -fsLS https://ordinals.com/install.sh | bash -s
+curl --proto '=https' --tlsv1.2 -fsLS https://doginals.com/install.sh | bash -s
 ```
 
 Once `ord` is installed, you should be able to run `ord --version` on the
@@ -119,7 +119,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 Clone the `ord` repo:
 
 ```
-git clone https://github.com/ordinals/ord.git
+git clone https://github.com/doginals/ord.git
 cd ord
 ```
 
@@ -145,7 +145,7 @@ you have this version. Run `rustup update` to get the latest stable release.
 A Docker image can be built with:
 
 ```
-docker build -t ordinals/ord .
+docker build -t doginals/ord .
 ```
 
 ### Homebrew
@@ -298,7 +298,7 @@ Release x.y.z
 Translations
 ------------
 
-To translate [the docs](https://docs.ordinals.com) we use
+To translate [the docs](https://docs.doginals.com) we use
 [mdBook i18n helper](https://github.com/google/mdbook-i18n-helpers).
 
 See
@@ -309,7 +309,7 @@ Adding a new translations is somewhat involved, so feel free to start
 translation and open a pull request, even if your translation is incomplete.
 
 Take a look at
-[this commit](https://github.com/ordinals/ord/commit/329f31bf6dac207dad001507dd6f18c87fdef355)
+[this commit](https://github.com/doginals/ord/commit/329f31bf6dac207dad001507dd6f18c87fdef355)
 for an example of adding a new translation. A maintainer will help you integrate it
 into our build system.
 

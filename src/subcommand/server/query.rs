@@ -21,7 +21,7 @@ impl FromStr for Block {
 pub(crate) enum Inscription {
   Id(InscriptionId),
   Number(i32),
-  Sat(Sat),
+  Koinu(Koinu),
 }
 
 impl FromStr for Inscription {
@@ -33,7 +33,7 @@ impl FromStr for Inscription {
     } else if re::INSCRIPTION_NUMBER.is_match(s) {
       Ok(Self::Number(s.parse()?))
     } else if re::SAT_NAME.is_match(s) {
-      Ok(Self::Sat(s.parse()?))
+      Ok(Self::Koinu(s.parse()?))
     } else {
       Err(anyhow!("bad inscription query {s}"))
     }
@@ -45,19 +45,19 @@ impl Display for Inscription {
     match self {
       Self::Id(id) => write!(f, "{id}"),
       Self::Number(number) => write!(f, "{number}"),
-      Self::Sat(sat) => write!(f, "on sat {}", sat.name()),
+      Self::Koinu(sat) => write!(f, "on sat {}", sat.name()),
     }
   }
 }
 
 #[derive(Debug)]
-pub(super) enum Rune {
-  Spaced(SpacedRune),
-  Id(RuneId),
+pub(super) enum Dune {
+  Spaced(SpacedDune),
+  Id(DuneId),
   Number(u64),
 }
 
-impl FromStr for Rune {
+impl FromStr for Dune {
   type Err = Error;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {

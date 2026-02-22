@@ -2,7 +2,7 @@ use {
   self::{
     entry::{
       Entry, HeaderValue, InscriptionEntry, InscriptionEntryValue, InscriptionIdValue,
-      OutPointValue, RuneEntryValue, RuneIdValue, SatPointValue, SatRange, TxidValue,
+      OutPointValue, DuneEntryValue, DuneIdValue, KoinuPointValue, SatRange, TxidValue,
     },
     event::Event,
     lot::Lot,
@@ -12,7 +12,7 @@ use {
   },
   super::*,
   crate::{
-    runes::MintError,
+    dunes::MintError,
     subcommand::{find::FindRangeOutput, server::query},
     templates::StatusHtml,
   },
@@ -39,7 +39,7 @@ use {
   },
 };
 
-pub use self::entry::RuneEntry;
+pub use self::entry::DuneEntry;
 
 pub(crate) mod entry;
 pub mod event;
@@ -69,12 +69,12 @@ define_table! { INSCRIPTION_NUMBER_TO_SEQUENCE_NUMBER, i32, u32 }
 define_table! { NUMBER_TO_OFFER, u64, &[u8] }
 define_table! { OUTPOINT_TO_RUNE_BALANCES, &OutPointValue, &[u8] }
 define_table! { OUTPOINT_TO_UTXO_ENTRY, &OutPointValue, &UtxoEntry }
-define_table! { RUNE_ID_TO_RUNE_ENTRY, RuneIdValue, RuneEntryValue }
-define_table! { RUNE_TO_RUNE_ID, u128, RuneIdValue }
-define_table! { SAT_TO_SATPOINT, u64, &SatPointValue }
+define_table! { RUNE_ID_TO_RUNE_ENTRY, DuneIdValue, DuneEntryValue }
+define_table! { RUNE_TO_RUNE_ID, u128, DuneIdValue }
+define_table! { SAT_TO_SATPOINT, u64, &KoinuPointValue }
 define_table! { SEQUENCE_NUMBER_TO_INSCRIPTION_ENTRY, u32, InscriptionEntryValue }
-define_table! { SEQUENCE_NUMBER_TO_RUNE_ID, u32, RuneIdValue }
-define_table! { SEQUENCE_NUMBER_TO_SATPOINT, u32, &SatPointValue }
+define_table! { SEQUENCE_NUMBER_TO_RUNE_ID, u32, DuneIdValue }
+define_table! { SEQUENCE_NUMBER_TO_SATPOINT, u32, &KoinuPointValue }
 define_table! { STATISTIC_TO_COUNT, u64, u64 }
 define_table! { TRANSACTION_ID_TO_RUNE, &TxidValue, u128 }
 define_table! { TRANSACTION_ID_TO_TRANSACTION, &TxidValue, &[u8] }
@@ -124,7 +124,7 @@ pub struct Info {
   metadata_bytes: u64,
   outputs_traversed: u64,
   page_size: usize,
-  sat_ranges: u64,
+  koinu_ranges: u64,
   stored_bytes: u64,
   tables: BTreeMap<String, TableInfo>,
   total_bytes: u64,
@@ -251,7 +251,7 @@ impl Index {
     let integration_test = settings.integration_test();
 
     let repair_callback = move |progress: &mut RepairSession| {
-      once.call_once(|| println!("Index file `{}` needs recovery. This can take a long time, especially for the --index-sats index.", index_path.display()));
+      once.call_once(|| println!("Index file `{}` needs recovery. This can take a long time, especially for the --index-koinu index.", index_path.display()));
 
       if !(cfg!(test) || log_enabled!(log::Level::Info) || integration_test) {
         let mut guard = progress_bar.lock().unwrap();
@@ -377,14 +377,14 @@ impl Index {
           Self::set_statistic(&mut statistics, Statistic::Schema, SCHEMA_VERSION)?;
         }
 
-        if settings.index_runes_raw() && settings.chain() == Chain::Mainnet {
-          let rune = Rune(2055900680524219742);
+        if settings.index_runes_raw() && settings.chain() == Chain::Dogecoin {
+          let dune = Dune(2055900680524219742);
 
-          let id = RuneId { block: 1, tx: 0 };
+          let id = DuneId { block: 1, tx: 0 };
           let etching = Txid::all_zeros();
 
           tx.open_table(RUNE_TO_RUNE_ID)?
-            .insert(rune.store(), id.store())?;
+            .insert(dune.store(), id.store())?;
 
           let mut statistics = tx.open_table(STATISTIC_TO_COUNT)?;
 
@@ -392,7 +392,7 @@ impl Index {
 
           tx.open_table(RUNE_ID_TO_RUNE_ENTRY)?.insert(
             id.store(),
-            RuneEntry {
+            DuneEntry {
               block: id.block,
               burned: 0,
               divisibility: 0,
@@ -409,7 +409,7 @@ impl Index {
               mints: 0,
               number: 0,
               premine: 0,
-              spaced_rune: SpacedRune { rune, spacers: 128 },
+              spaced_dune: SpacedDune { dune, spacers: 128 },
               symbol: Some('\u{29C9}'),
               timestamp: 0,
               turbo: true,
@@ -418,7 +418,7 @@ impl Index {
           )?;
 
           tx.open_table(TRANSACTION_ID_TO_RUNE)?
-            .insert(&etching.store(), rune.store())?;
+            .insert(&etching.store(), dune.store())?;
         }
 
         tx.commit()?;
@@ -490,7 +490,7 @@ impl Index {
   /// Unlike normal outpoints, which are added to index on creation and removed
   /// when spent, the UTXO entry for special outpoints may be updated.
   ///
-  /// The special outpoints are the null outpoint, which receives lost sats,
+  /// The special outpoints are the null outpoint, which receives lost koinu,
   /// and the unbound outpoint, which receives unbound inscriptions.
   pub fn is_special_outpoint(outpoint: OutPoint) -> bool {
     outpoint == OutPoint::null() || outpoint == unbound_outpoint()
@@ -565,13 +565,13 @@ impl Index {
       inscription_index: self.has_inscription_index(),
       inscriptions: blessed_inscriptions + cursed_inscriptions,
       json_api,
-      lost_sats: statistic(Statistic::LostSats)?,
-      minimum_rune_for_next_block: Rune::minimum_at_height(
+      lost_koinu: statistic(Statistic::LostSats)?,
+      minimum_rune_for_next_block: Dune::minimum_at_height(
         self.settings.chain().network(),
         Height(next_height),
       ),
       rune_index: self.has_rune_index(),
-      runes: statistic(Statistic::Runes)?,
+      dunes: statistic(Statistic::Runes)?,
       sat_index: self.has_sat_index(),
       started: self.started,
       transaction_index: statistic(Statistic::IndexTransactions)? != 0,
@@ -618,7 +618,7 @@ impl Index {
 
     let info = {
       let statistic_to_count = rtx.open_table(STATISTIC_TO_COUNT)?;
-      let sat_ranges = statistic_to_count
+      let koinu_ranges = statistic_to_count
         .get(&Statistic::SatRanges.key())?
         .map(|x| x.value())
         .unwrap_or(0);
@@ -640,7 +640,7 @@ impl Index {
         index_file_size: fs::metadata(&self.path)?.len(),
         leaf_pages: stats.leaf_pages(),
         metadata_bytes: stats.metadata_bytes(),
-        sat_ranges,
+        koinu_ranges,
         outputs_traversed,
         page_size: stats.page_size(),
         stored_bytes: stats.stored_bytes(),
@@ -732,7 +732,7 @@ impl Index {
       let entry = result?;
       let sequence_number = entry.0.value();
       let entry = InscriptionEntry::load(entry.1.value());
-      let satpoint = SatPoint::load(
+      let satpoint = KoinuPoint::load(
         *sequence_number_to_satpoint
           .get(sequence_number)?
           .unwrap()
@@ -923,7 +923,7 @@ impl Index {
     Ok(blocks)
   }
 
-  pub fn rare_sat_satpoints(&self) -> Result<Vec<(Sat, SatPoint)>> {
+  pub fn rare_sat_satpoints(&self) -> Result<Vec<(Koinu, KoinuPoint)>> {
     let rtx = self.database.begin_read()?;
 
     let sat_to_satpoint = rtx.open_table(SAT_TO_SATPOINT)?;
@@ -932,13 +932,13 @@ impl Index {
 
     for range in sat_to_satpoint.range(0..)? {
       let (sat, satpoint) = range?;
-      result.push((Sat(sat.value()), Entry::load(*satpoint.value())));
+      result.push((Koinu(sat.value()), Entry::load(*satpoint.value())));
     }
 
     Ok(result)
   }
 
-  pub fn rare_sat_satpoint(&self, sat: Sat) -> Result<Option<SatPoint>> {
+  pub fn rare_sat_satpoint(&self, sat: Koinu) -> Result<Option<KoinuPoint>> {
     Ok(
       self
         .database
@@ -949,18 +949,18 @@ impl Index {
     )
   }
 
-  pub fn get_rune_by_id(&self, id: RuneId) -> Result<Option<Rune>> {
+  pub fn get_rune_by_id(&self, id: DuneId) -> Result<Option<Dune>> {
     Ok(
       self
         .database
         .begin_read()?
         .open_table(RUNE_ID_TO_RUNE_ENTRY)?
         .get(&id.store())?
-        .map(|entry| RuneEntry::load(entry.value()).spaced_rune.rune),
+        .map(|entry| DuneEntry::load(entry.value()).spaced_dune.dune),
     )
   }
 
-  pub fn get_rune_by_number(&self, number: usize) -> Result<Option<Rune>> {
+  pub fn get_rune_by_number(&self, number: usize) -> Result<Option<Dune>> {
     match self
       .database
       .begin_read()?
@@ -970,25 +970,25 @@ impl Index {
     {
       Some(result) => {
         let rune_result =
-          result.map(|(_id, entry)| RuneEntry::load(entry.value()).spaced_rune.rune);
+          result.map(|(_id, entry)| DuneEntry::load(entry.value()).spaced_dune.dune);
         Ok(rune_result.ok())
       }
       None => Ok(None),
     }
   }
 
-  pub fn rune(&self, rune: Rune) -> Result<Option<(RuneId, RuneEntry, Option<InscriptionId>)>> {
+  pub fn dune(&self, dune: Dune) -> Result<Option<(DuneId, DuneEntry, Option<InscriptionId>)>> {
     let rtx = self.database.begin_read()?;
 
     let Some(id) = rtx
       .open_table(RUNE_TO_RUNE_ID)?
-      .get(rune.0)?
+      .get(dune.0)?
       .map(|guard| guard.value())
     else {
       return Ok(None);
     };
 
-    let entry = RuneEntry::load(
+    let entry = DuneEntry::load(
       rtx
         .open_table(RUNE_ID_TO_RUNE_ENTRY)?
         .get(id)?
@@ -1007,10 +1007,10 @@ impl Index {
       .is_some()
       .then_some(parent);
 
-    Ok(Some((RuneId::load(id), entry, parent)))
+    Ok(Some((DuneId::load(id), entry, parent)))
   }
 
-  pub fn runes(&self) -> Result<Vec<(RuneId, RuneEntry)>> {
+  pub fn dunes(&self) -> Result<Vec<(DuneId, DuneEntry)>> {
     let mut entries = Vec::new();
 
     for result in self
@@ -1020,7 +1020,7 @@ impl Index {
       .iter()?
     {
       let (id, entry) = result?;
-      entries.push((RuneId::load(id.value()), RuneEntry::load(entry.value())));
+      entries.push((DuneId::load(id.value()), DuneEntry::load(entry.value())));
     }
 
     Ok(entries)
@@ -1030,7 +1030,7 @@ impl Index {
     &self,
     page_size: usize,
     page_index: usize,
-  ) -> Result<(Vec<(RuneId, RuneEntry)>, bool)> {
+  ) -> Result<(Vec<(DuneId, DuneEntry)>, bool)> {
     let mut entries = Vec::new();
 
     for result in self
@@ -1043,7 +1043,7 @@ impl Index {
       .take(page_size.saturating_add(1))
     {
       let (id, entry) = result?;
-      entries.push((RuneId::load(id.value()), RuneEntry::load(entry.value())));
+      entries.push((DuneId::load(id.value()), DuneEntry::load(entry.value())));
     }
 
     let more = entries.len() > page_size;
@@ -1051,19 +1051,19 @@ impl Index {
     Ok((entries, more))
   }
 
-  pub fn encode_rune_balance(id: RuneId, balance: u128, buffer: &mut Vec<u8>) {
+  pub fn encode_rune_balance(id: DuneId, balance: u128, buffer: &mut Vec<u8>) {
     varint::encode_to_vec(id.block.into(), buffer);
     varint::encode_to_vec(id.tx.into(), buffer);
     varint::encode_to_vec(balance, buffer);
   }
 
-  pub fn decode_rune_balance(buffer: &[u8]) -> Result<((RuneId, u128), usize)> {
+  pub fn decode_rune_balance(buffer: &[u8]) -> Result<((DuneId, u128), usize)> {
     let mut len = 0;
     let (block, block_len) = varint::decode(&buffer[len..])?;
     len += block_len;
     let (tx, tx_len) = varint::decode(&buffer[len..])?;
     len += tx_len;
-    let id = RuneId {
+    let id = DuneId {
       block: block.try_into()?,
       tx: tx.try_into()?,
     };
@@ -1075,7 +1075,7 @@ impl Index {
   pub fn get_rune_balances_for_output(
     &self,
     outpoint: OutPoint,
-  ) -> Result<Option<BTreeMap<SpacedRune, Pile>>> {
+  ) -> Result<Option<BTreeMap<SpacedDune, Pile>>> {
     if !self.index_runes {
       return Ok(None);
     }
@@ -1098,10 +1098,10 @@ impl Index {
       let ((id, amount), length) = Index::decode_rune_balance(&balances_buffer[i..]).unwrap();
       i += length;
 
-      let entry = RuneEntry::load(id_to_rune_entries.get(id.store())?.unwrap().value());
+      let entry = DuneEntry::load(id_to_rune_entries.get(id.store())?.unwrap().value());
 
       balances.insert(
-        entry.spaced_rune,
+        entry.spaced_dune,
         Pile {
           amount,
           divisibility: entry.divisibility,
@@ -1113,19 +1113,19 @@ impl Index {
     Ok(Some(balances))
   }
 
-  pub fn get_rune_balance_map(&self) -> Result<BTreeMap<SpacedRune, BTreeMap<OutPoint, Pile>>> {
+  pub fn get_rune_balance_map(&self) -> Result<BTreeMap<SpacedDune, BTreeMap<OutPoint, Pile>>> {
     let outpoint_balances = self.get_rune_balances()?;
 
     let rtx = self.database.begin_read()?;
 
-    let rune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+    let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
 
-    let mut rune_balances_by_id: BTreeMap<RuneId, BTreeMap<OutPoint, u128>> = BTreeMap::new();
+    let mut rune_balances_by_id: BTreeMap<DuneId, BTreeMap<OutPoint, u128>> = BTreeMap::new();
 
     for (outpoint, balances) in outpoint_balances {
-      for (rune_id, amount) in balances {
+      for (dune_id, amount) in balances {
         *rune_balances_by_id
-          .entry(rune_id)
+          .entry(dune_id)
           .or_default()
           .entry(outpoint)
           .or_default() += amount;
@@ -1134,21 +1134,21 @@ impl Index {
 
     let mut rune_balances = BTreeMap::new();
 
-    for (rune_id, balances) in rune_balances_by_id {
-      let RuneEntry {
+    for (dune_id, balances) in rune_balances_by_id {
+      let DuneEntry {
         divisibility,
-        spaced_rune,
+        spaced_dune,
         symbol,
         ..
-      } = RuneEntry::load(
-        rune_id_to_rune_entry
-          .get(&rune_id.store())?
+      } = DuneEntry::load(
+        dune_id_to_rune_entry
+          .get(&dune_id.store())?
           .unwrap()
           .value(),
       );
 
       rune_balances.insert(
-        spaced_rune,
+        spaced_dune,
         balances
           .into_iter()
           .map(|(outpoint, amount)| {
@@ -1168,7 +1168,7 @@ impl Index {
     Ok(rune_balances)
   }
 
-  pub fn get_rune_balances(&self) -> Result<Vec<(OutPoint, Vec<(RuneId, u128)>)>> {
+  pub fn get_rune_balances(&self) -> Result<Vec<(OutPoint, Vec<(DuneId, u128)>)>> {
     let mut result = Vec::new();
 
     for entry in self
@@ -1455,24 +1455,24 @@ impl Index {
     Ok((parents, more_parents))
   }
 
-  pub fn get_etching(&self, txid: Txid) -> Result<Option<SpacedRune>> {
+  pub fn get_etching(&self, txid: Txid) -> Result<Option<SpacedDune>> {
     let rtx = self.database.begin_read()?;
 
     let transaction_id_to_rune = rtx.open_table(TRANSACTION_ID_TO_RUNE)?;
-    let Some(rune) = transaction_id_to_rune.get(&txid.store())? else {
+    let Some(dune) = transaction_id_to_rune.get(&txid.store())? else {
       return Ok(None);
     };
 
-    let rune_to_rune_id = rtx.open_table(RUNE_TO_RUNE_ID)?;
-    let id = rune_to_rune_id.get(rune.value())?.unwrap();
+    let rune_to_dune_id = rtx.open_table(RUNE_TO_RUNE_ID)?;
+    let id = rune_to_dune_id.get(dune.value())?.unwrap();
 
-    let rune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-    let entry = rune_id_to_rune_entry.get(&id.value())?.unwrap();
+    let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+    let entry = dune_id_to_rune_entry.get(&id.value())?.unwrap();
 
-    Ok(Some(RuneEntry::load(entry.value()).spaced_rune))
+    Ok(Some(DuneEntry::load(entry.value()).spaced_dune))
   }
 
-  pub fn get_inscription_ids_by_sat(&self, sat: Sat) -> Result<Vec<InscriptionId>> {
+  pub fn get_inscription_ids_by_sat(&self, sat: Koinu) -> Result<Vec<InscriptionId>> {
     let rtx = self.database.begin_read()?;
 
     let sequence_number_to_inscription_entry =
@@ -1498,7 +1498,7 @@ impl Index {
 
   pub fn get_inscription_ids_by_sat_paginated(
     &self,
-    sat: Sat,
+    sat: Koinu,
     page_size: u64,
     page_index: u64,
   ) -> Result<(Vec<InscriptionId>, bool)> {
@@ -1535,7 +1535,7 @@ impl Index {
 
   pub fn get_inscription_id_by_sat_indexed(
     &self,
-    sat: Sat,
+    sat: Koinu,
     inscription_index: isize,
   ) -> Result<Option<InscriptionId>> {
     let rtx = self.database.begin_read()?;
@@ -1543,14 +1543,14 @@ impl Index {
     let sequence_number_to_inscription_entry =
       rtx.open_table(SEQUENCE_NUMBER_TO_INSCRIPTION_ENTRY)?;
 
-    let sat_to_sequence_number = rtx.open_multimap_table(SAT_TO_SEQUENCE_NUMBER)?;
+    let koinu_to_sequence_number = rtx.open_multimap_table(SAT_TO_SEQUENCE_NUMBER)?;
 
     if inscription_index < 0 {
-      sat_to_sequence_number
+      koinu_to_sequence_number
         .get(&sat.n())?
         .nth_back((inscription_index + 1).abs_diff(0))
     } else {
-      sat_to_sequence_number
+      koinu_to_sequence_number
         .get(&sat.n())?
         .nth(inscription_index.abs_diff(0))
     }
@@ -1593,7 +1593,7 @@ impl Index {
   pub fn get_inscription_satpoint_by_id(
     &self,
     inscription_id: InscriptionId,
-  ) -> Result<Option<SatPoint>> {
+  ) -> Result<Option<KoinuPoint>> {
     let rtx = self.database.begin_read()?;
 
     let Some(sequence_number) = rtx
@@ -1662,7 +1662,7 @@ impl Index {
   pub fn get_inscriptions_on_output_with_satpoints(
     &self,
     outpoint: OutPoint,
-  ) -> Result<Option<Vec<(SatPoint, InscriptionId)>>> {
+  ) -> Result<Option<Vec<(KoinuPoint, InscriptionId)>>> {
     if !self.index_inscriptions {
       return Ok(None);
     }
@@ -1827,11 +1827,11 @@ impl Index {
       .into_option()
   }
 
-  pub fn find(&self, sat: Sat) -> Result<Option<SatPoint>> {
+  pub fn find(&self, sat: Koinu) -> Result<Option<KoinuPoint>> {
     let sat = sat.0;
     let rtx = self.begin_read()?;
 
-    if rtx.block_count()? <= Sat(sat).height().n() {
+    if rtx.block_count()? <= Koinu(sat).height().n() {
       return Ok(None);
     }
 
@@ -1839,13 +1839,13 @@ impl Index {
 
     for entry in outpoint_to_utxo_entry.iter()? {
       let (outpoint, utxo_entry) = entry?;
-      let sat_ranges = utxo_entry.value().parse(self).sat_ranges();
+      let koinu_ranges = utxo_entry.value().parse(self).koinu_ranges();
 
       let mut offset = 0;
-      for chunk in sat_ranges.chunks_exact(11) {
+      for chunk in koinu_ranges.chunks_exact(11) {
         let (start, end) = SatRange::load(chunk.try_into().unwrap());
         if start <= sat && sat < end {
-          return Ok(Some(SatPoint {
+          return Ok(Some(KoinuPoint {
             outpoint: Entry::load(*outpoint.value()),
             offset: offset + sat - start,
           }));
@@ -1859,14 +1859,14 @@ impl Index {
 
   pub fn find_range(
     &self,
-    range_start: Sat,
-    range_end: Sat,
+    range_start: Koinu,
+    range_end: Koinu,
   ) -> Result<Option<Vec<FindRangeOutput>>> {
     let range_start = range_start.0;
     let range_end = range_end.0;
     let rtx = self.begin_read()?;
 
-    if rtx.block_count()? < Sat(range_end - 1).height().n() + 1 {
+    if rtx.block_count()? < Koinu(range_end - 1).height().n() + 1 {
       return Ok(None);
     }
 
@@ -1879,10 +1879,10 @@ impl Index {
     let mut result = Vec::new();
     for entry in outpoint_to_utxo_entry.iter()? {
       let (outpoint, utxo_entry) = entry?;
-      let sat_ranges = utxo_entry.value().parse(self).sat_ranges();
+      let koinu_ranges = utxo_entry.value().parse(self).koinu_ranges();
 
       let mut offset = 0;
-      for sat_range in sat_ranges.chunks_exact(11) {
+      for sat_range in koinu_ranges.chunks_exact(11) {
         let (start, end) = SatRange::load(sat_range.try_into().unwrap());
 
         if end > range_start && start < range_end {
@@ -1892,7 +1892,7 @@ impl Index {
           result.push(FindRangeOutput {
             start: overlap_start,
             size: overlap_end - overlap_start,
-            satpoint: SatPoint {
+            satpoint: KoinuPoint {
               outpoint: Entry::load(*outpoint.value()),
               offset: offset + overlap_start - start,
             },
@@ -1926,7 +1926,7 @@ impl Index {
           utxo_entry
             .value()
             .parse(self)
-            .sat_ranges()
+            .koinu_ranges()
             .chunks_exact(11)
             .map(|chunk| SatRange::load(chunk.try_into().unwrap()))
             .collect::<Vec<(u64, u64)>>()
@@ -2006,7 +2006,7 @@ impl Index {
       .with_context(|| format!("current {current} height is greater than sat height {height}"))?;
 
     Ok(Blocktime::Expected(
-      if self.settings.chain() == Chain::Regtest {
+      if self.settings.chain() == Chain::DogecoinRegtest {
         DateTime::default()
       } else {
         Utc::now()
@@ -2086,27 +2086,27 @@ impl Index {
       .collect::<Result<Vec<InscriptionId>>>()
   }
 
-  pub fn get_runes_in_block(&self, block_height: u64) -> Result<Vec<SpacedRune>> {
+  pub fn get_runes_in_block(&self, block_height: u64) -> Result<Vec<SpacedDune>> {
     let rtx = self.database.begin_read()?;
 
-    let rune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+    let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
 
-    let min_id = RuneId {
+    let min_id = DuneId {
       block: block_height,
       tx: 0,
     };
 
-    let max_id = RuneId {
+    let max_id = DuneId {
       block: block_height,
       tx: u32::MAX,
     };
 
-    let runes = rune_id_to_rune_entry
+    let dunes = dune_id_to_rune_entry
       .range(min_id.store()..=max_id.store())?
-      .map(|result| result.map(|(_, entry)| RuneEntry::load(entry.value()).spaced_rune))
-      .collect::<Result<Vec<SpacedRune>, StorageError>>()?;
+      .map(|result| result.map(|(_, entry)| DuneEntry::load(entry.value()).spaced_dune))
+      .collect::<Result<Vec<SpacedDune>, StorageError>>()?;
 
-    Ok(runes)
+    Ok(dunes)
   }
 
   pub fn get_highest_paying_inscriptions_in_block(
@@ -2185,7 +2185,7 @@ impl Index {
         .open_table(INSCRIPTION_NUMBER_TO_SEQUENCE_NUMBER)?
         .get(inscription_number)?
         .map(|guard| guard.value()),
-      query::Inscription::Sat(sat) => rtx
+      query::Inscription::Koinu(sat) => rtx
         .open_multimap_table(SAT_TO_SEQUENCE_NUMBER)?
         .get(sat.n())?
         .next()
@@ -2235,7 +2235,7 @@ impl Index {
       return Ok(None);
     };
 
-    let satpoint = SatPoint::load(
+    let satpoint = KoinuPoint::load(
       *rtx
         .open_table(SEQUENCE_NUMBER_TO_SATPOINT)?
         .get(sequence_number)?
@@ -2294,13 +2294,13 @@ impl Index {
       })
       .collect::<Result<Vec<InscriptionId>>>()?;
 
-    let rune = if let Some(rune_id) = rtx
+    let dune = if let Some(dune_id) = rtx
       .open_table(SEQUENCE_NUMBER_TO_RUNE_ID)?
       .get(sequence_number)?
     {
-      let rune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
-      let entry = rune_id_to_rune_entry.get(&rune_id.value())?.unwrap();
-      Some(RuneEntry::load(entry.value()).spaced_rune)
+      let dune_id_to_rune_entry = rtx.open_table(RUNE_ID_TO_RUNE_ENTRY)?;
+      let entry = dune_id_to_rune_entry.get(&dune_id.value())?.unwrap();
+      Some(DuneEntry::load(entry.value()).spaced_dune)
     } else {
       None
     };
@@ -2365,7 +2365,7 @@ impl Index {
         parents,
         previous,
         properties: inscription.properties(),
-        rune,
+        dune,
         sat: entry.sat,
         satpoint,
         timestamp: timestamp(entry.timestamp.into()).timestamp(),
@@ -2403,7 +2403,7 @@ impl Index {
   fn assert_inscription_location(
     &self,
     inscription_id: InscriptionId,
-    satpoint: SatPoint,
+    satpoint: KoinuPoint,
     sat: Option<u64>,
   ) {
     let rtx = self.database.begin_read().unwrap();
@@ -2421,7 +2421,7 @@ impl Index {
       .value();
 
     assert_eq!(
-      SatPoint::load(
+      KoinuPoint::load(
         *sequence_number_to_satpoint
           .get(sequence_number)
           .unwrap()
@@ -2458,10 +2458,10 @@ impl Index {
               .any(|entry| entry.unwrap().value() == sequence_number)
           );
 
-          // we do not track common sats (only the sat ranges)
-          if !Sat(sat).common() {
+          // we do not track common koinu (only the sat ranges)
+          if !Koinu(sat).common() {
             assert_eq!(
-              SatPoint::load(
+              KoinuPoint::load(
                 *rtx
                   .open_table(SAT_TO_SATPOINT)
                   .unwrap()
@@ -2488,7 +2488,7 @@ impl Index {
     outpoint_to_utxo_entry: &'a impl ReadableTable<&'static OutPointValue, &'static UtxoEntry>,
     sequence_number_to_inscription_entry: &'a impl ReadableTable<u32, InscriptionEntryValue>,
     outpoint: OutPoint,
-  ) -> Result<Option<Vec<(SatPoint, InscriptionId)>>> {
+  ) -> Result<Option<Vec<(KoinuPoint, InscriptionId)>>> {
     if !self.index_inscriptions {
       return Ok(None);
     }
@@ -2508,7 +2508,7 @@ impl Index {
           .get(sequence_number)?
           .unwrap();
 
-        let satpoint = SatPoint { outpoint, offset };
+        let satpoint = KoinuPoint { outpoint, offset };
 
         Ok((satpoint, InscriptionEntry::load(entry.value()).id))
       })
@@ -2533,17 +2533,17 @@ impl Index {
   pub(crate) fn get_aggregated_rune_balances_for_outputs(
     &self,
     outputs: &Vec<OutPoint>,
-  ) -> Result<Option<Vec<(SpacedRune, Decimal, Option<char>)>>> {
-    let mut runes = BTreeMap::new();
+  ) -> Result<Option<Vec<(SpacedDune, Decimal, Option<char>)>>> {
+    let mut dunes = BTreeMap::new();
 
     for output in outputs {
       let Some(rune_balances) = self.get_rune_balances_for_output(*output)? else {
         return Ok(None);
       };
 
-      for (spaced_rune, pile) in rune_balances {
-        runes
-          .entry(spaced_rune)
+      for (spaced_dune, pile) in rune_balances {
+        dunes
+          .entry(spaced_dune)
           .and_modify(|(decimal, _symbol): &mut (Decimal, Option<char>)| {
             assert_eq!(decimal.scale, pile.divisibility);
             decimal.value += pile.amount;
@@ -2559,9 +2559,9 @@ impl Index {
     }
 
     Ok(Some(
-      runes
+      dunes
         .into_iter()
-        .map(|(spaced_rune, (decimal, symbol))| (spaced_rune, decimal, symbol))
+        .map(|(spaced_dune, (decimal, symbol))| (spaced_dune, decimal, symbol))
         .collect(),
     ))
   }
@@ -2597,14 +2597,14 @@ impl Index {
 
     Ok(Some(api::UtxoRecursive {
       inscriptions: self.get_inscriptions_for_output(outpoint)?,
-      runes: self.get_rune_balances_for_output(outpoint)?,
-      sat_ranges: self.list(outpoint)?,
+      dunes: self.get_rune_balances_for_output(outpoint)?,
+      koinu_ranges: self.list(outpoint)?,
       value: utxo_entry.value().parse(self).total_value(),
     }))
   }
 
   pub(crate) fn get_output_info(&self, outpoint: OutPoint) -> Result<Option<(api::Output, TxOut)>> {
-    let sat_ranges = self.list(outpoint)?;
+    let koinu_ranges = self.list(outpoint)?;
 
     let confirmations;
     let indexed;
@@ -2614,7 +2614,7 @@ impl Index {
     if outpoint == OutPoint::null() || outpoint == unbound_outpoint() {
       let mut value = 0;
 
-      if let Some(ranges) = &sat_ranges {
+      if let Some(ranges) = &koinu_ranges {
         for (start, end) in ranges {
           value += end - start;
         }
@@ -2657,7 +2657,7 @@ impl Index {
 
     let inscriptions = self.get_inscriptions_for_output(outpoint)?;
 
-    let runes = self.get_rune_balances_for_output(outpoint)?;
+    let dunes = self.get_rune_balances_for_output(outpoint)?;
 
     Ok(Some((
       api::Output::new(
@@ -2667,8 +2667,8 @@ impl Index {
         outpoint,
         txout.clone(),
         indexed,
-        runes,
-        sat_ranges,
+        dunes,
+        koinu_ranges,
         spent,
       ),
       txout,
@@ -2729,7 +2729,7 @@ mod tests {
           .index
           .get_inscription_satpoint_by_id(inscription_id)
           .unwrap(),
-        Some(SatPoint {
+        Some(KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         })
@@ -2737,7 +2737,7 @@ mod tests {
     }
 
     {
-      let context = Context::builder().chain(Chain::Mainnet).build();
+      let context = Context::builder().chain(Chain::Dogecoin).build();
       context.mine_blocks(1);
       let txid = context.core.broadcast_tx(template);
       let inscription_id = InscriptionId { txid, index: 0 };
@@ -2778,7 +2778,7 @@ mod tests {
           .index
           .get_inscription_satpoint_by_id(inscription_id)
           .unwrap(),
-        Some(SatPoint {
+        Some(KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         })
@@ -2804,7 +2804,7 @@ mod tests {
 
   #[test]
   fn list_first_coinbase_transaction() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     assert_eq!(
       context
         .index
@@ -2821,7 +2821,7 @@ mod tests {
 
   #[test]
   fn list_second_coinbase_transaction() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     let txid = context.mine_blocks(1)[0].txdata[0].compute_txid();
     assert_eq!(
       context.index.list(OutPoint::new(txid, 0)).unwrap().unwrap(),
@@ -2831,7 +2831,7 @@ mod tests {
 
   #[test]
   fn list_split_ranges_are_tracked_correctly() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     context.mine_blocks(1);
     let split_coinbase_output = TransactionTemplate {
@@ -2857,7 +2857,7 @@ mod tests {
 
   #[test]
   fn list_merge_ranges_are_tracked_correctly() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     context.mine_blocks(2);
     let merge_coinbase_outputs = TransactionTemplate {
@@ -2880,7 +2880,7 @@ mod tests {
 
   #[test]
   fn list_fee_paying_transaction_range() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     context.mine_blocks(1);
     let fee_paying_tx = TransactionTemplate {
@@ -2914,7 +2914,7 @@ mod tests {
 
   #[test]
   fn list_two_fee_paying_transaction_range() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     context.mine_blocks(2);
     let first_fee_paying_tx = TransactionTemplate {
@@ -2948,7 +2948,7 @@ mod tests {
 
   #[test]
   fn list_null_output() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     context.mine_blocks(1);
     let no_value_output = TransactionTemplate {
@@ -2967,7 +2967,7 @@ mod tests {
 
   #[test]
   fn list_null_input() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     context.mine_blocks(1);
     let no_value_output = TransactionTemplate {
@@ -2994,7 +2994,7 @@ mod tests {
 
   #[test]
   fn list_spent_output() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     context.mine_blocks(1);
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0, Default::default())],
@@ -3008,7 +3008,7 @@ mod tests {
 
   #[test]
   fn list_unknown_output() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
 
     assert_eq!(
       context
@@ -3025,10 +3025,10 @@ mod tests {
 
   #[test]
   fn find_first_sat() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     assert_eq!(
-      context.index.find(Sat(0)).unwrap().unwrap(),
-      SatPoint {
+      context.index.find(Koinu(0)).unwrap().unwrap(),
+      KoinuPoint {
         outpoint: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0"
           .parse()
           .unwrap(),
@@ -3039,10 +3039,10 @@ mod tests {
 
   #[test]
   fn find_second_sat() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     assert_eq!(
-      context.index.find(Sat(1)).unwrap().unwrap(),
-      SatPoint {
+      context.index.find(Koinu(1)).unwrap().unwrap(),
+      KoinuPoint {
         outpoint: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0"
           .parse()
           .unwrap(),
@@ -3053,12 +3053,12 @@ mod tests {
 
   #[test]
   fn find_first_sat_of_second_block() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     context.mine_blocks(1);
     let tx = context.core.tx(1, 0);
     assert_eq!(
-      context.index.find(Sat(50 * COIN_VALUE)).unwrap().unwrap(),
-      SatPoint {
+      context.index.find(Koinu(50 * COIN_VALUE)).unwrap().unwrap(),
+      KoinuPoint {
         outpoint: OutPoint {
           txid: tx.compute_txid(),
           vout: 0,
@@ -3070,13 +3070,13 @@ mod tests {
 
   #[test]
   fn find_unmined_sat() {
-    let context = Context::builder().arg("--index-sats").build();
-    assert_eq!(context.index.find(Sat(50 * COIN_VALUE)).unwrap(), None);
+    let context = Context::builder().arg("--index-koinu").build();
+    assert_eq!(context.index.find(Koinu(50 * COIN_VALUE)).unwrap(), None);
   }
 
   #[test]
   fn find_first_sat_spent_in_second_block() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     context.mine_blocks(1);
     let spend_txid = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0, Default::default())],
@@ -3085,8 +3085,8 @@ mod tests {
     });
     context.mine_blocks(1);
     assert_eq!(
-      context.index.find(Sat(50 * COIN_VALUE)).unwrap().unwrap(),
-      SatPoint {
+      context.index.find(Koinu(50 * COIN_VALUE)).unwrap().unwrap(),
+      KoinuPoint {
         outpoint: OutPoint::new(spend_txid, 0),
         offset: 0,
       }
@@ -3108,7 +3108,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -3141,7 +3141,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 0,
         },
@@ -3169,7 +3169,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 1,
         },
@@ -3193,7 +3193,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -3209,7 +3209,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: send_txid,
             vout: 0,
@@ -3256,7 +3256,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: merged_txid,
             vout: 0,
@@ -3268,7 +3268,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: merged_txid,
             vout: 0,
@@ -3295,7 +3295,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -3312,7 +3312,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: send_txid,
             vout: 1,
@@ -3347,7 +3347,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: coinbase_tx,
             vout: 0,
@@ -3382,7 +3382,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: coinbase_tx,
             vout: 0,
@@ -3410,7 +3410,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: coinbase_tx,
             vout: 0,
@@ -3438,7 +3438,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint::null(),
           offset: 0,
         },
@@ -3479,7 +3479,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint::null(),
           offset: 0,
         },
@@ -3488,7 +3488,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint::null(),
           offset: 50 * COIN_VALUE,
         },
@@ -3499,7 +3499,7 @@ mod tests {
 
   #[test]
   fn lost_sats_are_tracked_correctly() {
-    let context = Context::builder().args(["--index-sats"]).build();
+    let context = Context::builder().args(["--index-koinu"]).build();
     assert_eq!(context.index.statistic(Statistic::LostSats), 0);
 
     context.mine_blocks(1);
@@ -3526,7 +3526,7 @@ mod tests {
 
   #[test]
   fn lost_sat_ranges_are_tracked_correctly() {
-    let context = Context::builder().args(["--index-sats"]).build();
+    let context = Context::builder().args(["--index-koinu"]).build();
 
     let null_ranges = || {
       context
@@ -3601,7 +3601,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint::null(),
           offset: 75 * COIN_VALUE,
         },
@@ -3626,7 +3626,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 1 },
           offset: 0,
         },
@@ -3650,7 +3650,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint::null(),
           offset: 0,
         },
@@ -3661,17 +3661,17 @@ mod tests {
 
   #[test]
   fn lost_rare_sats_are_tracked() {
-    let context = Context::builder().arg("--index-sats").build();
+    let context = Context::builder().arg("--index-koinu").build();
     context.mine_blocks_with_subsidy(1, 0);
     context.mine_blocks_with_subsidy(1, 0);
 
     assert_eq!(
       context
         .index
-        .rare_sat_satpoint(Sat(50 * COIN_VALUE))
+        .rare_sat_satpoint(Koinu(50 * COIN_VALUE))
         .unwrap()
         .unwrap(),
-      SatPoint {
+      KoinuPoint {
         outpoint: OutPoint::null(),
         offset: 0,
       },
@@ -3680,10 +3680,10 @@ mod tests {
     assert_eq!(
       context
         .index
-        .rare_sat_satpoint(Sat(100 * COIN_VALUE))
+        .rare_sat_satpoint(Koinu(100 * COIN_VALUE))
         .unwrap()
         .unwrap(),
-      SatPoint {
+      KoinuPoint {
         outpoint: OutPoint::null(),
         offset: 50 * COIN_VALUE,
       },
@@ -3856,7 +3856,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: first,
             vout: 0,
@@ -3880,7 +3880,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: second,
             vout: 0,
@@ -3986,7 +3986,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 0,
         },
@@ -4023,7 +4023,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 0,
         },
@@ -4205,7 +4205,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 0,
         },
@@ -4243,7 +4243,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: unbound_outpoint(),
           offset: 0,
         },
@@ -4280,7 +4280,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4289,7 +4289,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 50 * COIN_VALUE,
         },
@@ -4298,7 +4298,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         third,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 100 * COIN_VALUE,
         },
@@ -4358,7 +4358,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4367,7 +4367,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4376,7 +4376,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         third,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4443,7 +4443,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4452,7 +4452,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4461,7 +4461,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         fourth,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 50 * COIN_VALUE,
         },
@@ -4470,7 +4470,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         ninth,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 100 * COIN_VALUE,
         },
@@ -4584,7 +4584,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         cursed,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: cursed_txid,
             vout: 1,
@@ -4615,7 +4615,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         reinscription_on_cursed,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4649,7 +4649,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         cursed,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: cursed_txid,
             vout: 1,
@@ -4680,7 +4680,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         reinscription_on_cursed,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4708,7 +4708,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second_reinscription_on_cursed,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -4786,7 +4786,7 @@ mod tests {
 
       context.mine_blocks(1);
 
-      let location = SatPoint {
+      let location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -4825,7 +4825,7 @@ mod tests {
       }
 
       let final_txid = inscription_ids.last().unwrap().txid;
-      let location = SatPoint {
+      let location = KoinuPoint {
         outpoint: OutPoint {
           txid: final_txid,
           vout: 0,
@@ -4836,7 +4836,7 @@ mod tests {
       let expected_result = inscription_ids
         .iter()
         .map(|id| (location, *id))
-        .collect::<Vec<(SatPoint, InscriptionId)>>();
+        .collect::<Vec<(KoinuPoint, InscriptionId)>>();
 
       assert_eq!(
         expected_result,
@@ -4869,7 +4869,7 @@ mod tests {
         ..default()
       });
       let first_id = InscriptionId { txid, index: 0 };
-      let first_location = SatPoint {
+      let first_location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -4890,7 +4890,7 @@ mod tests {
         ..default()
       });
       let second_id = InscriptionId { txid, index: 0 };
-      let second_location = SatPoint {
+      let second_location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -4929,7 +4929,7 @@ mod tests {
         ..default()
       });
       let first_id = InscriptionId { txid, index: 0 };
-      let first_location = SatPoint {
+      let first_location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -4946,7 +4946,7 @@ mod tests {
         ..default()
       });
       let second_id = InscriptionId { txid, index: 0 };
-      let second_location = SatPoint {
+      let second_location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -4995,7 +4995,7 @@ mod tests {
       context.mine_blocks(11);
 
       let first_id = InscriptionId { txid, index: 0 };
-      let first_location = SatPoint {
+      let first_location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -5011,7 +5011,7 @@ mod tests {
       });
 
       let second_id = InscriptionId { txid, index: 0 };
-      let second_location = SatPoint {
+      let second_location = KoinuPoint {
         outpoint: OutPoint { txid, vout: 0 },
         offset: 0,
       };
@@ -5712,7 +5712,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 100,
         },
@@ -5744,7 +5744,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -5777,7 +5777,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -5809,7 +5809,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -5856,7 +5856,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         parent_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -5865,7 +5865,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         child_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -5931,7 +5931,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 100,
         },
@@ -5940,7 +5940,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 300_000,
         },
@@ -5949,7 +5949,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         third,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 1_000_000,
         },
@@ -5999,7 +5999,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 100,
         },
@@ -6008,7 +6008,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 1 },
           offset: 111,
         },
@@ -6017,7 +6017,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         third,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 2 },
           offset: 99_999,
         },
@@ -6070,7 +6070,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_for_second_output,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 1 },
           offset: 0,
         },
@@ -6079,7 +6079,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_for_third_output,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 2 },
           offset: 0,
         },
@@ -6088,7 +6088,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_for_first_output,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -6140,7 +6140,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         first_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -6149,7 +6149,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         second_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 1,
         },
@@ -6158,7 +6158,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         third_inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 2,
         },
@@ -6201,7 +6201,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -6210,7 +6210,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         cursed_reinscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint { txid, vout: 0 },
           offset: 0,
         },
@@ -6245,7 +6245,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: blocks[0].txdata[0].compute_txid(),
             vout: 0,
@@ -6276,7 +6276,7 @@ mod tests {
 
       context.index.assert_inscription_location(
         inscription_id,
-        SatPoint {
+        KoinuPoint {
           outpoint: OutPoint {
             txid: blocks[0].txdata[0].compute_txid(),
             vout: 0,
@@ -6495,7 +6495,7 @@ mod tests {
     assert!(
       !context
         .index
-        .is_output_spent(Chain::Mainnet.genesis_coinbase_outpoint())
+        .is_output_spent(Chain::Dogecoin.genesis_coinbase_outpoint())
         .unwrap()
     );
 
@@ -6543,7 +6543,7 @@ mod tests {
     assert!(
       context
         .index
-        .is_output_in_active_chain(Chain::Mainnet.genesis_coinbase_outpoint())
+        .is_output_in_active_chain(Chain::Dogecoin.genesis_coinbase_outpoint())
         .unwrap()
     );
 
@@ -6584,7 +6584,7 @@ mod tests {
   fn output_addresses_are_updated() {
     let context = Context::builder()
       .arg("--index-addresses")
-      .arg("--index-sats")
+      .arg("--index-koinu")
       .build();
 
     context.mine_blocks(2);
@@ -6707,7 +6707,7 @@ mod tests {
       create_event,
       Event::InscriptionCreated {
         inscription_id,
-        location: Some(SatPoint {
+        location: Some(KoinuPoint {
           outpoint: OutPoint {
             txid: create_txid,
             vout: 0
@@ -6737,14 +6737,14 @@ mod tests {
       Event::InscriptionTransferred {
         block_height: 3,
         inscription_id,
-        new_location: SatPoint {
+        new_location: KoinuPoint {
           outpoint: OutPoint {
             txid: transfer_txid,
             vout: 0
           },
           offset: 0
         },
-        old_location: SatPoint {
+        old_location: KoinuPoint {
           outpoint: OutPoint {
             txid: create_txid,
             vout: 0
@@ -6762,14 +6762,14 @@ mod tests {
 
     let (event_sender, mut event_receiver) = tokio::sync::mpsc::channel(1024);
     let context = Context::builder()
-      .arg("--index-runes")
+      .arg("--index-dunes")
       .event_sender(event_sender)
       .build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -6785,11 +6785,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -6810,14 +6810,14 @@ mod tests {
       Event::RuneEtched {
         block_height: 8,
         txid: txid0,
-        rune_id: id,
+        dune_id: id,
       }
     );
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -6831,7 +6831,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
           terms: Some(Terms {
@@ -6840,8 +6840,8 @@ mod tests {
             ..default()
           }),
           mints: 1,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -6863,7 +6863,7 @@ mod tests {
       Event::RuneMinted {
         block_height: 9,
         txid: txid1,
-        rune_id: id,
+        dune_id: id,
         amount: 1000,
       }
     );
@@ -6871,7 +6871,7 @@ mod tests {
     let txid2 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(9, 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -6889,11 +6889,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: 8,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             ..default()
           },
           terms: Some(Terms {
@@ -6922,7 +6922,7 @@ mod tests {
       Event::RuneTransferred {
         block_height: 10,
         txid: txid2,
-        rune_id: id,
+        dune_id: id,
         amount: 1000,
         outpoint: OutPoint {
           txid: txid2,
@@ -6934,7 +6934,7 @@ mod tests {
     let txid3 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(10, 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 111,
@@ -6953,11 +6953,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: 8,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             ..default()
           },
           terms: Some(Terms {
@@ -6988,7 +6988,7 @@ mod tests {
         block_height: 11,
         txid: txid3,
         amount: 111,
-        rune_id: id,
+        dune_id: id,
       }
     );
   }

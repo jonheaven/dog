@@ -1,4 +1,4 @@
-Ordinal Theory Guides
+Doginal Theory Guides
 =====================
 
 See the table of contents for a list of guides, including a guide to the

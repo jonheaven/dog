@@ -37,7 +37,7 @@ pub struct Output {
   pub reveal: Txid,
   pub reveal_broadcast: bool,
   pub reveal_psbt: Option<String>,
-  pub rune: Option<RuneInfo>,
+  pub dune: Option<RuneInfo>,
   pub total_fees: u64,
 }
 
@@ -45,21 +45,21 @@ pub struct Output {
 pub struct InscriptionInfo {
   pub destination: Address<NetworkUnchecked>,
   pub id: InscriptionId,
-  pub location: SatPoint,
+  pub location: KoinuPoint,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct RuneInfo {
   pub destination: Option<Address<NetworkUnchecked>>,
   pub location: Option<OutPoint>,
-  pub rune: SpacedRune,
+  pub dune: SpacedDune,
 }
 
 #[derive(Clone, Debug)]
 pub struct ParentInfo {
   pub destination: Address,
   pub id: InscriptionId,
-  pub location: SatPoint,
+  pub location: KoinuPoint,
   pub tx_out: TxOut,
 }
 
@@ -98,7 +98,7 @@ mod tests {
     }
     .create_batch_transactions(
       BTreeMap::new(),
-      Chain::Mainnet,
+      Chain::Dogecoin,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -144,7 +144,7 @@ mod tests {
     }
     .create_batch_transactions(
       BTreeMap::new(),
-      Chain::Mainnet,
+      Chain::Dogecoin,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -162,7 +162,7 @@ mod tests {
     let utxos = vec![(outpoint(1), tx_out(1000, address(0)))];
     let mut inscriptions = BTreeMap::new();
     inscriptions.insert(
-      SatPoint {
+      KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -189,7 +189,7 @@ mod tests {
     }
     .create_batch_transactions(
       inscriptions,
-      Chain::Mainnet,
+      Chain::Dogecoin,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -214,7 +214,7 @@ mod tests {
     ];
     let mut inscriptions = BTreeMap::new();
     inscriptions.insert(
-      SatPoint {
+      KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -242,7 +242,7 @@ mod tests {
       }
       .create_batch_transactions(
         inscriptions,
-        Chain::Mainnet,
+        Chain::Dogecoin,
         BTreeSet::new(),
         BTreeSet::new(),
         utxos.into_iter().collect(),
@@ -261,7 +261,7 @@ mod tests {
     ];
     let mut inscriptions = BTreeMap::new();
     inscriptions.insert(
-      SatPoint {
+      KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -293,7 +293,7 @@ mod tests {
     }
     .create_batch_transactions(
       inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -340,7 +340,7 @@ mod tests {
     let parent_info = ParentInfo {
       destination: change(3),
       id: parent_inscription,
-      location: SatPoint {
+      location: KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -381,7 +381,7 @@ mod tests {
     }
     .create_batch_transactions(
       inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -434,7 +434,7 @@ mod tests {
     ];
     let mut inscriptions = BTreeMap::new();
     inscriptions.insert(
-      SatPoint {
+      KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -467,7 +467,7 @@ mod tests {
     }
     .create_batch_transactions(
       inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -526,7 +526,7 @@ mod tests {
     }
     .create_batch_transactions(
       BTreeMap::new(),
-      Chain::Mainnet,
+      Chain::Dogecoin,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -567,7 +567,7 @@ mod tests {
     }
     .create_batch_transactions(
       BTreeMap::new(),
-      Chain::Mainnet,
+      Chain::Dogecoin,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -591,7 +591,7 @@ mod tests {
     let parent_info = ParentInfo {
       destination: change(3),
       id: parent,
-      location: SatPoint {
+      location: KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -648,7 +648,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -704,7 +704,7 @@ mod tests {
     let parent_info = ParentInfo {
       destination: change(3),
       id: parent,
-      location: SatPoint {
+      location: KoinuPoint {
         outpoint: outpoint(4),
         offset: 0,
       },
@@ -747,16 +747,16 @@ mod tests {
       .take(3)
       .map(|(outpoint, txout)| {
         (
-          SatPoint {
+          KoinuPoint {
             outpoint: *outpoint,
             offset: 0,
           },
           txout.clone(),
         )
       })
-      .collect::<Vec<(SatPoint, TxOut)>>();
+      .collect::<Vec<(KoinuPoint, TxOut)>>();
 
-    let mode = batch::Mode::SatPoints;
+    let mode = batch::Mode::KoinuPoints;
 
     let fee_rate = 1.0.try_into().unwrap();
 
@@ -781,7 +781,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       reveal_satpoints
         .iter()
         .map(|(satpoint, _)| satpoint.outpoint)
@@ -832,7 +832,7 @@ mod tests {
     let parent_info = ParentInfo {
       destination: change(3),
       id: parent,
-      location: SatPoint {
+      location: KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -881,7 +881,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -909,7 +909,7 @@ mod tests {
     let parent_info = ParentInfo {
       destination: change(3),
       id: parent,
-      location: SatPoint {
+      location: KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -958,7 +958,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -997,7 +997,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -1055,7 +1055,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),
@@ -1085,7 +1085,7 @@ mod tests {
     let parent_info = ParentInfo {
       destination: change(3),
       id: parent,
-      location: SatPoint {
+      location: KoinuPoint {
         outpoint: outpoint(1),
         offset: 0,
       },
@@ -1146,7 +1146,7 @@ mod tests {
     }
     .create_batch_transactions(
       wallet_inscriptions,
-      Chain::Signet,
+      Chain::DogecoinTestnet,
       BTreeSet::new(),
       BTreeSet::new(),
       utxos.into_iter().collect(),

@@ -1,20 +1,20 @@
 Introduction
 ============
 
-This handbook is a guide to ordinal theory. Ordinal theory concerns itself with
-satoshis, giving them individual identities and allowing them to be tracked,
+This handbook is a guide to ordinal theory. Doginal theory concerns itself with
+koinus, giving them individual identities and allowing them to be tracked,
 transferred, and imbued with meaning.
 
-Satoshis, not bitcoin, are the atomic, native currency of the Bitcoin network.
-One bitcoin can be sub-divided into 100,000,000 satoshis, but no further.
+Koinus, not bitcoin, are the atomic, native currency of the Bitcoin network.
+One bitcoin can be sub-divided into 100,000,000 koinus, but no further.
 
-Ordinal theory does not require a sidechain or token aside from Bitcoin, and
+Doginal theory does not require a sidechain or token aside from Bitcoin, and
 can be used without any changes to the Bitcoin network. It works right now.
 
-Ordinal theory imbues satoshis with numismatic value, allowing them to be
+Doginal theory imbues koinus with numismatic value, allowing them to be
 collected and traded as curios.
 
-Individual satoshis can be inscribed with arbitrary content, creating unique
+Individual koinus can be inscribed with arbitrary content, creating unique
 Bitcoin-native digital artifacts that can be held in Bitcoin wallets and
 transferred using Bitcoin transactions. Inscriptions are as durable, immutable,
 secure, and decentralized as Bitcoin itself.
@@ -42,16 +42,16 @@ Authors
 Links
 -----
 
-- [GitHub](https://github.com/ordinals/ord/)
-- [BIP](https://github.com/ordinals/ord/blob/master/bip.mediawiki)
-- [Discord](https://discord.gg/ordinals)
-- [Open Ordinals Institute Website](https://ordinals.org/)
-- [Open Ordinals Institute X](https://x.com/ordinalsorg)
-- [Mainnet Block Explorer](https://ordinals.com)
-- [Signet Block Explorer](https://signet.ordinals.com)
+- [GitHub](https://github.com/doginals/ord/)
+- [BIP](https://github.com/doginals/ord/blob/master/bip.mediawiki)
+- [Discord](https://discord.gg/doginals)
+- [Open Doginals Institute Website](https://doginals.org/)
+- [Open Doginals Institute X](https://x.com/ordinalsorg)
+- [Mainnet Block Explorer](https://doginals.com)
+- [Signet Block Explorer](https://signet.doginals.com)
 
 Videos
 ------
 
-- [Ordinal Theory Explained: Satoshi Serial Numbers and NFTs on Bitcoin](https://www.youtube.com/watch?v=rSS0O2KQpsI)
-- [Ordinals Workshop with Rodarmor](https://www.youtube.com/watch?v=MC_haVa6N3I)
+- [Doginal Theory Explained: Koinu Serial Numbers and NFTs on Bitcoin](https://www.youtube.com/watch?v=rSS0O2KQpsI)
+- [Doginals Workshop with Rodarmor](https://www.youtube.com/watch?v=MC_haVa6N3I)

@@ -37,7 +37,7 @@ use {
   },
   jsonrpc_core::{IoHandler, Value},
   jsonrpc_http_server::{CloseHandle, ServerBuilder},
-  ord::{SimulateRawTransactionOptions, SimulateRawTransactionResult},
+  dog::{SimulateRawTransactionOptions, SimulateRawTransactionResult},
   serde::{Deserialize, Serialize},
   server::Server,
   state::State,

@@ -4,7 +4,7 @@ use super::*;
 pub(super) struct SharedArgs {
   #[arg(
     long,
-    help = "Use <COMMIT_FEE_RATE> sats/vbyte for commit transaction.\nDefaults to <FEE_RATE> if unset."
+    help = "Use <COMMIT_FEE_RATE> koinu/vbyte for commit transaction.\nDefaults to <FEE_RATE> if unset."
   )]
   pub(crate) commit_fee_rate: Option<FeeRate>,
   #[arg(
@@ -12,7 +12,7 @@ pub(super) struct SharedArgs {
     help = "Compress inscription content and properties with brotli."
   )]
   pub(crate) compress: bool,
-  #[arg(long, help = "Use fee rate of <FEE_RATE> sats/vB.")]
+  #[arg(long, help = "Use fee rate of <FEE_RATE> koinu/vB.")]
   pub(crate) fee_rate: FeeRate,
   #[arg(long, help = "Don't sign or broadcast transactions.")]
   pub(crate) dry_run: bool,

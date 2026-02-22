@@ -21,7 +21,7 @@ mod restore;
 #[cfg(unix)]
 mod resume;
 mod runics;
-mod sats;
+mod koinu;
 mod selection;
 mod send;
 mod sign;

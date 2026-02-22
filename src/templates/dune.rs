@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Boilerplate, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RuneHtml {
-  pub entry: RuneEntry,
-  pub id: RuneId,
+  pub entry: DuneEntry,
+  pub id: DuneId,
   pub mintable: bool,
   pub parent: Option<InscriptionId>,
 }
@@ -32,7 +32,7 @@ impl RuneHtml {
 
 impl PageContent for RuneHtml {
   fn title(&self) -> String {
-    format!("Rune {}", self.entry.spaced_rune)
+    format!("Dune {}", self.entry.spaced_dune)
   }
 }
 
@@ -44,7 +44,7 @@ mod tests {
   fn display() {
     assert_regex_match!(
       RuneHtml {
-        entry: RuneEntry {
+        entry: DuneEntry {
           block: 1,
           burned: 123456789123456789,
           divisibility: 9,
@@ -58,15 +58,15 @@ mod tests {
           }),
           number: 25,
           premine: 123456789,
-          spaced_rune: SpacedRune {
-            rune: Rune(u128::MAX),
+          spaced_dune: SpacedDune {
+            dune: Dune(u128::MAX),
             spacers: 1
           },
           symbol: Some('@'),
           timestamp: 0,
           turbo: true,
         },
-        id: RuneId { block: 10, tx: 9 },
+        id: DuneId { block: 10, tx: 9 },
         mintable: true,
         parent: Some(InscriptionId {
           txid: Txid::all_zeros(),
@@ -134,7 +134,7 @@ mod tests {
   fn display_no_mint() {
     assert_regex_match!(
       RuneHtml {
-        entry: RuneEntry {
+        entry: DuneEntry {
           block: 0,
           burned: 123456789123456789,
           terms: None,
@@ -143,15 +143,15 @@ mod tests {
           mints: 0,
           number: 25,
           premine: 0,
-          spaced_rune: SpacedRune {
-            rune: Rune(u128::MAX),
+          spaced_dune: SpacedDune {
+            dune: Dune(u128::MAX),
             spacers: 1
           },
           symbol: Some('%'),
           timestamp: 0,
           turbo: false,
         },
-        id: RuneId { block: 10, tx: 9 },
+        id: DuneId { block: 10, tx: 9 },
         mintable: false,
         parent: None,
       },
@@ -168,7 +168,7 @@ mod tests {
   fn display_no_turbo() {
     assert_regex_match!(
       RuneHtml {
-        entry: RuneEntry {
+        entry: DuneEntry {
           block: 0,
           burned: 123456789123456789,
           terms: None,
@@ -177,15 +177,15 @@ mod tests {
           mints: 0,
           number: 25,
           premine: 0,
-          spaced_rune: SpacedRune {
-            rune: Rune(u128::MAX),
+          spaced_dune: SpacedDune {
+            dune: Dune(u128::MAX),
             spacers: 1
           },
           symbol: Some('%'),
           timestamp: 0,
           turbo: false,
         },
-        id: RuneId { block: 10, tx: 9 },
+        id: DuneId { block: 10, tx: 9 },
         mintable: false,
         parent: None,
       },
@@ -202,7 +202,7 @@ mod tests {
   fn display_empty_mint() {
     assert_regex_match!(
       RuneHtml {
-        entry: RuneEntry {
+        entry: DuneEntry {
           block: 0,
           burned: 123456789123456789,
           terms: Some(Terms {
@@ -216,15 +216,15 @@ mod tests {
           mints: 0,
           premine: 0,
           number: 25,
-          spaced_rune: SpacedRune {
-            rune: Rune(u128::MAX),
+          spaced_dune: SpacedDune {
+            dune: Dune(u128::MAX),
             spacers: 1
           },
           symbol: Some('%'),
           timestamp: 0,
           turbo: false,
         },
-        id: RuneId { block: 10, tx: 9 },
+        id: DuneId { block: 10, tx: 9 },
         mintable: false,
         parent: None,
       },
@@ -258,7 +258,7 @@ mod tests {
   fn mint_progress() {
     assert_regex_match!(
       RuneHtml {
-        entry: RuneEntry {
+        entry: DuneEntry {
           block: 0,
           burned: 0,
           divisibility: 0,
@@ -272,15 +272,15 @@ mod tests {
           }),
           number: 0,
           premine: 0,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0
           },
           symbol: None,
           timestamp: 0,
           turbo: false,
         },
-        id: RuneId { block: 0, tx: 0 },
+        id: DuneId { block: 0, tx: 0 },
         mintable: false,
         parent: Some(InscriptionId {
           txid: Txid::all_zeros(),
@@ -295,7 +295,7 @@ mod tests {
 
     assert_regex_match!(
       RuneHtml {
-        entry: RuneEntry {
+        entry: DuneEntry {
           block: 0,
           burned: 0,
           divisibility: 0,
@@ -309,15 +309,15 @@ mod tests {
           }),
           number: 0,
           premine: 0,
-          spaced_rune: SpacedRune {
-            rune: Rune(0),
+          spaced_dune: SpacedDune {
+            dune: Dune(0),
             spacers: 0
           },
           symbol: None,
           timestamp: 0,
           turbo: false,
         },
-        id: RuneId { block: 0, tx: 0 },
+        id: DuneId { block: 0, tx: 0 },
         mintable: true,
         parent: Some(InscriptionId {
           txid: Txid::all_zeros(),

@@ -3,13 +3,13 @@ use super::*;
 #[derive(Serialize, Deserialize)]
 pub struct RunicUtxo {
   pub output: OutPoint,
-  pub runes: BTreeMap<SpacedRune, Decimal>,
+  pub dunes: BTreeMap<SpacedDune, Decimal>,
 }
 
 pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
   let unspent_outputs = wallet.utxos();
   let Some(runic_utxos) = wallet.get_runic_outputs()? else {
-    bail!("`ord wallet runics` requires index created with `--index-runes`")
+    bail!("`ord wallet runics` requires index created with `--index-dunes`")
   };
 
   let mut result = Vec::new();
@@ -20,11 +20,11 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
         .get_runes_balances_in_output(output)?
         .unwrap_or_default();
 
-      let mut runes = BTreeMap::new();
+      let mut dunes = BTreeMap::new();
 
-      for (spaced_rune, pile) in rune_balances {
-        runes
-          .entry(spaced_rune)
+      for (spaced_dune, pile) in rune_balances {
+        dunes
+          .entry(spaced_dune)
           .and_modify(|decimal: &mut Decimal| {
             assert_eq!(decimal.scale, pile.divisibility);
             decimal.value += pile.amount;
@@ -37,7 +37,7 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
 
       result.push(RunicUtxo {
         output: *output,
-        runes,
+        dunes,
       });
     }
   }

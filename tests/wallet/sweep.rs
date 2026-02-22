@@ -17,17 +17,17 @@ fn sweepable_address(network: Network) -> (Address, String) {
 #[test]
 fn sweep() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Bitcoin);
 
   let send = CommandBuilder::new(format!("wallet send --fee-rate 1 {address} {inscription}",))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<Send>();
 
@@ -35,7 +35,7 @@ fn sweep() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(output.is_empty());
@@ -43,7 +43,7 @@ fn sweep() {
   let sweep = CommandBuilder::new("wallet sweep --fee-rate 1 --address-type p2wpkh")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<Sweep>();
 
@@ -54,7 +54,7 @@ fn sweep() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert_eq!(output[0].inscription, inscription);
@@ -63,17 +63,17 @@ fn sweep() {
 #[test]
 fn sweep_needs_rune_index() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-addresses"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Bitcoin);
 
   CommandBuilder::new(format!("wallet send --fee-rate 1 {address} {inscription}",))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<Send>();
 
@@ -81,7 +81,7 @@ fn sweep_needs_rune_index() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(output.is_empty());
@@ -89,26 +89,26 @@ fn sweep_needs_rune_index() {
   CommandBuilder::new("wallet sweep --fee-rate 1 --address-type p2wpkh")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
-    .expected_stderr("error: sweeping private key requires index created with `--index-runes`\n")
+    .expected_stderr("error: sweeping private key requires index created with `--index-dunes`\n")
     .run_and_extract_stdout();
 }
 
 #[test]
 fn sweep_respects_dry_run() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Bitcoin);
 
   CommandBuilder::new(format!("wallet send --fee-rate 1 {address} {inscription}",))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<Send>();
 
@@ -116,7 +116,7 @@ fn sweep_respects_dry_run() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(output.is_empty());
@@ -124,7 +124,7 @@ fn sweep_respects_dry_run() {
   CommandBuilder::new("wallet sweep --fee-rate 1 --address-type p2wpkh --dry-run")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<Sweep>();
 
@@ -132,7 +132,7 @@ fn sweep_respects_dry_run() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(output.is_empty());
@@ -141,17 +141,17 @@ fn sweep_respects_dry_run() {
 #[test]
 fn sweep_only_works_with_p2wpkh() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Bitcoin);
 
   CommandBuilder::new(format!("wallet send --fee-rate 1 {address} {inscription}",))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(r".*")
     .run_and_deserialize_output::<Send>();
 
@@ -159,7 +159,7 @@ fn sweep_only_works_with_p2wpkh() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(output.is_empty());
@@ -167,7 +167,7 @@ fn sweep_only_works_with_p2wpkh() {
   CommandBuilder::new("wallet sweep --fee-rate 1 --address-type p2tr")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr("error: address type `p2tr` unsupported\n")
     .run_and_extract_stdout();
@@ -176,18 +176,18 @@ fn sweep_only_works_with_p2wpkh() {
 #[test]
 fn sweep_multiple() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Bitcoin);
 
   let inscription_output = OutPoint::new(
     CommandBuilder::new(format!("wallet send --fee-rate 1 {address} {inscription}",))
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .stdout_regex(r".*")
       .run_and_deserialize_output::<Send>()
       .txid,
@@ -199,7 +199,7 @@ fn sweep_multiple() {
   let cardinal_output = OutPoint::new(
     CommandBuilder::new(format!("wallet send --fee-rate 1 {address} 5btc",))
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .stdout_regex(r".*")
       .run_and_deserialize_output::<Send>()
       .txid,
@@ -210,13 +210,13 @@ fn sweep_multiple() {
 
   let output = CommandBuilder::new("wallet inscriptions")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Inscriptions>();
 
   assert!(output.is_empty());
 
   let inscription_output = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{inscription_output}"))
       .text()
       .unwrap(),
@@ -224,7 +224,7 @@ fn sweep_multiple() {
   .unwrap();
 
   let cardinal_output = serde_json::from_str::<api::Output>(
-    &ord
+    &dog
       .json_request(format!("/output/{cardinal_output}"))
       .text()
       .unwrap(),
@@ -234,7 +234,7 @@ fn sweep_multiple() {
   let sweep = CommandBuilder::new("wallet sweep --fee-rate 9 --address-type p2wpkh")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<Sweep>();
 
@@ -279,18 +279,18 @@ fn sweep_multiple() {
 #[test]
 fn sweep_does_not_select_non_cardinal_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(
+  let dog = TestServer::spawn_with_server_args(
     &core,
-    &["--index-addresses", "--index-runes", "--regtest"],
+    &["--index-addresses", "--index-dunes", "--regtest"],
     &[],
   );
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
-  inscribe(&core, &ord);
+  etch(&core, &dog, Dune(RUNE));
+  inscribe(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Regtest);
 
@@ -298,17 +298,17 @@ fn sweep_does_not_select_non_cardinal_utxos() {
     "--regtest wallet send --fee-rate 1 {address} {inscription}",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
   CommandBuilder::new("--regtest wallet sweep --fee-rate 1 --address-type p2wpkh")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*not enough cardinal utxos.*")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -317,24 +317,24 @@ fn sweep_does_not_select_non_cardinal_utxos() {
 #[test]
 fn complain_if_runes_contained_in_any_of_the_inputs() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(
+  let dog = TestServer::spawn_with_server_args(
     &core,
-    &["--index-addresses", "--index-runes", "--regtest"],
+    &["--index-addresses", "--index-dunes", "--regtest"],
     &[],
   );
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = etch(&core, &ord, Rune(RUNE)).output.rune.unwrap().rune.rune;
-  let (inscription, _) = inscribe(&core, &ord);
+  let dune = etch(&core, &dog, Dune(RUNE)).output.dune.unwrap().dune.dune;
+  let (inscription, _) = inscribe(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Regtest);
 
   CommandBuilder::new(format!(
-    "--regtest wallet send --fee-rate 1 {address} 1:{rune}"
+    "--regtest wallet send --fee-rate 1 {address} 1:{dune}"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
@@ -343,7 +343,7 @@ fn complain_if_runes_contained_in_any_of_the_inputs() {
     "--regtest wallet send --fee-rate 1 {address} {inscription}",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
@@ -351,8 +351,8 @@ fn complain_if_runes_contained_in_any_of_the_inputs() {
   CommandBuilder::new("--regtest wallet sweep --fee-rate 1 --address-type p2wpkh")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
-    .stderr_regex(".*contains runes, sweeping runes is not supported.*")
+    .dog(&dog)
+    .stderr_regex(".*contains dunes, sweeping dunes is not supported.*")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -360,16 +360,16 @@ fn complain_if_runes_contained_in_any_of_the_inputs() {
 #[test]
 fn sweep_needs_utxos() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-addresses", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let (address, wif_privkey) = sweepable_address(Network::Bitcoin);
 
   CommandBuilder::new("wallet sweep --fee-rate 1 --address-type p2wpkh")
     .stdin(wif_privkey.into())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr(format!("error: address {address} has no UTXOs\n"))
     .run_and_extract_stdout();

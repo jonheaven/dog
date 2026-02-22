@@ -5,7 +5,7 @@ pub(crate) struct Sats {
   #[arg(
     long,
     conflicts_with = "all",
-    help = "Find satoshis listed in first column of tab-separated value file <TSV>."
+    help = "Find koinus listed in first column of tab-separated value file <TSV>."
   )]
   tsv: Option<PathBuf>,
   #[arg(
@@ -18,13 +18,13 @@ pub(crate) struct Sats {
 
 #[derive(Serialize, Deserialize)]
 pub struct OutputTsv {
-  pub found: BTreeMap<String, SatPoint>,
+  pub found: BTreeMap<String, KoinuPoint>,
   pub lost: BTreeSet<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct OutputRare {
-  pub sat: Sat,
+  pub sat: Koinu,
   pub output: OutPoint,
   pub offset: u64,
   pub rarity: Rarity,
@@ -40,7 +40,7 @@ impl Sats {
   pub(crate) fn run(&self, wallet: Wallet) -> SubcommandResult {
     ensure!(
       wallet.has_sat_index(),
-      "sats requires index created with `--index-sats` flag"
+      "koinu requires index created with `--index-koinu` flag"
     );
 
     let haystacks = wallet.get_wallet_sat_ranges()?;
@@ -89,9 +89,9 @@ impl Sats {
   }
 
   fn find(
-    needles: &[(Sat, &str)],
+    needles: &[(Koinu, &str)],
     ranges: &[(OutPoint, Vec<(u64, u64)>)],
-  ) -> BTreeMap<String, SatPoint> {
+  ) -> BTreeMap<String, KoinuPoint> {
     let mut haystacks = Vec::new();
 
     for (outpoint, ranges) in ranges {
@@ -114,7 +114,7 @@ impl Sats {
       if needle >= start && needle < end {
         results.insert(
           value.into(),
-          SatPoint {
+          KoinuPoint {
             outpoint: *outpoint,
             offset: offset + needle.0 - start,
           },
@@ -131,14 +131,14 @@ impl Sats {
     results
   }
 
-  fn needles(tsv: &str) -> Result<Vec<(Sat, &str)>> {
+  fn needles(tsv: &str) -> Result<Vec<(Koinu, &str)>> {
     let mut needles = tsv
       .lines()
       .enumerate()
       .filter(|(_i, line)| !line.starts_with('#') && !line.is_empty())
       .filter_map(|(i, line)| {
         line.split('\t').next().map(|value| {
-          Sat::from_str(value).map(|sat| (sat, value)).map_err(|err| {
+          Koinu::from_str(value).map(|sat| (sat, value)).map_err(|err| {
             anyhow!(
               "failed to parse sat from string \"{value}\" on line {}: {err}",
               i + 1,
@@ -146,20 +146,20 @@ impl Sats {
           })
         })
       })
-      .collect::<Result<Vec<(Sat, &str)>>>()?;
+      .collect::<Result<Vec<(Koinu, &str)>>>()?;
 
     needles.sort();
 
     Ok(needles)
   }
 
-  fn rare_sats(haystacks: Vec<(OutPoint, Vec<(u64, u64)>)>) -> Vec<(OutPoint, Sat, u64, Rarity)> {
+  fn rare_sats(haystacks: Vec<(OutPoint, Vec<(u64, u64)>)>) -> Vec<(OutPoint, Koinu, u64, Rarity)> {
     haystacks
       .into_iter()
-      .flat_map(|(outpoint, sat_ranges)| {
+      .flat_map(|(outpoint, koinu_ranges)| {
         let mut offset = 0;
-        sat_ranges.into_iter().filter_map(move |(start, end)| {
-          let sat = Sat(start);
+        koinu_ranges.into_iter().filter_map(move |(start, end)| {
+          let sat = Koinu(start);
           let rarity = sat.rarity();
           let start_offset = offset;
           offset += end - start;
@@ -196,7 +196,7 @@ mod tests {
         outpoint(1),
         vec![(10, 80), (50 * COIN_VALUE, 100 * COIN_VALUE)],
       )]),
-      vec![(outpoint(1), Sat(50 * COIN_VALUE), 70, Rarity::Uncommon)]
+      vec![(outpoint(1), Koinu(50 * COIN_VALUE), 70, Rarity::Uncommon)]
     )
   }
 
@@ -208,8 +208,8 @@ mod tests {
         vec![(0, 100), (1050000000000000, 1150000000000000)],
       )]),
       vec![
-        (outpoint(1), Sat(0), 0, Rarity::Mythic),
-        (outpoint(1), Sat(1050000000000000), 100, Rarity::Epic)
+        (outpoint(1), Koinu(0), 0, Rarity::Mythic),
+        (outpoint(1), Koinu(1050000000000000), 100, Rarity::Epic)
       ]
     )
   }
@@ -222,14 +222,14 @@ mod tests {
         (outpoint(2), vec![(100 * COIN_VALUE, 111 * COIN_VALUE)],),
       ]),
       vec![
-        (outpoint(1), Sat(50 * COIN_VALUE), 0, Rarity::Uncommon),
-        (outpoint(2), Sat(100 * COIN_VALUE), 0, Rarity::Uncommon)
+        (outpoint(1), Koinu(50 * COIN_VALUE), 0, Rarity::Uncommon),
+        (outpoint(2), Koinu(100 * COIN_VALUE), 0, Rarity::Uncommon)
       ]
     )
   }
 
   #[track_caller]
-  fn case(tsv: &str, haystacks: &[(OutPoint, Vec<(u64, u64)>)], expected: &[(&str, SatPoint)]) {
+  fn case(tsv: &str, haystacks: &[(OutPoint, Vec<(u64, u64)>)], expected: &[(&str, KoinuPoint)]) {
     assert_eq!(
       Sats::find(&Sats::needles(tsv).unwrap(), haystacks),
       expected

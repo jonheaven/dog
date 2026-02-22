@@ -154,5 +154,5 @@ in your test inscription, which will then return the content of the mainnet
 inscriptions.
 
 ```
-ord --regtest server --proxy https://ordinals.com
+ord --regtest server --proxy https://doginals.com
 ```

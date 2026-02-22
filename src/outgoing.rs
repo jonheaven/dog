@@ -4,9 +4,9 @@ use super::*;
 pub enum Outgoing {
   Amount(Amount),
   InscriptionId(InscriptionId),
-  Rune { decimal: Decimal, rune: SpacedRune },
-  Sat(Sat),
-  SatPoint(SatPoint),
+  Dune { decimal: Decimal, dune: SpacedDune },
+  Koinu(Koinu),
+  KoinuPoint(KoinuPoint),
 }
 
 impl Display for Outgoing {
@@ -14,9 +14,9 @@ impl Display for Outgoing {
     match self {
       Self::Amount(amount) => write!(f, "{}", amount.to_string().to_lowercase()),
       Self::InscriptionId(inscription_id) => inscription_id.fmt(f),
-      Self::Rune { decimal, rune } => write!(f, "{decimal}:{rune}"),
-      Self::Sat(sat) => write!(f, "{}", sat.name()),
-      Self::SatPoint(satpoint) => satpoint.fmt(f),
+      Self::Dune { decimal, dune } => write!(f, "{decimal}:{dune}"),
+      Self::Koinu(sat) => write!(f, "{}", sat.name()),
+      Self::KoinuPoint(satpoint) => satpoint.fmt(f),
     }
   }
 }
@@ -37,7 +37,7 @@ impl FromStr for Outgoing {
           \d+\.\d+
         )
         \ ?
-        (bit|btc|cbtc|mbtc|msat|nbtc|pbtc|sat|satoshi|ubtc)
+        (bit|btc|cbtc|mbtc|msat|nbtc|pbtc|sat|koinu|ubtc)
         (s)?
         $
         ",
@@ -67,14 +67,14 @@ impl FromStr for Outgoing {
     });
 
     if re::SAT_NAME.is_match(input) {
-      Ok(Outgoing::Sat(
+      Ok(Outgoing::Koinu(
         input.parse().snafu_context(error::SatParse { input })?,
       ))
     } else if re::SATPOINT.is_match(input) {
-      Ok(Outgoing::SatPoint(
+      Ok(Outgoing::KoinuPoint(
         input
           .parse()
-          .snafu_context(error::SatPointParse { input })?,
+          .snafu_context(error::KoinuPointParse { input })?,
       ))
     } else if re::INSCRIPTION_ID.is_match(input) {
       Ok(Outgoing::InscriptionId(
@@ -90,10 +90,10 @@ impl FromStr for Outgoing {
       let decimal = captures[1]
         .parse::<Decimal>()
         .snafu_context(error::RuneAmountParse { input })?;
-      let rune = captures[2]
+      let dune = captures[2]
         .parse()
         .snafu_context(error::RuneParse { input })?;
-      Ok(Self::Rune { decimal, rune })
+      Ok(Self::Dune { decimal, dune })
     } else {
       Err(SnafuError::OutgoingParse {
         input: input.to_string(),
@@ -113,8 +113,8 @@ mod tests {
       assert_eq!(s.parse::<Outgoing>().unwrap(), outgoing);
     }
 
-    case("nvtdijuwxlp", Outgoing::Sat("nvtdijuwxlp".parse().unwrap()));
-    case("a", Outgoing::Sat("a".parse().unwrap()));
+    case("nvtdijuwxlp", Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()));
+    case("a", Outgoing::Koinu("a".parse().unwrap()));
 
     case(
       "0000000000000000000000000000000000000000000000000000000000000000i0",
@@ -127,7 +127,7 @@ mod tests {
 
     case(
       "0000000000000000000000000000000000000000000000000000000000000000:0:0",
-      Outgoing::SatPoint(
+      Outgoing::KoinuPoint(
         "0000000000000000000000000000000000000000000000000000000000000000:0:0"
           .parse()
           .unwrap(),
@@ -141,48 +141,48 @@ mod tests {
 
     case(
       "0  : XYZ",
-      Outgoing::Rune {
-        rune: "XYZ".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XYZ".parse().unwrap(),
         decimal: "0".parse().unwrap(),
       },
     );
 
     case(
       "0:XYZ",
-      Outgoing::Rune {
-        rune: "XYZ".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XYZ".parse().unwrap(),
         decimal: "0".parse().unwrap(),
       },
     );
 
     case(
       "0.0:XYZ",
-      Outgoing::Rune {
-        rune: "XYZ".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XYZ".parse().unwrap(),
         decimal: "0.0".parse().unwrap(),
       },
     );
 
     case(
       ".0:XYZ",
-      Outgoing::Rune {
-        rune: "XYZ".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XYZ".parse().unwrap(),
         decimal: ".0".parse().unwrap(),
       },
     );
 
     case(
       "1.1:XYZ",
-      Outgoing::Rune {
-        rune: "XYZ".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XYZ".parse().unwrap(),
         decimal: "1.1".parse().unwrap(),
       },
     );
 
     case(
       "1.1:X.Y.Z",
-      Outgoing::Rune {
-        rune: "X.Y.Z".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "X.Y.Z".parse().unwrap(),
         decimal: "1.1".parse().unwrap(),
       },
     );
@@ -196,8 +196,8 @@ mod tests {
       assert_eq!(s, outgoing.to_string());
     }
 
-    case("nvtdijuwxlp", Outgoing::Sat("nvtdijuwxlp".parse().unwrap()));
-    case("a", Outgoing::Sat("a".parse().unwrap()));
+    case("nvtdijuwxlp", Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()));
+    case("a", Outgoing::Koinu("a".parse().unwrap()));
 
     case(
       "0000000000000000000000000000000000000000000000000000000000000000i0",
@@ -210,7 +210,7 @@ mod tests {
 
     case(
       "0000000000000000000000000000000000000000000000000000000000000000:0:0",
-      Outgoing::SatPoint(
+      Outgoing::KoinuPoint(
         "0000000000000000000000000000000000000000000000000000000000000000:0:0"
           .parse()
           .unwrap(),
@@ -225,16 +225,16 @@ mod tests {
 
     case(
       "0:XY•Z",
-      Outgoing::Rune {
-        rune: "XY•Z".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XY•Z".parse().unwrap(),
         decimal: "0".parse().unwrap(),
       },
     );
 
     case(
       "1.1:XYZ",
-      Outgoing::Rune {
-        rune: "XYZ".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "XYZ".parse().unwrap(),
         decimal: "1.1".parse().unwrap(),
       },
     );
@@ -252,9 +252,9 @@ mod tests {
     case(
       "nvtdijuwxlp",
       "\"nvtdijuwxlp\"",
-      Outgoing::Sat("nvtdijuwxlp".parse().unwrap()),
+      Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()),
     );
-    case("a", "\"a\"", Outgoing::Sat("a".parse().unwrap()));
+    case("a", "\"a\"", Outgoing::Koinu("a".parse().unwrap()));
 
     case(
       "0000000000000000000000000000000000000000000000000000000000000000i0",
@@ -269,7 +269,7 @@ mod tests {
     case(
       "0000000000000000000000000000000000000000000000000000000000000000:0:0",
       "\"0000000000000000000000000000000000000000000000000000000000000000:0:0\"",
-      Outgoing::SatPoint(
+      Outgoing::KoinuPoint(
         "0000000000000000000000000000000000000000000000000000000000000000:0:0"
           .parse()
           .unwrap(),
@@ -285,8 +285,8 @@ mod tests {
     case(
       "6.66:HELL.MONEY",
       "\"6.66:HELL•MONEY\"",
-      Outgoing::Rune {
-        rune: "HELL•MONEY".parse().unwrap(),
+      Outgoing::Dune {
+        dune: "HELL•MONEY".parse().unwrap(),
         decimal: "6.66".parse().unwrap(),
       },
     );

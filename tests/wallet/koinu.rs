@@ -1,37 +1,37 @@
 use {
   super::*,
-  ord::subcommand::wallet::sats::{OutputAll, OutputRare, OutputTsv},
+  dog::subcommand::wallet::koinu::{OutputAll, OutputRare, OutputTsv},
 };
 
 #[test]
 fn requires_sat_index() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  CommandBuilder::new("wallet sats")
+  CommandBuilder::new("wallet koinu")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
-    .expected_stderr("error: sats requires index created with `--index-sats` flag\n")
+    .expected_stderr("error: koinu requires index created with `--index-koinu` flag\n")
     .run_and_extract_stdout();
 }
 
 #[test]
-fn sats() {
+fn koinu() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let second_coinbase = core.mine_blocks(1)[0].txdata[0].compute_txid();
 
-  let output = CommandBuilder::new("--index-sats wallet sats")
+  let output = CommandBuilder::new("--index-koinu wallet koinu")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<OutputRare>>();
 
   assert_eq!(output[0].sat, 50 * COIN_VALUE);
@@ -42,16 +42,16 @@ fn sats() {
 fn sats_from_tsv_success() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let second_coinbase = core.mine_blocks(1)[0].txdata[0].compute_txid();
 
-  let output = CommandBuilder::new("--index-sats wallet sats --tsv foo.tsv")
+  let output = CommandBuilder::new("--index-koinu wallet koinu --tsv foo.tsv")
     .write("foo.tsv", "nvtcsezkbtg")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<OutputTsv>();
 
   assert_eq!(
@@ -64,14 +64,14 @@ fn sats_from_tsv_success() {
 fn sats_from_tsv_parse_error() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  CommandBuilder::new("--index-sats wallet sats --tsv foo.tsv")
+  CommandBuilder::new("--index-koinu wallet koinu --tsv foo.tsv")
     .write("foo.tsv", "===")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr(
       "error: failed to parse sat from string \"===\" on line 1: failed to parse sat `===`: invalid integer: invalid digit found in string\n",
@@ -83,13 +83,13 @@ fn sats_from_tsv_parse_error() {
 fn sats_from_tsv_file_not_found() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  CommandBuilder::new("--index-sats wallet sats --tsv foo.tsv")
+  CommandBuilder::new("--index-koinu wallet koinu --tsv foo.tsv")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .stderr_regex("error: I/O error reading `.*`\n\nbecause:.*")
     .run_and_extract_stdout();
@@ -99,15 +99,15 @@ fn sats_from_tsv_file_not_found() {
 fn sats_all() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let second_coinbase = core.mine_blocks(1)[0].txdata[0].compute_txid();
 
-  let output = CommandBuilder::new("--index-sats wallet sats --all")
+  let output = CommandBuilder::new("--index-koinu wallet koinu --all")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<OutputAll>>();
 
   assert_eq!(

@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug, Parser)]
 pub(crate) struct Subsidy {
-  #[arg(help = "List sats in subsidy at <HEIGHT>.")]
+  #[arg(help = "List koinu in subsidy at <HEIGHT>.")]
   height: Height,
 }
 

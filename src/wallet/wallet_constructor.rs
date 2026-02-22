@@ -177,7 +177,7 @@ impl WalletConstructor {
     &self,
     inscriptions: &Vec<InscriptionId>,
   ) -> Result<(
-    BTreeMap<SatPoint, Vec<InscriptionId>>,
+    BTreeMap<KoinuPoint, Vec<InscriptionId>>,
     BTreeMap<InscriptionId, api::Inscription>,
   )> {
     let response = self.post("/inscriptions", inscriptions)?;

@@ -3,15 +3,15 @@ use super::*;
 #[derive(
   Default, Debug, PartialEq, Copy, Clone, PartialOrd, Ord, Eq, DeserializeFromStr, SerializeDisplay,
 )]
-pub struct Rune(pub u128);
+pub struct Dune(pub u128);
 
-impl Rune {
+impl Dune {
   pub const RESERVED: u128 = 6402364363415443603228541259936211926;
 
   const UNLOCKED: usize = 12;
 
   // Guard against zero (Dogecoin's SUBSIDY_HALVING_INTERVAL=1, 1/12=0 in
-  // integer division which would cause a divide-by-zero; runes are a
+  // integer division which would cause a divide-by-zero; dunes are a
   // Bitcoin-only concept and this path won't be reached on Dogecoin).
   const UNLOCK_INTERVAL: u32 = if SUBSIDY_HALVING_INTERVAL >= 12 {
     SUBSIDY_HALVING_INTERVAL / 12
@@ -73,11 +73,11 @@ impl Rune {
     let end = start + SUBSIDY_HALVING_INTERVAL;
 
     if offset < start {
-      return Rune(Self::STEPS[Self::UNLOCKED]);
+      return Dune(Self::STEPS[Self::UNLOCKED]);
     }
 
     if offset >= end {
-      return Rune(0);
+      return Dune(0);
     }
 
     let progress = offset.saturating_sub(start);
@@ -92,7 +92,7 @@ impl Rune {
 
     let remainder = u128::from(progress % Self::UNLOCK_INTERVAL);
 
-    Rune(start - ((start - end) * remainder / u128::from(Self::UNLOCK_INTERVAL)))
+    Dune(start - ((start - end) * remainder / u128::from(Self::UNLOCK_INTERVAL)))
   }
 
   pub fn unlock_height(self, network: Network) -> Option<Height> {
@@ -144,7 +144,7 @@ impl Rune {
   }
 }
 
-impl Display for Rune {
+impl Display for Dune {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     let mut n = self.0;
     if n == u128::MAX {
@@ -171,7 +171,7 @@ impl Display for Rune {
   }
 }
 
-impl FromStr for Rune {
+impl FromStr for Dune {
   type Err = Error;
 
   fn from_str(s: &str) -> Result<Self, Error> {
@@ -188,7 +188,7 @@ impl FromStr for Rune {
         _ => return Err(Error::Character(c)),
       }
     }
-    Ok(Rune(x))
+    Ok(Dune(x))
   }
 }
 
@@ -216,8 +216,8 @@ mod tests {
   #[test]
   fn round_trip() {
     fn case(n: u128, s: &str) {
-      assert_eq!(Rune(n).to_string(), s);
-      assert_eq!(s.parse::<Rune>().unwrap(), Rune(n));
+      assert_eq!(Dune(n).to_string(), s);
+      assert_eq!(s.parse::<Dune>().unwrap(), Dune(n));
     }
 
     case(0, "A");
@@ -258,14 +258,14 @@ mod tests {
   #[test]
   fn from_str_error() {
     assert_eq!(
-      "BCGDENLQRQWDSLRUGSNLBTMFIJAW".parse::<Rune>().unwrap_err(),
+      "BCGDENLQRQWDSLRUGSNLBTMFIJAW".parse::<Dune>().unwrap_err(),
       Error::Range,
     );
     assert_eq!(
-      "BCGDENLQRQWDSLRUGSNLBTMFIJAVX".parse::<Rune>().unwrap_err(),
+      "BCGDENLQRQWDSLRUGSNLBTMFIJAVX".parse::<Dune>().unwrap_err(),
       Error::Range,
     );
-    assert_eq!("x".parse::<Rune>().unwrap_err(), Error::Character('x'));
+    assert_eq!("x".parse::<Dune>().unwrap_err(), Error::Character('x'));
   }
 
   #[test]
@@ -275,9 +275,9 @@ mod tests {
   fn mainnet_minimum_at_height() {
     #[track_caller]
     fn case(height: u32, minimum: &str) {
-      let minimum = minimum.parse::<Rune>().unwrap();
+      let minimum = minimum.parse::<Dune>().unwrap();
       assert_eq!(
-        Rune::minimum_at_height(Network::Bitcoin, Height(height)),
+        Dune::minimum_at_height(Network::Bitcoin, Height(height)),
         minimum,
       );
 
@@ -302,70 +302,70 @@ mod tests {
     case(END + 1, "A");
     case(u32::MAX, "A");
 
-    case(START + Rune::UNLOCK_INTERVAL * 00 - 1, "AAAAAAAAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 00 + 0, "ZZYZXBRKWXVA");
-    case(START + Rune::UNLOCK_INTERVAL * 00 + 1, "ZZXZUDIVTVQA");
+    case(START + Dune::UNLOCK_INTERVAL * 00 - 1, "AAAAAAAAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 00 + 0, "ZZYZXBRKWXVA");
+    case(START + Dune::UNLOCK_INTERVAL * 00 + 1, "ZZXZUDIVTVQA");
 
-    case(START + Rune::UNLOCK_INTERVAL * 01 - 1, "AAAAAAAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 01 + 0, "ZZYZXBRKWXV");
-    case(START + Rune::UNLOCK_INTERVAL * 01 + 1, "ZZXZUDIVTVQ");
+    case(START + Dune::UNLOCK_INTERVAL * 01 - 1, "AAAAAAAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 01 + 0, "ZZYZXBRKWXV");
+    case(START + Dune::UNLOCK_INTERVAL * 01 + 1, "ZZXZUDIVTVQ");
 
-    case(START + Rune::UNLOCK_INTERVAL * 02 - 1, "AAAAAAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 02 + 0, "ZZYZXBRKWY");
-    case(START + Rune::UNLOCK_INTERVAL * 02 + 1, "ZZXZUDIVTW");
+    case(START + Dune::UNLOCK_INTERVAL * 02 - 1, "AAAAAAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 02 + 0, "ZZYZXBRKWY");
+    case(START + Dune::UNLOCK_INTERVAL * 02 + 1, "ZZXZUDIVTW");
 
-    case(START + Rune::UNLOCK_INTERVAL * 03 - 1, "AAAAAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 03 + 0, "ZZYZXBRKX");
-    case(START + Rune::UNLOCK_INTERVAL * 03 + 1, "ZZXZUDIVU");
+    case(START + Dune::UNLOCK_INTERVAL * 03 - 1, "AAAAAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 03 + 0, "ZZYZXBRKX");
+    case(START + Dune::UNLOCK_INTERVAL * 03 + 1, "ZZXZUDIVU");
 
-    case(START + Rune::UNLOCK_INTERVAL * 04 - 1, "AAAAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 04 + 0, "ZZYZXBRL");
-    case(START + Rune::UNLOCK_INTERVAL * 04 + 1, "ZZXZUDIW");
+    case(START + Dune::UNLOCK_INTERVAL * 04 - 1, "AAAAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 04 + 0, "ZZYZXBRL");
+    case(START + Dune::UNLOCK_INTERVAL * 04 + 1, "ZZXZUDIW");
 
-    case(START + Rune::UNLOCK_INTERVAL * 05 - 1, "AAAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 05 + 0, "ZZYZXBS");
-    case(START + Rune::UNLOCK_INTERVAL * 05 + 1, "ZZXZUDJ");
+    case(START + Dune::UNLOCK_INTERVAL * 05 - 1, "AAAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 05 + 0, "ZZYZXBS");
+    case(START + Dune::UNLOCK_INTERVAL * 05 + 1, "ZZXZUDJ");
 
-    case(START + Rune::UNLOCK_INTERVAL * 06 - 1, "AAAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 06 + 0, "ZZYZXC");
-    case(START + Rune::UNLOCK_INTERVAL * 06 + 1, "ZZXZUE");
+    case(START + Dune::UNLOCK_INTERVAL * 06 - 1, "AAAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 06 + 0, "ZZYZXC");
+    case(START + Dune::UNLOCK_INTERVAL * 06 + 1, "ZZXZUE");
 
-    case(START + Rune::UNLOCK_INTERVAL * 07 - 1, "AAAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 07 + 0, "ZZYZY");
-    case(START + Rune::UNLOCK_INTERVAL * 07 + 1, "ZZXZV");
+    case(START + Dune::UNLOCK_INTERVAL * 07 - 1, "AAAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 07 + 0, "ZZYZY");
+    case(START + Dune::UNLOCK_INTERVAL * 07 + 1, "ZZXZV");
 
-    case(START + Rune::UNLOCK_INTERVAL * 08 - 1, "AAAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 08 + 0, "ZZZA");
-    case(START + Rune::UNLOCK_INTERVAL * 08 + 1, "ZZYA");
+    case(START + Dune::UNLOCK_INTERVAL * 08 - 1, "AAAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 08 + 0, "ZZZA");
+    case(START + Dune::UNLOCK_INTERVAL * 08 + 1, "ZZYA");
 
-    case(START + Rune::UNLOCK_INTERVAL * 09 - 1, "AAAA");
-    case(START + Rune::UNLOCK_INTERVAL * 09 + 0, "ZZZ");
-    case(START + Rune::UNLOCK_INTERVAL * 09 + 1, "ZZY");
+    case(START + Dune::UNLOCK_INTERVAL * 09 - 1, "AAAA");
+    case(START + Dune::UNLOCK_INTERVAL * 09 + 0, "ZZZ");
+    case(START + Dune::UNLOCK_INTERVAL * 09 + 1, "ZZY");
 
-    case(START + Rune::UNLOCK_INTERVAL * 10 - 2, "AAC");
-    case(START + Rune::UNLOCK_INTERVAL * 10 - 1, "AAA");
-    case(START + Rune::UNLOCK_INTERVAL * 10 + 0, "AAA");
-    case(START + Rune::UNLOCK_INTERVAL * 10 + 1, "AAA");
+    case(START + Dune::UNLOCK_INTERVAL * 10 - 2, "AAC");
+    case(START + Dune::UNLOCK_INTERVAL * 10 - 1, "AAA");
+    case(START + Dune::UNLOCK_INTERVAL * 10 + 0, "AAA");
+    case(START + Dune::UNLOCK_INTERVAL * 10 + 1, "AAA");
 
     case(
-      START + Rune::UNLOCK_INTERVAL * 10 + Rune::UNLOCK_INTERVAL / 2,
+      START + Dune::UNLOCK_INTERVAL * 10 + Dune::UNLOCK_INTERVAL / 2,
       "NA",
     );
 
-    case(START + Rune::UNLOCK_INTERVAL * 11 - 2, "AB");
-    case(START + Rune::UNLOCK_INTERVAL * 11 - 1, "AA");
-    case(START + Rune::UNLOCK_INTERVAL * 11 + 0, "AA");
-    case(START + Rune::UNLOCK_INTERVAL * 11 + 1, "AA");
+    case(START + Dune::UNLOCK_INTERVAL * 11 - 2, "AB");
+    case(START + Dune::UNLOCK_INTERVAL * 11 - 1, "AA");
+    case(START + Dune::UNLOCK_INTERVAL * 11 + 0, "AA");
+    case(START + Dune::UNLOCK_INTERVAL * 11 + 1, "AA");
 
     case(
-      START + Rune::UNLOCK_INTERVAL * 11 + Rune::UNLOCK_INTERVAL / 2,
+      START + Dune::UNLOCK_INTERVAL * 11 + Dune::UNLOCK_INTERVAL / 2,
       "N",
     );
 
-    case(START + Rune::UNLOCK_INTERVAL * 12 - 2, "B");
-    case(START + Rune::UNLOCK_INTERVAL * 12 - 1, "A");
-    case(START + Rune::UNLOCK_INTERVAL * 12 + 0, "A");
-    case(START + Rune::UNLOCK_INTERVAL * 12 + 1, "A");
+    case(START + Dune::UNLOCK_INTERVAL * 12 - 2, "B");
+    case(START + Dune::UNLOCK_INTERVAL * 12 - 1, "A");
+    case(START + Dune::UNLOCK_INTERVAL * 12 + 0, "A");
+    case(START + Dune::UNLOCK_INTERVAL * 12 + 1, "A");
   }
 
   #[test]
@@ -373,7 +373,7 @@ mod tests {
     #[track_caller]
     fn case(network: Network, height: u32, minimum: &str) {
       assert_eq!(
-        Rune::minimum_at_height(network, Height(height)).to_string(),
+        Dune::minimum_at_height(network, Height(height)).to_string(),
         minimum,
       );
     }
@@ -404,36 +404,36 @@ mod tests {
 
   #[test]
   fn serde() {
-    let rune = Rune(0);
+    let dune = Dune(0);
     let json = "\"A\"";
-    assert_eq!(serde_json::to_string(&rune).unwrap(), json);
-    assert_eq!(serde_json::from_str::<Rune>(json).unwrap(), rune);
+    assert_eq!(serde_json::to_string(&dune).unwrap(), json);
+    assert_eq!(serde_json::from_str::<Dune>(json).unwrap(), dune);
   }
 
   #[test]
   fn reserved() {
     assert_eq!(
-      Rune::RESERVED,
-      "AAAAAAAAAAAAAAAAAAAAAAAAAAA".parse::<Rune>().unwrap().0,
+      Dune::RESERVED,
+      "AAAAAAAAAAAAAAAAAAAAAAAAAAA".parse::<Dune>().unwrap().0,
     );
 
-    assert_eq!(Rune::reserved(0, 0), Rune(Rune::RESERVED));
-    assert_eq!(Rune::reserved(0, 1), Rune(Rune::RESERVED + 1));
-    assert_eq!(Rune::reserved(1, 0), Rune(Rune::RESERVED + (1 << 32)));
-    assert_eq!(Rune::reserved(1, 1), Rune(Rune::RESERVED + (1 << 32) + 1));
+    assert_eq!(Dune::reserved(0, 0), Dune(Dune::RESERVED));
+    assert_eq!(Dune::reserved(0, 1), Dune(Dune::RESERVED + 1));
+    assert_eq!(Dune::reserved(1, 0), Dune(Dune::RESERVED + (1 << 32)));
+    assert_eq!(Dune::reserved(1, 1), Dune(Dune::RESERVED + (1 << 32) + 1));
     assert_eq!(
-      Rune::reserved(u64::MAX, u32::MAX),
-      Rune(Rune::RESERVED + ((u128::from(u64::MAX) << 32) | u128::from(u32::MAX))),
+      Dune::reserved(u64::MAX, u32::MAX),
+      Dune(Dune::RESERVED + ((u128::from(u64::MAX) << 32) | u128::from(u32::MAX))),
     );
   }
 
   #[test]
   fn is_reserved() {
     #[track_caller]
-    fn case(rune: &str, reserved: bool) {
-      let rune = rune.parse::<Rune>().unwrap();
-      assert_eq!(rune.is_reserved(), reserved);
-      assert_eq!(rune.unlock_height(Network::Bitcoin).is_none(), reserved);
+    fn case(dune: &str, reserved: bool) {
+      let dune = dune.parse::<Dune>().unwrap();
+      assert_eq!(dune.is_reserved(), reserved);
+      assert_eq!(dune.unlock_height(Network::Bitcoin).is_none(), reserved);
     }
 
     case("A", false);
@@ -446,10 +446,10 @@ mod tests {
   #[test]
   fn steps() {
     for i in 0.. {
-      match "A".repeat(i + 1).parse::<Rune>() {
-        Ok(rune) => assert_eq!(Rune(Rune::STEPS[i]), rune),
+      match "A".repeat(i + 1).parse::<Dune>() {
+        Ok(dune) => assert_eq!(Dune(Dune::STEPS[i]), dune),
         Err(_) => {
-          assert_eq!(Rune::STEPS.len(), i);
+          assert_eq!(Dune::STEPS.len(), i);
           break;
         }
       }
@@ -459,8 +459,8 @@ mod tests {
   #[test]
   fn commitment() {
     #[track_caller]
-    fn case(rune: u128, bytes: &[u8]) {
-      assert_eq!(Rune(rune).commitment(), bytes);
+    fn case(dune: u128, bytes: &[u8]) {
+      assert_eq!(Dune(dune).commitment(), bytes);
     }
 
     case(0, &[]);
@@ -474,22 +474,22 @@ mod tests {
 
   #[test]
   fn steps_are_sorted_and_unique() {
-    let mut steps = Rune::STEPS.to_vec();
+    let mut steps = Dune::STEPS.to_vec();
     steps.sort();
-    assert_eq!(steps, Rune::STEPS);
+    assert_eq!(steps, Dune::STEPS);
     steps.dedup();
-    assert_eq!(steps, Rune::STEPS);
+    assert_eq!(steps, Dune::STEPS);
   }
 
   #[test]
   fn reserved_rune_unlock_height() {
-    assert_eq!(Rune(Rune::RESERVED).unlock_height(Network::Bitcoin), None);
+    assert_eq!(Dune(Dune::RESERVED).unlock_height(Network::Bitcoin), None);
     assert_eq!(
-      Rune(Rune::RESERVED + 1).unlock_height(Network::Bitcoin),
+      Dune(Dune::RESERVED + 1).unlock_height(Network::Bitcoin),
       None
     );
     assert_eq!(
-      Rune(Rune::RESERVED - 1).unlock_height(Network::Bitcoin),
+      Dune(Dune::RESERVED - 1).unlock_height(Network::Bitcoin),
       Some(Height(0))
     );
   }
@@ -497,17 +497,17 @@ mod tests {
   #[test]
   fn unlock_height() {
     #[track_caller]
-    fn case(rune: &str, unlock_height: u32) {
-      let rune = rune.parse::<Rune>().unwrap();
+    fn case(dune: &str, unlock_height: u32) {
+      let dune = dune.parse::<Dune>().unwrap();
       assert_eq!(
-        rune.unlock_height(Network::Bitcoin),
+        dune.unlock_height(Network::Bitcoin),
         Some(Height(unlock_height)),
-        "invalid unlock height for rune `{rune}`",
+        "invalid unlock height for dune `{dune}`",
       );
 
       if unlock_height > 0 {
-        assert!(rune >= Rune::minimum_at_height(Network::Bitcoin, Height(unlock_height)));
-        assert!(rune < Rune::minimum_at_height(Network::Bitcoin, Height(unlock_height - 1)));
+        assert!(dune >= Dune::minimum_at_height(Network::Bitcoin, Height(unlock_height)));
+        assert!(dune < Dune::minimum_at_height(Network::Bitcoin, Height(unlock_height - 1)));
       }
     }
 
@@ -519,11 +519,11 @@ mod tests {
 
     case("ZZZZZZZZZZZZ", START);
 
-    case("ZZZZZZZZZZZ", START + Rune::UNLOCK_INTERVAL);
+    case("ZZZZZZZZZZZ", START + Dune::UNLOCK_INTERVAL);
 
-    case("ZZZZZZZZZZ", START + Rune::UNLOCK_INTERVAL * 2);
+    case("ZZZZZZZZZZ", START + Dune::UNLOCK_INTERVAL * 2);
 
-    case("ZZZZZZZZZ", START + Rune::UNLOCK_INTERVAL * 3);
+    case("ZZZZZZZZZ", START + Dune::UNLOCK_INTERVAL * 3);
 
     case("ZZYZXBRKWXVA", START);
 
@@ -553,11 +553,11 @@ mod tests {
     case("A", 1_049_999);
 
     for i in 0..4 {
-      for n in Rune::STEPS[i]..Rune::STEPS[i + 1] {
-        let rune = Rune(n);
-        let unlock_height = rune.unlock_height(Network::Bitcoin).unwrap();
-        assert!(rune >= Rune::minimum_at_height(Network::Bitcoin, unlock_height));
-        assert!(rune < Rune::minimum_at_height(Network::Bitcoin, Height(unlock_height.0 - 1)));
+      for n in Dune::STEPS[i]..Dune::STEPS[i + 1] {
+        let dune = Dune(n);
+        let unlock_height = dune.unlock_height(Network::Bitcoin).unwrap();
+        assert!(dune >= Dune::minimum_at_height(Network::Bitcoin, unlock_height));
+        assert!(dune < Dune::minimum_at_height(Network::Bitcoin, Height(unlock_height.0 - 1)));
       }
     }
   }

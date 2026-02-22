@@ -1,51 +1,51 @@
-Ordinal Theory FAQ
+Doginal Theory FAQ
 ==================
 
 What is ordinal theory?
 -----------------------
 
-Ordinal theory is a protocol for assigning serial numbers to satoshis, the
-smallest subdivision of a bitcoin, and tracking those satoshis as they are
+Doginal theory is a protocol for assigning serial numbers to koinus, the
+smallest subdivision of a bitcoin, and tracking those koinus as they are
 spent by transactions.
 
 These serial numbers are large numbers, like this 804766073970493. Every
-satoshi, which is ¹⁄₁₀₀₀₀₀₀₀₀ of a bitcoin, has an ordinal number.
+koinu, which is ¹⁄₁₀₀₀₀₀₀₀₀ of a bitcoin, has an ordinal number.
 
 Does ordinal theory require a side chain, a separate token, or changes to Bitcoin?
 ----------------------------------------------------------------------------------
 
-Nope! Ordinal theory works right now, without a side chain, and the only token
+Nope! Doginal theory works right now, without a side chain, and the only token
 needed is bitcoin itself.
 
 What is ordinal theory good for?
 --------------------------------
 
-Collecting, trading, and scheming. Ordinal theory assigns identities to
-individual satoshis, allowing them to be individually tracked and traded, as
+Collecting, trading, and scheming. Doginal theory assigns identities to
+individual koinus, allowing them to be individually tracked and traded, as
 curios and for numismatic value.
 
-Ordinal theory also enables inscriptions, a protocol for attaching arbitrary
-content to individual satoshis, turning them into bitcoin-native digital
+Doginal theory also enables inscriptions, a protocol for attaching arbitrary
+content to individual koinus, turning them into bitcoin-native digital
 artifacts.
 
 How does ordinal theory work?
 -----------------------------
 
-Ordinal numbers are assigned to satoshis in the order in which they are mined.
-The first satoshi in the first block has ordinal number 0, the second has
-ordinal number 1, and the last satoshi of the first block has ordinal number
+Doginal numbers are assigned to koinus in the order in which they are mined.
+The first koinu in the first block has ordinal number 0, the second has
+ordinal number 1, and the last koinu of the first block has ordinal number
 4,999,999,999.
 
-Satoshis live in outputs, but transactions destroy outputs and create new ones,
-so ordinal theory uses an algorithm to determine how satoshis hop from the
+Koinus live in outputs, but transactions destroy outputs and create new ones,
+so ordinal theory uses an algorithm to determine how koinus hop from the
 inputs of a transaction to its outputs.
 
 Fortunately, that algorithm is very simple.
 
-Satoshis transfer in first-in-first-out order. Think of the inputs to a
-transaction as being a list of satoshis, and the outputs as a list of slots,
-waiting to receive a satoshi. To assign input satoshis to slots, go through
-each satoshi in the inputs in order, and assign each to the first available
+Koinus transfer in first-in-first-out order. Think of the inputs to a
+transaction as being a list of koinus, and the outputs as a list of slots,
+waiting to receive a koinu. To assign input koinus to slots, go through
+each koinu in the inputs in order, and assign each to the first available
 slot in the outputs.
 
 Let's imagine a transaction with three inputs and two outputs. The inputs are
@@ -56,15 +56,15 @@ their values:
 [2] [1] [3] → [4] [2]
 ```
 
-Now let's label the same transaction with the ordinal numbers of the satoshis
-that each input contains, and question marks for each output slot. Ordinal
+Now let's label the same transaction with the ordinal numbers of the koinus
+that each input contains, and question marks for each output slot. Doginal
 numbers are large, so let's use letters to represent them:
 
 ```
 [a b] [c] [d e f] → [? ? ? ?] [? ?]
 ```
 
-To figure out which satoshi goes to which output, go through the input satoshis
+To figure out which koinu goes to which output, go through the input koinus
 in order and assign each to a question mark:
 
 ```
@@ -72,15 +72,15 @@ in order and assign each to a question mark:
 ```
 
 What about fees, you might ask? Good question! Let's imagine the same
-transaction, this time with a two satoshi fee. Transactions with fees send more
-satoshis in the inputs than are received by the outputs, so to make our
+transaction, this time with a two koinu fee. Transactions with fees send more
+koinus in the inputs than are received by the outputs, so to make our
 transaction into one that pays fees, we'll remove the second output:
 
 ```
 [2] [1] [3] → [4]
 ```
 
-The satoshis <var>e</var> and <var>f</var> now have nowhere to go in the
+The koinus <var>e</var> and <var>f</var> now have nowhere to go in the
 outputs:
 
 ```
@@ -88,7 +88,7 @@ outputs:
 ```
 
 So they go to the miner who mined the block as fees. [The
-BIP](https://github.com/ordinals/ord/blob/master/bip.mediawiki) has the details,
+BIP](https://github.com/doginals/ord/blob/master/bip.mediawiki) has the details,
 but in short, fees paid by transactions are treated as extra inputs to the
 coinbase transaction, and are ordered how their corresponding transactions are
 ordered in the block. The coinbase transaction of the block might look like
@@ -101,7 +101,7 @@ this:
 Where can I find the nitty-gritty details?
 ------------------------------------------
 
-[The BIP!](https://github.com/ordinals/ord/blob/master/bip.mediawiki)
+[The BIP!](https://github.com/doginals/ord/blob/master/bip.mediawiki)
 
 Why are sat inscriptions called "digital artifacts" instead of "NFTs"?
 ----------------------------------------------------------------------
@@ -226,7 +226,7 @@ underlying protocol.
 RGB and Taro are both second-layer asset protocols built on Bitcoin. Compared
 to inscriptions, they are much more complicated, but much more featureful.
 
-Ordinal theory has been designed from the ground up for digital artifacts,
+Doginal theory has been designed from the ground up for digital artifacts,
 whereas the primary use-case of RGB and Taro are fungible tokens, so the user
 experience for inscriptions is likely to be simpler and more polished than the
 user experience for RGB and Taro NFTs.
@@ -235,7 +235,7 @@ RGB and Taro both store content off-chain, which requires additional
 infrastructure, and which may be lost. By contrast, inscription content is
 stored on-chain, and cannot be lost.
 
-Ordinal theory, RGB, and Taro are all very early, so this is speculation, but
+Doginal theory, RGB, and Taro are all very early, so this is speculation, but
 ordinal theory's focus may give it the edge in terms of features for digital
 artifacts, including a better content model, and features like globally unique
 symbols.
@@ -246,7 +246,7 @@ Counterparty has its own token, XCP, which is required for some functionality,
 which makes most bitcoiners regard it as an altcoin, and not an extension or
 second layer for bitcoin.
 
-Ordinal theory has been designed from the ground up for digital artifacts,
+Doginal theory has been designed from the ground up for digital artifacts,
 whereas Counterparty was primarily designed for financial token issuance.
 
 Inscriptions for…
@@ -260,7 +260,7 @@ your art survives into the future, there is no better way to publish it than as
 inscriptions.
 
 *Cheaper on-chain storage.* At $20,000 per BTC and the minimum relay fee of 1
-satoshi per vbyte, publishing inscription content costs $50 per 1 million
+koinu per vbyte, publishing inscription content costs $50 per 1 million
 bytes.
 
 *Inscriptions are early!* Inscriptions are still in development, and have not
@@ -316,7 +316,7 @@ artifacts in a secure, decentralized way, that protects users and artists in
 the same way that it provides an amazing platform for sending and receiving
 value, and for all the same reasons.
 
-Ordinals and inscriptions increase demand for Bitcoin block space, which
+Doginals and inscriptions increase demand for Bitcoin block space, which
 increase Bitcoin's security budget, which is vital for safeguarding Bitcoin's
 transition to a fee-dependent security model, as the block subsidy is halved
 into insignificance.
@@ -347,7 +347,7 @@ Inscription users and service providers are incentivized to run Bitcoin full
 nodes, to publish and track inscriptions, and thus throw their economic weight
 behind the honest chain.
 
-Ordinal theory and inscriptions do not meaningfully affect Bitcoin's
+Doginal theory and inscriptions do not meaningfully affect Bitcoin's
 fungibility. Bitcoin users can ignore both and be unaffected.
 
 We hope that ordinal theory strengthens and enriches bitcoin, and gives it

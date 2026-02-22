@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Output {
-  pub runes: BTreeMap<Rune, RuneInfo>,
+  pub dunes: BTreeMap<Dune, RuneInfo>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -11,11 +11,11 @@ pub struct RuneInfo {
   pub burned: u128,
   pub divisibility: u8,
   pub etching: Txid,
-  pub id: RuneId,
+  pub id: DuneId,
   pub mints: u128,
   pub number: u64,
   pub premine: u128,
-  pub rune: SpacedRune,
+  pub dune: SpacedDune,
   pub supply: u128,
   pub symbol: Option<char>,
   pub terms: Option<Terms>,
@@ -29,19 +29,19 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
 
   ensure!(
     index.has_rune_index(),
-    "`ord runes` requires index created with `--index-runes` flag",
+    "`ord dunes` requires index created with `--index-dunes` flag",
   );
 
   index.update()?;
 
   Ok(Some(Box::new(Output {
-    runes: index
-      .runes()?
+    dunes: index
+      .dunes()?
       .into_iter()
       .map(
         |(
           id,
-          entry @ RuneEntry {
+          entry @ DuneEntry {
             block,
             burned,
             divisibility,
@@ -49,7 +49,7 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
             mints,
             number,
             premine,
-            spaced_rune,
+            spaced_dune,
             symbol,
             terms,
             timestamp,
@@ -57,7 +57,7 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
           },
         )| {
           (
-            spaced_rune.rune,
+            spaced_dune.dune,
             RuneInfo {
               block,
               burned,
@@ -67,7 +67,7 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
               mints,
               number,
               premine,
-              rune: spaced_rune,
+              dune: spaced_dune,
               supply: entry.supply(),
               symbol,
               terms,
@@ -78,6 +78,6 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
           )
         },
       )
-      .collect::<BTreeMap<Rune, RuneInfo>>(),
+      .collect::<BTreeMap<Dune, RuneInfo>>(),
   })))
 }

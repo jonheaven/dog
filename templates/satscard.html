@@ -1,10 +1,10 @@
-%% if let Some((Satscard { address, .. }, _address_info)) = &self.satscard {
-<h1>Satscard {{ address }}</h1>
+%% if let Some((Koinucard { address, .. }, _address_info)) = &self.koinucard {
+<h1>Koinucard {{ address }}</h1>
 %% } else {
-<h1>Satscard</h1>
+<h1>Koinucard</h1>
 %% }
 <form>
-  <label for=url>Satscard URL</label>
+  <label for=url>Koinucard URL</label>
   <input
     type=text
     id=url
@@ -16,7 +16,7 @@
 <p>
   <a href=https://docs.ordinals.com/guides/satscards.html>Guide</a>
 </p>
-%% if let Some((Satscard { address, nonce, slot, state, .. }, address_info)) = &self.satscard {
+%% if let Some((Koinucard { address, nonce, slot, state, .. }, address_info)) = &self.koinucard {
 <dl>
   <dt>slot</dt>
   <dd>{{ slot + 1 }}</dd>

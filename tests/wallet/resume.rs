@@ -10,8 +10,8 @@ fn get_batchfile() -> batch::File {
   batch::File {
     etching: Some(batch::Etching {
       divisibility: 0,
-      rune: SpacedRune {
-        rune: Rune(RUNE),
+      dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       supply: "1000".parse().unwrap(),
@@ -31,15 +31,15 @@ fn inscribe_batch(
   batchfile: &batch::File,
   tempdir: &Arc<TempDir>,
   core: &mockcore::Handle,
-  ord: &TestServer,
+  dog: &TestServer,
 ) {
   let mut spawn =
-    CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+    CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
       .temp_dir(tempdir.clone())
       .write("batch.yaml", serde_yaml::to_string(&batchfile).unwrap())
       .write("inscription.jpeg", "inscription")
       .core(core)
-      .ord(ord)
+      .dog(dog)
       .expected_exit_code(1)
       .spawn();
 
@@ -51,7 +51,7 @@ fn inscribe_batch(
 
   assert_regex_match!(
     buffer,
-    "Waiting for rune AAAAAAAAAAAAA commitment [[:xdigit:]]{64} to mature…\n"
+    "Waiting for dune AAAAAAAAAAAAA commitment [[:xdigit:]]{64} to mature…\n"
   );
 
   core.mine_blocks(1);
@@ -79,36 +79,36 @@ fn inscribe_batch(
 #[test]
 fn wallet_resume() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batchfile = get_batchfile();
   let tempdir = Arc::new(TempDir::new().unwrap());
 
-  inscribe_batch(&batchfile, &tempdir, &core, &ord);
+  inscribe_batch(&batchfile, &tempdir, &core, &dog);
 
   core.mine_blocks(6);
 
-  let output = CommandBuilder::new("--regtest --index-runes wallet resume")
+  let output = CommandBuilder::new("--regtest --index-dunes wallet resume")
     .temp_dir(tempdir)
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::wallet::resume::ResumeOutput>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::wallet::resume::ResumeOutput>();
 
   assert_eq!(
     output
       .etchings
       .first()
       .unwrap()
-      .rune
+      .dune
       .clone()
       .unwrap()
-      .rune
-      .rune,
-    Rune(RUNE)
+      .dune
+      .dune,
+    Dune(RUNE)
   );
 
   assert!(output.etchings.first().unwrap().reveal_broadcast);
@@ -117,82 +117,82 @@ fn wallet_resume() {
 #[test]
 fn wallet_resume_by_rune_name() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batchfile = get_batchfile();
   let tempdir = Arc::new(TempDir::new().unwrap());
 
-  inscribe_batch(&batchfile, &tempdir, &core, &ord);
+  inscribe_batch(&batchfile, &tempdir, &core, &dog);
 
   core.mine_blocks(6);
 
-  let output = CommandBuilder::new("--regtest --index-runes wallet resume --rune AAAAAAAAAAAAA")
+  let output = CommandBuilder::new("--regtest --index-dunes wallet resume --dune AAAAAAAAAAAAA")
     .temp_dir(tempdir)
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<ord::subcommand::wallet::resume::ResumeOutput>();
+    .dog(&dog)
+    .run_and_deserialize_output::<dog::subcommand::wallet::resume::ResumeOutput>();
 
   assert_eq!(
     output
       .etchings
       .first()
       .unwrap()
-      .rune
+      .dune
       .clone()
       .unwrap()
-      .rune
-      .rune,
-    Rune(RUNE)
+      .dune
+      .dune,
+    Dune(RUNE)
   );
 
   assert!(output.etchings.first().unwrap().reveal_broadcast);
 }
 
 #[test]
-fn wallet_resume_by_rune_not_found() {
+fn wallet_resume_by_dune_not_found() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batchfile = get_batchfile();
   let tempdir = Arc::new(TempDir::new().unwrap());
 
-  inscribe_batch(&batchfile, &tempdir, &core, &ord);
+  inscribe_batch(&batchfile, &tempdir, &core, &dog);
 
   core.mine_blocks(6);
 
-  CommandBuilder::new("--regtest --index-runes wallet resume --rune BBBBBBBBBBBBB")
+  CommandBuilder::new("--regtest --index-dunes wallet resume --dune BBBBBBBBBBBBB")
     .temp_dir(tempdir)
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: rune BBBBBBBBBBBBB does not correspond to any pending etching.");
+    .dog(&dog)
+    .expected_stderr("error: dune BBBBBBBBBBBBB does not correspond to any pending etching.");
 }
 
 #[test]
 fn resume_suspended() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batchfile = get_batchfile();
   let tempdir = Arc::new(TempDir::new().unwrap());
 
-  inscribe_batch(&batchfile, &tempdir, &core, &ord);
+  inscribe_batch(&batchfile, &tempdir, &core, &dog);
 
-  let mut spawn = CommandBuilder::new("--regtest --index-runes wallet resume")
+  let mut spawn = CommandBuilder::new("--regtest --index-dunes wallet resume")
     .temp_dir(tempdir)
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .spawn();
 
   thread::sleep(Duration::from_secs(1));
@@ -219,9 +219,9 @@ fn resume_suspended() {
 fn commitment_output_is_locked() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
@@ -229,12 +229,12 @@ fn commitment_output_is_locked() {
   let tempdir = Arc::new(TempDir::new().unwrap());
 
   let mut spawn =
-    CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+    CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
       .temp_dir(tempdir.clone())
       .write("batch.yaml", serde_yaml::to_string(&batchfile).unwrap())
       .write("inscription.jpeg", "inscription")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .expected_exit_code(1)
       .spawn();
 
@@ -245,7 +245,7 @@ fn commitment_output_is_locked() {
 
   assert_regex_match!(
     buffer,
-    "Waiting for rune AAAAAAAAAAAAA commitment [[:xdigit:]]{64} to mature…\n"
+    "Waiting for dune AAAAAAAAAAAAA commitment [[:xdigit:]]{64} to mature…\n"
   );
 
   let commitment = core.mempool()[0].compute_txid();

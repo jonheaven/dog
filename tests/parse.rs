@@ -1,4 +1,4 @@
-use {super::*, ord::Object, ord::subcommand::parse::Output};
+use {super::*, dog::Object, dog::subcommand::parse::Output};
 
 #[test]
 fn name() {

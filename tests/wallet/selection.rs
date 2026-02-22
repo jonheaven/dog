@@ -4,18 +4,18 @@ use super::*;
 fn inscribe_does_not_select_runic_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
-  CommandBuilder::new("--regtest --index-runes wallet inscribe --fee-rate 0 --file foo.txt")
+  CommandBuilder::new("--regtest --index-dunes wallet inscribe --fee-rate 0 --file foo.txt")
     .write("foo.txt", "FOO")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr("error: wallet contains no cardinal utxos\n")
     .run_and_extract_stdout();
@@ -25,17 +25,17 @@ fn inscribe_does_not_select_runic_utxos() {
 fn send_amount_does_not_select_runic_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
-  CommandBuilder::new("--regtest --index-runes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 600sat")
+  CommandBuilder::new("--regtest --index-dunes wallet send --fee-rate 1 bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw 600sat")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr("error: not enough cardinal utxos\n")
     .run_and_extract_stdout();
@@ -45,28 +45,28 @@ fn send_amount_does_not_select_runic_utxos() {
 fn send_satpoint_does_not_send_runic_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks_with_subsidy(1, 10000);
 
-  let etched = etch(&core, &ord, Rune(RUNE));
+  let etched = etch(&core, &dog, Dune(RUNE));
 
   CommandBuilder::new(format!(
     "
         --regtest
-        --index-runes
+        --index-dunes
         wallet
         send
         --fee-rate 1
         bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw
         {}:0
       ",
-    etched.output.rune.unwrap().location.unwrap()
+    etched.output.dune.unwrap().location.unwrap()
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr("error: runic outpoints may not be sent by satpoint\n")
   .expected_exit_code(1)
   .run_and_extract_stdout();
@@ -76,21 +76,21 @@ fn send_satpoint_does_not_send_runic_utxos() {
 fn send_inscription_does_not_select_runic_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  etch(&core, &ord, Rune(RUNE));
+  etch(&core, &dog, Dune(RUNE));
 
-  let (id, _) = inscribe(&core, &ord);
+  let (id, _) = inscribe(&core, &dog);
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
   CommandBuilder::new(
     format!(
       "
         --regtest
-        --index-runes
+        --index-dunes
         wallet
         send
         --postage 10000sat
@@ -99,7 +99,7 @@ fn send_inscription_does_not_select_runic_utxos() {
         {id}
       "))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_stderr("error: wallet does not contain enough cardinal UTXOs, please add additional funds to wallet.\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
@@ -109,18 +109,18 @@ fn send_inscription_does_not_select_runic_utxos() {
 fn mint_does_not_select_inscription() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 1,
-        rune: SpacedRune {
-          rune: Rune(RUNE),
+        dune: SpacedDune {
+          dune: Dune(RUNE),
           spacers: 0,
         },
         premine: "1000".parse().unwrap(),
@@ -142,14 +142,14 @@ fn mint_does_not_select_inscription() {
     },
   );
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
   CommandBuilder::new(format!(
-    "--chain regtest --index-runes wallet mint --fee-rate 0 --rune {}",
-    Rune(RUNE)
+    "--chain regtest --index-dunes wallet mint --fee-rate 0 --dune {}",
+    Dune(RUNE)
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: not enough cardinal utxos\n")
   .run_and_extract_stdout();
@@ -159,53 +159,53 @@ fn mint_does_not_select_inscription() {
 fn sending_rune_does_not_send_inscription() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes", "--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes", "--regtest"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks_with_subsidy(1, 10000);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
-  CommandBuilder::new("--chain regtest --index-runes wallet inscribe --fee-rate 0 --file foo.txt")
+  CommandBuilder::new("--chain regtest --index-dunes wallet inscribe --fee-rate 0 --file foo.txt")
     .write("foo.txt", "FOO")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Batch>();
 
   core.mine_blocks_with_subsidy(1, 10000);
 
   pretty_assert_eq!(
-    CommandBuilder::new("--regtest --index-runes wallet balance")
+    CommandBuilder::new("--regtest --index-dunes wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 10000,
       ordinal: 10000,
       runic: Some(0),
-      runes: Some(BTreeMap::new()),
+      dunes: Some(BTreeMap::new()),
       total: 20000,
     }
   );
 
-  etch(&core, &ord, rune);
+  etch(&core, &dog, dune);
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
   CommandBuilder::new(format!(
     "
        --chain regtest
-       --index-runes
+       --index-dunes
        wallet send
        --postage 11111sat
        --fee-rate 0
        bcrt1pyrmadgg78e38ewfv0an8c6eppk2fttv5vnuvz04yza60qau5va0saknu8k
-       1000:{rune}
+       1000:{dune}
      ",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: not enough cardinal utxos\n")
   .run_and_extract_stdout();
@@ -215,33 +215,33 @@ fn sending_rune_does_not_send_inscription() {
 fn split_does_not_select_inscribed_or_runic_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
-  etch(&core, &ord, rune);
+  etch(&core, &dog, dune);
 
-  etch(&core, &ord, Rune(RUNE + 1));
+  etch(&core, &dog, Dune(RUNE + 1));
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
   pretty_assert_eq!(
     CommandBuilder::new("--regtest wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 0,
       ordinal: 20000,
       runic: Some(20000),
-      runes: Some(
+      dunes: Some(
         [
-          (SpacedRune { rune, spacers: 0 }, "1000".parse().unwrap()),
+          (SpacedDune { dune, spacers: 0 }, "1000".parse().unwrap()),
           (
-            SpacedRune {
-              rune: Rune(RUNE + 1),
+            SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0
             },
             "1000".parse().unwrap()
@@ -255,7 +255,7 @@ fn split_does_not_select_inscribed_or_runic_utxos() {
 
   CommandBuilder::new("--regtest wallet split --fee-rate 0 --splits splits.yaml")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .write(
       "splits.yaml",
       format!(
@@ -263,8 +263,8 @@ fn split_does_not_select_inscribed_or_runic_utxos() {
 outputs:
 - address: bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw
   value: 20000 sat
-  runes:
-    {rune}: 1000
+  dunes:
+    {dune}: 1000
 "
       ),
     )
@@ -277,17 +277,17 @@ outputs:
 fn offer_create_does_not_select_non_cardinal_utxos() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let etch = etch(&core, &ord, Rune(RUNE));
+  let etch = etch(&core, &dog, Dune(RUNE));
 
   let inscription = etch.output.inscriptions[0].id;
 
   CommandBuilder::new(format!(
     "--regtest \
-    --index-runes \
+    --index-dunes \
     wallet \
     send \
     --fee-rate 0 \
@@ -295,18 +295,18 @@ fn offer_create_does_not_select_non_cardinal_utxos() {
     {inscription}"
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
-  drain(&core, &ord);
+  drain(&core, &dog);
 
   CommandBuilder::new(format!(
-    "--regtest --index-runes wallet offer create --fee-rate 0 --inscription {inscription} --amount 1sat",
+    "--regtest --index-dunes wallet offer create --fee-rate 0 --inscription {inscription} --amount 1sat",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: not enough cardinal utxos\n")
   .run_and_extract_stdout();

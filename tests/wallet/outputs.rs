@@ -1,12 +1,12 @@
-use {super::*, ord::subcommand::wallet::outputs::Output};
+use {super::*, dog::subcommand::wallet::outputs::Output};
 
 #[test]
 fn outputs() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let coinbase_tx = &core.mine_blocks_with_subsidy(1, 1_000_000)[0].txdata[0];
   let outpoint = OutPoint::new(coinbase_tx.compute_txid(), 0);
@@ -14,21 +14,21 @@ fn outputs() {
 
   let output = CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<Output>>();
 
   assert_eq!(output[0].output, outpoint);
   assert_eq!(output[0].amount, amount.to_sat());
-  assert!(output[0].sat_ranges.is_none());
+  assert!(output[0].koinu_ranges.is_none());
 }
 
 #[test]
 fn outputs_includes_locked_outputs() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let coinbase_tx = &core.mine_blocks_with_subsidy(1, 1_000_000)[0].txdata[0];
   let outpoint = OutPoint::new(coinbase_tx.compute_txid(), 0);
@@ -38,21 +38,21 @@ fn outputs_includes_locked_outputs() {
 
   let output = CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<Output>>();
 
   assert_eq!(output[0].output, outpoint);
   assert_eq!(output[0].amount, amount.to_sat());
-  assert!(output[0].sat_ranges.is_none());
+  assert!(output[0].koinu_ranges.is_none());
 }
 
 #[test]
 fn outputs_includes_unbound_outputs() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let coinbase_tx = &core.mine_blocks_with_subsidy(1, 1_000_000)[0].txdata[0];
   let outpoint = OutPoint::new(coinbase_tx.compute_txid(), 0);
@@ -62,21 +62,21 @@ fn outputs_includes_unbound_outputs() {
 
   let output = CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<Output>>();
 
   assert_eq!(output[0].output, outpoint);
   assert_eq!(output[0].amount, amount.to_sat());
-  assert!(output[0].sat_ranges.is_none());
+  assert!(output[0].koinu_ranges.is_none());
 }
 
 #[test]
 fn outputs_includes_sat_ranges() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-sats"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let coinbase_tx = &core.mine_blocks_with_subsidy(1, 1_000_000)[0].txdata[0];
   let outpoint = OutPoint::new(coinbase_tx.compute_txid(), 0);
@@ -84,13 +84,13 @@ fn outputs_includes_sat_ranges() {
 
   let output = CommandBuilder::new("wallet outputs --ranges")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<Output>>();
 
   assert_eq!(output[0].output, outpoint);
   assert_eq!(output[0].amount, amount.to_sat());
   assert_eq!(
-    output[0].sat_ranges,
+    output[0].koinu_ranges,
     Some(vec!["5000000000-5001000000".to_string()])
   );
 }
@@ -99,20 +99,20 @@ fn outputs_includes_sat_ranges() {
 fn outputs_includes_runes_and_inscriptions() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
   let etched = batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 3,
         premine: "1.111".parse().unwrap(),
-        rune: SpacedRune { rune, spacers: 1 },
+        dune: SpacedDune { dune, spacers: 1 },
         supply: "2.222".parse().unwrap(),
         symbol: '¢',
         terms: Some(batch::Terms {
@@ -130,21 +130,21 @@ fn outputs_includes_runes_and_inscriptions() {
     },
   );
 
-  let output = CommandBuilder::new("--regtest --index-runes wallet outputs")
+  let output = CommandBuilder::new("--regtest --index-dunes wallet outputs")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Vec<Output>>();
 
   assert!(
     output.contains(&Output {
-      output: etched.output.rune.clone().unwrap().location.unwrap(),
-      address: etched.output.rune.unwrap().destination,
+      output: etched.output.dune.clone().unwrap().location.unwrap(),
+      address: etched.output.dune.unwrap().destination,
       amount: 10000,
       inscriptions: Some(Vec::new()),
-      runes: Some(
+      dunes: Some(
         vec![(
-          SpacedRune { rune, spacers: 1 },
-          ord::decimal::Decimal {
+          SpacedDune { dune, spacers: 1 },
+          dog::decimal::Decimal {
             value: 1111,
             scale: 3,
           }
@@ -152,7 +152,7 @@ fn outputs_includes_runes_and_inscriptions() {
         .into_iter()
         .collect()
       ),
-      sat_ranges: None,
+      koinu_ranges: None,
     })
   );
 
@@ -161,7 +161,7 @@ fn outputs_includes_runes_and_inscriptions() {
     address: Some(etched.output.inscriptions[0].destination.clone()),
     amount: 10000,
     inscriptions: Some(vec![etched.output.inscriptions[0].id]),
-    runes: Some(BTreeMap::new()),
-    sat_ranges: None,
+    dunes: Some(BTreeMap::new()),
+    koinu_ranges: None,
   }));
 }

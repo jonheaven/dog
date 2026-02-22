@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Output {
-  pub runes: BTreeMap<SpacedRune, BTreeMap<OutPoint, Pile>>,
+  pub dunes: BTreeMap<SpacedDune, BTreeMap<OutPoint, Pile>>,
 }
 
 pub(crate) fn run(settings: Settings) -> SubcommandResult {
@@ -10,12 +10,12 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
 
   ensure!(
     index.has_rune_index(),
-    "`ord balances` requires index created with `--index-runes` flag",
+    "`ord balances` requires index created with `--index-dunes` flag",
   );
 
   index.update()?;
 
   Ok(Some(Box::new(Output {
-    runes: index.get_rune_balance_map()?,
+    dunes: index.get_rune_balance_map()?,
   })))
 }

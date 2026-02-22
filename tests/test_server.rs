@@ -2,7 +2,7 @@ use {
   super::*,
   axum_server::Handle,
   bitcoincore_rpc::{Auth, Client, RpcApi},
-  ord::{Index, parse_ord_server_args},
+  dog::{Index, parse_ord_server_args},
   reqwest::blocking::Response,
   std::net::SocketAddr,
   sysinfo::System,
@@ -37,7 +37,7 @@ impl TestServer {
     fs::write(&cookiefile, "username:password").unwrap();
 
     let (settings, server) = parse_ord_server_args(&format!(
-      "ord --bitcoin-rpc-url {} --cookie-file {} --bitcoin-data-dir {} --datadir {} {} server {} --http-port 0 --address 127.0.0.1",
+      "dog --bitcoin-rpc-url {} --cookie-file {} --bitcoin-data-dir {} --datadir {} {} server {} --http-port 0 --address 127.0.0.1",
       core.url(),
       cookiefile.to_str().unwrap(),
       tempdir.path().display(),
@@ -106,7 +106,7 @@ impl TestServer {
     &self,
     path: impl AsRef<str>,
     chain: Chain,
-    content: impl ord::templates::PageContent,
+    content: impl dog::templates::PageContent,
   ) {
     self.sync_server();
     let response = reqwest::blocking::get(self.url().join(path.as_ref()).unwrap()).unwrap();
@@ -118,9 +118,9 @@ impl TestServer {
       response.text().unwrap()
     );
 
-    let expected_response = ord::templates::PageHtml::new(
+    let expected_response = dog::templates::PageHtml::new(
       content,
-      Arc::new(ord::subcommand::server::ServerConfig {
+      Arc::new(dog::subcommand::server::ServerConfig {
         chain,
         domain: Some(System::host_name().unwrap()),
         ..Default::default()

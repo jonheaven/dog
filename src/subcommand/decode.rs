@@ -3,13 +3,13 @@ use super::*;
 #[derive(Serialize, Eq, PartialEq, Deserialize, Debug)]
 pub struct CompactOutput {
   pub inscriptions: Vec<CompactInscription>,
-  pub runestone: Option<Artifact>,
+  pub dunestone: Option<Artifact>,
 }
 
 #[derive(Serialize, Eq, PartialEq, Deserialize, Debug)]
 pub struct RawOutput {
   pub inscriptions: Vec<ParsedEnvelope>,
-  pub runestone: Option<Artifact>,
+  pub dunestone: Option<Artifact>,
 }
 
 #[serde_with::skip_serializing_none]
@@ -84,7 +84,7 @@ impl Decode {
 
     let inscriptions = ParsedEnvelope::from_transaction(&transaction);
 
-    let runestone = Runestone::decipher(&transaction);
+    let dunestone = Dunestone::decipher(&transaction);
 
     if self.compact {
       Ok(Some(Box::new(CompactOutput {
@@ -93,12 +93,12 @@ impl Decode {
           .into_iter()
           .map(|inscription| inscription.payload.try_into())
           .collect::<Result<Vec<CompactInscription>>>()?,
-        runestone,
+        dunestone,
       })))
     } else {
       Ok(Some(Box::new(RawOutput {
         inscriptions,
-        runestone,
+        dunestone,
       })))
     }
   }

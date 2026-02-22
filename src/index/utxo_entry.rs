@@ -17,7 +17,7 @@ enum Sats<'a> {
 /// A `UtxoEntry` stores the following information about an unspent transaction
 /// output, depending on the indexing options:
 ///
-/// If `--index-sats`, the full list of sat ranges, stored as a varint followed
+/// If `--index-koinu`, the full list of sat ranges, stored as a varint followed
 /// by that many 11-byte sat range entries, otherwise the total output value
 /// stored as a varint.
 ///
@@ -42,7 +42,7 @@ pub struct UtxoEntry {
 
 impl UtxoEntry {
   pub fn parse(&self, index: &Index) -> ParsedUtxoEntry {
-    let sats;
+    let koinu;
     let mut script_pubkey = None;
     let mut inscriptions = None;
 
@@ -53,11 +53,11 @@ impl UtxoEntry {
 
       let num_sat_ranges: usize = num_sat_ranges.try_into().unwrap();
       let sat_ranges_len = num_sat_ranges * 11;
-      sats = Sats::Ranges(&self.bytes[offset..offset + sat_ranges_len]);
+      koinu = Sats::Ranges(&self.bytes[offset..offset + sat_ranges_len]);
       offset += sat_ranges_len;
     } else {
       let (value, varint_len) = varint::decode(&self.bytes).unwrap();
-      sats = Sats::Value(value.try_into().unwrap());
+      koinu = Sats::Value(value.try_into().unwrap());
       offset += varint_len;
     };
 
@@ -75,7 +75,7 @@ impl UtxoEntry {
     }
 
     ParsedUtxoEntry {
-      sats,
+      koinu,
       script_pubkey,
       inscriptions,
     }
@@ -121,19 +121,19 @@ impl redb::Value for &UtxoEntry {
   }
 
   fn type_name() -> TypeName {
-    TypeName::new("ord::UtxoEntry")
+    TypeName::new("dog::UtxoEntry")
   }
 }
 
 pub struct ParsedUtxoEntry<'a> {
-  sats: Sats<'a>,
+  koinu: Sats<'a>,
   script_pubkey: Option<&'a [u8]>,
   inscriptions: Option<&'a [u8]>,
 }
 
 impl<'a> ParsedUtxoEntry<'a> {
   pub fn total_value(&self) -> u64 {
-    match self.sats {
+    match self.koinu {
       Sats::Value(value) => value,
       Sats::Ranges(ranges) => {
         let mut value = 0;
@@ -146,8 +146,8 @@ impl<'a> ParsedUtxoEntry<'a> {
     }
   }
 
-  pub fn sat_ranges(&self) -> &'a [u8] {
-    let Sats::Ranges(ranges) = self.sats else {
+  pub fn koinu_ranges(&self) -> &'a [u8] {
+    let Sats::Ranges(ranges) = self.koinu else {
       panic!("sat ranges are missing");
     };
     ranges
@@ -217,12 +217,12 @@ impl UtxoEntryBuf {
     self.advance_state(State::NeedSats, State::NeedScriptPubkey, index);
   }
 
-  pub fn push_sat_ranges(&mut self, sat_ranges: &[u8], index: &Index) {
+  pub fn push_sat_ranges(&mut self, koinu_ranges: &[u8], index: &Index) {
     assert!(index.index_sats);
-    let num_sat_ranges = sat_ranges.len() / 11;
-    assert!(num_sat_ranges * 11 == sat_ranges.len());
+    let num_sat_ranges = koinu_ranges.len() / 11;
+    assert!(num_sat_ranges * 11 == koinu_ranges.len());
     varint::encode_to_vec(num_sat_ranges.try_into().unwrap(), &mut self.vec);
-    self.vec.extend(sat_ranges);
+    self.vec.extend(koinu_ranges);
 
     #[cfg(debug_assertions)]
     self.advance_state(State::NeedSats, State::NeedScriptPubkey, index);
@@ -270,8 +270,8 @@ impl UtxoEntryBuf {
     let mut merged = Self::new();
 
     if index.index_sats {
-      let sat_ranges = [a_parsed.sat_ranges(), b_parsed.sat_ranges()].concat();
-      merged.push_sat_ranges(&sat_ranges, index);
+      let koinu_ranges = [a_parsed.koinu_ranges(), b_parsed.koinu_ranges()].concat();
+      merged.push_sat_ranges(&koinu_ranges, index);
     } else {
       assert!(a_parsed.total_value() == 0);
       assert!(b_parsed.total_value() == 0);

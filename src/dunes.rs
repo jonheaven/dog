@@ -27,7 +27,7 @@ mod tests {
 
   #[test]
   fn index_starts_with_no_runes() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
     context.assert_runes([], []);
   }
 
@@ -38,9 +38,9 @@ mod tests {
     context.mine_blocks(1);
 
     context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           ..default()
         }),
         ..default()
@@ -52,8 +52,8 @@ mod tests {
   }
 
   #[test]
-  fn empty_runestone_does_not_create_rune() {
-    let context = Context::builder().arg("--index-runes").build();
+  fn empty_dunestone_does_not_create_rune() {
+    let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
 
@@ -61,7 +61,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0, Witness::new())],
-      op_return: Some(Runestone::default().encipher()),
+      op_return: Some(Dunestone::default().encipher()),
       ..default()
     });
 
@@ -72,12 +72,12 @@ mod tests {
 
   #[test]
   fn etching_with_no_edicts_creates_rune() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           ..default()
         }),
         ..default()
@@ -88,11 +88,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -105,17 +105,17 @@ mod tests {
 
   #[test]
   fn etching_with_edict_creates_rune() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -127,11 +127,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -145,27 +145,27 @@ mod tests {
 
   #[test]
   fn runes_must_be_greater_than_or_equal_to_minimum_for_height() {
-    let minimum = Rune::minimum_at_height(
-      Chain::Regtest.network(),
-      Height((Runestone::COMMIT_CONFIRMATIONS + 2).into()),
+    let minimum = Dune::minimum_at_height(
+      Chain::DogecoinRegtest.network(),
+      Height((Dunestone::COMMIT_CONFIRMATIONS + 2).into()),
     )
     .0;
 
     {
       let context = Context::builder()
-        .chain(Chain::Regtest)
-        .arg("--index-runes")
+        .chain(Chain::DogecoinRegtest)
+        .arg("--index-dunes")
         .build();
 
       context.etch(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
-            rune: Some(Rune(minimum - 1)),
+            dune: Some(Dune(minimum - 1)),
             premine: Some(u128::MAX),
             ..default()
           }),
@@ -179,19 +179,19 @@ mod tests {
 
     {
       let context = Context::builder()
-        .chain(Chain::Regtest)
-        .arg("--index-runes")
+        .chain(Chain::DogecoinRegtest)
+        .arg("--index-dunes")
         .build();
 
       let (txid, id) = context.etch(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
-            rune: Some(Rune(minimum)),
+            dune: Some(Dune(minimum)),
             premine: Some(u128::MAX),
             ..default()
           }),
@@ -203,11 +203,11 @@ mod tests {
       context.assert_runes(
         [(
           id,
-          RuneEntry {
+          DuneEntry {
             block: id.block,
             etching: txid,
-            spaced_rune: SpacedRune {
-              rune: Rune(minimum),
+            spaced_dune: SpacedDune {
+              dune: Dune(minimum),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -223,17 +223,17 @@ mod tests {
   #[test]
   fn etching_cannot_specify_reserved_rune() {
     {
-      let context = Context::builder().arg("--index-runes").build();
+      let context = Context::builder().arg("--index-dunes").build();
 
       context.etch(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
-            rune: Some(Rune::reserved(0, 0)),
+            dune: Some(Dune::reserved(0, 0)),
             ..default()
           }),
           ..default()
@@ -245,17 +245,17 @@ mod tests {
     }
 
     {
-      let context = Context::builder().arg("--index-runes").build();
+      let context = Context::builder().arg("--index-dunes").build();
 
       let (txid, id) = context.etch(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
-            rune: Some(Rune(Rune::reserved(0, 0).n() - 1)),
+            dune: Some(Dune(Dune::reserved(0, 0).n() - 1)),
             premine: Some(u128::MAX),
             ..default()
           }),
@@ -267,11 +267,11 @@ mod tests {
       context.assert_runes(
         [(
           id,
-          RuneEntry {
+          DuneEntry {
             block: id.block,
             etching: txid,
-            spaced_rune: SpacedRune {
-              rune: Rune(Rune::reserved(0, 0).n() - 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(Dune::reserved(0, 0).n() - 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -286,7 +286,7 @@ mod tests {
 
   #[test]
   fn reserved_runes_may_be_etched() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
 
@@ -294,14 +294,14 @@ mod tests {
       inputs: &[(1, 0, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
-            rune: None,
+            dune: None,
             premine: Some(u128::MAX),
             ..default()
           }),
@@ -312,18 +312,18 @@ mod tests {
       ..default()
     });
 
-    let id0 = RuneId { block: 2, tx: 1 };
+    let id0 = DuneId { block: 2, tx: 1 };
 
     context.mine_blocks(1);
 
     context.assert_runes(
       [(
         id0,
-        RuneEntry {
+        DuneEntry {
           block: id0.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune::reserved(id0.block, id0.tx),
+          spaced_dune: SpacedDune {
+            dune: Dune::reserved(id0.block, id0.tx),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -345,15 +345,15 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
           etching: Some(Etching {
             premine: Some(u128::MAX),
-            rune: None,
+            dune: None,
             ..default()
           }),
           ..default()
@@ -365,17 +365,17 @@ mod tests {
 
     context.mine_blocks(1);
 
-    let id1 = RuneId { block: 4, tx: 1 };
+    let id1 = DuneId { block: 4, tx: 1 };
 
     context.assert_runes(
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune::reserved(id0.block, id0.tx),
+            spaced_dune: SpacedDune {
+              dune: Dune::reserved(id0.block, id0.tx),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -385,11 +385,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune::reserved(id1.block, id0.tx),
+            spaced_dune: SpacedDune {
+              dune: Dune::reserved(id1.block, id0.tx),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -420,18 +420,18 @@ mod tests {
 
   #[test]
   fn etching_with_non_zero_divisibility_and_rune() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
           divisibility: Some(1),
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -445,10 +445,10 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           etching: txid,
@@ -464,24 +464,24 @@ mod tests {
 
   #[test]
   fn allocations_over_max_supply_are_ignored() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -493,11 +493,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -511,24 +511,24 @@ mod tests {
 
   #[test]
   fn allocations_partially_over_max_supply_are_honored() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX / 2,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -540,11 +540,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -559,19 +559,19 @@ mod tests {
 
   #[test]
   fn etching_may_allocate_less_than_max_supply() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 100,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(100),
           ..default()
         }),
@@ -583,11 +583,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 100,
@@ -601,24 +601,24 @@ mod tests {
 
   #[test]
   fn etching_may_allocate_to_multiple_outputs() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 100,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 100,
             output: 1,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(200),
           ..default()
         }),
@@ -630,12 +630,12 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           burned: 100,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 200,
@@ -649,24 +649,24 @@ mod tests {
 
   #[test]
   fn allocations_to_invalid_outputs_produce_cenotaph() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 100,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 100,
             output: 3,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           ..default()
         }),
         ..default()
@@ -677,11 +677,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -695,17 +695,17 @@ mod tests {
 
   #[test]
   fn input_runes_may_be_allocated() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -717,11 +717,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -741,7 +741,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: u128::MAX,
@@ -759,11 +759,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -783,17 +783,17 @@ mod tests {
 
   #[test]
   fn etched_rune_is_allocated_with_zero_supply_for_cenotaph() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           ..default()
         }),
         pointer: Some(10),
@@ -805,11 +805,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -822,18 +822,18 @@ mod tests {
 
   #[test]
   fn etched_rune_parameters_are_unset_for_cenotaph() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
           premine: Some(u128::MAX),
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             cap: Some(1),
             amount: Some(1),
@@ -854,7 +854,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           burned: 0,
           divisibility: 0,
@@ -863,8 +863,8 @@ mod tests {
           mints: 0,
           number: 0,
           premine: 0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           symbol: None,
@@ -878,16 +878,16 @@ mod tests {
 
   #[test]
   fn reserved_runes_are_not_allocated_in_cenotaph() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           }],
@@ -907,17 +907,17 @@ mod tests {
 
   #[test]
   fn input_runes_are_burned_if_an_unrecognized_even_tag_is_encountered() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -929,11 +929,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -953,7 +953,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           pointer: Some(10),
           ..default()
         }
@@ -967,12 +967,12 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           burned: u128::MAX,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -986,17 +986,17 @@ mod tests {
 
   #[test]
   fn unallocated_runes_are_assigned_to_first_non_op_return_output() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1008,11 +1008,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1031,7 +1031,7 @@ mod tests {
 
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
-      op_return: Some(Runestone::default().encipher()),
+      op_return: Some(Dunestone::default().encipher()),
       ..default()
     });
 
@@ -1040,11 +1040,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1064,17 +1064,17 @@ mod tests {
 
   #[test]
   fn unallocated_runes_are_burned_if_no_non_op_return_output_is_present() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1086,11 +1086,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1109,7 +1109,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
-      op_return: Some(Runestone::default().encipher()),
+      op_return: Some(Dunestone::default().encipher()),
       outputs: 0,
       ..default()
     });
@@ -1119,11 +1119,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1138,17 +1138,17 @@ mod tests {
 
   #[test]
   fn unallocated_runes_are_assigned_to_default_output() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1160,11 +1160,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1185,7 +1185,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           pointer: Some(1),
           ..default()
         }
@@ -1199,11 +1199,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1223,17 +1223,17 @@ mod tests {
 
   #[test]
   fn unallocated_runes_are_burned_if_default_output_is_op_return() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1245,11 +1245,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1270,7 +1270,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           pointer: Some(2),
           ..default()
         }
@@ -1284,11 +1284,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1302,19 +1302,19 @@ mod tests {
   }
 
   #[test]
-  fn unallocated_runes_in_transactions_with_no_runestone_are_assigned_to_first_non_op_return_output()
+  fn unallocated_runes_in_transactions_with_no_dunestone_are_assigned_to_first_non_op_return_output()
    {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1326,11 +1326,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1358,11 +1358,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1382,17 +1382,17 @@ mod tests {
 
   #[test]
   fn duplicate_runes_are_forbidden() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1404,11 +1404,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1420,14 +1420,14 @@ mod tests {
     );
 
     context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           ..default()
         }),
         ..default()
@@ -1440,11 +1440,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1458,17 +1458,17 @@ mod tests {
 
   #[test]
   fn output_may_hold_multiple_runes() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1480,11 +1480,11 @@ mod tests {
     context.assert_runes(
       [(
         id0,
-        RuneEntry {
+        DuneEntry {
           block: id0.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1502,14 +1502,14 @@ mod tests {
     );
 
     let (txid1, id1) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE + 1)),
+          dune: Some(Dune(RUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1522,11 +1522,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1536,11 +1536,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1582,11 +1582,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1596,11 +1596,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1622,17 +1622,17 @@ mod tests {
 
   #[test]
   fn multiple_input_runes_on_the_same_input_may_be_allocated() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1644,11 +1644,11 @@ mod tests {
     context.assert_runes(
       [(
         id0,
-        RuneEntry {
+        DuneEntry {
           block: id0.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1666,14 +1666,14 @@ mod tests {
     );
 
     let (txid1, id1) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE + 1)),
+          dune: Some(Dune(RUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1686,11 +1686,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1700,11 +1700,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1746,11 +1746,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1760,11 +1760,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1787,7 +1787,7 @@ mod tests {
       inputs: &[((id1.block + 1).try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id: id0,
@@ -1813,11 +1813,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1827,11 +1827,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1862,17 +1862,17 @@ mod tests {
 
   #[test]
   fn multiple_input_runes_on_different_inputs_may_be_allocated() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1884,11 +1884,11 @@ mod tests {
     context.assert_runes(
       [(
         id0,
-        RuneEntry {
+        DuneEntry {
           block: id0.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -1906,14 +1906,14 @@ mod tests {
     );
 
     let (txid1, id1) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE + 1)),
+          dune: Some(Dune(RUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -1926,11 +1926,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1940,11 +1940,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -1978,7 +1978,7 @@ mod tests {
         (id1.block.try_into().unwrap(), 1, 0, Witness::new()),
       ],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id: id0,
@@ -2004,11 +2004,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2018,11 +2018,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2045,17 +2045,17 @@ mod tests {
   #[test]
   fn unallocated_runes_are_assigned_to_first_non_op_return_output_when_op_return_is_not_last_output()
    {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2067,11 +2067,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2104,11 +2104,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2122,17 +2122,17 @@ mod tests {
 
   #[test]
   fn multiple_runes_may_be_etched_in_one_block() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2142,14 +2142,14 @@ mod tests {
     );
 
     let (txid1, id1) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE + 1)),
+          dune: Some(Dune(RUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2162,11 +2162,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2176,11 +2176,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2211,17 +2211,17 @@ mod tests {
 
   #[test]
   fn edicts_with_id_zero_are_skipped() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2233,11 +2233,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2257,10 +2257,10 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
-              id: RuneId::default(),
+              id: DuneId::default(),
               amount: 100,
               output: 0,
             },
@@ -2282,11 +2282,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2306,17 +2306,17 @@ mod tests {
 
   #[test]
   fn edicts_which_refer_to_input_rune_with_no_balance_are_skipped() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id0) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2328,11 +2328,11 @@ mod tests {
     context.assert_runes(
       [(
         id0,
-        RuneEntry {
+        DuneEntry {
           block: id0.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2350,14 +2350,14 @@ mod tests {
     );
 
     let (txid1, id1) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE + 1)),
+          dune: Some(Dune(RUNE + 1)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2370,11 +2370,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2384,11 +2384,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2419,7 +2419,7 @@ mod tests {
     let txid2 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id0.block.try_into().unwrap(), 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id: id0,
@@ -2445,11 +2445,11 @@ mod tests {
       [
         (
           id0,
-          RuneEntry {
+          DuneEntry {
             block: id0.block,
             etching: txid0,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2459,11 +2459,11 @@ mod tests {
         ),
         (
           id1,
-          RuneEntry {
+          DuneEntry {
             block: id1.block,
             etching: txid1,
-            spaced_rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            spaced_dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0,
             },
             premine: u128::MAX,
@@ -2494,17 +2494,17 @@ mod tests {
 
   #[test]
   fn edicts_over_max_inputs_are_ignored() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX / 2,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX / 2),
           ..default()
         }),
@@ -2516,11 +2516,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX / 2,
@@ -2540,7 +2540,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: u128::MAX,
@@ -2558,11 +2558,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX / 2,
@@ -2582,17 +2582,17 @@ mod tests {
 
   #[test]
   fn edicts_may_transfer_runes_to_op_return_outputs() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 1,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2604,12 +2604,12 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           burned: u128::MAX,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2623,17 +2623,17 @@ mod tests {
 
   #[test]
   fn outputs_with_no_runes_have_no_balance() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2645,11 +2645,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2663,24 +2663,24 @@ mod tests {
 
   #[test]
   fn edicts_which_transfer_no_runes_to_output_create_no_balance_entry() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 0,
             output: 1,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2692,11 +2692,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2710,17 +2710,17 @@ mod tests {
 
   #[test]
   fn split_in_etching() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 0,
           output: 5,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2732,11 +2732,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2755,24 +2755,24 @@ mod tests {
 
   #[test]
   fn split_in_etching_with_preceding_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 1000,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 0,
             output: 5,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2784,11 +2784,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2819,24 +2819,24 @@ mod tests {
 
   #[test]
   fn split_in_etching_with_following_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 0,
             output: 5,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 1000,
             output: 0,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2848,11 +2848,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2871,17 +2871,17 @@ mod tests {
 
   #[test]
   fn split_with_amount_in_etching() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 1000,
           output: 5,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(4000),
           ..default()
         }),
@@ -2893,11 +2893,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 4000,
@@ -2916,24 +2916,24 @@ mod tests {
 
   #[test]
   fn split_in_etching_with_amount_with_preceding_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX - 3000,
             output: 0,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 1000,
             output: 5,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2945,11 +2945,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -2967,24 +2967,24 @@ mod tests {
 
   #[test]
   fn split_in_etching_with_amount_with_following_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: 1000,
             output: 5,
           },
           Edict {
-            id: RuneId::default(),
+            id: DuneId::default(),
             amount: u128::MAX,
             output: 0,
           },
         ],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -2996,11 +2996,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3022,17 +3022,17 @@ mod tests {
 
   #[test]
   fn split() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3044,11 +3044,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3069,7 +3069,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 0,
@@ -3087,11 +3087,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3120,17 +3120,17 @@ mod tests {
 
   #[test]
   fn split_with_preceding_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3142,11 +3142,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3167,7 +3167,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id,
@@ -3192,11 +3192,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3225,17 +3225,17 @@ mod tests {
 
   #[test]
   fn split_with_following_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3247,11 +3247,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3272,7 +3272,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id,
@@ -3297,11 +3297,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3330,17 +3330,17 @@ mod tests {
 
   #[test]
   fn split_with_amount() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3352,11 +3352,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3377,7 +3377,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -3395,11 +3395,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3428,17 +3428,17 @@ mod tests {
 
   #[test]
   fn split_with_amount_with_preceding_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3450,11 +3450,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3475,7 +3475,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 4,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id,
@@ -3500,11 +3500,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3533,17 +3533,17 @@ mod tests {
 
   #[test]
   fn split_with_amount_with_following_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3555,11 +3555,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3580,7 +3580,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 4,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id,
@@ -3605,11 +3605,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3652,17 +3652,17 @@ mod tests {
 
   #[test]
   fn etching_may_specify_symbol() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           symbol: Some('$'),
           premine: Some(u128::MAX),
           ..default()
@@ -3675,11 +3675,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3694,17 +3694,17 @@ mod tests {
 
   #[test]
   fn allocate_all_remaining_runes_in_etching() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 0,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3716,11 +3716,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3734,17 +3734,17 @@ mod tests {
 
   #[test]
   fn allocate_all_remaining_runes_in_inputs() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: u128::MAX,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -3756,11 +3756,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3781,7 +3781,7 @@ mod tests {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 0,
@@ -3799,11 +3799,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -3823,12 +3823,12 @@ mod tests {
 
   #[test]
   fn rune_can_be_minted_without_edict() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -3844,11 +3844,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -3867,7 +3867,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -3881,7 +3881,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
           terms: Some(Terms {
@@ -3890,8 +3890,8 @@ mod tests {
             ..default()
           }),
           mints: 1,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -3911,12 +3911,12 @@ mod tests {
 
   #[test]
   fn rune_cannot_be_minted_less_than_limit_amount() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -3932,11 +3932,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -3956,7 +3956,7 @@ mod tests {
       inputs: &[(2, 0, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           edicts: vec![Edict {
             id,
@@ -3975,7 +3975,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
           terms: Some(Terms {
@@ -3984,8 +3984,8 @@ mod tests {
             ..default()
           }),
           mints: 1,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4005,12 +4005,12 @@ mod tests {
 
   #[test]
   fn etching_with_amount_can_be_minted() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             cap: Some(100),
             amount: Some(1000),
@@ -4026,11 +4026,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -4050,7 +4050,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -4069,7 +4069,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
           terms: Some(Terms {
@@ -4078,8 +4078,8 @@ mod tests {
             ..default()
           }),
           mints: 1,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4096,11 +4096,11 @@ mod tests {
       )],
     );
 
-    // claim the rune
+    // claim the dune
     let txid2 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(4, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -4119,7 +4119,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
           terms: Some(Terms {
@@ -4128,8 +4128,8 @@ mod tests {
             ..default()
           }),
           mints: 2,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4155,11 +4155,11 @@ mod tests {
       ],
     );
 
-    // claim the rune in a burn runestone
+    // claim the dune in a burn dunestone
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(5, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           pointer: Some(10),
           mint: Some(id),
           edicts: vec![Edict {
@@ -4179,7 +4179,7 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           burned: 1000,
           etching: txid0,
@@ -4189,8 +4189,8 @@ mod tests {
             ..default()
           }),
           mints: 3,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: 0,
@@ -4219,12 +4219,12 @@ mod tests {
 
   #[test]
   fn open_mints_can_be_limited_with_offset_end() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4238,11 +4238,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4260,7 +4260,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4287,7 +4287,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4312,12 +4312,12 @@ mod tests {
 
   #[test]
   fn open_mints_can_be_limited_with_offset_start() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4331,11 +4331,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4353,7 +4353,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4369,7 +4369,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4396,12 +4396,12 @@ mod tests {
 
   #[test]
   fn open_mints_can_be_limited_with_height_start() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4415,11 +4415,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4437,7 +4437,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4453,7 +4453,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4480,12 +4480,12 @@ mod tests {
 
   #[test]
   fn open_mints_can_be_limited_with_height_end() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4499,11 +4499,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4521,7 +4521,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4548,7 +4548,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4573,12 +4573,12 @@ mod tests {
 
   #[test]
   fn open_mints_must_be_ended_with_etched_height_plus_offset_end() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4592,11 +4592,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4614,7 +4614,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4640,7 +4640,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4665,12 +4665,12 @@ mod tests {
 
   #[test]
   fn open_mints_must_be_ended_with_height_end() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4684,11 +4684,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4706,7 +4706,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4732,7 +4732,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4757,12 +4757,12 @@ mod tests {
 
   #[test]
   fn open_mints_must_be_started_with_height_start() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4776,11 +4776,11 @@ mod tests {
       1,
     );
 
-    let mut entry0 = RuneEntry {
+    let mut entry0 = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4798,7 +4798,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4816,7 +4816,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4843,12 +4843,12 @@ mod tests {
 
   #[test]
   fn open_mints_must_be_started_with_etched_height_plus_offset_start() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -4862,11 +4862,11 @@ mod tests {
       1,
     );
 
-    let mut entry = RuneEntry {
+    let mut entry = DuneEntry {
       block: id.block,
       etching: txid0,
-      spaced_rune: SpacedRune {
-        rune: Rune(RUNE),
+      spaced_dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       terms: Some(Terms {
@@ -4884,7 +4884,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4902,7 +4902,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4929,17 +4929,17 @@ mod tests {
 
   #[test]
   fn open_mints_with_offset_end_zero_can_be_premined() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 1111,
           output: 0,
         }],
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(1111),
           terms: Some(Terms {
             amount: Some(1000),
@@ -4956,11 +4956,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -4980,7 +4980,7 @@ mod tests {
       inputs: &[(2, 0, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           mint: Some(id),
           ..default()
         }
@@ -4994,11 +4994,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5017,12 +5017,12 @@ mod tests {
 
   #[test]
   fn open_mints_can_be_limited_to_cap() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(2),
@@ -5038,11 +5038,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5060,7 +5060,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -5079,10 +5079,10 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5108,7 +5108,7 @@ mod tests {
     let txid2 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(3, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -5127,11 +5127,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5165,7 +5165,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(4, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -5184,11 +5184,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5222,12 +5222,12 @@ mod tests {
 
   #[test]
   fn open_mints_without_a_cap_are_unmintable() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             offset: (None, Some(2)),
@@ -5243,11 +5243,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5265,7 +5265,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 1000,
@@ -5284,10 +5284,10 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5307,12 +5307,12 @@ mod tests {
 
   #[test]
   fn open_mint_claims_can_use_split() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -5328,11 +5328,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5351,7 +5351,7 @@ mod tests {
       inputs: &[(3, 0, 0, Witness::new())],
       outputs: 2,
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 0,
@@ -5370,11 +5370,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           timestamp: id.block,
@@ -5408,12 +5408,12 @@ mod tests {
 
   #[test]
   fn runes_can_be_etched_and_premined_in_the_same_transaction() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(2000),
           terms: Some(Terms {
             amount: Some(1000),
@@ -5422,7 +5422,7 @@ mod tests {
           ..default()
         }),
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 2000,
           output: 0,
         }],
@@ -5434,11 +5434,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5456,12 +5456,12 @@ mod tests {
 
   #[test]
   fn omitted_edicts_defaults_to_mint_amount() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             offset: (None, Some(1)),
             ..default()
@@ -5476,11 +5476,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5498,12 +5498,12 @@ mod tests {
 
   #[test]
   fn premines_can_claim_over_mint_amount() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(2000),
           terms: Some(Terms {
             amount: Some(1000),
@@ -5513,7 +5513,7 @@ mod tests {
           ..default()
         }),
         edicts: vec![Edict {
-          id: RuneId::default(),
+          id: DuneId::default(),
           amount: 2000,
           output: 0,
         }],
@@ -5525,11 +5525,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5549,12 +5549,12 @@ mod tests {
 
   #[test]
   fn transactions_cannot_claim_more_than_mint_amount() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -5570,7 +5570,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 2000,
@@ -5589,11 +5589,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5618,12 +5618,12 @@ mod tests {
 
   #[test]
   fn multiple_edicts_in_one_transaction_may_claim_open_mint() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           terms: Some(Terms {
             amount: Some(1000),
             cap: Some(100),
@@ -5639,11 +5639,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5661,7 +5661,7 @@ mod tests {
     let txid1 = context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(2, 0, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![
             Edict {
               id,
@@ -5692,11 +5692,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           terms: Some(Terms {
@@ -5721,7 +5721,7 @@ mod tests {
 
   #[test]
   fn commits_are_not_valid_in_non_taproot_witnesses() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let block_count = context.index.block_count().unwrap().into_usize();
 
@@ -5733,13 +5733,13 @@ mod tests {
       ..default()
     });
 
-    context.mine_blocks(Runestone::COMMIT_CONFIRMATIONS.into());
+    context.mine_blocks(Dunestone::COMMIT_CONFIRMATIONS.into());
 
     let mut witness = Witness::new();
 
-    let runestone = Runestone {
+    let dunestone = Dunestone {
       etching: Some(Etching {
-        rune: Some(Rune(RUNE)),
+        dune: Some(Dune(RUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5751,10 +5751,10 @@ mod tests {
 
     let tapscript = script::Builder::new()
       .push_slice::<&PushBytes>(
-        runestone
+        dunestone
           .etching
           .unwrap()
-          .rune
+          .dune
           .unwrap()
           .commitment()
           .as_slice()
@@ -5769,7 +5769,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(block_count + 1, 1, 0, witness)],
-      op_return: Some(runestone.encipher()),
+      op_return: Some(dunestone.encipher()),
       outputs: 1,
       ..default()
     });
@@ -5781,7 +5781,7 @@ mod tests {
 
   #[test]
   fn immature_commits_are_not_valid() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let block_count = context.index.block_count().unwrap().into_usize();
 
@@ -5793,13 +5793,13 @@ mod tests {
       ..default()
     });
 
-    context.mine_blocks((Runestone::COMMIT_CONFIRMATIONS - 2).into());
+    context.mine_blocks((Dunestone::COMMIT_CONFIRMATIONS - 2).into());
 
     let mut witness = Witness::new();
 
-    let runestone = Runestone {
+    let dunestone = Dunestone {
       etching: Some(Etching {
-        rune: Some(Rune(RUNE)),
+        dune: Some(Dune(RUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5811,10 +5811,10 @@ mod tests {
 
     let tapscript = script::Builder::new()
       .push_slice::<&PushBytes>(
-        runestone
+        dunestone
           .etching
           .unwrap()
-          .rune
+          .dune
           .unwrap()
           .commitment()
           .as_slice()
@@ -5829,7 +5829,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(block_count + 1, 1, 0, witness)],
-      op_return: Some(runestone.encipher()),
+      op_return: Some(dunestone.encipher()),
       outputs: 1,
       ..default()
     });
@@ -5841,7 +5841,7 @@ mod tests {
 
   #[test]
   fn immature_commits_are_not_valid_even_when_bitcoind_is_ahead() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let block_count = context.index.block_count().unwrap().into_usize();
 
@@ -5853,13 +5853,13 @@ mod tests {
       ..default()
     });
 
-    context.mine_blocks_with_update((Runestone::COMMIT_CONFIRMATIONS - 2).into(), false);
+    context.mine_blocks_with_update((Dunestone::COMMIT_CONFIRMATIONS - 2).into(), false);
 
     let mut witness = Witness::new();
 
-    let runestone = Runestone {
+    let dunestone = Dunestone {
       etching: Some(Etching {
-        rune: Some(Rune(RUNE)),
+        dune: Some(Dune(RUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5871,10 +5871,10 @@ mod tests {
 
     let tapscript = script::Builder::new()
       .push_slice::<&PushBytes>(
-        runestone
+        dunestone
           .etching
           .unwrap()
-          .rune
+          .dune
           .unwrap()
           .commitment()
           .as_slice()
@@ -5889,7 +5889,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(block_count + 1, 1, 0, witness)],
-      op_return: Some(runestone.encipher()),
+      op_return: Some(dunestone.encipher()),
       outputs: 1,
       ..default()
     });
@@ -5903,7 +5903,7 @@ mod tests {
 
   #[test]
   fn etchings_are_not_valid_without_commitment() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let block_count = context.index.block_count().unwrap().into_usize();
 
@@ -5915,13 +5915,13 @@ mod tests {
       ..default()
     });
 
-    context.mine_blocks(Runestone::COMMIT_CONFIRMATIONS.into());
+    context.mine_blocks(Dunestone::COMMIT_CONFIRMATIONS.into());
 
     let mut witness = Witness::new();
 
-    let runestone = Runestone {
+    let dunestone = Dunestone {
       etching: Some(Etching {
-        rune: Some(Rune(RUNE)),
+        dune: Some(Dune(RUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5941,7 +5941,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(block_count + 1, 1, 0, witness)],
-      op_return: Some(runestone.encipher()),
+      op_return: Some(dunestone.encipher()),
       outputs: 1,
       ..default()
     });
@@ -5953,13 +5953,13 @@ mod tests {
 
   #[test]
   fn tx_commits_to_rune_ignores_invalid_script() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     context.mine_blocks(1);
 
-    let runestone = Runestone {
+    let dunestone = Dunestone {
       etching: Some(Etching {
-        rune: Some(Rune(RUNE)),
+        dune: Some(Dune(RUNE)),
         terms: Some(Terms {
           amount: Some(1000),
           ..default()
@@ -5976,7 +5976,7 @@ mod tests {
 
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(1, 0, 0, witness)],
-      op_return: Some(runestone.encipher()),
+      op_return: Some(dunestone.encipher()),
       outputs: 1,
       ..default()
     });
@@ -5988,12 +5988,12 @@ mod tests {
 
   #[test]
   fn edict_with_amount_zero_and_no_destinations_is_ignored() {
-    let context = Context::builder().arg("--index-runes").build();
+    let context = Context::builder().arg("--index-dunes").build();
 
     let (txid0, id) = context.etch(
-      Runestone {
+      Dunestone {
         etching: Some(Etching {
-          rune: Some(Rune(RUNE)),
+          dune: Some(Dune(RUNE)),
           premine: Some(u128::MAX),
           ..default()
         }),
@@ -6005,11 +6005,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -6029,7 +6029,7 @@ mod tests {
     context.core.broadcast_tx(TransactionTemplate {
       inputs: &[(id.block.try_into().unwrap(), 1, 0, Witness::new())],
       op_return: Some(
-        Runestone {
+        Dunestone {
           edicts: vec![Edict {
             id,
             amount: 0,
@@ -6048,11 +6048,11 @@ mod tests {
     context.assert_runes(
       [(
         id,
-        RuneEntry {
+        DuneEntry {
           block: id.block,
           etching: txid0,
-          spaced_rune: SpacedRune {
-            rune: Rune(RUNE),
+          spaced_dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0,
           },
           premine: u128::MAX,
@@ -6068,18 +6068,18 @@ mod tests {
   #[test]
   fn genesis_rune() {
     assert_eq!(
-      Chain::Mainnet.first_rune_height(),
+      Chain::Dogecoin.first_rune_height(),
       SUBSIDY_HALVING_INTERVAL * 4,
     );
 
     Context::builder()
-      .chain(Chain::Mainnet)
-      .arg("--index-runes")
+      .chain(Chain::Dogecoin)
+      .arg("--index-dunes")
       .build()
       .assert_runes(
         [(
-          RuneId { block: 1, tx: 0 },
-          RuneEntry {
+          DuneId { block: 1, tx: 0 },
+          DuneEntry {
             block: 1,
             burned: 0,
             divisibility: 0,
@@ -6087,8 +6087,8 @@ mod tests {
             mints: 0,
             number: 0,
             premine: 0,
-            spaced_rune: SpacedRune {
-              rune: Rune(2055900680524219742),
+            spaced_dune: SpacedDune {
+              dune: Dune(2055900680524219742),
               spacers: 128,
             },
             symbol: Some('\u{29C9}'),

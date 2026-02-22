@@ -1,6 +1,6 @@
 [package]
-name = "ord"
-description = "◉ Ordinal wallet and block explorer"
+name = "dog"
+description = "◉ Doginal wallet and block explorer"
 version = "0.25.0"
 autotests = false
 autobins = false
@@ -13,14 +13,14 @@ repository.workspace = true
 rust-version.workspace = true
 
 [package.metadata.deb]
-copyright = "The Ord Maintainers"
-maintainer = "The Ord Maintainers"
+copyright = "The Dog Maintainers"
+maintainer = "The Dog Maintainers"
 
 [workspace]
 members = [".", "crates/*"]
 
 [workspace.package]
-authors = ["The Ord Maintainers"]
+authors = ["The Dog Maintainers"]
 edition = "2024"
 homepage = "https://github.com/ordinals/ord"
 license = "CC0-1.0"
@@ -108,11 +108,11 @@ reqwest.workspace = true
 unindent = "0.2.1"
 
 [[bin]]
-name = "ord"
+name = "dog"
 path = "src/bin/main.rs"
 
 [lib]
-name = "ord"
+name = "dog"
 path = "src/lib.rs"
 
 [[test]]

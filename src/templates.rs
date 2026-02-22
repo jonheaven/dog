@@ -23,14 +23,14 @@ pub(crate) use {
     PreviewModelHtml, PreviewPdfHtml, PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml,
   },
   rare::RareTxt,
-  rune_not_found::RuneNotFoundHtml,
-  sat::SatHtml,
-  satscard::SatscardHtml,
+  dune_not_found::RuneNotFoundHtml,
+  koinu::SatHtml,
+  koinucard::SatscardHtml,
 };
 
 pub use {
-  blocks::BlocksHtml, inscription::InscriptionHtml, item::ItemHtml, rune::RuneHtml,
-  runes::RunesHtml, status::StatusHtml, transaction::TransactionHtml,
+  blocks::BlocksHtml, inscription::InscriptionHtml, item::ItemHtml, dune::RuneHtml,
+  dunes::RunesHtml, status::StatusHtml, transaction::TransactionHtml,
 };
 
 pub mod address;
@@ -54,11 +54,11 @@ pub mod output;
 mod parents;
 mod preview;
 mod rare;
-pub mod rune;
-pub mod rune_not_found;
-pub mod runes;
-pub mod sat;
-mod satscard;
+pub mod dune;
+pub mod dune_not_found;
+pub mod dunes;
+pub mod koinu;
+mod koinucard;
 pub mod status;
 pub mod transaction;
 
@@ -85,7 +85,7 @@ where
   }
 
   fn superscript(&self) -> String {
-    if self.config.chain == Chain::Mainnet {
+    if self.config.chain == Chain::Dogecoin {
       "beta".into()
     } else {
       self.config.chain.to_string()
@@ -126,7 +126,7 @@ mod tests {
   fn page() {
     assert_regex_match!(
       Foo.page(Arc::new(ServerConfig {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         csp_origin: Some("https://signet.ordinals.com".into()),
         domain: Some("signet.ordinals.com".into()),
         index_sats: true,
@@ -152,7 +152,7 @@ mod tests {
   <body>
   <header>
     <nav>
-      <a href=/ title=home>Ordinals<sup>beta</sup></a>
+      <a href=/ title=home>Doginals<sup>beta</sup></a>
       .*
       <a href=/clock title=clock>.*</a>
       <a href=/rare.txt title=rare>.*</a>
@@ -176,13 +176,13 @@ mod tests {
   fn page_mainnet() {
     assert_regex_match!(
       Foo.page(Arc::new(ServerConfig {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         csp_origin: None,
         domain: None,
         index_sats: true,
         ..default()
       })),
-      r".*<nav>\s*<a href=/ title=home>Ordinals<sup>beta</sup></a>.*"
+      r".*<nav>\s*<a href=/ title=home>Doginals<sup>beta</sup></a>.*"
     );
   }
 
@@ -190,13 +190,13 @@ mod tests {
   fn page_no_sat_index() {
     assert_regex_match!(
       Foo.page(Arc::new(ServerConfig {
-        chain: Chain::Mainnet,
+        chain: Chain::Dogecoin,
         csp_origin: None,
         domain: None,
         index_sats: false,
         ..default()
       })),
-      r".*<nav>\s*<a href=/ title=home>Ordinals<sup>beta</sup></a>.*<a href=/clock title=clock>.*</a>\s*<form action=/search.*",
+      r".*<nav>\s*<a href=/ title=home>Doginals<sup>beta</sup></a>.*<a href=/clock title=clock>.*</a>\s*<form action=/search.*",
     );
   }
 
@@ -204,13 +204,13 @@ mod tests {
   fn page_signet() {
     assert_regex_match!(
       Foo.page(Arc::new(ServerConfig {
-        chain: Chain::Signet,
+        chain: Chain::DogecoinTestnet,
         csp_origin: None,
         domain: None,
         index_sats: true,
         ..default()
       })),
-      r".*<nav>\s*<a href=/ title=home>Ordinals<sup>signet</sup></a>.*"
+      r".*<nav>\s*<a href=/ title=home>Doginals<sup>dogecoin-testnet</sup></a>.*"
     );
   }
 }

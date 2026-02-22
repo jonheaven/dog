@@ -1008,13 +1008,13 @@ curl -s \
 ```json
 {
   "inscriptions": null,
-  "runes": null,
+  "dunes": null,
   "sat_ranges": null,
   "value": 5000000000
 }
 ```
 
-With rune, inscription, and sat index:
+With dune, inscription, and sat index:
 
 ```bash
 curl -s \
@@ -1026,7 +1026,7 @@ curl -s \
   "inscriptions": [
     "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0"
   ],
-  "runes": {
+  "dunes": {
     "UNCOMMON•GOODS": {
       "amount": 6845,
       "divisibility": 0,

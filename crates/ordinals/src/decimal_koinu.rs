@@ -1,13 +1,13 @@
 use super::*;
 
 #[derive(PartialEq, Debug)]
-pub struct DecimalSat {
+pub struct DecimalKoinu {
   pub height: Height,
   pub offset: u64,
 }
 
-impl From<Sat> for DecimalSat {
-  fn from(sat: Sat) -> Self {
+impl From<Koinu> for DecimalKoinu {
+  fn from(sat: Koinu) -> Self {
     Self {
       height: sat.height(),
       offset: sat.third(),
@@ -15,7 +15,7 @@ impl From<Sat> for DecimalSat {
   }
 }
 
-impl Display for DecimalSat {
+impl Display for DecimalKoinu {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}.{}", self.height, self.offset)
   }
@@ -28,22 +28,22 @@ mod tests {
   #[test]
   fn decimal() {
     assert_eq!(
-      Sat(0).decimal(),
-      DecimalSat {
+      Koinu(0).decimal(),
+      DecimalKoinu {
         height: Height(0),
         offset: 0
       }
     );
     assert_eq!(
-      Sat(1).decimal(),
-      DecimalSat {
+      Koinu(1).decimal(),
+      DecimalKoinu {
         height: Height(0),
         offset: 1
       }
     );
     assert_eq!(
-      Sat(2099999997689999).decimal(),
-      DecimalSat {
+      Koinu(2099999997689999).decimal(),
+      DecimalKoinu {
         height: Height(6929999),
         offset: 0
       }

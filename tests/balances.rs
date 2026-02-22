@@ -7,7 +7,7 @@ fn flag_is_required() {
   CommandBuilder::new("--regtest balances")
     .core(&core)
     .expected_exit_code(1)
-    .expected_stderr("error: `ord balances` requires index created with `--index-runes` flag\n")
+    .expected_stderr("error: `dog balances` requires index created with `--index-dunes` flag\n")
     .run_and_extract_stdout();
 }
 
@@ -15,14 +15,14 @@ fn flag_is_required() {
 fn no_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let output = CommandBuilder::new("--regtest --index-runes balances")
+  let output = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
     .run_and_deserialize_output::<Balances>();
 
   assert_eq!(
     output,
     Balances {
-      runes: BTreeMap::new()
+      dunes: BTreeMap::new()
     }
   );
 }
@@ -31,23 +31,23 @@ fn no_runes() {
 fn with_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let a = etch(&core, &ord, Rune(RUNE));
-  let b = etch(&core, &ord, Rune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(RUNE));
+  let b = etch(&core, &dog, Dune(RUNE + 1));
 
-  let output = CommandBuilder::new("--regtest --index-runes balances")
+  let output = CommandBuilder::new("--regtest --index-dunes balances")
     .core(&core)
     .run_and_deserialize_output::<Balances>();
 
   assert_eq!(
     output,
     Balances {
-      runes: [
+      dunes: [
         (
-          SpacedRune::new(Rune(RUNE), 0),
+          SpacedDune::new(Dune(RUNE), 0),
           [(
             OutPoint {
               txid: a.output.reveal,
@@ -62,7 +62,7 @@ fn with_runes() {
           .into()
         ),
         (
-          SpacedRune::new(Rune(RUNE + 1), 0),
+          SpacedDune::new(Dune(RUNE + 1), 0),
           [(
             OutPoint {
               txid: b.output.reveal,

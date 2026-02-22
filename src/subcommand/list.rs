@@ -11,8 +11,8 @@ pub struct Output {
   pub address: Option<Address<NetworkUnchecked>>,
   pub indexed: bool,
   pub inscriptions: Option<Vec<InscriptionId>>,
-  pub runes: Option<BTreeMap<SpacedRune, Pile>>,
-  pub sat_ranges: Option<Vec<Range>>,
+  pub dunes: Option<BTreeMap<SpacedDune, Pile>>,
+  pub koinu_ranges: Option<Vec<Range>>,
   pub script_pubkey: String,
   pub spent: bool,
   pub transaction: String,
@@ -34,7 +34,7 @@ impl List {
     let index = Index::open(&settings)?;
 
     if !index.has_sat_index() {
-      bail!("list requires index created with `--index-sats` flag");
+      bail!("list requires index created with `--index-koinu` flag");
     }
 
     index.update()?;
@@ -53,8 +53,8 @@ impl List {
       address: list.address,
       indexed: list.indexed,
       inscriptions: list.inscriptions,
-      runes: list.runes,
-      sat_ranges: list.sat_ranges.map(output_ranges),
+      dunes: list.dunes,
+      koinu_ranges: list.koinu_ranges.map(output_ranges),
       script_pubkey: list.script_pubkey.to_asm_string(),
       spent: list.spent,
       transaction: list.transaction.to_string(),
@@ -71,9 +71,9 @@ fn output_ranges(ranges: Vec<(u64, u64)>) -> Vec<Range> {
       let size = end - start;
       let output = Range {
         end,
-        name: Sat(start).name(),
+        name: Koinu(start).name(),
         offset,
-        rarity: Sat(start).rarity(),
+        rarity: Koinu(start).rarity(),
         size,
         start,
       };

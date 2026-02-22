@@ -1,29 +1,24 @@
 use super::*;
 
 #[derive(Clone, Default, Debug, Parser)]
-#[command(group(
-  ArgGroup::new("chains")
-    .required(false)
-    .args(&["chain_argument", "signet", "regtest", "testnet", "testnet4"]),
-))]
 pub struct Options {
-  #[arg(long, help = "Load Bitcoin Core data dir from <BITCOIN_DATA_DIR>.")]
+  #[arg(long, help = "Load Dogecoin Core data dir from <DOGECOIN_DATA_DIR>.")]
   pub(crate) bitcoin_data_dir: Option<PathBuf>,
   #[arg(
     long,
-    help = "Authenticate to Bitcoin Core RPC with <BITCOIN_RPC_PASSWORD>."
+    help = "Authenticate to Dogecoin Core RPC with <DOGECOIN_RPC_PASSWORD>."
   )]
   pub(crate) bitcoin_rpc_password: Option<String>,
-  #[arg(long, help = "Connect to Bitcoin Core RPC at <BITCOIN_RPC_URL>.")]
+  #[arg(long, help = "Connect to Dogecoin Core RPC at <DOGECOIN_RPC_URL>.")]
   pub(crate) bitcoin_rpc_url: Option<String>,
   #[arg(
     long,
-    help = "Authenticate to Bitcoin Core RPC as <BITCOIN_RPC_USERNAME>."
+    help = "Authenticate to Dogecoin Core RPC as <DOGECOIN_RPC_USERNAME>."
   )]
   pub(crate) bitcoin_rpc_username: Option<String>,
   #[arg(long, help = "Max <N> requests in flight. [default: 12]")]
   pub(crate) bitcoin_rpc_limit: Option<u32>,
-  #[arg(long = "chain", value_enum, help = "Use <CHAIN>. [default: mainnet]")]
+  #[arg(long = "chain", value_enum, help = "Use <CHAIN>. [default: dogecoin]")]
   pub(crate) chain_argument: Option<Chain>,
   #[arg(
     long,
@@ -41,7 +36,7 @@ pub struct Options {
   pub(crate) config: Option<PathBuf>,
   #[arg(long, help = "Load configuration from <CONFIG_DIR>.")]
   pub(crate) config_dir: Option<PathBuf>,
-  #[arg(long, help = "Load Bitcoin Core RPC cookie file from <COOKIE_FILE>.")]
+  #[arg(long, help = "Load Dogecoin Core RPC cookie file from <COOKIE_FILE>.")]
   pub(crate) cookie_file: Option<PathBuf>,
   #[arg(long, alias = "datadir", help = "Store index in <DATA_DIR>.")]
   pub(crate) data_dir: Option<PathBuf>,
@@ -56,9 +51,9 @@ pub struct Options {
     help = "Set index cache size to <INDEX_CACHE_SIZE> bytes. [default: 1/4 available RAM]"
   )]
   pub(crate) index_cache_size: Option<usize>,
-  #[arg(long, help = "Track location of runes.")]
+  #[arg(long, help = "Track location of dunes.")]
   pub(crate) index_runes: bool,
-  #[arg(long, help = "Track location of all satoshis.")]
+  #[arg(long, help = "Track location of all koinu.")]
   pub(crate) index_sats: bool,
   #[arg(long, help = "Store transactions in index.")]
   pub(crate) index_transactions: bool,
@@ -83,12 +78,8 @@ pub struct Options {
     help = "Require basic HTTP authentication with <SERVER_USERNAME>. Credentials are sent in cleartext. Consider using authentication in conjunction with HTTPS."
   )]
   pub(crate) server_username: Option<String>,
-  #[arg(long, short, help = "Use regtest. Equivalent to `--chain regtest`.")]
+  #[arg(long, short, help = "Use regtest. Equivalent to `--chain dogecoin-regtest`.")]
   pub(crate) regtest: bool,
-  #[arg(long, short, help = "Use signet. Equivalent to `--chain signet`.")]
-  pub(crate) signet: bool,
-  #[arg(long, short, help = "Use testnet. Equivalent to `--chain testnet`.")]
+  #[arg(long, short, help = "Use testnet. Equivalent to `--chain dogecoin-testnet`.")]
   pub(crate) testnet: bool,
-  #[arg(long, help = "Use testnet4. Equivalent to `--chain testnet4`.")]
-  pub(crate) testnet4: bool,
 }

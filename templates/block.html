@@ -21,11 +21,11 @@ prev
 next
 %% }
 </div>
-<h2>{{"Rune".tally(self.runes.len())}}</h2>
-%% if self.runes.len() > 0 {
+<h2>{{"Dune".tally(self.dunes.len())}}</h2>
+%% if self.dunes.len() > 0 {
 <ul>
-  %% for spaced_rune in &self.runes {
-  <li><a href=/rune/{{ spaced_rune }}>{{ spaced_rune }}</a></li>
+  %% for spaced_dune in &self.dunes {
+  <li><a href=/dune/{{ spaced_dune }}>{{ spaced_dune }}</a></li>
   %% }
 </ul>
 %% }

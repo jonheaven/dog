@@ -83,7 +83,7 @@ impl Context {
   pub(crate) fn builder() -> ContextBuilder {
     ContextBuilder {
       args: Vec::new(),
-      chain: Chain::Regtest,
+      chain: Chain::DogecoinRegtest,
       event_sender: None,
       tempdir: None,
     }
@@ -112,18 +112,18 @@ impl Context {
   pub(crate) fn configurations() -> Vec<Context> {
     vec![
       Context::builder().build(),
-      Context::builder().arg("--index-sats").build(),
+      Context::builder().arg("--index-koinu").build(),
     ]
   }
 
   #[track_caller]
   pub(crate) fn assert_runes(
     &self,
-    mut runes: impl AsMut<[(RuneId, RuneEntry)]>,
-    mut balances: impl AsMut<[(OutPoint, Vec<(RuneId, u128)>)]>,
+    mut dunes: impl AsMut<[(DuneId, DuneEntry)]>,
+    mut balances: impl AsMut<[(OutPoint, Vec<(DuneId, u128)>)]>,
   ) {
-    let runes = runes.as_mut();
-    runes.sort_by_key(|(id, _)| *id);
+    let dunes = dunes.as_mut();
+    dunes.sort_by_key(|(id, _)| *id);
 
     let balances = balances.as_mut();
     balances.sort_by_key(|(outpoint, _)| *outpoint);
@@ -132,11 +132,11 @@ impl Context {
       balances.sort_by_key(|(id, _)| *id);
     }
 
-    pretty_assert_eq!(runes, self.index.runes().unwrap());
+    pretty_assert_eq!(dunes, self.index.dunes().unwrap());
 
     pretty_assert_eq!(balances, self.index.get_rune_balances().unwrap());
 
-    let mut outstanding: HashMap<RuneId, u128> = HashMap::new();
+    let mut outstanding: HashMap<DuneId, u128> = HashMap::new();
 
     for (_, balances) in balances {
       for (id, balance) in balances {
@@ -144,7 +144,7 @@ impl Context {
       }
     }
 
-    for (id, entry) in runes {
+    for (id, entry) in dunes {
       pretty_assert_eq!(
         outstanding.get(id).copied().unwrap_or_default(),
         entry.supply() - entry.burned
@@ -152,7 +152,7 @@ impl Context {
     }
   }
 
-  pub(crate) fn etch(&self, runestone: Runestone, outputs: usize) -> (Txid, RuneId) {
+  pub(crate) fn etch(&self, dunestone: Dunestone, outputs: usize) -> (Txid, DuneId) {
     let block_count = usize::try_from(self.index.block_count().unwrap()).unwrap();
 
     self.mine_blocks(1);
@@ -163,15 +163,15 @@ impl Context {
       ..default()
     });
 
-    self.mine_blocks(Runestone::COMMIT_CONFIRMATIONS.into());
+    self.mine_blocks(Dunestone::COMMIT_CONFIRMATIONS.into());
 
     let mut witness = Witness::new();
 
-    if let Some(etching) = runestone.etching {
+    if let Some(etching) = dunestone.etching {
       let tapscript = script::Builder::new()
         .push_slice::<&PushBytes>(
           etching
-            .rune
+            .dune
             .unwrap()
             .commitment()
             .as_slice()
@@ -189,7 +189,7 @@ impl Context {
 
     let txid = self.core.broadcast_tx(TransactionTemplate {
       inputs: &[(block_count + 1, 1, 0, witness)],
-      op_return: Some(runestone.encipher()),
+      op_return: Some(dunestone.encipher()),
       outputs,
       ..default()
     });
@@ -198,8 +198,8 @@ impl Context {
 
     (
       txid,
-      RuneId {
-        block: u64::try_from(block_count + usize::from(Runestone::COMMIT_CONFIRMATIONS) + 1)
+      DuneId {
+        block: u64::try_from(block_count + usize::from(Dunestone::COMMIT_CONFIRMATIONS) + 1)
           .unwrap(),
         tx: 1,
       },

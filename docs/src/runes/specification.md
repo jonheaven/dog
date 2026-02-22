@@ -5,7 +5,7 @@ The Runes reference implementation, `ord`, is the normative specification of
 the Runes protocol.
 
 Nothing you read here or elsewhere, aside from the code of `ord`, is a
-specification. This prose description of the runes protocol is provided as a
+specification. This prose description of the dunes protocol is provided as a
 guide to the behavior of `ord`, and the code of `ord` itself should always be
 consulted to confirm the correctness of any prose description.
 
@@ -15,23 +15,23 @@ document will be amended to agree with `ord`'s actual behavior.
 
 Users of alternative implementations do so at their own risk, and services
 wishing to integrate Runes are strongly encouraged to use `ord` itself to make
-Runes transactions, and to determine the state of runes, mints, and balances.
+Runes transactions, and to determine the state of dunes, mints, and balances.
 
-Runestones
+Dunestones
 ----------
 
-Rune protocol messages are termed "runestones".
+Dune protocol messages are termed "dunestones".
 
-The Runes protocol activates on block 840,000. Runestones in earlier blocks are
+The Runes protocol activates on block 840,000. Dunestones in earlier blocks are
 ignored.
 
-Abstractly, runestones contain the following fields:
+Abstractly, dunestones contain the following fields:
 
 ```rust
-struct Runestone {
+struct Dunestone {
   edicts: Vec<Edict>,
   etching: Option<Etching>,
-  mint: Option<RuneId>,
+  mint: Option<DuneId>,
   pointer: Option<u32>,
 }
 ```
@@ -42,7 +42,7 @@ Runes are created by etchings:
 struct Etching {
   divisibility: Option<u8>,
   premine: Option<u128>,
-  rune: Option<Rune>,
+  dune: Option<Dune>,
   spacers: Option<u32>,
   symbol: Option<char>,
   terms: Option<Terms>,
@@ -64,33 +64,33 @@ Runes are transferred by edict:
 
 ```rust
 struct Edict {
-  id: RuneId,
+  id: DuneId,
   amount: u128,
   output: u32,
 }
 ```
 
-Rune IDs are encoded as the block height and transaction index of the
-transaction in which the rune was etched:
+Dune IDs are encoded as the block height and transaction index of the
+transaction in which the dune was etched:
 
 ```rust
-struct RuneId {
+struct DuneId {
   block: u64,
   tx: u32,
 }
 ```
 
-Rune IDs are represented in text as `BLOCK:TX`.
+Dune IDs are represented in text as `BLOCK:TX`.
 
-Rune names are encoded as modified base-26 integers:
+Dune names are encoded as modified base-26 integers:
 
 ```rust
-struct Rune(u128);
+struct Dune(u128);
 ```
 
 ### Deciphering
 
-Runestones are deciphered from transactions with the following steps:
+Dunestones are deciphered from transactions with the following steps:
 
 1. Find the first transaction output whose script pubkey begins with `OP_RETURN
    OP_13`.
@@ -102,12 +102,12 @@ Runestones are deciphered from transactions with the following steps:
 
 4. Parse the sequence of integers into an untyped message.
 
-5. Parse the untyped message into a runestone.
+5. Parse the untyped message into a dunestone.
 
-Deciphering may produce a malformed runestone, termed a
+Deciphering may produce a malformed dunestone, termed a
 [cenotaph](https://en.wikipedia.org/wiki/Cenotaph).
 
-#### Locating the Runestone Output
+#### Locating the Dunestone Output
 
 Outputs are searched for the first script pubkey that beings with `OP_RETURN
 OP_13`. If deciphering fails, later matching outputs are not considered.
@@ -119,7 +119,7 @@ the matching script pubkey.
 
 Data pushes are opcodes 0 through 78 inclusive. If a non-data push opcode is
 encountered, i.e., any opcode equal to or greater than opcode 79, the
-deciphered runestone is a cenotaph with no etching, mint, or edicts.
+deciphered dunestone is a cenotaph with no etching, mint, or edicts.
 
 #### Decoding the Integer Sequence
 
@@ -130,7 +130,7 @@ most-significant bit set, except for the last.
 
 If a LEB128 varint contains more than 18 bytes, would overflow a u128, or is
 truncated, meaning that the end of the payload buffer is reached before
-encountering a byte with the continuation bit not set, the decoded runestone is
+encountering a byte with the continuation bit not set, the decoded dunestone is
 a cenotaph with no etching, mint, or edicts.
 
 #### Parsing the Message
@@ -148,27 +148,27 @@ The integers are interpreted as a sequence of tag/value pairs, with duplicate
 tags appending their value to the field value.
 
 If a tag with value zero is encountered, all following integers are interpreted
-as a series of four-integer edicts, each consisting of a rune ID block height,
-rune ID transaction index, amount, and output.
+as a series of four-integer edicts, each consisting of a dune ID block height,
+dune ID transaction index, amount, and output.
 
 ```rust
 struct Edict {
-  id: RuneId,
+  id: DuneId,
   amount: u128,
   output: u32,
 }
 ```
 
-Rune ID block heights and transaction indices in edicts are delta encoded.
+Dune ID block heights and transaction indices in edicts are delta encoded.
 
-Edict rune ID decoding starts with a base block height and transaction index of
-zero. When decoding each rune ID, first the encoded block height delta is added
+Edict dune ID decoding starts with a base block height and transaction index of
+zero. When decoding each dune ID, first the encoded block height delta is added
 to the base block height. If the block height delta is zero, the next integer
 is a transaction index delta. If the block height delta is greater than zero,
 the next integer is instead an absolute transaction index.
 
-This implies that edicts must first be sorted by rune ID before being encoded
-in a runestone.
+This implies that edicts must first be sorted by dune ID before being encoded
+in a dunestone.
 
 For example, to encode the following edicts:
 
@@ -198,22 +198,22 @@ And then delta encoded as:
 | 40          | 1        | 25     | 4      |
 
 If an edict output is greater than the number of outputs of the transaction, an
-edict rune ID is encountered with block zero and nonzero transaction index, or
+edict dune ID is encountered with block zero and nonzero transaction index, or
 a field is truncated, meaning a tag is encountered without a value, the decoded
-runestone is a cenotaph.
+dunestone is a cenotaph.
 
 Note that if a cenotaph is produced here, the cenotaph is not empty, meaning
 that it contains the fields and edicts, which may include an etching and mint.
 
-#### Parsing the Runestone
+#### Parsing the Dunestone
 
-The runestone:
+The dunestone:
 
 ```rust
-struct Runestone {
+struct Dunestone {
   edicts: Vec<Edict>,
   etching: Option<Etching>,
-  mint: Option<RuneId>,
+  mint: Option<DuneId>,
   pointer: Option<u32>,
 }
 ```
@@ -224,7 +224,7 @@ Is parsed from the unsigned message using the following tags:
 enum Tag {
   Body = 0,
   Flags = 2,
-  Rune = 4,
+  Dune = 4,
   Premine = 6,
   Cap = 8,
   Amount = 10,
@@ -251,7 +251,7 @@ time, and should not be used.
 
 ##### Body
 
-The `Body` tag marks the end of the runestone's fields, causing all following
+The `Body` tag marks the end of the dunestone's fields, causing all following
 integers to be interpreted as edicts.
 
 ##### Flags
@@ -279,17 +279,17 @@ costs, or just be highly degenerate.
 The `Cenotaph` flag is unrecognized.
 
 If the value of the flags field after removing recognized flags is nonzero, the
-runestone is a cenotaph.
+dunestone is a cenotaph.
 
-##### Rune
+##### Dune
 
-The `Rune` field contains the name of the rune being etched. If the `Etching`
-flag is set but the `Rune` field is omitted, a reserved rune name is
+The `Dune` field contains the name of the dune being etched. If the `Etching`
+flag is set but the `Dune` field is omitted, a reserved dune name is
 allocated.
 
 ##### Premine
 
-The `Premine` field contains the amount of premined runes.
+The `Premine` field contains the amount of premined dunes.
 
 ##### Cap
 
@@ -297,7 +297,7 @@ The `Cap` field contains the allowed number of mints.
 
 ##### Amount
 
-The `Amount` field contains the amount of runes each mint transaction receives.
+The `Amount` field contains the amount of dunes each mint transaction receives.
 
 ##### HeightStart and HeightEnd
 
@@ -314,15 +314,15 @@ closes in the block with height `OffsetEnd` + `ETCHING_HEIGHT`.
 
 ##### Mint
 
-The `Mint` field contains the Rune ID of the rune to be minted in this
+The `Mint` field contains the Dune ID of the dune to be minted in this
 transaction.
 
 ##### Pointer
 
-The `Pointer` field contains the index of the output to which runes unallocated
+The `Pointer` field contains the index of the output to which dunes unallocated
 by edicts should be transferred. If the `Pointer` field is absent, unallocated
-runes are transferred to the first non-`OP_RETURN` output. If the pointer is
-greater than or equal to the number of outputs, the runestone is a cenotaph.
+dunes are transferred to the first non-`OP_RETURN` output. If the pointer is
+greater than or equal to the number of outputs, the dunestone is a cenotaph.
 
 ##### Cenotaph
 
@@ -331,9 +331,9 @@ The `Cenotaph` field is unrecognized.
 ##### Divisibility
 
 The `Divisibility` field, raised to the power of ten, is the number of subunits
-in a super unit of runes.
+in a super unit of dunes.
 
-For example, the amount `1234` of different runes with divisibility 0 through 3
+For example, the amount `1234` of different dunes with divisibility 0 through 3
 is displayed as follows:
 
 | Divisibility | Display |
@@ -346,13 +346,13 @@ is displayed as follows:
 ##### Spacers
 
 The `Spacers` field is a bitfield of `•` spacers that should be displayed
-between the letters of the rune's name.
+between the letters of the dune's name.
 
 The Nth field of the bitfield, starting from the least significant, determines
 whether or not a spacer should be displayed between the Nth and N+1th
-character, starting from the left of the rune's name.
+character, starting from the left of the dune's name.
 
-For example, the rune name `AAAA` rendered with different spacers:
+For example, the dune name `AAAA` rendered with different spacers:
 
 | Spacers | Display |
 |---------|---------|
@@ -365,8 +365,8 @@ Trailing spacers are ignored.
 
 ##### Symbol
 
-The `Symbol` field is the Unicode codepoint of the Rune's currency symbol,
-which should be displayed after amounts of that rune. If a rune does not have a
+The `Symbol` field is the Unicode codepoint of the Dune's currency symbol,
+which should be displayed after amounts of that dune. If a dune does not have a
 currency symbol, the generic currency character `¤` should be used.
 
 For example, if the `Symbol` is `#` and the divisibility is 2, the amount of
@@ -380,44 +380,44 @@ The `Nop` field is unrecognized.
 
 Cenotaphs have the following effects:
 
-- All runes input to a transaction containing a cenotaph are burned.
+- All dunes input to a transaction containing a cenotaph are burned.
 
-- If the runestone that produced the cenotaph contained an etching, the etched
-  rune has supply zero and is unmintable.
+- If the dunestone that produced the cenotaph contained an etching, the etched
+  dune has supply zero and is unmintable.
 
-- If the runestone that produced the cenotaph is a mint, the mint counts
-  against the mint cap and the minted runes are burned.
+- If the dunestone that produced the cenotaph is a mint, the mint counts
+  against the mint cap and the minted dunes are burned.
 
-Cenotaphs may be created if a runestone contains an unrecognized even tag, an
+Cenotaphs may be created if a dunestone contains an unrecognized even tag, an
 unrecognized flag, an edict with an output number greater than the number of
-outputs, a rune ID with block zero and nonzero transaction index, a malformed
-varint, a non-datapush instruction in the runestone output script pubkey, a tag
+outputs, a dune ID with block zero and nonzero transaction index, a malformed
+varint, a non-datapush instruction in the dunestone output script pubkey, a tag
 without a following value, trailing integers not part of an edict, or a pointer
 greater than or equal to the number of outputs.
 
-#### Executing the Runestone
+#### Executing the Dunestone
 
-Runestones are executed in the order their transactions are included in blocks.
+Dunestones are executed in the order their transactions are included in blocks.
 
 ##### Etchings
 
-A runestone may contain an etching:
+A dunestone may contain an etching:
 
 ```rust
 struct Etching {
   divisibility: Option<u8>,
   premine: Option<u128>,
-  rune: Option<Rune>,
+  dune: Option<Dune>,
   spacers: Option<u32>,
   symbol: Option<char>,
   terms: Option<Terms>,
 }
 ```
 
-`rune` is the name of the rune to be etched, encoded as modified base-26
+`dune` is the name of the dune to be etched, encoded as modified base-26
 integer.
 
-Rune names consist of the letters A through Z, with the following encoding:
+Dune names consist of the letters A through Z, with the following encoding:
 
 | Name | Encoding |
 |------|----------|
@@ -435,43 +435,43 @@ Rune names consist of the letters A through Z, with the following encoding:
 
 And so on and so on.
 
-Rune names `AAAAAAAAAAAAAAAAAAAAAAAAAAA` and above are reserved.
+Dune names `AAAAAAAAAAAAAAAAAAAAAAAAAAA` and above are reserved.
 
-If `rune` is omitted a reserved rune name is allocated as follows:
+If `dune` is omitted a reserved dune name is allocated as follows:
 
 ```rust
-fn reserve(block: u64, tx: u32) -> Rune {
-  Rune(
+fn reserve(block: u64, tx: u32) -> Dune {
+  Dune(
     6402364363415443603228541259936211926
     + (u128::from(block) << 32 | u128::from(tx))
   )
 }
 ```
 
-`6402364363415443603228541259936211926` corresponds to the rune name
+`6402364363415443603228541259936211926` corresponds to the dune name
 `AAAAAAAAAAAAAAAAAAAAAAAAAAA`.
 
-If `rune` is present, it must be unlocked as of the block in which the etching
+If `dune` is present, it must be unlocked as of the block in which the etching
 appears.
 
-Initially, all rune names of length thirteen and longer, up until the first
-reserved rune name, are unlocked.
+Initially, all dune names of length thirteen and longer, up until the first
+reserved dune name, are unlocked.
 
-Runes begin unlocking in block 840,000, the block in which the runes protocol
+Runes begin unlocking in block 840,000, the block in which the dunes protocol
 activates.
 
-Thereafter, every 17,500 block period, the next shortest length of rune names
+Thereafter, every 17,500 block period, the next shortest length of dune names
 is continuously unlocked. So, between block 840,000 and block 857,500, the
-twelve-character rune names are unlocked, between block 857,500 and block
-875,000 the eleven character rune names are unlocked, and so on and so on,
-until the one-character rune names are unlocked between block 1,032,500 and
+twelve-character dune names are unlocked, between block 857,500 and block
+875,000 the eleven character dune names are unlocked, and so on and so on,
+until the one-character dune names are unlocked between block 1,032,500 and
 block 1,050,000. See the `ord` codebase for the precise unlocking schedule.
 
 To prevent front running an etching that has been broadcast but not mined, if a
-non-reserved rune name is being etched, the etching transaction must contain a
+non-reserved dune name is being etched, the etching transaction must contain a
 valid commitment to the name being etched.
 
-A commitment consists of a data push of the rune name, encoded as a
+A commitment consists of a data push of the dune name, encoded as a
 little-endian integer with trailing zero bytes elided, present in an input
 witness tapscript where the output being spent has at least six confirmations.
 
@@ -479,10 +479,10 @@ If a valid commitment is not present, the etching is ignored.
 
 #### Minting
 
-A runestone may mint a rune by including the rune's ID in the `Mint` field.
+A dunestone may mint a dune by including the dune's ID in the `Mint` field.
 
-If the mint is open, the mint amount is added to the unallocated runes in the
-transaction's inputs. These runes may be transferred using edicts, and will
+If the mint is open, the mint amount is added to the unallocated dunes in the
+transaction's inputs. These dunes may be transferred using edicts, and will
 otherwise be transferred to the first non-`OP_RETURN` output, or the output
 designated by the `Pointer` field.
 
@@ -495,42 +495,42 @@ Runes are transferred by edict:
 
 ```rust
 struct Edict {
-  id: RuneId,
+  id: DuneId,
   amount: u128,
   output: u32,
 }
 ```
 
-A runestone may contain any number of edicts, which are processed in sequence.
+A dunestone may contain any number of edicts, which are processed in sequence.
 
-Before edicts are processed, input runes, as well as minted or premined runes,
+Before edicts are processed, input dunes, as well as minted or premined dunes,
 if any, are unallocated.
 
-Each edict decrements the unallocated balance of rune `id` and increments the
-balance allocated to transaction outputs of rune `id`.
+Each edict decrements the unallocated balance of dune `id` and increments the
+balance allocated to transaction outputs of dune `id`.
 
-If an edict would allocate more runes than are currently unallocated, the
-`amount` is reduced to the number of currently unallocated runes. In other
-words, the edict allocates all remaining unallocated units of rune `id`.
+If an edict would allocate more dunes than are currently unallocated, the
+`amount` is reduced to the number of currently unallocated dunes. In other
+words, the edict allocates all remaining unallocated units of dune `id`.
 
-Because the ID of an etched rune is not known before it is included in a block,
-ID `0:0` is used to mean the rune being etched in this transaction, if any.
+Because the ID of an etched dune is not known before it is included in a block,
+ID `0:0` is used to mean the dune being etched in this transaction, if any.
 
-An edict with `amount` zero allocates all remaining units of rune `id`.
+An edict with `amount` zero allocates all remaining units of dune `id`.
 
 An edict with `output` equal to the number of transaction outputs allocates
-`amount` runes to each non-`OP_RETURN` output in order.
+`amount` dunes to each non-`OP_RETURN` output in order.
 
 An edict with `amount` zero and `output` equal to the number of transaction
-outputs divides all unallocated units of rune `id` between each non-`OP_RETURN`
-output. If the number of unallocated runes is not divisible by the number of
-non-`OP_RETURN` outputs, 1 additional rune is assigned to the first `R`
+outputs divides all unallocated units of dune `id` between each non-`OP_RETURN`
+output. If the number of unallocated dunes is not divisible by the number of
+non-`OP_RETURN` outputs, 1 additional dune is assigned to the first `R`
 non-`OP_RETURN` outputs, where `R` is the remainder after dividing the balance
-of unallocated units of rune `id` by the number of non-`OP_RETURN` outputs.
+of unallocated units of dune `id` by the number of non-`OP_RETURN` outputs.
 
-If any edict in a runestone has a rune ID with `block` zero and `tx` greater
+If any edict in a dunestone has a dune ID with `block` zero and `tx` greater
 than zero, or `output` greater than the number of transaction outputs, the
-runestone is a cenotaph.
+dunestone is a cenotaph.
 
-Note that edicts in cenotaphs are not processed, and all input runes are
+Note that edicts in cenotaphs are not processed, and all input dunes are
 burned.

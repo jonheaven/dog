@@ -23,7 +23,7 @@ struct Line {
 pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
   let mut lines: Vec<Line> = Vec::new();
 
-  let sat_ranges = wallet.get_wallet_sat_ranges()?;
+  let koinu_ranges = wallet.get_wallet_sat_ranges()?;
 
   let mut inscriptions_by_output: BTreeMap<OutPoint, BTreeMap<u64, Vec<InscriptionId>>> =
     BTreeMap::new();
@@ -35,8 +35,8 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
       .insert(satpoint.offset, inscriptions.clone());
   }
 
-  for (output, ranges) in sat_ranges {
-    let sat = Sat(ranges[0].0);
+  for (output, ranges) in koinu_ranges {
+    let sat = Koinu(ranges[0].0);
     let mut inscriptions = BTreeMap::<u64, BTreeSet<InscriptionId>>::new();
 
     if let Some(output_inscriptions) = inscriptions_by_output.get(&output) {

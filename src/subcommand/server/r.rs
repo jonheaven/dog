@@ -498,7 +498,7 @@ pub(super) async fn sat(
 
 pub(super) async fn sat_at_index(
   Extension(index): Extension<Arc<Index>>,
-  Path((DeserializeFromStr(sat), inscription_index)): Path<(DeserializeFromStr<Sat>, isize)>,
+  Path((DeserializeFromStr(sat), inscription_index)): Path<(DeserializeFromStr<Koinu>, isize)>,
 ) -> ServerResult<(HeaderMap, Json<api::SatInscription>)> {
   task::block_in_place(|| {
     if !index.has_sat_index() {
@@ -528,7 +528,7 @@ pub(super) async fn sat_paginated(
       return Err(ServerError::NotFound("this server has no sat index".into()));
     }
 
-    let (ids, more) = index.get_inscription_ids_by_sat_paginated(Sat(sat), 100, page)?;
+    let (ids, more) = index.get_inscription_ids_by_sat_paginated(Koinu(sat), 100, page)?;
 
     Ok(Json(api::SatInscriptions { ids, more, page }))
   })
@@ -538,7 +538,7 @@ pub(super) async fn sat_at_index_content(
   index: Extension<Arc<Index>>,
   settings: Extension<Arc<Settings>>,
   server_config: Extension<Arc<ServerConfig>>,
-  Path((DeserializeFromStr(sat), inscription_index)): Path<(DeserializeFromStr<Sat>, isize)>,
+  Path((DeserializeFromStr(sat), inscription_index)): Path<(DeserializeFromStr<Koinu>, isize)>,
   accept_encoding: AcceptEncoding,
 ) -> ServerResult {
   let inscription_id = task::block_in_place(|| {

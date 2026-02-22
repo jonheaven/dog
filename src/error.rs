@@ -28,19 +28,19 @@ pub enum SnafuError {
     source: bitcoin::transaction::ParseOutPointError,
     input: String,
   },
-  #[snafu(display("Failed to parse rune `{}`", input))]
+  #[snafu(display("Failed to parse dune `{}`", input))]
   RuneParse {
-    source: ordinals::spaced_rune::Error,
+    source: ordinals::spaced_dune::Error,
     input: String,
   },
   #[snafu(display("Failed to parse sat `{}`", input))]
   SatParse {
-    source: ordinals::sat::Error,
+    source: ordinals::koinu::Error,
     input: String,
   },
   #[snafu(display("Failed to parse sat point `{}`", input))]
-  SatPointParse {
-    source: ordinals::sat_point::Error,
+  KoinuPointParse {
+    source: ordinals::koinu_point::Error,
     input: String,
   },
   #[snafu(display("Unrecognized representation: `{}`", input))]

@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Boilerplate, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RunesHtml {
-  pub entries: Vec<(RuneId, RuneEntry)>,
+  pub entries: Vec<(DuneId, DuneEntry)>,
   pub more: bool,
   pub prev: Option<usize>,
   pub next: Option<usize>,
@@ -23,10 +23,10 @@ mod tests {
     assert_eq!(
       RunesHtml {
         entries: vec![(
-          RuneId { block: 0, tx: 0 },
-          RuneEntry {
-            spaced_rune: SpacedRune {
-              rune: Rune(26),
+          DuneId { block: 0, tx: 0 },
+          DuneEntry {
+            spaced_dune: SpacedDune {
+              dune: Dune(26),
               spacers: 1
             },
             ..default()
@@ -39,7 +39,7 @@ mod tests {
       .to_string(),
       "<h1>Runes</h1>
 <ul>
-  <li><a href=/rune/A•A>A•A</a></li>
+  <li><a href=/dune/A•A>A•A</a></li>
 </ul>
 <div class=center>
     prev
@@ -54,20 +54,20 @@ mod tests {
       RunesHtml {
         entries: vec![
           (
-            RuneId { block: 0, tx: 0 },
-            RuneEntry {
-              spaced_rune: SpacedRune {
-                rune: Rune(0),
+            DuneId { block: 0, tx: 0 },
+            DuneEntry {
+              spaced_dune: SpacedDune {
+                dune: Dune(0),
                 spacers: 0
               },
               ..Default::default()
             }
           ),
           (
-            RuneId { block: 0, tx: 1 },
-            RuneEntry {
-              spaced_rune: SpacedRune {
-                rune: Rune(2),
+            DuneId { block: 0, tx: 1 },
+            DuneEntry {
+              spaced_dune: SpacedDune {
+                dune: Dune(2),
                 spacers: 0
               },
               ..Default::default()
@@ -81,12 +81,12 @@ mod tests {
       .to_string(),
       "<h1>Runes</h1>
 <ul>
-  <li><a href=/rune/A>A</a></li>
-  <li><a href=/rune/C>C</a></li>
+  <li><a href=/dune/A>A</a></li>
+  <li><a href=/dune/C>C</a></li>
 </ul>
 <div class=center>
-    <a class=prev href=/runes/1>prev</a>
-      <a class=next href=/runes/2>next</a>
+    <a class=prev href=/dunes/1>prev</a>
+      <a class=next href=/dunes/2>next</a>
   </div>"
     );
   }

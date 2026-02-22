@@ -46,10 +46,10 @@ impl Accept {
       bail!("PSBT contains no inputs owned by wallet");
     };
 
-    if let Some(runes) = wallet.get_runes_balances_in_output(&outgoing)? {
+    if let Some(dunes) = wallet.get_runes_balances_in_output(&outgoing)? {
       ensure! {
-        runes.is_empty(),
-        "outgoing input {} contains runes", outgoing,
+        dunes.is_empty(),
+        "outgoing input {} contains dunes", outgoing,
       }
     }
 

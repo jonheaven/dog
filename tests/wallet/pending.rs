@@ -9,17 +9,17 @@ use {
 #[test]
 fn wallet_pending() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
   let batchfile = batch::File {
     etching: Some(batch::Etching {
       divisibility: 0,
-      rune: SpacedRune {
-        rune: Rune(RUNE),
+      dune: SpacedDune {
+        dune: Dune(RUNE),
         spacers: 0,
       },
       supply: "1000".parse().unwrap(),
@@ -38,12 +38,12 @@ fn wallet_pending() {
 
   {
     let mut spawn =
-      CommandBuilder::new("--regtest --index-runes wallet batch --fee-rate 0 --batch batch.yaml")
+      CommandBuilder::new("--regtest --index-dunes wallet batch --fee-rate 0 --batch batch.yaml")
         .temp_dir(tempdir.clone())
         .write("batch.yaml", serde_yaml::to_string(&batchfile).unwrap())
         .write("inscription.jpeg", "inscription")
         .core(&core)
-        .ord(&ord)
+        .dog(&dog)
         .expected_exit_code(1)
         .spawn();
 
@@ -55,7 +55,7 @@ fn wallet_pending() {
 
     assert_regex_match!(
       buffer,
-      "Waiting for rune AAAAAAAAAAAAA commitment [[:xdigit:]]{64} to mature…\n"
+      "Waiting for dune AAAAAAAAAAAAA commitment [[:xdigit:]]{64} to mature…\n"
     );
 
     core.mine_blocks(1);
@@ -80,11 +80,11 @@ fn wallet_pending() {
     spawn.child.wait().unwrap();
   }
 
-  let output = CommandBuilder::new("--regtest --index-runes wallet pending")
+  let output = CommandBuilder::new("--regtest --index-dunes wallet pending")
     .temp_dir(tempdir)
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<Vec<ord::subcommand::wallet::pending::PendingOutput>>();
+    .dog(&dog)
+    .run_and_deserialize_output::<Vec<dog::subcommand::wallet::pending::PendingOutput>>();
 
-  assert_eq!(output.first().unwrap().rune.rune, Rune(RUNE));
+  assert_eq!(output.first().unwrap().dune.dune, Dune(RUNE));
 }

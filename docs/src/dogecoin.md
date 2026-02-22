@@ -1,6 +1,6 @@
 # Dogecoin Port
 
-This repository is a fork of [ordinals/ord](https://github.com/ordinals/ord) v0.25.0, ported
+This repository is a fork of [doginals/ord](https://github.com/doginals/ord) v0.25.0, ported
 to support Dogecoin (and Dogecoin testnet/regtest).  It incorporates the protocol-level work
 from the two earlier community forks and extends them significantly:
 
@@ -59,7 +59,7 @@ Version bytes:
 
 ---
 
-### 3. Epoch / subsidy math (`crates/ordinals/src/epoch.rs`, `lib.rs`, `sat.rs`)
+### 3. Epoch / subsidy math (`crates/doginals/src/epoch.rs`, `lib.rs`, `sat.rs`)
 
 Dogecoin's early block reward history is uniquely irregular.  Blocks 0–144,999 (the
 "wonky era") each received a random reward between 0 and 1,000,000 DOGE.  Beyond that,
@@ -109,11 +109,11 @@ current ~140B circulating supply.
 
 #### Bitcoin-only constant guards
 
-The Bitcoin rune/degree systems use constants derived from `SUBSIDY_HALVING_INTERVAL`
+The Bitcoin dune/degree systems use constants derived from `SUBSIDY_HALVING_INTERVAL`
 that become zero with Dogecoin's value of 1.  Two guards prevent compile-time
 division-by-zero panics in code that will never run on Dogecoin:
 
-- `UNLOCK_INTERVAL` in `rune.rs` — guarded to minimum 1
+- `UNLOCK_INTERVAL` in `dune.rs` — guarded to minimum 1
 - `HALVING_INCREMENT` in `sat.rs` — guarded to minimum 1
 
 ---
@@ -139,7 +139,7 @@ scriptSig push ops:
 The parser:
 1. Iterates data pushes in `input[0].script_sig`
 2. Finds the push equal to `b"ord"` (the protocol ID)
-3. Treats all subsequent pushes as the envelope payload using the **standard ordinals
+3. Treats all subsequent pushes as the envelope payload using the **standard doginals
    tag-value format** — identical to Bitcoin's envelope payload layout, just in a
    different container
 
@@ -205,8 +205,8 @@ a local config file (not committed to the repo).
 | `src/index/updater/inscription_updater.rs` | Chain-aware inscription parser dispatch |
 | `src/subcommand/epochs.rs` | Updated to use `Epoch::all_starting_sats()` |
 | `src/subcommand/wallet/inscriptions.rs` | Added Dogecoin explorer URL arms |
-| `crates/ordinals/Cargo.toml` | Added `serde_json` dependency |
-| `crates/ordinals/src/lib.rs` | Dogecoin `SUBSIDY_HALVING_INTERVAL` / `DIFFCHANGE_INTERVAL` |
-| `crates/ordinals/src/epoch.rs` | Full Dogecoin epoch/subsidy implementation |
-| `crates/ordinals/src/sat.rs` | Updated `SUPPLY` ceiling; `HALVING_INCREMENT` guard |
-| `crates/ordinals/src/rune.rs` | `UNLOCK_INTERVAL` guard |
+| `crates/doginals/Cargo.toml` | Added `serde_json` dependency |
+| `crates/doginals/src/lib.rs` | Dogecoin `SUBSIDY_HALVING_INTERVAL` / `DIFFCHANGE_INTERVAL` |
+| `crates/doginals/src/epoch.rs` | Full Dogecoin epoch/subsidy implementation |
+| `crates/doginals/src/sat.rs` | Updated `SUPPLY` ceiling; `HALVING_INCREMENT` guard |
+| `crates/doginals/src/dune.rs` | `UNLOCK_INTERVAL` guard |

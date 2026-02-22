@@ -1,13 +1,13 @@
 use {
   super::*,
-  ord::subcommand::find::{FindRangeOutput, Output},
+  dog::subcommand::find::{FindRangeOutput, Output},
 };
 
 #[test]
 fn find_command_returns_satpoint_for_sat() {
   let core = mockcore::spawn();
   assert_eq!(
-    CommandBuilder::new("--index-sats find 0")
+    CommandBuilder::new("--index-koinu find 0")
       .core(&core)
       .run_and_deserialize_output::<Output>(),
     Output {
@@ -25,14 +25,14 @@ fn find_range_command_returns_satpoints_and_ranges() {
   core.mine_blocks(1);
 
   pretty_assert_eq!(
-    CommandBuilder::new(format!("--index-sats find 0 {}", 55 * COIN_VALUE))
+    CommandBuilder::new(format!("--index-koinu find 0 {}", 55 * COIN_VALUE))
       .core(&core)
       .run_and_deserialize_output::<Vec<FindRangeOutput>>(),
     vec![
       FindRangeOutput {
         start: 0,
         size: 50 * COIN_VALUE,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint {
             txid: core.tx(0, 0).into(),
             vout: 0,
@@ -43,7 +43,7 @@ fn find_range_command_returns_satpoints_and_ranges() {
       FindRangeOutput {
         start: 50 * COIN_VALUE,
         size: 5 * COIN_VALUE,
-        satpoint: SatPoint {
+        satpoint: KoinuPoint {
           outpoint: OutPoint {
             txid: core.tx(1, 0).into(),
             vout: 0,
@@ -60,7 +60,7 @@ fn find_range_command_fails_for_unmined_sat_ranges() {
   let core = mockcore::spawn();
 
   CommandBuilder::new(format!(
-    "--index-sats find {} {}",
+    "--index-koinu find {} {}",
     50 * COIN_VALUE,
     100 * COIN_VALUE
   ))
@@ -73,7 +73,7 @@ fn find_range_command_fails_for_unmined_sat_ranges() {
 #[test]
 fn unmined_sat() {
   let core = mockcore::spawn();
-  CommandBuilder::new("--index-sats find 5000000000")
+  CommandBuilder::new("--index-koinu find 5000000000")
     .core(&core)
     .expected_stderr("error: sat has not been mined as of index height\n")
     .expected_exit_code(1)
@@ -81,11 +81,11 @@ fn unmined_sat() {
 }
 
 #[test]
-fn no_satoshi_index() {
+fn no_koinu_index() {
   let core = mockcore::spawn();
   CommandBuilder::new("find 0")
     .core(&core)
-    .expected_stderr("error: find requires index created with `--index-sats` flag\n")
+    .expected_stderr("error: find requires index created with `--index-koinu` flag\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }

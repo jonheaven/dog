@@ -5,7 +5,7 @@ pub enum Mode {
   #[serde(rename = "same-sat")]
   SameSat,
   #[serde(rename = "satpoints")]
-  SatPoints,
+  KoinuPoints,
   #[default]
   #[serde(rename = "separate-outputs")]
   SeparateOutputs,

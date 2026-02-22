@@ -4,14 +4,14 @@ use super::*;
 fn requires_rune_index() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   CommandBuilder::new("wallet split --fee-rate 1 --splits splits.yaml")
     .core(&core)
-    .ord(&ord)
-    .expected_stderr("error: `ord wallet split` requires index created with `--index-runes`\n")
+    .dog(&dog)
+    .expected_stderr("error: `dog wallet split` requires index created with `--index-dunes`\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -20,13 +20,13 @@ fn requires_rune_index() {
 fn unrecognized_fields_are_forbidden() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   CommandBuilder::new("wallet split --fee-rate 1 --splits splits.yaml")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .write(
       "splits.yaml",
       "
@@ -40,13 +40,13 @@ outputs:
 
   CommandBuilder::new("wallet split --fee-rate 1 --splits splits.yaml")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .write(
       "splits.yaml",
       "
 outputs:
 - address: bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4
-  runes:
+  dunes:
   foo:
 ",
     )
@@ -59,27 +59,27 @@ outputs:
 fn cannot_split_un_etched_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
   CommandBuilder::new("--regtest wallet split --fee-rate 1 --splits splits.yaml")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .write(
       "splits.yaml",
       format!(
         "
 outputs:
 - address: bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw
-  runes:
-    {rune}: 500
+  dunes:
+    {dune}: 500
 "
       ),
     )
-    .expected_stderr("error: rune `AAAAAAAAAAAAA` has not been etched\n")
+    .expected_stderr("error: dune `AAAAAAAAAAAAA` has not been etched\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }
@@ -88,23 +88,23 @@ outputs:
 fn simple_split() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
-  let spaced_rune = SpacedRune { rune, spacers: 1 };
+  let dune = Dune(RUNE);
+  let spaced_dune = SpacedDune { dune, spacers: 1 };
 
   batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         supply: "100.0".parse().unwrap(),
         divisibility: 1,
         terms: None,
         premine: "100.0".parse().unwrap(),
-        rune: SpacedRune { rune, spacers: 1 },
+        dune: SpacedDune { dune, spacers: 1 },
         symbol: '¢',
         turbo: false,
       }),
@@ -119,13 +119,13 @@ fn simple_split() {
   pretty_assert_eq!(
     CommandBuilder::new("--regtest wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 7 * 50 * COIN_VALUE - 20000,
       ordinal: 10000,
       runic: Some(10000),
-      runes: Some([(spaced_rune, "100.0".parse().unwrap())].into()),
+      dunes: Some([(spaced_dune, "100.0".parse().unwrap())].into()),
       total: 7 * 50 * COIN_VALUE,
     }
   );
@@ -134,15 +134,15 @@ fn simple_split() {
     "--regtest wallet split --fee-rate 10 --postage 666sat --splits splits.yaml",
   )
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .write(
     "splits.yaml",
     format!(
       "
 outputs:
 - address: bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw
-  runes:
-    {spaced_rune}: 50.1
+  dunes:
+    {spaced_dune}: 50.1
 "
     ),
   )
@@ -155,25 +155,25 @@ outputs:
   pretty_assert_eq!(
     CommandBuilder::new("--regtest wallet balance")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 7 * 50 * COIN_VALUE - 10960,
       ordinal: 10000,
       runic: Some(666),
-      runes: Some([(spaced_rune, "49.9".parse().unwrap())].into()),
+      dunes: Some([(spaced_dune, "49.9".parse().unwrap())].into()),
       total: 7 * 50 * COIN_VALUE - 294,
     }
   );
 
   pretty_assert_eq!(
-    CommandBuilder::new("--regtest --index-runes balances")
+    CommandBuilder::new("--regtest --index-dunes balances")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balances>(),
     Balances {
-      runes: [(
-        spaced_rune,
+      dunes: [(
+        spaced_dune,
         [
           (
             OutPoint {
@@ -209,24 +209,24 @@ outputs:
 fn oversize_op_returns_are_allowed_with_flag() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
-  let spaced_rune = SpacedRune { rune, spacers: 1 };
+  let spaced_dune = SpacedDune { dune, spacers: 1 };
 
   batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         supply: "10000000000".parse().unwrap(),
         divisibility: 0,
         terms: None,
         premine: "10000000000".parse().unwrap(),
-        rune: SpacedRune { rune, spacers: 1 },
+        dune: SpacedDune { dune, spacers: 1 },
         symbol: '¢',
         turbo: false,
       }),
@@ -243,36 +243,36 @@ fn oversize_op_returns_are_allowed_with_flag() {
   for _ in 0..10 {
     splitfile.push_str(
       "\n- address: bcrt1qs758ursh4q9z627kt3pp5yysm78ddny6txaqgw
-  runes:
+  dunes:
     AAAAAAAAAAAAA: 1000000000",
     );
   }
 
   CommandBuilder::new("--regtest wallet split --fee-rate 0 --splits splits.yaml")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .write("splits.yaml", &splitfile)
-    .expected_stderr("error: runestone size 85 over maximum standard OP_RETURN size 83\n")
+    .expected_stderr("error: dunestone size 85 over maximum standard OP_RETURN size 83\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 
   let output =
     CommandBuilder::new("--regtest wallet split --fee-rate 0 --splits splits.yaml --no-limit")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .write("splits.yaml", &splitfile)
       .run_and_deserialize_output::<Split>();
 
   core.mine_blocks(1);
 
   pretty_assert_eq!(
-    CommandBuilder::new("--regtest --index-runes balances")
+    CommandBuilder::new("--regtest --index-dunes balances")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Balances>(),
     Balances {
-      runes: [(
-        spaced_rune,
+      dunes: [(
+        spaced_dune,
         (0..10)
           .map(|i| (
             OutPoint {

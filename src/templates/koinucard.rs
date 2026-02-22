@@ -2,15 +2,15 @@ use super::*;
 
 #[derive(Boilerplate)]
 pub(crate) struct SatscardHtml {
-  pub(crate) satscard: Option<(Satscard, Option<AddressHtml>)>,
+  pub(crate) koinucard: Option<(Koinucard, Option<AddressHtml>)>,
 }
 
 impl PageContent for SatscardHtml {
   fn title(&self) -> String {
-    if let Some((satscard, _address_info)) = &self.satscard {
-      format!("Satscard {}", satscard.address)
+    if let Some((koinucard, _address_info)) = &self.koinucard {
+      format!("Koinucard {}", koinucard.address)
     } else {
-      "Satscard".into()
+      "Koinucard".into()
     }
   }
 }
@@ -23,25 +23,25 @@ mod tests {
   fn title() {
     assert_eq!(
       SatscardHtml {
-        satscard: Some((crate::satscard::tests::coinkite_satscard(), None)),
+        koinucard: Some((crate::koinucard::tests::coinkite_satscard(), None)),
       }
       .title(),
-      format!("Satscard {}", crate::satscard::tests::coinkite_address())
+      format!("Koinucard {}", crate::koinucard::tests::coinkite_address())
     );
 
-    assert_eq!(SatscardHtml { satscard: None }.title(), "Satscard");
+    assert_eq!(SatscardHtml { koinucard: None }.title(), "Koinucard");
   }
 
   #[test]
   fn no_address_info() {
     pretty_assert_eq!(
       SatscardHtml {
-        satscard: Some((crate::satscard::tests::coinkite_satscard(), None)),
+        koinucard: Some((crate::koinucard::tests::coinkite_satscard(), None)),
       }
       .to_string(),
-      r#"<h1>Satscard bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</h1>
+      r#"<h1>Koinucard bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</h1>
 <form>
-  <label for=url>Satscard URL</label>
+  <label for=url>Koinucard URL</label>
   <input
     type=text
     id=url
@@ -57,7 +57,7 @@ mod tests {
   <dt>slot</dt>
   <dd>1</dd>
   <dt>state</dt>
-  <dd class=satscard-sealed>sealed</dd>
+  <dd class=koinucard-sealed>sealed</dd>
   <dt>address</dt>
   <dd><a class=collapse href=/address/bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf>bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</a></dd>
   <dt>nonce</dt>
@@ -71,10 +71,10 @@ mod tests {
   fn with_address_info() {
     pretty_assert_eq!(
       SatscardHtml {
-        satscard: Some((
-          crate::satscard::tests::coinkite_satscard(),
+        koinucard: Some((
+          crate::koinucard::tests::coinkite_satscard(),
           Some(AddressHtml {
-            address: crate::satscard::tests::coinkite_address(),
+            address: crate::koinucard::tests::coinkite_address(),
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
@@ -84,9 +84,9 @@ mod tests {
         )),
       }
       .to_string(),
-      r#"<h1>Satscard bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</h1>
+      r#"<h1>Koinucard bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</h1>
 <form>
-  <label for=url>Satscard URL</label>
+  <label for=url>Koinucard URL</label>
   <input
     type=text
     id=url
@@ -102,7 +102,7 @@ mod tests {
   <dt>slot</dt>
   <dd>1</dd>
   <dt>state</dt>
-  <dd class=satscard-sealed>sealed</dd>
+  <dd class=koinucard-sealed>sealed</dd>
   <dt>address</dt>
   <dd><a class=collapse href=/address/bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf>bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</a></dd>
   <dt>nonce</dt>
@@ -126,13 +126,13 @@ mod tests {
   fn state_error() {
     assert_regex_match! {
       SatscardHtml {
-        satscard: Some((
-          Satscard {
-            state: crate::satscard::State::Error,
-            ..crate::satscard::tests::coinkite_satscard()
+        koinucard: Some((
+          Koinucard {
+            state: crate::koinucard::State::Error,
+            ..crate::koinucard::tests::coinkite_satscard()
           },
           Some(AddressHtml {
-            address: crate::satscard::tests::coinkite_address(),
+            address: crate::koinucard::tests::coinkite_address(),
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
@@ -144,7 +144,7 @@ mod tests {
       .to_string(),
       r#".*
   <dt>state</dt>
-  <dd class=satscard-error>error</dd>
+  <dd class=koinucard-error>error</dd>
 .*
 "#,
     }
@@ -154,13 +154,13 @@ mod tests {
   fn state_unsealed() {
     assert_regex_match! {
       SatscardHtml {
-        satscard: Some((
-          Satscard {
-            state: crate::satscard::State::Unsealed,
-            ..crate::satscard::tests::coinkite_satscard()
+        koinucard: Some((
+          Koinucard {
+            state: crate::koinucard::State::Unsealed,
+            ..crate::koinucard::tests::coinkite_satscard()
           },
           Some(AddressHtml {
-            address: crate::satscard::tests::coinkite_address(),
+            address: crate::koinucard::tests::coinkite_address(),
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
@@ -172,7 +172,7 @@ mod tests {
       .to_string(),
       r#".*
   <dt>state</dt>
-  <dd class=satscard-unsealed>unsealed</dd>
+  <dd class=koinucard-unsealed>unsealed</dd>
 .*
 "#,
     }

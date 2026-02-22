@@ -4,7 +4,7 @@ use super::*;
 pub(crate) struct Send {
   #[arg(long, help = "Don't sign or broadcast transaction")]
   pub(crate) dry_run: bool,
-  #[arg(long, help = "Use fee rate of <FEE_RATE> sats/vB")]
+  #[arg(long, help = "Use fee rate of <FEE_RATE> koinu/vB")]
   fee_rate: FeeRate,
   #[arg(
     long,
@@ -15,9 +15,9 @@ pub(crate) struct Send {
   #[arg(help = "Recipient address")]
   address: Address<NetworkUnchecked>,
   #[arg(
-    help = "Outgoing asset formatted as a bitcoin amount, rune amount, sat name, satpoint, or \
+    help = "Outgoing asset formatted as a bitcoin amount, dune amount, sat name, satpoint, or \
     inscription ID. Bitcoin amounts are `DECIMAL UNIT` where `UNIT` is one of \
-    `bit btc cbtc mbtc msat nbtc pbtc sat satoshi ubtc`. Rune amounts are `DECIMAL:RUNE` and \
+    `bit btc cbtc mbtc msat nbtc pbtc sat koinu ubtc`. Dune amounts are `DECIMAL:RUNE` and \
     respect divisibility"
   )]
   asset: Outgoing,
@@ -42,9 +42,9 @@ impl Send {
       Outgoing::Amount(amount) => {
         wallet.create_unsigned_send_amount_transaction(address, amount, self.fee_rate)?
       }
-      Outgoing::Rune { decimal, rune } => wallet.create_unsigned_send_or_burn_runes_transaction(
+      Outgoing::Dune { decimal, dune } => wallet.create_unsigned_send_or_burn_runes_transaction(
         Some(address),
-        rune,
+        dune,
         decimal,
         self.postage,
         self.fee_rate,
@@ -60,14 +60,14 @@ impl Send {
         self.fee_rate,
         true,
       )?,
-      Outgoing::SatPoint(satpoint) => wallet.create_unsigned_send_satpoint_transaction(
+      Outgoing::KoinuPoint(satpoint) => wallet.create_unsigned_send_satpoint_transaction(
         address,
         satpoint,
         self.postage,
         self.fee_rate,
         false,
       )?,
-      Outgoing::Sat(sat) => wallet.create_unsigned_send_satpoint_transaction(
+      Outgoing::Koinu(sat) => wallet.create_unsigned_send_satpoint_transaction(
         address,
         wallet.find_sat_in_outputs(sat)?,
         self.postage,

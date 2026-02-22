@@ -7,9 +7,9 @@ pub enum Object {
   InscriptionId(InscriptionId),
   Integer(u128),
   OutPoint(OutPoint),
-  Rune(SpacedRune),
-  Sat(Sat),
-  SatPoint(SatPoint),
+  Dune(SpacedDune),
+  Koinu(Koinu),
+  KoinuPoint(KoinuPoint),
 }
 
 impl FromStr for Object {
@@ -22,7 +22,7 @@ impl FromStr for Object {
       Address => Ok(Self::Address(
         input.parse().snafu_context(error::AddressParse { input })?,
       )),
-      Decimal | Degree | Percentile | Name => Ok(Self::Sat(
+      Decimal | Degree | Percentile | Name => Ok(Self::Koinu(
         input.parse().snafu_context(error::SatParse { input })?,
       )),
       Hash => Ok(Self::Hash(
@@ -43,13 +43,13 @@ impl FromStr for Object {
           .parse()
           .snafu_context(error::OutPointParse { input })?,
       )),
-      Rune => Ok(Self::Rune(
+      Dune => Ok(Self::Dune(
         input.parse().snafu_context(error::RuneParse { input })?,
       )),
-      SatPoint => Ok(Self::SatPoint(
+      KoinuPoint => Ok(Self::KoinuPoint(
         input
           .parse()
-          .snafu_context(error::SatPointParse { input })?,
+          .snafu_context(error::KoinuPointParse { input })?,
       )),
     }
   }
@@ -68,9 +68,9 @@ impl Display for Object {
       Self::InscriptionId(inscription_id) => write!(f, "{inscription_id}"),
       Self::Integer(integer) => write!(f, "{integer}"),
       Self::OutPoint(outpoint) => write!(f, "{outpoint}"),
-      Self::Rune(rune) => write!(f, "{rune}"),
-      Self::Sat(sat) => write!(f, "{sat}"),
-      Self::SatPoint(satpoint) => write!(f, "{satpoint}"),
+      Self::Dune(dune) => write!(f, "{dune}"),
+      Self::Koinu(sat) => write!(f, "{sat}"),
+      Self::KoinuPoint(satpoint) => write!(f, "{satpoint}"),
     }
   }
 }
@@ -91,18 +91,18 @@ mod tests {
 
     assert_eq!(
       "nvtdijuwxlp".parse::<Object>().unwrap(),
-      Object::Sat(Sat(0))
+      Object::Koinu(Koinu(0))
     );
-    assert_eq!("a".parse::<Object>().unwrap(), Object::Sat(Sat::LAST));
+    assert_eq!("a".parse::<Object>().unwrap(), Object::Koinu(Koinu::LAST));
     assert_eq!(
       "1.1".parse::<Object>().unwrap(),
-      Object::Sat(Sat(50 * COIN_VALUE + 1))
+      Object::Koinu(Koinu(50 * COIN_VALUE + 1))
     );
     assert_eq!(
       "1°0′0″0‴".parse::<Object>().unwrap(),
-      Object::Sat(Sat(2067187500000000))
+      Object::Koinu(Koinu(2067187500000000))
     );
-    assert_eq!("0%".parse::<Object>().unwrap(), Object::Sat(Sat(0)));
+    assert_eq!("0%".parse::<Object>().unwrap(), Object::Koinu(Koinu(0)));
 
     case("0", Object::Integer(0));
 
@@ -189,7 +189,7 @@ mod tests {
     );
     case(
       "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef:123:456",
-      Object::SatPoint(
+      Object::KoinuPoint(
         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef:123:456"
           .parse()
           .unwrap(),
@@ -197,7 +197,7 @@ mod tests {
     );
     case(
       "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF:123:456",
-      Object::SatPoint(
+      Object::KoinuPoint(
         "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF:123:456"
           .parse()
           .unwrap(),
@@ -205,15 +205,15 @@ mod tests {
     );
     case(
       "A",
-      Object::Rune(SpacedRune {
-        rune: Rune(0),
+      Object::Dune(SpacedDune {
+        dune: Dune(0),
         spacers: 0,
       }),
     );
     case(
       "A•A",
-      Object::Rune(SpacedRune {
-        rune: Rune(26),
+      Object::Dune(SpacedDune {
+        dune: Dune(26),
         spacers: 1,
       }),
     );

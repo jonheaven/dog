@@ -5,13 +5,13 @@ pub(crate) struct SatHtml {
   pub(crate) address: Option<Address>,
   pub(crate) blocktime: Blocktime,
   pub(crate) inscriptions: Vec<InscriptionId>,
-  pub(crate) sat: Sat,
-  pub(crate) satpoint: Option<SatPoint>,
+  pub(crate) sat: Koinu,
+  pub(crate) satpoint: Option<KoinuPoint>,
 }
 
 impl PageContent for SatHtml {
   fn title(&self) -> String {
-    format!("Sat {}", self.sat)
+    format!("Koinu {}", self.sat)
   }
 }
 
@@ -24,13 +24,13 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat(0),
+        sat: Koinu(0),
         satpoint: None,
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
       "
-        <h1>Sat 0</h1>
+        <h1>Koinu 0</h1>
         <dl>
           <dt>decimal</dt><dd>0.0</dd>
           <dt>degree</dt><dd>0°0′0″0‴</dd>
@@ -64,13 +64,13 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat(2099999997689999),
+        sat: Koinu(2099999997689999),
         satpoint: None,
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
       "
-        <h1>Sat 2099999997689999</h1>
+        <h1>Koinu 2099999997689999</h1>
         <dl>
           <dt>decimal</dt><dd>6929999.0</dd>
           <dt>degree</dt><dd>5°209999′1007″0‴</dd>
@@ -102,12 +102,12 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat(1),
+        sat: Koinu(1),
         satpoint: None,
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
-      r"<h1>Sat 1</h1>.*<a class=prev href=/sat/0>prev</a>\n<a class=next href=/sat/2>next</a>.*",
+      r"<h1>Koinu 1</h1>.*<a class=prev href=/sat/0>prev</a>\n<a class=next href=/sat/2>next</a>.*",
     );
   }
 
@@ -116,13 +116,13 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat(0),
+        sat: Koinu(0),
         satpoint: None,
         blocktime: Blocktime::confirmed(0),
         inscriptions: vec![inscription_id(1)],
       },
       "
-        <h1>Sat 0</h1>
+        <h1>Koinu 0</h1>
         .*
           <dt>inscriptions</dt>
           <dd class=thumbnails>
@@ -138,13 +138,13 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat(0),
+        sat: Koinu(0),
         satpoint: None,
         blocktime: Blocktime::confirmed(0),
         inscriptions: vec![inscription_id(1), inscription_id(2)],
       },
       "
-        <h1>Sat 0</h1>
+        <h1>Koinu 0</h1>
         .*
           <dt>inscriptions</dt>
           <dd class=thumbnails>
@@ -161,12 +161,12 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat::LAST,
+        sat: Koinu::LAST,
         satpoint: None,
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
-      r"<h1>Sat 2099999997689999</h1>.*<a class=prev href=/sat/2099999997689998>prev</a>\nnext.*",
+      r"<h1>Koinu 2099999997689999</h1>.*<a class=prev href=/sat/2099999997689998>prev</a>\nnext.*",
     );
   }
 
@@ -175,12 +175,12 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: None,
-        sat: Sat(0),
+        sat: Koinu(0),
         satpoint: Some(satpoint(1, 0)),
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
-      "<h1>Sat 0</h1>.*<dt>location</dt><dd><a class=collapse href=/satpoint/1{64}:1:0>1{64}:1:0</a></dd>.*",
+      "<h1>Koinu 0</h1>.*<dt>location</dt><dd><a class=collapse href=/satpoint/1{64}:1:0>1{64}:1:0</a></dd>.*",
     );
   }
 
@@ -189,12 +189,12 @@ mod tests {
     assert_regex_match!(
       SatHtml {
         address: Some(address(0)),
-        sat: Sat(0),
+        sat: Koinu(0),
         satpoint: Some(satpoint(1, 0)),
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
-      "<h1>Sat 0</h1>.*<dt>address</dt><dd class=monospace><a href=/address/bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4>bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4</a></dd>.*",
+      "<h1>Koinu 0</h1>.*<dt>address</dt><dd class=monospace><a href=/address/bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4>bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4</a></dd>.*",
     );
   }
 }

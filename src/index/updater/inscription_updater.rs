@@ -34,7 +34,7 @@ enum Origin {
   },
   Old {
     sequence_number: u32,
-    old_satpoint: SatPoint,
+    old_satpoint: KoinuPoint,
   },
 }
 
@@ -50,10 +50,10 @@ pub(super) struct InscriptionUpdater<'a, 'tx> {
   pub(super) id_to_sequence_number: &'a mut Table<'tx, InscriptionIdValue, u32>,
   pub(super) inscription_number_to_sequence_number: &'a mut Table<'tx, i32, u32>,
   pub(super) latest_child_to_collection: &'a mut MultimapTable<'tx, u32, u32>,
-  pub(super) lost_sats: u64,
+  pub(super) lost_koinu: u64,
   pub(super) next_sequence_number: u32,
   pub(super) reward: u64,
-  pub(super) sat_to_sequence_number: &'a mut MultimapTable<'tx, u64, u32>,
+  pub(super) koinu_to_sequence_number: &'a mut MultimapTable<'tx, u64, u32>,
   pub(super) sequence_number_to_children: &'a mut MultimapTable<'tx, u32, u32>,
   pub(super) sequence_number_to_entry: &'a mut Table<'tx, u32, InscriptionEntryValue>,
   pub(super) timestamp: u32,
@@ -104,7 +104,7 @@ impl InscriptionUpdater<'_, '_> {
       transferred_inscriptions.sort_by_key(|(sequence_number, _)| *sequence_number);
 
       for (sequence_number, old_satpoint_offset) in transferred_inscriptions {
-        let old_satpoint = SatPoint {
+        let old_satpoint = KoinuPoint {
           outpoint: txin.previous_output,
           offset: old_satpoint_offset,
         };
@@ -292,7 +292,7 @@ impl InscriptionUpdater<'_, '_> {
           break;
         }
 
-        let new_satpoint = SatPoint {
+        let new_satpoint = KoinuPoint {
           outpoint: OutPoint {
             txid,
             vout: vout.try_into().unwrap(),
@@ -327,9 +327,9 @@ impl InscriptionUpdater<'_, '_> {
 
     if is_coinbase {
       for flotsam in inscriptions {
-        let new_satpoint = SatPoint {
+        let new_satpoint = KoinuPoint {
           outpoint: OutPoint::null(),
-          offset: self.lost_sats + flotsam.offset - output_value,
+          offset: self.lost_koinu + flotsam.offset - output_value,
         };
         self.update_inscription_location(
           input_sat_ranges,
@@ -341,7 +341,7 @@ impl InscriptionUpdater<'_, '_> {
           index,
         )?;
       }
-      self.lost_sats += self.reward - output_value;
+      self.lost_koinu += self.reward - output_value;
       Ok(())
     } else {
       self.flotsam.extend(inscriptions.map(|flotsam| Flotsam {
@@ -353,7 +353,7 @@ impl InscriptionUpdater<'_, '_> {
     }
   }
 
-  fn calculate_sat(input_sat_ranges: Option<&Vec<&[u8]>>, input_offset: u64) -> Option<Sat> {
+  fn calculate_sat(input_sat_ranges: Option<&Vec<&[u8]>>, input_offset: u64) -> Option<Koinu> {
     let input_sat_ranges = input_sat_ranges?;
 
     let mut offset = 0;
@@ -365,7 +365,7 @@ impl InscriptionUpdater<'_, '_> {
       let size = end - start;
       if offset + size > input_offset {
         let n = start + input_offset - offset;
-        return Some(Sat(n));
+        return Some(Koinu(n));
       }
       offset += size;
     }
@@ -377,7 +377,7 @@ impl InscriptionUpdater<'_, '_> {
     &mut self,
     input_sat_ranges: Option<&Vec<&[u8]>>,
     flotsam: Flotsam,
-    new_satpoint: SatPoint,
+    new_satpoint: KoinuPoint,
     op_return: bool,
     mut normal_output_utxo_entry: Option<&mut UtxoEntryBuf>,
     utxo_cache: &mut HashMap<OutPoint, UtxoEntryBuf>,
@@ -482,8 +482,8 @@ impl InscriptionUpdater<'_, '_> {
           Charm::Vindicated.set(&mut charms);
         }
 
-        if let Some(Sat(n)) = sat {
-          self.sat_to_sequence_number.insert(&n, &sequence_number)?;
+        if let Some(Koinu(n)) = sat {
+          self.koinu_to_sequence_number.insert(&n, &sequence_number)?;
         }
 
         let parent_sequence_numbers = parents
@@ -573,7 +573,7 @@ impl InscriptionUpdater<'_, '_> {
     };
 
     let satpoint = if unbound {
-      let new_unbound_satpoint = SatPoint {
+      let new_unbound_satpoint = KoinuPoint {
         outpoint: unbound_outpoint(),
         offset: self.unbound_inscriptions,
       };

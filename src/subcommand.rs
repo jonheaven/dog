@@ -8,7 +8,7 @@ pub mod find;
 pub mod index;
 pub mod list;
 pub mod parse;
-pub mod runes;
+pub mod dunes;
 pub mod server;
 mod settings;
 pub mod subsidy;
@@ -21,23 +21,23 @@ pub mod wallets;
 
 #[derive(Debug, Parser)]
 pub(crate) enum Subcommand {
-  #[command(about = "List all rune balances")]
+  #[command(about = "List all dune balances")]
   Balances,
   #[command(about = "Decode a transaction")]
   Decode(decode::Decode),
   #[command(about = "Start a regtest ord and bitcoind instance")]
   Env(env::Env),
-  #[command(about = "List the first satoshis of each reward epoch")]
+  #[command(about = "List the first koinus of each reward epoch")]
   Epochs,
-  #[command(about = "Find a satoshi's current location")]
+  #[command(about = "Find a koinu's current location")]
   Find(find::Find),
   #[command(subcommand, about = "Index commands")]
   Index(index::IndexSubcommand),
-  #[command(about = "List the satoshis in an output")]
+  #[command(about = "List the koinus in an output")]
   List(list::List),
-  #[command(about = "Parse a satoshi from ordinal notation")]
+  #[command(about = "Parse a koinu from ordinal notation")]
   Parse(parse::Parse),
-  #[command(about = "List all runes")]
+  #[command(about = "List all dunes")]
   Runes,
   #[command(about = "Run the explorer server")]
   Server(server::Server),
@@ -45,17 +45,17 @@ pub(crate) enum Subcommand {
   Settings,
   #[command(about = "Display information about a block's subsidy")]
   Subsidy(subsidy::Subsidy),
-  #[command(about = "Display Bitcoin supply information")]
+  #[command(about = "Display Dogecoin supply information")]
   Supply,
   #[command(about = "Generate teleburn addresses")]
   Teleburn(teleburn::Teleburn),
-  #[command(about = "Display satoshi traits")]
+  #[command(about = "Display koinu traits")]
   Traits(traits::Traits),
   #[command(about = "Verify BIP322 signature")]
   Verify(verify::Verify),
   #[command(about = "Wallet commands")]
   Wallet(wallet::WalletCommand),
-  #[command(about = "List all Bitcoin Core wallets")]
+  #[command(about = "List all Dogecoin Core wallets")]
   Wallets,
 }
 
@@ -70,7 +70,7 @@ impl Subcommand {
       Self::Index(index) => index.run(settings),
       Self::List(list) => list.run(settings),
       Self::Parse(parse) => parse.run(),
-      Self::Runes => runes::run(settings),
+      Self::Runes => dunes::run(settings),
       Self::Server(server) => {
         let index = Arc::new(Index::open(&settings)?);
         let handle = axum_server::Handle::new();

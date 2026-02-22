@@ -1,25 +1,25 @@
 use {
   super::*,
-  ord::{decimal::Decimal, subcommand::wallet::runics::RunicUtxo},
+  dog::{decimal::Decimal, subcommand::wallet::runics::RunicUtxo},
 };
 
 #[test]
 fn wallet_runics() {
   let core = mockcore::builder().network(Network::Regtest).build();
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let rune = Rune(RUNE);
+  let dune = Dune(RUNE);
 
   batch(
     &core,
-    &ord,
+    &dog,
     batch::File {
       etching: Some(batch::Etching {
         divisibility: 0,
         premine: "1000".parse().unwrap(),
-        rune: SpacedRune { rune, spacers: 1 },
+        dune: SpacedDune { dune, spacers: 1 },
         supply: "1000".parse().unwrap(),
         symbol: '¢',
         terms: None,
@@ -34,15 +34,15 @@ fn wallet_runics() {
   );
 
   pretty_assert_eq!(
-    CommandBuilder::new("--regtest --index-runes wallet runics")
+    CommandBuilder::new("--regtest --index-dunes wallet runics")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .run_and_deserialize_output::<Vec<RunicUtxo>>()
       .first()
       .unwrap()
-      .runes,
+      .dunes,
     vec![(
-      SpacedRune { rune, spacers: 1 },
+      SpacedDune { dune, spacers: 1 },
       Decimal {
         value: 1000,
         scale: 0

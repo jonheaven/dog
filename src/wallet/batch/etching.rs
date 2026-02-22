@@ -4,7 +4,7 @@ use super::*;
 #[derive(Serialize, Deserialize, PartialEq, Debug, Copy, Clone, Default)]
 #[serde(deny_unknown_fields)]
 pub struct Etching {
-  pub rune: SpacedRune,
+  pub dune: SpacedDune,
   pub symbol: char,
   pub divisibility: u8,
   pub supply: Decimal,

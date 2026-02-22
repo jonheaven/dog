@@ -11,7 +11,7 @@ resized to fit within their container.
 Maximum Size
 ------------
 
-The `ord` explorer, used by [ordinals.com](https://ordinals.com/), displays
+The `ord` explorer, used by [doginals.com](https://doginals.com/), displays
 inscription previews with a maximum size of 576 by 576 pixels, making it a
 reasonable choice when choosing a maximum display size.
 

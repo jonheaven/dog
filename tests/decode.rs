@@ -4,7 +4,7 @@ use {
     ScriptBuf, Sequence, Transaction, TxIn, TxOut, Witness, absolute::LockTime,
     consensus::Encodable, opcodes, script, transaction::Version,
   },
-  ord::{
+  dog::{
     Envelope, Inscription,
     subcommand::decode::{CompactInscription, CompactOutput, RawOutput},
   },
@@ -14,7 +14,7 @@ fn transaction() -> Vec<u8> {
   let script = script::Builder::new()
     .push_opcode(opcodes::OP_FALSE)
     .push_opcode(opcodes::all::OP_IF)
-    .push_slice(b"ord")
+    .push_slice(b"dog")
     .push_slice([1])
     .push_slice(b"text/plain;charset=utf-8")
     .push_slice([])
@@ -37,7 +37,7 @@ fn transaction() -> Vec<u8> {
       witness,
     }],
     output: vec![TxOut {
-      script_pubkey: Runestone::default().encipher(),
+      script_pubkey: Dunestone::default().encipher(),
       value: Amount::from_sat(0),
     }],
   };
@@ -67,7 +67,7 @@ fn from_file() {
         pushnum: false,
         stutter: false,
       }],
-      runestone: Some(Artifact::Runestone(Runestone::default())),
+      dunestone: Some(Artifact::Dunestone(Dunestone::default())),
     },
   );
 }
@@ -90,7 +90,7 @@ fn from_stdin() {
         pushnum: false,
         stutter: false,
       }],
-      runestone: Some(Artifact::Runestone(Runestone::default())),
+      dunestone: Some(Artifact::Dunestone(Dunestone::default())),
     },
   );
 }
@@ -98,13 +98,13 @@ fn from_stdin() {
 #[test]
 fn from_core() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   core.mine_blocks(1);
 
-  let (_inscription, reveal) = inscribe(&core, &ord);
+  let (_inscription, reveal) = inscribe(&core, &dog);
 
   pretty_assert_eq!(
     CommandBuilder::new(format!("decode --txid {reveal}"))
@@ -122,7 +122,7 @@ fn from_core() {
         pushnum: false,
         stutter: false,
       }],
-      runestone: None,
+      dunestone: None,
     },
   );
 }
@@ -146,7 +146,7 @@ fn compact() {
         pointer: None,
         unrecognized_even_field: false,
       }],
-      runestone: Some(Artifact::Runestone(Runestone::default())),
+      dunestone: Some(Artifact::Dunestone(Dunestone::default())),
     },
   );
 }

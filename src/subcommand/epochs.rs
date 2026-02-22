@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Output {
-  pub starting_sats: Vec<Sat>,
+  pub starting_sats: Vec<Koinu>,
 }
 
 pub(crate) fn run() -> SubcommandResult {

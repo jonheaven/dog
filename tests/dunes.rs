@@ -1,16 +1,16 @@
-use {super::*, ord::subcommand::runes::Output};
+use {super::*, dog::subcommand::dunes::Output};
 
 #[test]
 fn flag_is_required() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest"], &[]);
 
-  CommandBuilder::new("--regtest runes")
+  CommandBuilder::new("--regtest dunes")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
-    .expected_stderr("error: `ord runes` requires index created with `--index-runes` flag\n")
+    .expected_stderr("error: `dog dunes` requires index created with `--index-dunes` flag\n")
     .run_and_extract_stdout();
 }
 
@@ -19,11 +19,11 @@ fn no_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
   assert_eq!(
-    CommandBuilder::new("--index-runes --regtest runes")
+    CommandBuilder::new("--index-dunes --regtest dunes")
       .core(&core)
       .run_and_deserialize_output::<Output>(),
     Output {
-      runes: BTreeMap::new(),
+      dunes: BTreeMap::new(),
     }
   );
 }
@@ -32,36 +32,36 @@ fn no_runes() {
 fn one_rune() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let etch = etch(&core, &ord, Rune(RUNE));
+  let etch = etch(&core, &dog, Dune(RUNE));
 
   pretty_assert_eq!(
-    CommandBuilder::new("--index-runes --regtest runes")
+    CommandBuilder::new("--index-dunes --regtest dunes")
       .core(&core)
       .run_and_deserialize_output::<Output>(),
     Output {
-      runes: vec![(
-        Rune(RUNE),
+      dunes: vec![(
+        Dune(RUNE),
         RuneInfo {
           block: 7,
           burned: 0,
           divisibility: 0,
           etching: etch.output.reveal,
-          id: RuneId { block: 7, tx: 1 },
+          id: DuneId { block: 7, tx: 1 },
           terms: None,
           mints: 0,
           number: 0,
           premine: 1000,
-          rune: SpacedRune {
-            rune: Rune(RUNE),
+          dune: SpacedDune {
+            dune: Dune(RUNE),
             spacers: 0
           },
           supply: 1000,
           symbol: Some('¢'),
-          timestamp: ord::timestamp(7),
+          timestamp: dog::timestamp(7),
           turbo: false,
           tx: 1,
         }
@@ -76,61 +76,61 @@ fn one_rune() {
 fn two_runes() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let ord = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-runes"], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &["--regtest", "--index-dunes"], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let a = etch(&core, &ord, Rune(RUNE));
-  let b = etch(&core, &ord, Rune(RUNE + 1));
+  let a = etch(&core, &dog, Dune(RUNE));
+  let b = etch(&core, &dog, Dune(RUNE + 1));
 
   pretty_assert_eq!(
-    CommandBuilder::new("--index-runes --regtest runes")
+    CommandBuilder::new("--index-dunes --regtest dunes")
       .core(&core)
       .run_and_deserialize_output::<Output>(),
     Output {
-      runes: vec![
+      dunes: vec![
         (
-          Rune(RUNE),
+          Dune(RUNE),
           RuneInfo {
             block: 7,
             burned: 0,
             divisibility: 0,
             etching: a.output.reveal,
-            id: RuneId { block: 7, tx: 1 },
+            id: DuneId { block: 7, tx: 1 },
             terms: None,
             mints: 0,
             number: 0,
             premine: 1000,
-            rune: SpacedRune {
-              rune: Rune(RUNE),
+            dune: SpacedDune {
+              dune: Dune(RUNE),
               spacers: 0
             },
             supply: 1000,
             symbol: Some('¢'),
-            timestamp: ord::timestamp(7),
+            timestamp: dog::timestamp(7),
             turbo: false,
             tx: 1,
           }
         ),
         (
-          Rune(RUNE + 1),
+          Dune(RUNE + 1),
           RuneInfo {
             block: 14,
             burned: 0,
             divisibility: 0,
             etching: b.output.reveal,
-            id: RuneId { block: 14, tx: 1 },
+            id: DuneId { block: 14, tx: 1 },
             terms: None,
             mints: 0,
             number: 1,
             premine: 1000,
-            rune: SpacedRune {
-              rune: Rune(RUNE + 1),
+            dune: SpacedDune {
+              dune: Dune(RUNE + 1),
               spacers: 0
             },
             supply: 1000,
             symbol: Some('¢'),
-            timestamp: ord::timestamp(14),
+            timestamp: dog::timestamp(14),
             turbo: false,
             tx: 1,
           }

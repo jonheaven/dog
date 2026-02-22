@@ -12,7 +12,7 @@ impl Height {
     Epoch::from(self).subsidy()
   }
 
-  pub fn starting_sat(self) -> Sat {
+  pub fn starting_sat(self) -> Koinu {
     let epoch = Epoch::from(self);
     let epoch_starting_sat = epoch.starting_sat();
     let epoch_starting_height = epoch.starting_height();

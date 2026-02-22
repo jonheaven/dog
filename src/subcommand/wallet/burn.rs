@@ -11,7 +11,7 @@ pub struct Burn {
   cbor_metadata: Option<PathBuf>,
   #[arg(long, help = "Don't sign or broadcast transaction.")]
   dry_run: bool,
-  #[arg(long, help = "Use fee rate of <FEE_RATE> sats/vB.")]
+  #[arg(long, help = "Use fee rate of <FEE_RATE> koinu/vB.")]
   fee_rate: FeeRate,
   #[arg(
     long,
@@ -94,16 +94,16 @@ impl Burn {
           burn_amount,
         )
       }
-      Outgoing::Rune { decimal, rune } => {
+      Outgoing::Dune { decimal, dune } => {
         ensure!(
           self.cbor_metadata.is_none() && self.json_metadata.is_none(),
-          "metadata not supported when burning runes"
+          "metadata not supported when burning dunes"
         );
 
         (
           wallet.create_unsigned_send_or_burn_runes_transaction(
             None,
-            rune,
+            dune,
             decimal,
             None,
             self.fee_rate,
@@ -112,8 +112,8 @@ impl Burn {
         )
       }
       Outgoing::Amount(_) => bail!("burning bitcoin not supported"),
-      Outgoing::Sat(_) => bail!("burning sat not supported"),
-      Outgoing::SatPoint(_) => bail!("burning satpoint not supported"),
+      Outgoing::Koinu(_) => bail!("burning sat not supported"),
+      Outgoing::KoinuPoint(_) => bail!("burning satpoint not supported"),
     };
 
     let base_size = unsigned_transaction.base_size();
@@ -139,7 +139,7 @@ impl Burn {
 
   fn create_unsigned_burn_satpoint_transaction(
     wallet: &Wallet,
-    satpoint: SatPoint,
+    satpoint: KoinuPoint,
     fee_rate: FeeRate,
     script_pubkey: ScriptBuf,
     burn_amount: Amount,

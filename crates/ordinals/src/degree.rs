@@ -18,8 +18,8 @@ impl Display for Degree {
   }
 }
 
-impl From<Sat> for Degree {
-  fn from(sat: Sat) -> Self {
+impl From<Koinu> for Degree {
+  fn from(sat: Koinu) -> Self {
     let height = sat.height().n();
     Degree {
       hour: height / (CYCLE_EPOCHS * SUBSIDY_HALVING_INTERVAL),
@@ -36,7 +36,7 @@ mod tests {
 
   fn case(sat: u64, hour: u32, minute: u32, second: u32, third: u64) {
     assert_eq!(
-      Degree::from(Sat(sat)),
+      Degree::from(Koinu(sat)),
       Degree {
         hour,
         minute,

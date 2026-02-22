@@ -9,7 +9,7 @@ pub(crate) struct Resume {
   #[arg(long, help = "Don't broadcast transactions.")]
   pub(crate) dry_run: bool,
   #[arg(long, help = "Pending <RUNE> etching to resume.")]
-  pub(crate) rune: Option<SpacedRune>,
+  pub(crate) dune: Option<SpacedDune>,
 }
 
 impl Resume {
@@ -20,22 +20,22 @@ impl Resume {
         break;
       }
 
-      let spaced_rune = self.rune;
+      let spaced_dune = self.dune;
 
-      let pending_etchings = if let Some(spaced_rune) = spaced_rune {
-        let pending_etching = wallet.load_etching(spaced_rune.rune)?;
+      let pending_etchings = if let Some(spaced_dune) = spaced_dune {
+        let pending_etching = wallet.load_etching(spaced_dune.dune)?;
 
         ensure!(
           pending_etching.is_some(),
-          "rune {spaced_rune} does not correspond to any pending etching."
+          "dune {spaced_dune} does not correspond to any pending etching."
         );
 
-        vec![(spaced_rune.rune, pending_etching.unwrap())]
+        vec![(spaced_dune.dune, pending_etching.unwrap())]
       } else {
         wallet.pending_etchings()?
       };
 
-      for (rune, entry) in pending_etchings {
+      for (dune, entry) in pending_etchings {
         if self.dry_run {
           etchings.push(batch::Output {
             reveal_broadcast: false,
@@ -44,11 +44,11 @@ impl Resume {
           continue;
         };
 
-        match wallet.check_maturity(rune, &entry.commit)? {
-          Maturity::Mature => etchings.push(wallet.send_etching(rune, &entry)?),
+        match wallet.check_maturity(dune, &entry.commit)? {
+          Maturity::Mature => etchings.push(wallet.send_etching(dune, &entry)?),
           Maturity::CommitSpent(txid) => {
-            eprintln!("Commitment for rune etching {rune} spent in {txid}");
-            wallet.clear_etching(rune)?;
+            eprintln!("Commitment for dune etching {dune} spent in {txid}");
+            wallet.clear_etching(dune)?;
           }
           Maturity::CommitNotFound => {}
           Maturity::BelowMinimumHeight(_) => {}

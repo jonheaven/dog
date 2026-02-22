@@ -1,16 +1,16 @@
 use super::*;
 
-type Create = ord::subcommand::wallet::offer::create::Output;
+type Create = dog::subcommand::wallet::offer::create::Output;
 
 #[test]
 fn created_offer_is_correct() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe_with_options(&core, &ord, Some(9000), 0);
+  let (inscription, _) = inscribe_with_options(&core, &dog, Some(9000), 0);
 
   let address = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
     .parse::<Address<NetworkUnchecked>>()
@@ -20,21 +20,21 @@ fn created_offer_is_correct() {
 
   let send = CommandBuilder::new(format!("wallet send --fee-rate 0 {address} {inscription}"))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
   let outputs = CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<Vec<ord::subcommand::wallet::outputs::Output>>();
+    .dog(&dog)
+    .run_and_deserialize_output::<Vec<dog::subcommand::wallet::outputs::Output>>();
 
   let create = CommandBuilder::new(format!(
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 1",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Create>();
 
   assert_eq!(
@@ -120,15 +120,15 @@ fn created_offer_is_correct() {
 fn inscription_must_exist() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   CommandBuilder::new(
     "wallet offer create --inscription 6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0 --amount 1btc --fee-rate 1",
   )
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr("error: inscription 6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0 does not exist\n")
   .expected_exit_code(1)
   .run_and_extract_stdout();
@@ -138,17 +138,17 @@ fn inscription_must_exist() {
 fn inscription_must_not_be_in_wallet() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   CommandBuilder::new(format!(
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 1",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr(format!(
     "error: inscription {inscription} already in wallet\n"
   ))
@@ -160,15 +160,15 @@ fn inscription_must_not_be_in_wallet() {
 fn inscription_must_have_valid_address() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &[]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &[]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe(&core, &ord);
+  let (inscription, _) = inscribe(&core, &dog);
 
   CommandBuilder::new(format!("wallet burn {inscription} --fee-rate 1"))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stdout_regex(".*")
     .run_and_extract_stdout();
 
@@ -178,7 +178,7 @@ fn inscription_must_have_valid_address() {
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 1",
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_stderr(format!(
     "error: inscription {inscription} script pubkey not valid address\n"
   ))
@@ -190,11 +190,11 @@ fn inscription_must_have_valid_address() {
 fn offers_can_be_submitted() {
   let core = mockcore::spawn();
 
-  let ord = TestServer::spawn_with_server_args(&core, &[], &["--accept-offers"]);
+  let dog = TestServer::spawn_with_server_args(&core, &[], &["--accept-offers"]);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
-  let (inscription, _) = inscribe_with_options(&core, &ord, Some(9000), 0);
+  let (inscription, _) = inscribe_with_options(&core, &dog, Some(9000), 0);
 
   let address = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
     .parse::<Address<NetworkUnchecked>>()
@@ -204,26 +204,26 @@ fn offers_can_be_submitted() {
 
   CommandBuilder::new(format!("wallet send --fee-rate 0 {address} {inscription}"))
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .run_and_deserialize_output::<Send>();
 
   core.mine_blocks(1);
 
   CommandBuilder::new("wallet outputs")
     .core(&core)
-    .ord(&ord)
-    .run_and_deserialize_output::<Vec<ord::subcommand::wallet::outputs::Output>>();
+    .dog(&dog)
+    .run_and_deserialize_output::<Vec<dog::subcommand::wallet::outputs::Output>>();
 
   let create = CommandBuilder::new(format!(
     "wallet offer create --inscription {inscription} --amount 1btc --fee-rate 1 --submit {}",
-    ord.url().join("offer").unwrap(),
+    dog.url().join("offer").unwrap(),
   ))
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .run_and_deserialize_output::<Create>();
 
   assert_eq!(
-    ord.json_request("/offers").json::<api::Offers>().unwrap(),
+    dog.json_request("/offers").json::<api::Offers>().unwrap(),
     api::Offers {
       offers: vec![create.psbt.clone()]
     },

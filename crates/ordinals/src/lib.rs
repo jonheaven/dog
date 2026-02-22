@@ -1,4 +1,4 @@
-//! Types for interoperating with ordinals, inscriptions, and runes.
+//! Types for interoperating with ordinals, inscriptions, and dunes.
 #![allow(clippy::large_enum_variant)]
 
 use {
@@ -24,10 +24,10 @@ use {
 };
 
 pub use {
-  artifact::Artifact, cenotaph::Cenotaph, charm::Charm, decimal_sat::DecimalSat, degree::Degree,
+  artifact::Artifact, cenotaph::Cenotaph, charm::Charm, decimal_koinu::DecimalKoinu, degree::Degree,
   edict::Edict, epoch::Epoch, etching::Etching, flaw::Flaw, height::Height, pile::Pile,
-  rarity::Rarity, rune::Rune, rune_id::RuneId, runestone::Runestone, sat::Sat, sat_point::SatPoint,
-  spaced_rune::SpacedRune, terms::Terms,
+  rarity::Rarity, dune::Dune, dune_id::DuneId, dunestone::Dunestone, koinu::Koinu, koinu_point::KoinuPoint,
+  spaced_dune::SpacedDune, terms::Terms,
 };
 
 pub const COIN_VALUE: u64 = 100_000_000;
@@ -44,7 +44,7 @@ fn default<T: Default>() -> T {
 mod artifact;
 mod cenotaph;
 mod charm;
-mod decimal_sat;
+mod decimal_koinu;
 mod degree;
 mod edict;
 mod epoch;
@@ -53,11 +53,11 @@ mod flaw;
 mod height;
 mod pile;
 mod rarity;
-mod rune;
-mod rune_id;
-mod runestone;
-pub mod sat;
-pub mod sat_point;
-pub mod spaced_rune;
+mod dune;
+mod dune_id;
+mod dunestone;
+pub mod koinu;
+pub mod koinu_point;
+pub mod spaced_dune;
 mod terms;
 pub mod varint;

@@ -14,8 +14,8 @@
 //! recipient's address. To build the transaction call
 //! `Transaction::build_transaction`.
 //!
-//! `Target::Postage` ensures that the outgoing value is at most 20,000 sats,
-//! reducing it to 10,000 sats if coin selection requires adding excess value.
+//! `Target::Postage` ensures that the outgoing value is at most 20,000 koinu,
+//! reducing it to 10,000 koinu if coin selection requires adding excess value.
 //!
 //! `Target::Value(Amount)` ensures that the outgoing value is exactly the
 //! requested amount,
@@ -45,11 +45,11 @@ pub enum Error {
   },
   InvalidAddress(bitcoin::address::FromScriptError),
   NotEnoughCardinalUtxos,
-  NotInWallet(SatPoint),
-  OutOfRange(SatPoint, u64),
+  NotInWallet(KoinuPoint),
+  OutOfRange(KoinuPoint, u64),
   UtxoContainsAdditionalInscriptions {
-    outgoing_satpoint: SatPoint,
-    inscribed_satpoint: SatPoint,
+    outgoing_satpoint: KoinuPoint,
+    inscribed_satpoint: KoinuPoint,
     inscription_ids: Vec<InscriptionId>,
   },
   ValueOverflow,
@@ -117,10 +117,10 @@ pub struct TransactionBuilder {
   change_addresses: BTreeSet<Address>,
   fee_rate: FeeRate,
   inputs: Vec<OutPoint>,
-  inscriptions: BTreeMap<SatPoint, Vec<InscriptionId>>,
+  inscriptions: BTreeMap<KoinuPoint, Vec<InscriptionId>>,
   locked_utxos: BTreeSet<OutPoint>,
   network: Network,
-  outgoing: SatPoint,
+  outgoing: KoinuPoint,
   outputs: Vec<TxOut>,
   recipient: ScriptBuf,
   runic_utxos: BTreeSet<OutPoint>,
@@ -138,8 +138,8 @@ impl TransactionBuilder {
   pub(crate) const MAX_POSTAGE: Amount = Amount::from_sat(2 * 10_000);
 
   pub fn new(
-    outgoing: SatPoint,
-    inscriptions: BTreeMap<SatPoint, Vec<InscriptionId>>,
+    outgoing: KoinuPoint,
+    inscriptions: BTreeMap<KoinuPoint, Vec<InscriptionId>>,
     amounts: BTreeMap<OutPoint, TxOut>,
     locked_utxos: BTreeSet<OutPoint>,
     runic_utxos: BTreeSet<OutPoint>,
@@ -399,7 +399,7 @@ impl TransactionBuilder {
               .fee_rate
               .fee(self.estimate_vbytes() + Self::ADDITIONAL_OUTPUT_VBYTES)
       {
-        tprintln!("stripped {} sats", (value - target).to_sat());
+        tprintln!("stripped {} koinu", (value - target).to_sat());
         self.outputs.last_mut().expect("no outputs found").value = target;
         self.outputs.push(TxOut {
           script_pubkey: self
@@ -658,7 +658,7 @@ impl TransactionBuilder {
   }
 
   /// Cardinal UTXOs are those that are unlocked, contain no inscriptions, and
-  /// contain no runes, can therefore be used to pad transactions and pay fees.
+  /// contain no dunes, can therefore be used to pad transactions and pay fees.
   /// Sometimes multiple cardinal UTXOs are needed and depending on the context
   /// we want to select either ones above or under (when trying to consolidate
   /// dust outputs) the target value.

@@ -1,11 +1,11 @@
-use {super::*, ord::subcommand::wallet::create};
+use {super::*, dog::subcommand::wallet::create};
 
 #[test]
 fn restore_generates_same_descriptors() {
   let (mnemonic, descriptors) = {
     let core = mockcore::spawn();
 
-    let ord = TestServer::spawn(&core);
+    let dog = TestServer::spawn(&core);
 
     let create::Output { mnemonic, .. } = CommandBuilder::new("wallet create")
       .core(&core)
@@ -13,7 +13,7 @@ fn restore_generates_same_descriptors() {
 
     let output = CommandBuilder::new("wallet dump")
       .core(&core)
-      .ord(&ord)
+      .dog(&dog)
       .stderr_regex(".*THIS STRING CONTAINS YOUR PRIVATE KEYS.*")
       .run_and_deserialize_output::<ListDescriptorsResult>();
 
@@ -35,11 +35,11 @@ fn restore_generates_same_descriptors() {
     .core(&core)
     .run_and_extract_stdout();
 
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
   let output = CommandBuilder::new("wallet dump")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*THIS STRING CONTAINS YOUR PRIVATE KEYS.*")
     .run_and_deserialize_output::<ListDescriptorsResult>();
 
@@ -88,24 +88,24 @@ fn restore_generates_same_descriptors_with_passphrase() {
 #[test]
 fn restore_to_existing_wallet_fails() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
-  create_wallet(&core, &ord);
+  create_wallet(&core, &dog);
 
   let descriptors = core.descriptors();
 
   let output = CommandBuilder::new("wallet dump")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<ListDescriptorsResult>();
 
   CommandBuilder::new("wallet restore --from descriptor")
     .stdin(serde_json::to_string(&output).unwrap().as_bytes().to_vec())
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .expected_exit_code(1)
-    .expected_stderr("error: wallet `ord` already exists\n")
+    .expected_stderr("error: wallet `dog` already exists\n")
     .run_and_extract_stdout();
 
   assert_eq!(
@@ -169,7 +169,7 @@ fn restore_with_wrong_descriptors_fails() {
 }"#.into())
     .core(&core)
     .expected_exit_code(1)
-    .expected_stderr("error: wallet \"foo\" contains unexpected output descriptors, and does not appear to be an `ord` wallet, create a new wallet with `ord wallet create`\n")
+    .expected_stderr("error: wallet \"foo\" contains unexpected output descriptors, and does not appear to be an `dog` wallet, create a new wallet with `dog wallet create`\n")
     .run_and_extract_stdout();
 }
 
@@ -209,7 +209,7 @@ fn restore_with_blank_mnemonic_generates_same_descriptors() {
 #[test]
 fn passphrase_conflicts_with_descriptor() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
   CommandBuilder::new([
     "wallet",
@@ -221,7 +221,7 @@ fn passphrase_conflicts_with_descriptor() {
   ])
   .stdin("".into())
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: descriptor does not take a passphrase\n")
   .run_and_extract_stdout();
@@ -230,7 +230,7 @@ fn passphrase_conflicts_with_descriptor() {
 #[test]
 fn timestamp_conflicts_with_descriptor() {
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
   CommandBuilder::new([
     "wallet",
@@ -242,7 +242,7 @@ fn timestamp_conflicts_with_descriptor() {
   ])
   .stdin("".into())
   .core(&core)
-  .ord(&ord)
+  .dog(&dog)
   .expected_exit_code(1)
   .expected_stderr("error: descriptor does not take a timestamp\n")
   .run_and_extract_stdout();
@@ -261,7 +261,7 @@ fn restore_with_now_timestamp() {
   };
 
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
   CommandBuilder::new([
     "wallet",
@@ -277,7 +277,7 @@ fn restore_with_now_timestamp() {
 
   let output = CommandBuilder::new("wallet dump")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<ListDescriptorsResult>();
 
@@ -309,7 +309,7 @@ fn restore_with_no_timestamp_defaults_to_0() {
   };
 
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
   CommandBuilder::new(["wallet", "restore", "--from", "mnemonic"])
     .stdin(mnemonic.to_string().into())
@@ -318,7 +318,7 @@ fn restore_with_no_timestamp_defaults_to_0() {
 
   let output = CommandBuilder::new("wallet dump")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<ListDescriptorsResult>();
 
@@ -346,7 +346,7 @@ fn restore_with_timestamp() {
   };
 
   let core = mockcore::spawn();
-  let ord = TestServer::spawn(&core);
+  let dog = TestServer::spawn(&core);
 
   CommandBuilder::new([
     "wallet",
@@ -362,7 +362,7 @@ fn restore_with_timestamp() {
 
   let output = CommandBuilder::new("wallet dump")
     .core(&core)
-    .ord(&ord)
+    .dog(&dog)
     .stderr_regex(".*")
     .run_and_deserialize_output::<ListDescriptorsResult>();
 
