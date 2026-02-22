@@ -522,6 +522,23 @@ impl Settings {
     self.data_dir.as_ref().unwrap().into()
   }
 
+  /// Returns the path to Dogecoin Core's `blocks/` directory, auto-detected
+  /// from `--bitcoin-data-dir` or the platform default (`~/.dogecoin/blocks/`
+  /// on Linux, `%APPDATA%\Dogecoin\blocks\` on Windows).
+  ///
+  /// Returns `None` only if the home/data directory cannot be determined.
+  pub fn dogecoin_blocks_dir(&self) -> Option<PathBuf> {
+    let base = if let Some(ref d) = self.bitcoin_data_dir {
+      d.clone()
+    } else if cfg!(target_os = "linux") {
+      dirs::home_dir()?.join(".dogecoin")
+    } else {
+      dirs::data_dir()?.join("Dogecoin")
+    };
+    let chain = self.chain.unwrap_or_default();
+    Some(chain.join_with_data_dir(base).join("blocks"))
+  }
+
   pub fn first_inscription_height(&self) -> u32 {
     if self.integration_test {
       0

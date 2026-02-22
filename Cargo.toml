@@ -51,6 +51,7 @@ bip322 = "0.0.10"
 bip39 = "2.0.0"
 bitcoin.workspace = true
 bitcoincore-rpc = "0.19.0"
+byteorder = "1.5.0"
 boilerplate = { version = "1.1.1", features = ["axum"] }
 brotli = "8.0.1"
 chrono = { version = "0.4.19", features = ["serde"] }
@@ -77,6 +78,7 @@ mp4 = "0.14.0"
 ordinals = { version = "0.0.15", path = "crates/ordinals" }
 redb = "3.1.0"
 ref-cast = "1.0.23"
+rusty-leveldb = "3.0.3"
 regex.workspace = true
 reqwest.workspace = true
 rss = "2.0.1"

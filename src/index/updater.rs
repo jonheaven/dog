@@ -8,6 +8,7 @@ use {
   },
 };
 
+mod blk_reader;
 mod inscription_updater;
 mod dune_updater;
 
@@ -165,6 +166,22 @@ impl Updater<'_> {
 
     let client = index.settings.bitcoin_rpc_client(None)?;
 
+    // Try to open a direct .blk file reader for fast initial sync.
+    // Falls back to RPC automatically for tip blocks not yet flushed to disk.
+    let fast_reader: Option<blk_reader::BlkReader> = index.settings
+      .dogecoin_blocks_dir()
+      .and_then(|dir| match blk_reader::BlkReader::open(&dir) {
+        Ok(reader) => reader,
+        Err(e) => {
+          log::warn!("BlkReader unavailable, using RPC: {e}");
+          None
+        }
+      });
+
+    if fast_reader.is_some() {
+      log::info!("Using direct .blk file reading for fast sync");
+    }
+
     thread::spawn(move || {
       loop {
         if let Some(height_limit) = height_limit
@@ -173,6 +190,27 @@ impl Updater<'_> {
           break;
         }
 
+        // Fast path: read directly from .blk files on disk
+        if let Some(ref reader) = fast_reader {
+          match reader.get(height) {
+            Ok(Some(block)) => {
+              if let Err(err) = tx.send(block.into()) {
+                log::info!("Block receiver disconnected: {err}");
+                break;
+              }
+              height += 1;
+              continue;
+            }
+            Ok(None) => {
+              // Block not in .blk index yet (tip) — fall through to RPC
+            }
+            Err(e) => {
+              log::warn!("BlkReader error at height {height}, retrying via RPC: {e}");
+            }
+          }
+        }
+
+        // RPC path: used for tip blocks and when BlkReader is unavailable
         match Self::get_block_with_retries(&client, height, first_index_height) {
           Ok(Some(block)) => {
             if let Err(err) = tx.send(block.into()) {
