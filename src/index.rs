@@ -86,6 +86,13 @@ define_table! { DNS_NAME_TO_ENTRY, &str, DnsEntryValue }
 define_table! { DNS_INSCRIPTION_ID_TO_NAME, InscriptionIdValue, &str }
 define_multimap_table! { DNS_NAMESPACE_TO_NAMES, &str, &str }
 
+// DRC-20 token tables
+// key for DRC20_BALANCE and DRC20_TRANSFERABLE is "address\ttick_lower"
+define_table! { DRC20_TICK_TO_TOKEN, &str, &[u8] }
+define_table! { DRC20_BALANCE, &str, &[u8] }
+define_table! { DRC20_TRANSFERABLE, &str, &[u8] }
+define_table! { DRC20_OUTPOINT_TO_TRANSFER, &OutPointValue, &[u8] }
+
 #[derive(Copy, Clone)]
 pub(crate) enum Statistic {
   Schema = 0,
@@ -106,6 +113,7 @@ pub(crate) enum Statistic {
   UnboundInscriptions = 16,
   LastSavepointHeight = 17,
   DnsNames = 18,
+  Drc20Tokens = 19,
 }
 
 impl Statistic {
@@ -922,6 +930,85 @@ impl Index {
     let parsed = utxo_guard.value().parse(self);
     let script = Script::from_bytes(parsed.script_pubkey());
     Ok(self.settings.chain().address_string_from_script(script))
+  }
+
+  // ---------------------------------------------------------------------------
+  // DRC-20 token queries
+  // ---------------------------------------------------------------------------
+
+  pub fn get_drc20_token(&self, tick: &str) -> Result<Option<crate::subcommand::drc20::Drc20Token>> {
+    let tick = tick.to_lowercase();
+    let tx = self.database.begin_read()?;
+    let table = tx.open_table(DRC20_TICK_TO_TOKEN)?;
+    if let Some(guard) = table.get(tick.as_str())? {
+      let token = serde_json::from_slice(guard.value())?;
+      Ok(Some(token))
+    } else {
+      Ok(None)
+    }
+  }
+
+  pub fn get_drc20_tokens(&self) -> Result<Vec<crate::subcommand::drc20::Drc20Token>> {
+    let tx = self.database.begin_read()?;
+    let table = tx.open_table(DRC20_TICK_TO_TOKEN)?;
+    let mut tokens = Vec::new();
+    for entry in table.iter()? {
+      let (_, v) = entry?;
+      if let Ok(token) = serde_json::from_slice::<crate::subcommand::drc20::Drc20Token>(v.value()) {
+        tokens.push(token);
+      }
+    }
+    Ok(tokens)
+  }
+
+  pub fn get_drc20_balance(
+    &self,
+    address: &str,
+    tick: &str,
+  ) -> Result<(u128, u128)> {
+    let tick = tick.to_lowercase();
+    let key = format!("{}\t{}", address, tick);
+    let tx = self.database.begin_read()?;
+    let available = tx
+      .open_table(DRC20_BALANCE)?
+      .get(key.as_str())?
+      .map(|g| serde_json::from_slice::<u128>(g.value()).unwrap_or(0))
+      .unwrap_or(0);
+    let transferable = tx
+      .open_table(DRC20_TRANSFERABLE)?
+      .get(key.as_str())?
+      .map(|g| serde_json::from_slice::<u128>(g.value()).unwrap_or(0))
+      .unwrap_or(0);
+    Ok((available, transferable))
+  }
+
+  pub fn get_drc20_balances(
+    &self,
+    address: &str,
+  ) -> Result<Vec<(String, u128, u128)>> {
+    let prefix = format!("{}\t", address);
+    let tx = self.database.begin_read()?;
+    let balance_table = tx.open_table(DRC20_BALANCE)?;
+    let transferable_table = tx.open_table(DRC20_TRANSFERABLE)?;
+    let mut results: Vec<(String, u128, u128)> = Vec::new();
+    for entry in balance_table.iter()? {
+      let (k, v) = entry?;
+      let key = k.value();
+      if key.starts_with(&prefix) {
+        let tick = key[prefix.len()..].to_string();
+        let available = serde_json::from_slice::<u128>(v.value()).unwrap_or(0);
+        let tkey = format!("{}\t{}", address, tick);
+        let transferable = transferable_table
+          .get(tkey.as_str())?
+          .map(|g| serde_json::from_slice::<u128>(g.value()).unwrap_or(0))
+          .unwrap_or(0);
+        if available > 0 || transferable > 0 {
+          results.push((tick, available, transferable));
+        }
+      }
+    }
+    results.sort_by(|a, b| a.0.cmp(&b.0));
+    Ok(results)
   }
 
   pub(crate) fn get_offers(&self) -> Result<Vec<Vec<u8>>> {

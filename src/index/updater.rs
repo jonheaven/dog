@@ -658,6 +658,7 @@ impl Updater<'_> {
         )?;
 
         self.index_dns_transaction(tx, *txid, block.header.time, wtx)?;
+        self.index_drc20_transaction(tx, *txid, block.header.time, wtx)?;
       }
 
       for (vout, output_utxo_entry) in output_utxo_entries.into_iter().enumerate() {
@@ -981,6 +982,357 @@ impl Updater<'_> {
         .unwrap_or(0);
       statistic_to_count.insert(&Statistic::DnsNames.key(), &(prev + 1))?;
     }
+
+    Ok(())
+  }
+
+  // ---------------------------------------------------------------------------
+  // DRC-20 token indexing
+  //
+  // Protocol: inscriptions with content-type text/plain or application/json,
+  // body is JSON with {"p":"drc-20","op":"deploy|mint|transfer",...}.
+  // Logic mirrors the bel-20-indexer (open source, Apache-2.0).
+  // ---------------------------------------------------------------------------
+  fn index_drc20_transaction(
+    &mut self,
+    tx: &Transaction,
+    txid: Txid,
+    block_time: u32,
+    wtx: &WriteTransaction,
+  ) -> Result<()> {
+    use crate::subcommand::drc20::Drc20Transfer;
+
+    // --- Step 1: Complete any pending transfers whose UTXOs are spent here ---
+    {
+      let mut outpoint_to_transfer = wtx.open_table(DRC20_OUTPOINT_TO_TRANSFER)?;
+      let mut balance_table = wtx.open_table(DRC20_BALANCE)?;
+      let mut transferable_table = wtx.open_table(DRC20_TRANSFERABLE)?;
+
+      for input in &tx.input {
+        let prev = input.previous_output.store();
+        let maybe_transfer: Option<Drc20Transfer> = outpoint_to_transfer
+          .get(&prev)?
+          .and_then(|g| serde_json::from_slice(g.value()).ok());
+
+        if let Some(transfer) = maybe_transfer {
+          // Recipient = first output's address
+          if let Some(out) = tx.output.first() {
+            if let Some(recv_addr) = self
+              .index
+              .settings
+              .chain()
+              .address_string_from_script(out.script_pubkey.as_script())
+            {
+              // Credit recipient's available balance
+              let recv_key = format!("{}\t{}", recv_addr, transfer.tick);
+              let prev_bal: u128 = balance_table
+                .get(recv_key.as_str())?
+                .and_then(|g| serde_json::from_slice(g.value()).ok())
+                .unwrap_or(0);
+              let new_bal = serde_json::to_vec(&(prev_bal + transfer.amount))?;
+              balance_table.insert(recv_key.as_str(), new_bal.as_slice())?;
+
+              // Deduct from sender's transferable
+              let send_key = format!("{}\t{}", transfer.from_address, transfer.tick);
+              let prev_trf: u128 = transferable_table
+                .get(send_key.as_str())?
+                .and_then(|g| serde_json::from_slice(g.value()).ok())
+                .unwrap_or(0);
+              let new_trf = serde_json::to_vec(&prev_trf.saturating_sub(transfer.amount))?;
+              transferable_table.insert(send_key.as_str(), new_trf.as_slice())?;
+            }
+          }
+          outpoint_to_transfer.remove(&prev)?;
+        }
+      }
+    }
+
+    // --- Step 2: Scan envelopes in this transaction for DRC-20 ops ---
+    let envelopes = ParsedEnvelope::from_transaction(tx);
+
+    for (env_idx, envelope) in envelopes.into_iter().enumerate() {
+      let Some(content_type) = envelope.payload.content_type() else {
+        continue;
+      };
+      let Some(body) = envelope.payload.body() else {
+        continue;
+      };
+
+      // Dogecoin wonky workaround: accept text/plain or application/json
+      if !content_type.starts_with("text/plain")
+        && !content_type.starts_with("application/json")
+      {
+        continue;
+      }
+
+      let Ok(text) = std::str::from_utf8(body) else {
+        continue;
+      };
+      let Ok(json) = serde_json::from_str::<serde_json::Value>(text) else {
+        continue;
+      };
+
+      if json.get("p").and_then(|v| v.as_str()) != Some("drc-20") {
+        continue;
+      }
+      let Some(op) = json.get("op").and_then(|v| v.as_str()) else {
+        continue;
+      };
+
+      // Inscription destination address
+      let out_idx = envelope.offset as usize;
+      let Some(output) = tx.output.get(out_idx) else {
+        continue;
+      };
+      let Some(addr) = self
+        .index
+        .settings
+        .chain()
+        .address_string_from_script(output.script_pubkey.as_script())
+      else {
+        continue;
+      };
+
+      let inscription_id = InscriptionId {
+        txid,
+        index: env_idx as u32,
+      };
+
+      match op {
+        "deploy" => {
+          self.drc20_deploy(&json, inscription_id, &addr, block_time, wtx)?;
+        }
+        "mint" => {
+          self.drc20_mint(&json, &addr, wtx)?;
+        }
+        "transfer" => {
+          let outpoint = OutPoint {
+            txid,
+            vout: out_idx as u32,
+          };
+          self.drc20_transfer_create(&json, &addr, outpoint, wtx)?;
+        }
+        _ => {}
+      }
+    }
+
+    Ok(())
+  }
+
+  fn drc20_deploy(
+    &mut self,
+    json: &serde_json::Value,
+    inscription_id: InscriptionId,
+    deployer: &str,
+    block_time: u32,
+    wtx: &WriteTransaction,
+  ) -> Result<()> {
+    use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Token};
+
+    let Some(tick_raw) = json.get("tick").and_then(|v| v.as_str()) else {
+      return Ok(());
+    };
+    if tick_raw.len() != 4 {
+      return Ok(());
+    }
+    let tick_lower = tick_raw.to_lowercase();
+
+    let mut token_table = wtx.open_table(DRC20_TICK_TO_TOKEN)?;
+
+    // First deploy wins
+    if token_table.get(tick_lower.as_str())?.is_some() {
+      return Ok(());
+    }
+
+    let dec: u8 = json
+      .get("dec")
+      .and_then(|v| v.as_u64())
+      .unwrap_or(8)
+      .min(18) as u8;
+
+    let Some(max_str) = json.get("max").and_then(|v| json_to_amount_str(v)) else {
+      return Ok(());
+    };
+    let Some(max_supply) = parse_amount(&max_str, dec) else {
+      return Ok(());
+    };
+    if max_supply == 0 {
+      return Ok(());
+    }
+
+    let lim_str = json
+      .get("lim")
+      .and_then(|v| json_to_amount_str(v))
+      .unwrap_or_else(|| max_str.clone());
+    let Some(mint_limit) = parse_amount(&lim_str, dec) else {
+      return Ok(());
+    };
+    if mint_limit == 0 {
+      return Ok(());
+    }
+
+    let token = Drc20Token {
+      tick: tick_raw.to_string(),
+      max_supply,
+      mint_limit,
+      decimals: dec,
+      minted: 0,
+      deploy_inscription: inscription_id.to_string(),
+      deploy_height: self.height,
+      deploy_timestamp: block_time,
+      deployer: deployer.to_string(),
+      mint_count: 0,
+    };
+
+    let bytes = serde_json::to_vec(&token)?;
+    token_table.insert(tick_lower.as_str(), bytes.as_slice())?;
+
+    // Update token count statistic
+    let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
+    let prev = statistic_to_count
+      .get(&Statistic::Drc20Tokens.key())?
+      .map(|g| g.value())
+      .unwrap_or(0);
+    statistic_to_count.insert(&Statistic::Drc20Tokens.key(), &(prev + 1))?;
+
+    Ok(())
+  }
+
+  fn drc20_mint(
+    &mut self,
+    json: &serde_json::Value,
+    recipient: &str,
+    wtx: &WriteTransaction,
+  ) -> Result<()> {
+    use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Token};
+
+    let Some(tick_raw) = json.get("tick").and_then(|v| v.as_str()) else {
+      return Ok(());
+    };
+    if tick_raw.len() != 4 {
+      return Ok(());
+    }
+    let tick_lower = tick_raw.to_lowercase();
+
+    let mut token_table = wtx.open_table(DRC20_TICK_TO_TOKEN)?;
+    let Some(token_guard) = token_table.get(tick_lower.as_str())? else {
+      return Ok(()); // tick not deployed
+    };
+    let mut token: Drc20Token = serde_json::from_slice(token_guard.value())?;
+    drop(token_guard);
+
+    if token.minted >= token.max_supply {
+      return Ok(()); // fully minted
+    }
+
+    let Some(amt_str) = json.get("amt").and_then(|v| json_to_amount_str(v)) else {
+      return Ok(());
+    };
+    let Some(mut amt) = parse_amount(&amt_str, token.decimals) else {
+      return Ok(());
+    };
+    if amt == 0 {
+      return Ok(());
+    }
+
+    // Enforce per-mint limit
+    if amt > token.mint_limit {
+      return Ok(());
+    }
+
+    // Cap at remaining supply
+    let remaining = token.max_supply - token.minted;
+    if amt > remaining {
+      amt = remaining;
+    }
+
+    // Credit recipient's available balance
+    let bal_key = format!("{}\t{}", recipient, tick_lower);
+    let mut balance_table = wtx.open_table(DRC20_BALANCE)?;
+    let prev: u128 = balance_table
+      .get(bal_key.as_str())?
+      .and_then(|g| serde_json::from_slice(g.value()).ok())
+      .unwrap_or(0);
+    let new_bal = serde_json::to_vec(&(prev + amt))?;
+    balance_table.insert(bal_key.as_str(), new_bal.as_slice())?;
+
+    // Update token metadata
+    token.minted += amt;
+    token.mint_count += 1;
+    let updated = serde_json::to_vec(&token)?;
+    token_table.insert(tick_lower.as_str(), updated.as_slice())?;
+
+    Ok(())
+  }
+
+  fn drc20_transfer_create(
+    &mut self,
+    json: &serde_json::Value,
+    sender: &str,
+    outpoint: OutPoint,
+    wtx: &WriteTransaction,
+  ) -> Result<()> {
+    use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Transfer, Drc20Token};
+
+    let Some(tick_raw) = json.get("tick").and_then(|v| v.as_str()) else {
+      return Ok(());
+    };
+    if tick_raw.len() != 4 {
+      return Ok(());
+    }
+    let tick_lower = tick_raw.to_lowercase();
+
+    let token_table = wtx.open_table(DRC20_TICK_TO_TOKEN)?;
+    let Some(token_guard) = token_table.get(tick_lower.as_str())? else {
+      return Ok(());
+    };
+    let token: Drc20Token = serde_json::from_slice(token_guard.value())?;
+    drop(token_guard);
+    drop(token_table);
+
+    let Some(amt_str) = json.get("amt").and_then(|v| json_to_amount_str(v)) else {
+      return Ok(());
+    };
+    let Some(amt) = parse_amount(&amt_str, token.decimals) else {
+      return Ok(());
+    };
+    if amt == 0 {
+      return Ok(());
+    }
+
+    // Check sender has enough available balance
+    let bal_key = format!("{}\t{}", sender, tick_lower);
+    let mut balance_table = wtx.open_table(DRC20_BALANCE)?;
+    let avail: u128 = balance_table
+      .get(bal_key.as_str())?
+      .and_then(|g| serde_json::from_slice(g.value()).ok())
+      .unwrap_or(0);
+
+    if amt > avail {
+      return Ok(()); // insufficient balance
+    }
+
+    // Deduct from available, add to transferable
+    let new_avail = serde_json::to_vec(&(avail - amt))?;
+    balance_table.insert(bal_key.as_str(), new_avail.as_slice())?;
+
+    let mut transferable_table = wtx.open_table(DRC20_TRANSFERABLE)?;
+    let prev_trf: u128 = transferable_table
+      .get(bal_key.as_str())?
+      .and_then(|g| serde_json::from_slice(g.value()).ok())
+      .unwrap_or(0);
+    let new_trf = serde_json::to_vec(&(prev_trf + amt))?;
+    transferable_table.insert(bal_key.as_str(), new_trf.as_slice())?;
+
+    // Record this outpoint as a pending transfer
+    let transfer = Drc20Transfer {
+      tick: tick_lower,
+      amount: amt,
+      from_address: sender.to_string(),
+    };
+    let transfer_bytes = serde_json::to_vec(&transfer)?;
+    let mut outpoint_to_transfer = wtx.open_table(DRC20_OUTPOINT_TO_TRANSFER)?;
+    outpoint_to_transfer.insert(&outpoint.store(), transfer_bytes.as_slice())?;
 
     Ok(())
   }
