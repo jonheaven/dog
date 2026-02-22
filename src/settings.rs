@@ -3,7 +3,7 @@ use {super::*, bitcoincore_rpc::Auth};
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default, deny_unknown_fields)]
 pub struct Settings {
-  bitcoin_data_dir: Option<PathBuf>,
+  dogecoin_data_dir: Option<PathBuf>,
   bitcoin_rpc_limit: Option<u32>,
   bitcoin_rpc_password: Option<String>,
   bitcoin_rpc_url: Option<String>,
@@ -110,7 +110,7 @@ impl Settings {
 
   pub fn or(self, source: Settings) -> Self {
     Self {
-      bitcoin_data_dir: self.bitcoin_data_dir.or(source.bitcoin_data_dir),
+      dogecoin_data_dir: self.dogecoin_data_dir.or(source.dogecoin_data_dir),
       bitcoin_rpc_limit: self.bitcoin_rpc_limit.or(source.bitcoin_rpc_limit),
       bitcoin_rpc_password: self.bitcoin_rpc_password.or(source.bitcoin_rpc_password),
       bitcoin_rpc_url: self.bitcoin_rpc_url.or(source.bitcoin_rpc_url),
@@ -150,7 +150,7 @@ impl Settings {
 
   pub fn from_options(options: Options) -> Self {
     Self {
-      bitcoin_data_dir: options.bitcoin_data_dir,
+      dogecoin_data_dir: options.dogecoin_data_dir,
       bitcoin_rpc_limit: options.bitcoin_rpc_limit,
       bitcoin_rpc_password: options.bitcoin_rpc_password,
       bitcoin_rpc_url: options.bitcoin_rpc_url,
@@ -244,7 +244,7 @@ impl Settings {
     };
 
     Ok(Self {
-      bitcoin_data_dir: get_path("BITCOIN_DATA_DIR"),
+      dogecoin_data_dir: get_path("DOGECOIN_DATA_DIR"),
       bitcoin_rpc_limit: get_u32("BITCOIN_RPC_LIMIT")?,
       bitcoin_rpc_password: get_string("BITCOIN_RPC_PASSWORD"),
       bitcoin_rpc_url: get_string("BITCOIN_RPC_URL"),
@@ -276,7 +276,7 @@ impl Settings {
 
   pub fn for_env(dir: &Path, rpc_url: &str, server_url: &str) -> Self {
     Self {
-      bitcoin_data_dir: Some(dir.into()),
+      dogecoin_data_dir: Some(dir.into()),
       bitcoin_rpc_limit: None,
       bitcoin_rpc_password: None,
       bitcoin_rpc_url: Some(rpc_url.into()),
@@ -309,8 +309,8 @@ impl Settings {
   pub fn or_defaults(self) -> Result<Self> {
     let chain = self.chain.unwrap_or_default();
 
-    let bitcoin_data_dir = match &self.bitcoin_data_dir {
-      Some(bitcoin_data_dir) => bitcoin_data_dir.clone(),
+    let dogecoin_data_dir = match &self.dogecoin_data_dir {
+      Some(dogecoin_data_dir) => dogecoin_data_dir.clone(),
       None => {
         if cfg!(target_os = "linux") {
           dirs::home_dir()
@@ -326,7 +326,7 @@ impl Settings {
 
     let cookie_file = match self.cookie_file {
       Some(cookie_file) => cookie_file,
-      None => chain.join_with_data_dir(&bitcoin_data_dir).join(".cookie"),
+      None => chain.join_with_data_dir(&dogecoin_data_dir).join(".cookie"),
     };
 
     let data_dir = chain.join_with_data_dir(match &self.data_dir {
@@ -340,7 +340,7 @@ impl Settings {
     };
 
     Ok(Self {
-      bitcoin_data_dir: Some(bitcoin_data_dir),
+      dogecoin_data_dir: Some(dogecoin_data_dir),
       bitcoin_rpc_limit: Some(self.bitcoin_rpc_limit.unwrap_or(12)),
       bitcoin_rpc_password: self.bitcoin_rpc_password,
       bitcoin_rpc_url: Some(
@@ -494,8 +494,8 @@ impl Settings {
     }
 
     let chain = self.chain();
-    let path = if let Some(bitcoin_data_dir) = &self.bitcoin_data_dir {
-      bitcoin_data_dir.clone()
+    let path = if let Some(dogecoin_data_dir) = &self.dogecoin_data_dir {
+      dogecoin_data_dir.clone()
     } else if cfg!(target_os = "linux") {
       dirs::home_dir()
         .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
@@ -523,12 +523,12 @@ impl Settings {
   }
 
   /// Returns the path to Dogecoin Core's `blocks/` directory, auto-detected
-  /// from `--bitcoin-data-dir` or the platform default (`~/.dogecoin/blocks/`
+  /// from `--dogecoin-data-dir` (or `DOGECOIN_DATA_DIR` env var) or the platform default (`~/.dogecoin/blocks/`
   /// on Linux, `%APPDATA%\Dogecoin\blocks\` on Windows).
   ///
   /// Returns `None` only if the home/data directory cannot be determined.
   pub fn dogecoin_blocks_dir(&self) -> Option<PathBuf> {
-    let base = if let Some(ref d) = self.bitcoin_data_dir {
+    let base = if let Some(ref d) = self.dogecoin_data_dir {
       d.clone()
     } else if cfg!(target_os = "linux") {
       dirs::home_dir()?.join(".dogecoin")
@@ -820,9 +820,9 @@ mod tests {
   }
 
   #[test]
-  fn cookie_file_defaults_to_bitcoin_data_dir() {
+  fn cookie_file_defaults_to_dogecoin_data_dir() {
     let cookie_file =
-      parse(&["--bitcoin-data-dir=foo", "--chain=dogecoin-testnet"])
+      parse(&["--dogecoin-data-dir=foo", "--chain=dogecoin-testnet"])
         .cookie_file()
         .unwrap()
         .display()
@@ -1073,7 +1073,7 @@ mod tests {
   #[test]
   fn from_env() {
     let env = vec![
-      ("BITCOIN_DATA_DIR", "/dogecoin/data/dir"),
+      ("DOGECOIN_DATA_DIR", "/dogecoin/data/dir"),
       ("BITCOIN_RPC_LIMIT", "12"),
       ("BITCOIN_RPC_PASSWORD", "dogecoin password"),
       ("BITCOIN_RPC_URL", "url"),
@@ -1108,7 +1108,7 @@ mod tests {
     pretty_assert_eq!(
       Settings::from_env(env).unwrap(),
       Settings {
-        bitcoin_data_dir: Some("/dogecoin/data/dir".into()),
+        dogecoin_data_dir: Some("/dogecoin/data/dir".into()),
         bitcoin_rpc_limit: Some(12),
         bitcoin_rpc_password: Some("dogecoin password".into()),
         bitcoin_rpc_url: Some("url".into()),
@@ -1156,7 +1156,7 @@ mod tests {
       Settings::from_options(
         Options::try_parse_from([
           "dog",
-          "--bitcoin-data-dir=/dogecoin/data/dir",
+          "--dogecoin-data-dir=/dogecoin/data/dir",
           "--bitcoin-rpc-limit=12",
           "--bitcoin-rpc-password=dogecoin password",
           "--bitcoin-rpc-url=url",
@@ -1184,7 +1184,7 @@ mod tests {
         .unwrap()
       ),
       Settings {
-        bitcoin_data_dir: Some("/dogecoin/data/dir".into()),
+        dogecoin_data_dir: Some("/dogecoin/data/dir".into()),
         bitcoin_rpc_limit: Some(12),
         bitcoin_rpc_password: Some("dogecoin password".into()),
         bitcoin_rpc_url: Some("url".into()),

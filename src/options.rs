@@ -3,7 +3,7 @@ use super::*;
 #[derive(Clone, Default, Debug, Parser)]
 pub struct Options {
   #[arg(long, help = "Load Dogecoin Core data dir from <DOGECOIN_DATA_DIR>.")]
-  pub(crate) bitcoin_data_dir: Option<PathBuf>,
+  pub(crate) dogecoin_data_dir: Option<PathBuf>,
   #[arg(
     long,
     help = "Authenticate to Dogecoin Core RPC with <DOGECOIN_RPC_PASSWORD>."
