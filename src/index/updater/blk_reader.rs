@@ -3,8 +3,22 @@
 //! Reads blocks straight from the binary `.blk` files on disk, bypassing
 //! JSON-RPC. Typically 5-20x faster than RPC for initial sync.
 //!
-//! Block location metadata is read from the LevelDB index that Dogecoin Core
-//! maintains at `<blocks_dir>/index/`.
+//! ## Index copy
+//!
+//! Dogecoin Core holds an exclusive LevelDB lock on `blocks/index/` while
+//! running, which prevents a second process from opening the same DB.
+//!
+//! To work around this dog maintains a **shadow copy** of the index at
+//! `<dog-data-dir>/blk-index/`.  The copy is refreshed automatically each
+//! time `dog index update` runs.  A smart-copy strategy is used: immutable
+//! SST files (`*.ldb`) are skipped once they already exist in the copy;
+//! only the MANIFEST and WAL are re-copied on each run (usually < 1 second).
+//! The `LOCK` file is never copied so dog can open the copy freely.
+//!
+//! The copy can also be refreshed manually:
+//! ```text
+//! dog index refresh-blk-index
+//! ```
 
 use {
   crate::Result,
@@ -14,9 +28,11 @@ use {
   rusty_leveldb::{LdbIterator, Options, DB},
   std::{
     collections::HashMap,
-    fs::File,
+    ffi::OsStr,
+    fs,
     io::{BufReader, Cursor, Read, Seek, SeekFrom},
     path::{Path, PathBuf},
+    time::SystemTime,
   },
 };
 
@@ -30,39 +46,79 @@ pub(crate) struct BlkReader {
 }
 
 impl BlkReader {
-  /// Try to open a BlkReader for the given blocks directory.
+  /// Try to open a BlkReader.
   ///
-  /// Returns `Ok(None)` if the LevelDB index doesn't exist (no Dogecoin Core
-  /// data present), `Ok(Some(_))` on success.
-  pub(crate) fn open(blocks_dir: &Path) -> Result<Option<Self>> {
-    let index_path = blocks_dir.join("index");
-    if !index_path.exists() {
+  /// `index_copy_dir` is where dog stores its shadow copy of Core's LevelDB
+  /// index (e.g. `<dog-data-dir>/blk-index`). The copy is refreshed here
+  /// before opening so it is always current.
+  ///
+  /// Fall-through order:
+  /// 1. Refresh shadow copy (smart-copy — fast on subsequent runs)
+  /// 2. Open shadow copy
+  /// 3. Open live index (only succeeds when Core is not running)
+  /// 4. Return `Ok(None)` → caller falls back to RPC
+  pub(crate) fn open(blocks_dir: &Path, index_copy_dir: &Path) -> Result<Option<Self>> {
+    let live_index = blocks_dir.join("index");
+    if !live_index.exists() {
       return Ok(None);
     }
-    let index = match build_block_index(&index_path) {
-      Ok(idx) => idx,
-      Err(e) => {
-        let msg = e.to_string();
-        if msg.contains("lock") {
+
+    // Refresh the shadow copy.  Safe while Core runs — immutable SST files
+    // are skipped if already up-to-date, WAL uses checksums for crash safety.
+    match refresh_index_copy(&live_index, index_copy_dir) {
+      Ok((copied, skipped)) => {
+        if copied > 0 || !index_copy_dir.exists() {
           log::info!(
-            "BlkReader: Dogecoin Core is running and holds the LevelDB lock — \
-             falling back to RPC. For maximum sync speed, stop Core first, \
-             then run `dog index update`, then restart Core."
+            "BlkReader: index copy refreshed ({copied} updated, {skipped} unchanged) → {}",
+            index_copy_dir.display()
+          );
+        }
+      }
+      Err(e) => log::warn!("BlkReader: could not refresh index copy: {e}"),
+    }
+
+    // Prefer the shadow copy.
+    if index_copy_dir.exists() {
+      match build_block_index(index_copy_dir) {
+        Ok(idx) => {
+          log::info!(
+            "BlkReader: loaded {} block locations from shadow copy — using direct .blk reads",
+            idx.len()
+          );
+          return Ok(Some(Self {
+            blocks_dir: blocks_dir.to_owned(),
+            index: idx,
+          }));
+        }
+        Err(e) => log::warn!("BlkReader: shadow copy unusable ({e}), trying live index"),
+      }
+    }
+
+    // Fall back to the live index (works when Core is stopped).
+    match build_block_index(&live_index) {
+      Ok(idx) => {
+        log::info!(
+          "BlkReader: loaded {} block locations from live index",
+          idx.len()
+        );
+        Ok(Some(Self {
+          blocks_dir: blocks_dir.to_owned(),
+          index: idx,
+        }))
+      }
+      Err(e) => {
+        if e.to_string().contains("lock") {
+          log::info!(
+            "BlkReader: Dogecoin Core holds the LevelDB lock and the shadow copy could \
+             not be created. Falling back to RPC. Run `dog index refresh-blk-index` \
+             once to build the shadow copy while Core is running."
           );
         } else {
-          log::warn!("BlkReader: could not read LevelDB block index: {e}");
+          log::warn!("BlkReader: could not read block index: {e}");
         }
-        return Ok(None);
+        Ok(None)
       }
-    };
-    log::info!(
-      "BlkReader: loaded {} block locations from LevelDB — using direct .blk file reads",
-      index.len()
-    );
-    Ok(Some(Self {
-      blocks_dir: blocks_dir.to_owned(),
-      index,
-    }))
+    }
   }
 
   /// Highest block height available in the on-disk index.
@@ -74,7 +130,7 @@ impl BlkReader {
   /// Read and deserialize a block by height.
   ///
   /// Returns `Ok(None)` when the height is not yet indexed (tip blocks that
-  /// haven't been flushed to `.blk` files yet — caller should fall back to RPC).
+  /// haven't been flushed to `.blk` files yet — caller falls back to RPC).
   pub(crate) fn get(&self, height: u32) -> Result<Option<Block>> {
     let Some(&(file_idx, data_offset)) = self.index.get(&height) else {
       return Ok(None);
@@ -83,6 +139,58 @@ impl BlkReader {
       .with_context(|| format!("reading block at height {height}"))?;
     Ok(Some(block))
   }
+}
+
+// ---------------------------------------------------------------------------
+// Shadow copy management
+// ---------------------------------------------------------------------------
+
+/// Copy Core's `blocks/index/` to `copy_dir`, skipping `LOCK`.
+///
+/// Uses a **smart-copy** strategy: a file is only copied when the source is
+/// newer than the destination (by mtime), so immutable SST files (`*.ldb`)
+/// are skipped after the first copy.  The WAL (`*.log`) and MANIFEST change
+/// more often and are re-copied on each call.
+///
+/// Returns `(copied, skipped)` counts.
+pub(crate) fn refresh_index_copy(live_index: &Path, copy_dir: &Path) -> Result<(u32, u32)> {
+  fs::create_dir_all(copy_dir)
+    .with_context(|| format!("creating {}", copy_dir.display()))?;
+
+  let (mut copied, mut skipped) = (0u32, 0u32);
+
+  for entry in
+    fs::read_dir(live_index).with_context(|| format!("reading {}", live_index.display()))?
+  {
+    let entry = entry?;
+    let name = entry.file_name();
+
+    // Never copy Core's lock file — that's the whole point of the copy.
+    if name == OsStr::new("LOCK") {
+      continue;
+    }
+
+    let dst = copy_dir.join(&name);
+
+    // Skip if the copy is already at least as new as the source.
+    let src_mtime = entry
+      .metadata()
+      .and_then(|m| m.modified())
+      .unwrap_or(SystemTime::UNIX_EPOCH);
+    if let Ok(dst_meta) = fs::metadata(&dst) {
+      let dst_mtime = dst_meta.modified().unwrap_or(SystemTime::UNIX_EPOCH);
+      if dst_mtime >= src_mtime {
+        skipped += 1;
+        continue;
+      }
+    }
+
+    fs::copy(entry.path(), &dst)
+      .with_context(|| format!("copying {:?}", name))?;
+    copied += 1;
+  }
+
+  Ok((copied, skipped))
 }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +230,7 @@ fn build_block_index(index_path: &Path) -> Result<BlkIndex> {
 /// Parse a single LevelDB block index value.
 ///
 /// Bitcoin Core record layout:
-/// ```
+/// ```text
 ///   varint  version
 ///   varint  height
 ///   varint  status
@@ -158,7 +266,6 @@ fn parse_index_record(value: &[u8]) -> Option<(u32, u32, u64)> {
 
 /// Bitcoin Core's LevelDB varint encoding:
 /// each byte contributes 7 bits; the high bit signals another byte follows.
-/// After reading, increment n for each continuation byte (n += 1 per MSB set).
 fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
   let mut n: u64 = 0;
   loop {
@@ -180,7 +287,7 @@ fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
 // ---------------------------------------------------------------------------
 
 /// Each block record in a `.blk` file:
-/// ```
+/// ```text
 ///   [4 bytes]  network magic  (0xC0C0C0C0 for Dogecoin mainnet)
 ///   [4 bytes]  block_size     (little-endian u32)
 ///   [N bytes]  raw serialized block
@@ -192,10 +299,9 @@ fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
 fn read_block_from_file(blk_dir: &Path, file_idx: u32, data_offset: u64) -> Result<Block> {
   let path = blk_dir.join(format!("blk{:05}.dat", file_idx));
   let file =
-    File::open(&path).with_context(|| format!("opening {}", path.display()))?;
+    fs::File::open(&path).with_context(|| format!("opening {}", path.display()))?;
   let mut reader = BufReader::new(file);
 
-  // data_offset - 4 is the block_size field
   reader
     .seek(SeekFrom::Start(data_offset.saturating_sub(4)))
     .context("seeking to block_size")?;

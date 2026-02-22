@@ -8,7 +8,7 @@ use {
   },
 };
 
-mod blk_reader;
+pub(crate) mod blk_reader;
 mod inscription_updater;
 mod dune_updater;
 
@@ -167,10 +167,11 @@ impl Updater<'_> {
     let client = index.settings.bitcoin_rpc_client(None)?;
 
     // Try to open a direct .blk file reader for fast initial sync.
-    // Falls back to RPC automatically for tip blocks not yet flushed to disk.
+    // The shadow copy lives in the dog data dir so it never conflicts with Core's LevelDB lock.
+    let index_copy_dir = index.settings.data_dir().join("blk-index");
     let fast_reader: Option<blk_reader::BlkReader> = index.settings
       .dogecoin_blocks_dir()
-      .and_then(|dir| match blk_reader::BlkReader::open(&dir) {
+      .and_then(|dir| match blk_reader::BlkReader::open(&dir, &index_copy_dir) {
         Ok(reader) => reader,
         Err(e) => {
           log::warn!("BlkReader: unexpected error: {e}");

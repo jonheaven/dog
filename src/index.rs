@@ -48,7 +48,7 @@ mod fetcher;
 mod lot;
 mod reorg;
 mod rtx;
-mod updater;
+pub(crate) mod updater;
 mod utxo_entry;
 
 #[cfg(test)]
