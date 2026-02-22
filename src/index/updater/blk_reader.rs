@@ -39,10 +39,24 @@ impl BlkReader {
     if !index_path.exists() {
       return Ok(None);
     }
-    let index =
-      build_block_index(&index_path).context("reading LevelDB block index")?;
+    let index = match build_block_index(&index_path) {
+      Ok(idx) => idx,
+      Err(e) => {
+        let msg = e.to_string();
+        if msg.contains("lock") {
+          log::info!(
+            "BlkReader: Dogecoin Core is running and holds the LevelDB lock — \
+             falling back to RPC. For maximum sync speed, stop Core first, \
+             then run `dog index update`, then restart Core."
+          );
+        } else {
+          log::warn!("BlkReader: could not read LevelDB block index: {e}");
+        }
+        return Ok(None);
+      }
+    };
     log::info!(
-      "BlkReader: loaded {} block locations from LevelDB",
+      "BlkReader: loaded {} block locations from LevelDB — using direct .blk file reads",
       index.len()
     );
     Ok(Some(Self {

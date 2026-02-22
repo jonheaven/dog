@@ -173,14 +173,10 @@ impl Updater<'_> {
       .and_then(|dir| match blk_reader::BlkReader::open(&dir) {
         Ok(reader) => reader,
         Err(e) => {
-          log::warn!("BlkReader unavailable, using RPC: {e}");
+          log::warn!("BlkReader: unexpected error: {e}");
           None
         }
       });
-
-    if fast_reader.is_some() {
-      log::info!("Using direct .blk file reading for fast sync");
-    }
 
     thread::spawn(move || {
       loop {
