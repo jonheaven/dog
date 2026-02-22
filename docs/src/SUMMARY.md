@@ -2,6 +2,7 @@ Summary
 =======
 
 [Introduction](introduction.md)
+- [Lineage & State of the Art](lineage.md)
 - [Dogecoin Port](dogecoin.md)
 - [Overview](overview.md)
 - [Digital Artifacts](digital-artifacts.md)
