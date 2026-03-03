@@ -971,7 +971,7 @@ Hello, world!
 ### Description
 
 Get hex-encoded transaction with `<TRANSACTION_ID>`. In the event of a future
-change to Bitcoin that changes transaction serialization in a
+change to Dogecoin that changes transaction serialization in a
 backwards-incompatible fashion, such as SegWit, this endpoint is guaranteed to
 remain backwards compatible.
 

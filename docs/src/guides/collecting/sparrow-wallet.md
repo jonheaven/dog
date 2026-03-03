@@ -1,7 +1,7 @@
 Collecting Inscriptions and Doginals with Sparrow Wallet
 =====================
 
-Users who cannot or have not yet set up the [ord](https://github.com/doginals/ord) wallet can receive inscriptions and doginals with alternative bitcoin wallets, as long as they are _very_ careful about how they spend from that wallet.
+Users who cannot or have not yet set up the [ord](https://github.com/doginals/ord) wallet can receive inscriptions and doginals with alternative dogecoin wallets, as long as they are _very_ careful about how they spend from that wallet.
 
 This guide gives some basic steps on how to create a wallet with [Sparrow Wallet](https://sparrowwallet.com/) which is compatible with `ord` and can be later imported into `ord`
 
@@ -48,7 +48,7 @@ You now have a wallet which is compatible with `ord`, and can be imported into `
 
 Each time you want to receive you should use a brand-new address, and not re-use existing addresses.
 
-Note that bitcoin is different to some other blockchain wallets, in that this wallet can generate an unlimited number of new addresses. You can generate a new address by clicking on the `Get Next Address` button. You can see all of your addresses in the `Addresses` tab of the app.
+Note that dogecoin is different to some other blockchain wallets, in that this wallet can generate an unlimited number of new addresses. You can generate a new address by clicking on the `Get Next Address` button. You can see all of your addresses in the `Addresses` tab of the app.
 
 You can add a label to each address, so you can keep track of what it was used for.
 
@@ -58,7 +58,7 @@ You can add a label to each address, so you can keep track of what it was used f
 
 Once you have received an inscription you will see a new transaction in the `Transactions` tab of Sparrow, as well as a new UTXO in the `UTXOs` tab.
 
-Initially this transaction may have an "Unconfirmed" status, and you will need to wait for it to be mined into a bitcoin block before it is fully received.
+Initially this transaction may have an "Unconfirmed" status, and you will need to wait for it to be mined into a dogecoin block before it is fully received.
 
 ![](images/validating_viewing_01.png)
 
@@ -78,12 +78,12 @@ This UTXO (Inscription) is now un-spendable within the Sparrow Wallet until you 
 
 ## Importing into `ord` wallet
 
-For details on setting up Bitcoin Core and the `ord` wallet check out the [Wallet Guide](../wallet.md)
+For details on setting up Dogecoin Core and the `ord` wallet check out the [Wallet Guide](../wallet.md)
 
 When setting up `ord`, instead of running `ord wallet create` to create a brand-new wallet, you can import your existing wallet using `ord wallet restore "BIP39 SEED PHRASE"` using the seed phrase you generated with Sparrow Wallet.
 
-There is currently a [bug](https://github.com/doginals/ord/issues/1589) which causes an imported wallet to not be automatically rescanned against the blockchain. To work around this you will need to manually trigger a rescan using the bitcoin core cli:
-`bitcoin-cli -rpcwallet=ord rescanblockchain 767430`
+There is currently a [bug](https://github.com/doginals/ord/issues/1589) which causes an imported wallet to not be automatically rescanned against the blockchain. To work around this you will need to manually trigger a rescan using the dogecoin core cli:
+`dogecoin-cli -rpcwallet=ord rescanblockchain 767430`
 
 You can then check your wallet's inscriptions using `ord wallet inscriptions`
 
@@ -93,22 +93,22 @@ Note that if you have previously created a wallet with `ord`, then you will alre
 
 `ord wallet --name ord_from_sparrow wallet inscriptions`
 
-`bitcoin-cli -rpcwallet=ord_from_sparrow rescanblockchain 767430`
+`dogecoin-cli -rpcwallet=ord_from_sparrow rescanblockchain 767430`
 
 ## Sending inscriptions with Sparrow Wallet
 
 #### ⚠️⚠️ Warning ⚠️⚠️
-While it is highly recommended that you set up a bitcoin core node and run the `ord` software, there are certain limited ways you can send inscriptions out of Sparrow Wallet in a safe way. Please note that this is not recommended, and you should only do this if you fully understand what you are doing.
+While it is highly recommended that you set up a dogecoin core node and run the `ord` software, there are certain limited ways you can send inscriptions out of Sparrow Wallet in a safe way. Please note that this is not recommended, and you should only do this if you fully understand what you are doing.
 
 Using the `ord` software will remove much of the complexity we are describing here, as it is able to automatically and safely handle sending inscriptions in an easy way.
 
 #### ⚠️⚠️ Additional Warning ⚠️⚠️
-Don't use your sparrow inscriptions wallet to do general sends of non-inscription bitcoin. You can setup a separate wallet in sparrow if you need to do normal bitcoin transactions, and keep your inscriptions wallet separate.
+Don't use your sparrow inscriptions wallet to do general sends of non-inscription dogecoin. You can setup a separate wallet in sparrow if you need to do normal dogecoin transactions, and keep your inscriptions wallet separate.
 
-#### Bitcoin's UTXO model
-Before sending any transaction it's important that you have a good mental model for bitcoin's Unspent Transaction Output (UTXO) system. The way Bitcoin works is fundamentally different to many other blockchains such as Ethereum. In Ethereum generally you have a single address in which you store ETH, and you cannot differentiate between any of the ETH -  it is just all a single value of the total amount in that address. Bitcoin works very differently in that we generate a new address in the wallet for each receive, and every time you receive sats to an address in your wallet you are creating a new UTXO. Each UTXO can be seen and managed individually. You can select specific UTXO's which you want to spend, and you can choose not to spend certain UTXO's.
+#### Dogecoin's UTXO model
+Before sending any transaction it's important that you have a good mental model for dogecoin's Unspent Transaction Output (UTXO) system. The way Dogecoin works is fundamentally different to many other blockchains such as Ethereum. In Ethereum generally you have a single address in which you store ETH, and you cannot differentiate between any of the ETH -  it is just all a single value of the total amount in that address. Dogecoin works very differently in that we generate a new address in the wallet for each receive, and every time you receive sats to an address in your wallet you are creating a new UTXO. Each UTXO can be seen and managed individually. You can select specific UTXO's which you want to spend, and you can choose not to spend certain UTXO's.
 
-Some Bitcoin wallets do not expose this level of detail, and they just show you a single summed up value of all the bitcoin in your wallet. However, when sending inscriptions it is important that you use a wallet like Sparrow which allows for UTXO control.
+Some Dogecoin wallets do not expose this level of detail, and they just show you a single summed up value of all the dogecoin in your wallet. However, when sending inscriptions it is important that you use a wallet like Sparrow which allows for UTXO control.
 
 #### Inspecting your inscription before sending
 Like we have previously described inscriptions are inscribed onto sats, and sats are stored within UTXOs. UTXO's are a collection of koinus with some particular value of the number of koinus (the output value). Usually (but not always) the inscription will be inscribed on the first koinu in the UTXO.
@@ -128,7 +128,7 @@ There are a few of important things to check here:
 
 If all of the above are true for your inscription, it should be safe for you to send it using the method below.
 
-⚠️⚠️ Be very careful sending your inscription particularly if the `offset` value is not `0`. It is not recommended to use this method if that is the case, as doing so you could accidentally send your inscription to a bitcoin miner unless you know what you are doing.
+⚠️⚠️ Be very careful sending your inscription particularly if the `offset` value is not `0`. It is not recommended to use this method if that is the case, as doing so you could accidentally send your inscription to a dogecoin miner unless you know what you are doing.
 
 #### Sending your inscription
 To send an inscription navigate to the `UTXOs` tab, and find the UTXO which you previously validated contains your inscription.
@@ -162,7 +162,7 @@ Here you can triple check everything before hitting `Sign`.
 
 ![](images/sending_05.png)
 
-And then actually you get very very last chance to check everything before hitting `Broadcast Transaction`. Once you broadcast the transaction it is sent to the bitcoin network, and starts being propagated into the mempool.
+And then actually you get very very last chance to check everything before hitting `Broadcast Transaction`. Once you broadcast the transaction it is sent to the dogecoin network, and starts being propagated into the mempool.
 
 ![](images/sending_06.png)
 
@@ -174,7 +174,7 @@ Once the transaction has confirmed you can check the inscription page on [dogina
 
 #### Sparrow wallet is not showing a transaction/UTXO, but I can see it on mempool.space!
 
-Make sure that your wallet is connected to a bitcoin node. To validate this, head into the `Preferences`-> `Server` settings, and click `Edit Existing Connection`.
+Make sure that your wallet is connected to a dogecoin node. To validate this, head into the `Preferences`-> `Server` settings, and click `Edit Existing Connection`.
 
 ![](images/troubleshooting_01.png)
 

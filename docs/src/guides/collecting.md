@@ -10,9 +10,9 @@ you are careful, it is possible to safely store, and in some cases send,
 doginals with other wallets.
 
 As a general note, receiving doginals in an unsupported wallet is not
-dangerous. Doginals can be sent to any bitcoin address, and are safe as long as
+dangerous. Doginals can be sent to any dogecoin address, and are safe as long as
 the UTXO that contains them is not spent. However, if that wallet is then used
-to send bitcoin, it may select the UTXO containing the ordinal as an input, and
+to send dogecoin, it may select the UTXO containing the ordinal as an input, and
 send the inscription or spend it to fees.
 
 A [guide](./collecting/sparrow-wallet.md) to creating an `ord`-compatible wallet with [Sparrow Wallet](https://sparrowwallet.com/), is available

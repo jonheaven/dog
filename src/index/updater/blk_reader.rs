@@ -229,7 +229,7 @@ fn build_block_index(index_path: &Path) -> Result<BlkIndex> {
 
 /// Parse a single LevelDB block index value.
 ///
-/// Bitcoin Core record layout:
+/// Dogecoin Core record layout:
 /// ```text
 ///   varint  version
 ///   varint  height
@@ -264,7 +264,7 @@ fn parse_index_record(value: &[u8]) -> Option<(u32, u32, u64)> {
   Some((height, file_idx, data_offset))
 }
 
-/// Bitcoin Core's LevelDB varint encoding:
+/// Dogecoin Core's LevelDB varint encoding:
 /// each byte contributes 7 bits; the high bit signals another byte follows.
 fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
   let mut n: u64 = 0;

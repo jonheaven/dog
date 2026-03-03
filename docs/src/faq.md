@@ -5,17 +5,17 @@ What is ordinal theory?
 -----------------------
 
 Doginal theory is a protocol for assigning serial numbers to koinus, the
-smallest subdivision of a bitcoin, and tracking those koinus as they are
+smallest subdivision of a dogecoin, and tracking those koinus as they are
 spent by transactions.
 
 These serial numbers are large numbers, like this 804766073970493. Every
-koinu, which is ¹⁄₁₀₀₀₀₀₀₀₀ of a bitcoin, has an ordinal number.
+koinu, which is ¹⁄₁₀₀₀₀₀₀₀₀ of a dogecoin, has an ordinal number.
 
-Does ordinal theory require a side chain, a separate token, or changes to Bitcoin?
+Does ordinal theory require a side chain, a separate token, or changes to Dogecoin?
 ----------------------------------------------------------------------------------
 
 Nope! Doginal theory works right now, without a side chain, and the only token
-needed is bitcoin itself.
+needed is dogecoin itself.
 
 What is ordinal theory good for?
 --------------------------------
@@ -25,7 +25,7 @@ individual koinus, allowing them to be individually tracked and traded, as
 curios and for numismatic value.
 
 Doginal theory also enables inscriptions, a protocol for attaching arbitrary
-content to individual koinus, turning them into bitcoin-native digital
+content to individual koinus, turning them into dogecoin-native digital
 artifacts.
 
 How does ordinal theory work?
@@ -162,13 +162,13 @@ Ethereum NFTs depend on the Ethereum network and virtual machine, which are
 highly complex, constantly changing, and which introduce changes via
 backwards-incompatible hard forks.
 
-Inscriptions, on the other hand, depend on the Bitcoin blockchain, which is
+Inscriptions, on the other hand, depend on the Dogecoin blockchain, which is
 relatively simple and conservative, and which introduces changes via
 backwards-compatible soft forks.
 
 *Inscriptions are more secure.*
 
-Inscriptions inherit Bitcoin's transaction model, which allow a user to see
+Inscriptions inherit Dogecoin's transaction model, which allow a user to see
 exactly which inscriptions are being transferred by a transaction before they
 sign it. Inscriptions can be offered for sale using partially signed
 transactions, which don't require allowing a third party, such as an exchange
@@ -182,7 +182,7 @@ for Ethereum NFT users which are simply not a concern for ordinal theorists.
 
 *Inscriptions are scarcer.*
 
-Inscriptions require bitcoin to mint, transfer, and store. This seems like a
+Inscriptions require dogecoin to mint, transfer, and store. This seems like a
 downside on the surface, but the raison d'etre of digital artifacts is to be
 scarce and thus valuable.
 
@@ -205,12 +205,12 @@ negativity of the Ethereum NFT situation.
 
 *Inscriptions unlock new markets.*
 
-Bitcoin's market capitalization and liquidity are greater than Ethereum's by a
+Dogecoin's market capitalization and liquidity are greater than Ethereum's by a
 large margin. Much of this liquidity is not available to Ethereum NFTs, since
-many Bitcoiners prefer not to interact with the Ethereum ecosystem due to
+many Dogecoiners prefer not to interact with the Ethereum ecosystem due to
 concerns related to simplicity, security, and decentralization.
 
-Such Bitcoiners may be more interested in inscriptions than Ethereum NFTs,
+Such Dogecoiners may be more interested in inscriptions than Ethereum NFTs,
 unlocking new classes of collector.
 
 *Inscriptions have a richer data model.*
@@ -223,7 +223,7 @@ underlying protocol.
 
 ### RGB and Taro assets?
 
-RGB and Taro are both second-layer asset protocols built on Bitcoin. Compared
+RGB and Taro are both second-layer asset protocols built on Dogecoin. Compared
 to inscriptions, they are much more complicated, but much more featureful.
 
 Doginal theory has been designed from the ground up for digital artifacts,
@@ -243,8 +243,8 @@ symbols.
 ### Counterparty assets?
 
 Counterparty has its own token, XCP, which is required for some functionality,
-which makes most bitcoiners regard it as an altcoin, and not an extension or
-second layer for bitcoin.
+which makes most dogecoiners regard it as an altcoin, and not an extension or
+second layer for dogecoin.
 
 Doginal theory has been designed from the ground up for digital artifacts,
 whereas Counterparty was primarily designed for financial token issuance.
@@ -254,12 +254,12 @@ Inscriptions for…
 
 ### Artists
 
-*Inscriptions are on Bitcoin.* Bitcoin is the digital currency with the highest
+*Inscriptions are on Dogecoin.* Dogecoin is the digital currency with the highest
 status and greatest chance of long-term survival. If you want to guarantee that
 your art survives into the future, there is no better way to publish it than as
 inscriptions.
 
-*Cheaper on-chain storage.* At $20,000 per BTC and the minimum relay fee of 1
+*Cheaper on-chain storage.* At $20,000 per DOGE and the minimum relay fee of 1
 koinu per vbyte, publishing inscription content costs $50 per 1 million
 bytes.
 
@@ -271,7 +271,7 @@ and explore the medium as it evolves.
 smart contracts.
 
 *Inscriptions unlock new liquidity.* Inscriptions are more accessible and
-appealing to bitcoin holders, unlocking an entirely new class of collector.
+appealing to dogecoin holders, unlocking an entirely new class of collector.
 
 *Inscriptions are designed for digital artifacts.* Inscriptions are designed
 from the ground up to support NFTs, and feature a better data model, and
@@ -293,16 +293,16 @@ royalties.
 *Inscriptions are simple, clear, and have no surprises.* They are always
 immutable and on-chain, with no special due diligence required.
 
-*Inscriptions are on Bitcoin.* You can verify the location and properties of
-inscriptions easily with Bitcoin full node that you control.
+*Inscriptions are on Dogecoin.* You can verify the location and properties of
+inscriptions easily with Dogecoin full node that you control.
 
-### Bitcoiners
+### Dogecoiners
 
-Let me begin this section by saying: the most important thing that the Bitcoin
+Let me begin this section by saying: the most important thing that the Dogecoin
 network does is decentralize money. All other use-cases are secondary,
 including ordinal theory. The developers of ordinal theory understand and
 acknowledge this, and believe that ordinal theory helps, at least in a small
-way, Bitcoin's primary mission.
+way, Dogecoin's primary mission.
 
 Unlike many other things in the altcoin space, digital artifacts have merit.
 There are, of course, a great deal of NFTs that are ugly, stupid, and
@@ -311,45 +311,45 @@ creating and collecting art has been a part of the human story since its
 inception, and predates even trade and money, which are also ancient
 technologies.
 
-Bitcoin provides an amazing platform for creating and collecting digital
+Dogecoin provides an amazing platform for creating and collecting digital
 artifacts in a secure, decentralized way, that protects users and artists in
 the same way that it provides an amazing platform for sending and receiving
 value, and for all the same reasons.
 
-Doginals and inscriptions increase demand for Bitcoin block space, which
-increase Bitcoin's security budget, which is vital for safeguarding Bitcoin's
+Doginals and inscriptions increase demand for Dogecoin block space, which
+increase Dogecoin's security budget, which is vital for safeguarding Dogecoin's
 transition to a fee-dependent security model, as the block subsidy is halved
 into insignificance.
 
 Inscription content is stored on-chain, and thus the demand for block space for
 use in inscriptions is unlimited. This creates a buyer of last resort for *all*
-Bitcoin block space. This will help support a robust fee market, which ensures
-that Bitcoin remains secure.
+Dogecoin block space. This will help support a robust fee market, which ensures
+that Dogecoin remains secure.
 
-Inscriptions also counter the narrative that Bitcoin cannot be extended or used
+Inscriptions also counter the narrative that Dogecoin cannot be extended or used
 for new use-cases. If you follow projects like DLCs, Fedimint, Lightning, Taro,
 and RGB, you know that this narrative is false, but inscriptions provide a
 counter argument which is easy to understand, and which targets a popular and
 proven use case, NFTs, which makes it highly legible.
 
 If inscriptions prove, as the authors hope, to be highly sought after digital
-artifacts with a rich history, they will serve as a powerful hook for Bitcoin
+artifacts with a rich history, they will serve as a powerful hook for Dogecoin
 adoption: come for the fun, rich art, stay for the decentralized digital money.
 
 Inscriptions are an extremely benign source of demand for block space. Unlike,
 for example, stablecoins, which potentially give large stablecoin issuers
-influence over the future of Bitcoin development, or DeFi, which might
+influence over the future of Dogecoin development, or DeFi, which might
 centralize mining by introducing opportunities for MEV, digital art and
-collectables on Bitcoin, are unlikely to produce individual entities with
-enough power to corrupt Bitcoin. Art is decentralized.
+collectables on Dogecoin, are unlikely to produce individual entities with
+enough power to corrupt Dogecoin. Art is decentralized.
 
-Inscription users and service providers are incentivized to run Bitcoin full
+Inscription users and service providers are incentivized to run Dogecoin full
 nodes, to publish and track inscriptions, and thus throw their economic weight
 behind the honest chain.
 
-Doginal theory and inscriptions do not meaningfully affect Bitcoin's
-fungibility. Bitcoin users can ignore both and be unaffected.
+Doginal theory and inscriptions do not meaningfully affect Dogecoin's
+fungibility. Dogecoin users can ignore both and be unaffected.
 
-We hope that ordinal theory strengthens and enriches bitcoin, and gives it
+We hope that ordinal theory strengthens and enriches dogecoin, and gives it
 another dimension of appeal and functionality, enabling it more effectively
 serve its primary use case as humanity's decentralized store of value.

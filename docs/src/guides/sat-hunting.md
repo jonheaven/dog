@@ -12,14 +12,14 @@ Preparation
 
 There are a few things you'll need before you start.
 
-1. First, you'll need a synced Bitcoin Core node with a transaction index. To
+1. First, you'll need a synced Dogecoin Core node with a transaction index. To
    turn on transaction indexing, pass `-txindex` on the command-line:
 
    ```sh
-   bitcoind -txindex
+   dogecoind -txindex
    ```
 
-   Or put the following in your [Bitcoin configuration
+   Or put the following in your [Dogecoin configuration
    file](https://github.com/bitcoin/bitcoin/blob/master/doc/bitcoin-conf.md#configuration-file-path):
 
    ```
@@ -30,14 +30,14 @@ There are a few things you'll need before you start.
    following command should print out the current block height:
 
    ```sh
-   bitcoin-cli getblockcount
+   dogecoin-cli getblockcount
    ```
 
 2. Second, you'll need a synced `ord` index.
 
    - Get a copy of `ord` from [the repo](https://github.com/doginals/ord/).
 
-   - Run `ord --index-sats server`. It should connect to your bitcoin core node and start indexing.
+   - Run `ord --index-sats server`. It should connect to your dogecoin core node and start indexing.
      
    - Once it has finished indexing, leave the server running and submit new `ord` commands in a separate terminal session.
 
@@ -46,16 +46,16 @@ There are a few things you'll need before you start.
 Searching for Rare Doginals
 ---------------------------
 
-### Searching for Rare Doginals in a Bitcoin Core Wallet
+### Searching for Rare Doginals in a Dogecoin Core Wallet
 
-The `ord wallet` command is just a wrapper around Bitcoin Core's RPC API, so
-searching for rare doginals in a Bitcoin Core wallet is Easy. Assuming your
+The `ord wallet` command is just a wrapper around Dogecoin Core's RPC API, so
+searching for rare doginals in a Dogecoin Core wallet is Easy. Assuming your
 wallet is named `foo`:
 
 1. Load your wallet:
 
    ```sh
-   bitcoin-cli loadwallet foo
+   dogecoin-cli loadwallet foo
    ```
 
 2. Display any rare doginals wallet `foo`'s UTXOs:
@@ -64,16 +64,16 @@ wallet is named `foo`:
    ord --index-sats wallet --name foo sats
    ```
 
-### Searching for Rare Doginals in a Non-Bitcoin Core Wallet
+### Searching for Rare Doginals in a Non-Dogecoin Core Wallet
 
-The `ord wallet` command is just a wrapper around Bitcoin Core's RPC API, so to
-search for rare doginals in a non-Bitcoin Core wallet, you'll need to import
-your wallet's descriptors into Bitcoin Core.
+The `ord wallet` command is just a wrapper around Dogecoin Core's RPC API, so to
+search for rare doginals in a non-Dogecoin Core wallet, you'll need to import
+your wallet's descriptors into Dogecoin Core.
 
 [Descriptors](https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md)
 describe the ways that wallets generate private keys and public keys.
 
-You should only import descriptors into Bitcoin Core for your wallet's public
+You should only import descriptors into Dogecoin Core for your wallet's public
 keys, not its private keys.
 
 If your wallet's public key descriptor is compromised, an attacker will be able
@@ -92,7 +92,7 @@ your wallet of funds.
 2. Create a watch-only wallet named `foo-watch-only`:
 
    ```sh
-   bitcoin-cli createwallet foo-watch-only true true
+   dogecoin-cli createwallet foo-watch-only true true
    ```
 
    Feel free to give it a better name than `foo-watch-only`!
@@ -100,25 +100,25 @@ your wallet of funds.
 3. Load the `foo-watch-only` wallet:
 
    ```sh
-   bitcoin-cli loadwallet foo-watch-only
+   dogecoin-cli loadwallet foo-watch-only
    ```
 
 4. Import your wallet descriptors into `foo-watch-only`:
 
    ```sh
-   bitcoin-cli importdescriptors \
+   dogecoin-cli importdescriptors \
      '[{ "desc": "wpkh([bf1dd55e/84h/0h/0h]xpub6CcJtWcvFQaMo39ANFi1MyXkEXM8T8ZhnxMtSjQAdPmVSTHYnc8Hwoc11VpuP8cb8JUTboZB5A7YYGDonYySij4XTawL6iNZvmZwdnSEEep/0/*)#tpnxnxax", "timestamp":0 }]'
    ```
 
    If you know the Unix timestamp when your wallet first started receive
    transactions, you may use it for the value of `"timestamp"` instead of `0`.
-   This will reduce the time it takes for Bitcoin Core to search for your
+   This will reduce the time it takes for Dogecoin Core to search for your
    wallet's UTXOs.
 
 5. Check that everything worked:
 
    ```sh
-   bitcoin-cli getwalletinfo
+   dogecoin-cli getwalletinfo
    ```
 
 6. Display your wallet's rare doginals:
@@ -130,9 +130,9 @@ your wallet of funds.
 ### Searching for Rare Doginals in a Wallet that Exports Multi-path Descriptors
 
 Some descriptors describe multiple paths in one descriptor using angle brackets,
-e.g., `<0;1>`. Multi-path descriptors are not yet supported by Bitcoin Core, so
+e.g., `<0;1>`. Multi-path descriptors are not yet supported by Dogecoin Core, so
 you'll first need to convert them into multiple descriptors, and then import
-those multiple descriptors into Bitcoin Core.
+those multiple descriptors into Dogecoin Core.
 
 1. First get the multi-path descriptor from your wallet. It will look something
    like this:
@@ -157,7 +157,7 @@ those multiple descriptors into Bitcoin Core.
    `tpnxnxax`:
 
    ```sh
-   bitcoin-cli getdescriptorinfo \
+   dogecoin-cli getdescriptorinfo \
      'wpkh([bf1dd55e/84h/0h/0h]xpub6CcJtWcvFQaMo39ANFi1MyXkEXM8T8ZhnxMtSjQAdPmVSTHYnc8Hwoc11VpuP8cb8JUTboZB5A7YYGDonYySij4XTawL6iNZvmZwdnSEEep/0/*)'
    ```
 
@@ -174,7 +174,7 @@ those multiple descriptors into Bitcoin Core.
    And for the change address descriptor, in this case `64k8wnd7`:
 
    ```sh
-   bitcoin-cli getdescriptorinfo \
+   dogecoin-cli getdescriptorinfo \
      'wpkh([bf1dd55e/84h/0h/0h]xpub6CcJtWcvFQaMo39ANFi1MyXkEXM8T8ZhnxMtSjQAdPmVSTHYnc8Hwoc11VpuP8cb8JUTboZB5A7YYGDonYySij4XTawL6iNZvmZwdnSEEep/1/*)'
    ```
 
@@ -191,13 +191,13 @@ those multiple descriptors into Bitcoin Core.
 4. Load the wallet you want to import the descriptors into:
 
    ```sh
-   bitcoin-cli loadwallet foo-watch-only
+   dogecoin-cli loadwallet foo-watch-only
    ```
 
-5. Now import the descriptors, with the correct checksums, into Bitcoin Core.
+5. Now import the descriptors, with the correct checksums, into Dogecoin Core.
 
    ```sh
-   bitcoin-cli \
+   dogecoin-cli \
     importdescriptors \
     '[
       {
@@ -213,13 +213,13 @@ those multiple descriptors into Bitcoin Core.
 
    If you know the Unix timestamp when your wallet first started receive
    transactions, you may use it for the value of the `"timestamp"` fields
-   instead of `0`. This will reduce the time it takes for Bitcoin Core to
+   instead of `0`. This will reduce the time it takes for Dogecoin Core to
    search for your wallet's UTXOs.
 
 6. Check that everything worked:
 
    ```sh
-   bitcoin-cli getwalletinfo
+   dogecoin-cli getwalletinfo
    ```
 
 7. Display your wallet's rare doginals:
@@ -244,6 +244,6 @@ name of the koinu. To send the koinu `zonefruits`, do:
 ord wallet send <RECEIVING_ADDRESS> zonefruits --fee-rate 21
 ```
 
-You can also use the `bitcoin-cli` commands `createrawtransaction`,
+You can also use the `dogecoin-cli` commands `createrawtransaction`,
 `signrawtransactionwithwallet`, and `sendrawtransaction`, but this
 method can be complex and is outside the scope of this guide.

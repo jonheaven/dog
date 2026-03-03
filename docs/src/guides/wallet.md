@@ -2,27 +2,27 @@ Wallet
 ======
 
 Individual sats can be inscribed with arbitrary content, creating
-Bitcoin-native digital artifacts that can be held in a Bitcoin wallet and
-transferred using Bitcoin transactions. Inscriptions are as durable, immutable,
-secure, and decentralized as Bitcoin itself.
+Dogecoin-native digital artifacts that can be held in a Dogecoin wallet and
+transferred using Dogecoin transactions. Inscriptions are as durable, immutable,
+secure, and decentralized as Dogecoin itself.
 
-Working with inscriptions requires a Bitcoin full node, to give you a view of
-the current state of the Bitcoin blockchain, and a wallet that can create
+Working with inscriptions requires a Dogecoin full node, to give you a view of
+the current state of the Dogecoin blockchain, and a wallet that can create
 inscriptions and perform sat control when constructing transactions to send
 inscriptions to another wallet.
 
-Bitcoin Core provides both a Bitcoin full node and wallet. However, the Bitcoin
+Dogecoin Core provides both a Dogecoin full node and wallet. However, the Dogecoin
 Core wallet cannot create inscriptions and does not perform sat control.
 
 This requires [`ord`](https://github.com/doginals/ord), the ordinal utility. `ord`
 doesn't implement its own wallet, so `ord wallet` subcommands interact with
-Bitcoin Core wallets.
+Dogecoin Core wallets.
 
 This guide covers:
 
-1. Installing Bitcoin Core
-2. Syncing the Bitcoin blockchain
-3. Creating a Bitcoin Core wallet
+1. Installing Dogecoin Core
+2. Syncing the Dogecoin blockchain
+3. Creating a Dogecoin Core wallet
 4. Using `ord wallet receive` to receive sats
 5. Creating inscriptions with `ord wallet inscribe`
 6. Sending inscriptions with `ord wallet send`
@@ -37,90 +37,89 @@ Server](https://discord.com/invite/87cjuz4FYg), or checking GitHub for relevant
 [issues](https://github.com/doginals/ord/issues) and
 [discussions](https://github.com/doginals/ord/discussions).
 
-Installing Bitcoin Core
+Installing Dogecoin Core
 -----------------------
 
-Bitcoin Core is available from [bitcoincore.org](https://bitcoincore.org/) on
-the [download page](https://bitcoincore.org/en/download/).
+Dogecoin Core is available from [dogecoin.com](https://dogecoin.com/wallets).
 
-Making inscriptions requires Bitcoin Core 28 or newer.
+Making inscriptions requires Dogecoin Core 28 or newer.
 
-This guide does not cover installing Bitcoin Core in detail. Once Bitcoin Core
-is installed, you should be able to run `bitcoind -version` successfully from
-the command line. Do *NOT* use `bitcoin-qt`.
+This guide does not cover installing Dogecoin Core in detail. Once Dogecoin Core
+is installed, you should be able to run `dogecoind -version` successfully from
+the command line. Do *NOT* use `dogecoin-qt`.
 
-Configuring Bitcoin Core
+Configuring Dogecoin Core
 ------------------------
 
-`ord` requires Bitcoin Core's transaction index and rest interface.
+`ord` requires Dogecoin Core's transaction index and rest interface.
 
-To configure your Bitcoin Core node to maintain a transaction
-index, add the following to your `bitcoin.conf`:
+To configure your Dogecoin Core node to maintain a transaction
+index, add the following to your `dogecoin.conf`:
 
 ```
 txindex=1
 ```
 
-Or, run `bitcoind` with `-txindex`:
+Or, run `dogecoind` with `-txindex`:
 
 ```
-bitcoind -txindex
+dogecoind -txindex
 ```
 
-Details on creating or modifying your `bitcoin.conf` file can be found
+Details on creating or modifying your `dogecoin.conf` file can be found
 [here](https://github.com/bitcoin/bitcoin/blob/master/doc/bitcoin-conf.md).
 
-Syncing the Bitcoin Blockchain
+Syncing the Dogecoin Blockchain
 ------------------------------
 
 To sync the chain, run:
 
 ```
-bitcoind -txindex
+dogecoind -txindex
 ```
 
 …and leave it running until `getblockcount`:
 
 ```
-bitcoin-cli getblockcount
+dogecoin-cli getblockcount
 ```
 
 agrees with the block count on a block explorer like [the mempool.space block
-explorer](https://mempool.space/). `ord` interacts with `bitcoind`, so you
-should leave `bitcoind` running in the background when you're using `ord`.
+explorer](https://mempool.space/). `ord` interacts with `dogecoind`, so you
+should leave `dogecoind` running in the background when you're using `ord`.
 
 The blockchain takes about 600GB of disk space. If you have an external drive
 you want to store blocks on, use the configuration option
 `blocksdir=<external_drive_path>`. This is much simpler than using the
 `datadir` option because the cookie file will still be in the default location
-for `bitcoin-cli` and `ord` to find.
+for `dogecoin-cli` and `ord` to find.
 
 Troubleshooting
 ---------------
 
-Make sure you can access `bitcoind` with `bitcoin-cli -getinfo` and that it is
+Make sure you can access `dogecoind` with `dogecoin-cli -getinfo` and that it is
 fully synced.
 
-If `bitcoin-cli -getinfo` returns `Could not connect to the server`, `bitcoind`
+If `dogecoin-cli -getinfo` returns `Could not connect to the server`, `dogecoind`
 is not running.
 
 Make sure `rpcuser`, `rpcpassword`, or `rpcauth` are *NOT* set in your
-`bitcoin.conf` file. `ord` requires using cookie authentication. Make sure there
-is a file `.cookie` in your bitcoin data directory.
+`dogecoin.conf` file. `ord` requires using cookie authentication. Make sure there
+is a file `.cookie` in your dogecoin data directory.
 
-If `bitcoin-cli -getinfo` returns `Could not locate RPC credentials`, then you
+If `dogecoin-cli -getinfo` returns `Could not locate RPC credentials`, then you
 must specify the cookie file location.
 If you are using a custom data directory (specifying the `datadir` option),
 then you must specify the cookie location like
-`bitcoin-cli -rpccookiefile=<your_bitcoin_datadir>/.cookie -getinfo`.
+`dogecoin-cli -rpccookiefile=<your_dogecoin_datadir>/.cookie -getinfo`.
 When running `ord` you must specify the cookie file location with
-`--cookie-file=<your_bitcoin_datadir>/.cookie`.
+`--cookie-file=<your_dogecoin_datadir>/.cookie`.
 
-Make sure you do *NOT* have `disablewallet=1` in your `bitcoin.conf` file. If
-`bitcoin-cli listwallets` returns `Method not found` then the wallet is disabled
+Make sure you do *NOT* have `disablewallet=1` in your `dogecoin.conf` file. If
+`dogecoin-cli listwallets` returns `Method not found` then the wallet is disabled
 and you won't be able to use `ord`.
 
-Make sure `txindex=1` is set. Run `bitcoin-cli getindexinfo` and it should
+Make sure `txindex=1` is set. Run `dogecoin-cli getindexinfo` and it should
 return something like
 ```json
 {
@@ -131,7 +130,7 @@ return something like
 }
 ```
 If it only returns `{}`, `txindex` is not set.
-If it returns `"synced": false`, `bitcoind` is still creating the `txindex`.
+If it returns `"synced": false`, `dogecoind` is still creating the `txindex`.
 Wait until `"synced": true` before using `ord`.
 
 If you have `maxuploadtarget` set it can interfere with fetching blocks for
@@ -161,13 +160,13 @@ Which prints out `ord`'s version number.
 Creating a Wallet
 -----------------
 
-`ord` uses `bitcoind` to manage private keys, sign transactions, and
-broadcast transactions to the Bitcoin network. Additionally the `ord wallet`
+`ord` uses `dogecoind` to manage private keys, sign transactions, and
+broadcast transactions to the Dogecoin network. Additionally the `ord wallet`
 requires [`dog server`](explorer.md) running in the background. Make sure these
 programs are running:
 
 ```
-bitcoind -txindex
+dogecoind -txindex
 ```
 
 ```
@@ -270,7 +269,7 @@ on Windows.
 Receiving Sats
 --------------
 
-Inscriptions are made on individual sats, using normal Bitcoin transactions
+Inscriptions are made on individual sats, using normal Dogecoin transactions
 that pay fees in sats, so your wallet will need some sats.
 
 Get a new address from your `ord` wallet by running:
@@ -304,7 +303,7 @@ witness discount. To calculate the approximate fee that an inscribe transaction
 will pay, divide the content size by four and multiply by the fee rate.
 
 Inscription transactions must be less than 400,000 weight units, or they will
-not be relayed by Bitcoin Core. One byte of inscription content costs one
+not be relayed by Dogecoin Core. One byte of inscription content costs one
 weight unit. Since an inscription transaction includes not just the inscription
 content, limit inscription content to less than 400,000 weight units. 390,000
 weight units should be safe.

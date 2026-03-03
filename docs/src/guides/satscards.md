@@ -2,12 +2,12 @@ Satscard
 ========
 
 [Satscards](https://satscard.com/) are cards which can be used to store
-bitcoin, inscriptions, and dunes.
+dogecoin, inscriptions, and dunes.
 
 Slots
 -----
 
-Each satscard has ten slots containing private keys with corresponding bitcoin
+Each satscard has ten slots containing private keys with corresponding dogecoin
 addresses.
 
 Initially, all slots are sealed and the private keys are stored only the

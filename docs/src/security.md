@@ -35,9 +35,9 @@ cross-site scripting attacks.
 
 - `dog server` is run under `https://example.com/ord`.
 
-- A bitcoin exchange is run under `https://example.com/exchange`.
+- A dogecoin exchange is run under `https://example.com/exchange`.
 
-- Users can send bitcoin at `https://example.com/exchange/send`, with access
+- Users can send dogecoin at `https://example.com/exchange/send`, with access
   controlled by a user's session cookie.
 
 - An attacker publishes a malicious HTML inscription with ID `XYZ` which
@@ -47,7 +47,7 @@ cross-site scripting attacks.
 - When a user visits `https://example.com/ord/XYZ`, the malicious JavaScript
   requests `https://example.com/exchange/send`. Because the script executes on
   the user's behalf with the request including the user's session cookie, the
-  server sends the user's bitcoin to the attacker.
+  server sends the user's dogecoin to the attacker.
 
 To prevent this, do not make `dog server` available on the same domain and port
 as another web service which is vulnerable to cross-site scripting.
@@ -57,7 +57,7 @@ as another web service which is vulnerable to cross-site scripting.
 If `dog server` is run at a well known domain, for example, `doginals.com`, an
 attacker could publish a malicious inscription that attempts to trick users
 into thinking that it represents the owners of the domain. For example, by
-publishing a mint page to induce users to send bitcoin. Additionally, the
+publishing a mint page to induce users to send dogecoin. Additionally, the
 [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API) can
 be used to change the path without triggering a page reload, so inscription
 content can appear to the user under URL that suggests it was published by the
@@ -77,7 +77,7 @@ site owners.
   `https://example.com/mint`.
 
 - The user thinks that this is a potentially lucrative mint run by popular and
-  well-respected Example Corporation and sends bitcoin to the mint address.
+  well-respected Example Corporation and sends dogecoin to the mint address.
 
 To prevent this, avoid giving users the impression that a domain hosting an
 `ord` explorer can be trusted for anything other than the content of the `ord`

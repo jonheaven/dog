@@ -5,35 +5,35 @@ Test Environment
 ----------------
 
 `ord env <DIRECTORY>` creates a test environment in `<DIRECTORY>`, spins up
-`bitcoind` and `dog server` instances, prints example commands for interacting
-with the test `bitcoind` and `dog server` instances, waits for `CTRL-C`, and
-then shuts down `bitcoind` and `dog server`.
+`dogecoind` and `dog server` instances, prints example commands for interacting
+with the test `dogecoind` and `dog server` instances, waits for `CTRL-C`, and
+then shuts down `dogecoind` and `dog server`.
 
-`ord env` tries to use port 9000 for `bitcoind`'s RPC interface, and port
+`ord env` tries to use port 9000 for `dogecoind`'s RPC interface, and port
 `9001` for `ord`'s RPC interface, but will fall back to random unused ports.
 
-Inside of the env directory, `ord env` will write `bitcoind`'s configuration to
-`bitcoin.conf`, `ord`'s configuration to `ord.yaml`, and the env configuration
+Inside of the env directory, `ord env` will write `dogecoind`'s configuration to
+`dogecoin.conf`, `ord`'s configuration to `ord.yaml`, and the env configuration
 to `env.json`.
 
-`env.json` contains the commands needed to invoke `bitcoin-cli` and `ord
-wallet`, as well as the ports `bitcoind` and `dog server` are listening on.
+`env.json` contains the commands needed to invoke `dogecoin-cli` and `ord
+wallet`, as well as the ports `dogecoind` and `dog server` are listening on.
 
 These can be extracted into shell commands using `jq`:
 
 ```shell
-bitcoin=`jq -r '.bitcoin_cli_command | join(" ")' env/env.json`
-$bitcoin listunspent
+dogecoin=`jq -r '.dogecoin_cli_command | join(" ")' env/env.json`
+$dogecoin listunspent
 
 ord=`jq -r '.ord_wallet_command | join(" ")' env/env.json`
 $ord outputs
 ```
 
-If `ord` is in the `$PATH` and the env directory is `env`, the `bitcoin-cli`
+If `ord` is in the `$PATH` and the env directory is `env`, the `dogecoin-cli`
 command will be:
 
 ```
-bitcoin-cli -datadir=env
+dogecoin-cli -datadir=env
 ```
 
 And the `ord` will be:
@@ -46,7 +46,7 @@ Test Networks
 -------------
 
 Ord can be tested using the following flags to specify the test network. For more
-information on running Bitcoin Core for testing, see [Bitcoin's developer documentation](https://developer.bitcoin.org/examples/testing.html).
+information on running Dogecoin Core for testing, see [Dogecoin Core documentation](https://docs.dogecoin.org/).
 
 Most `ord` commands in [wallet](wallet.md) and [explorer](explorer.md)
 can be run with the following network flags:
@@ -63,10 +63,10 @@ private blockchain, so indexing `ord` is almost instantaneous.
 Example
 -------
 
-Run `bitcoind` in regtest with:
+Run `dogecoind` in regtest with:
 
 ```
-bitcoind -regtest -txindex
+dogecoind -regtest -txindex
 ```
 
 Run `dog server` in regtest with:
@@ -90,7 +90,7 @@ ord --regtest wallet receive
 Mine 101 blocks (to unlock the coinbase) with:
 
 ```
-bitcoin-cli -regtest generatetoaddress 101 <receive address>
+dogecoin-cli -regtest generatetoaddress 101 <receive address>
 ```
 
 Inscribe in regtest with:
@@ -102,7 +102,7 @@ ord --regtest wallet inscribe --fee-rate 1 --file <file>
 Mine the inscription with:
 
 ```
-bitcoin-cli -regtest generatetoaddress 1 <receive address>
+dogecoin-cli -regtest generatetoaddress 1 <receive address>
 ```
 
 By default, browsers don't support compression over HTTP. To test compressed
@@ -138,7 +138,7 @@ ord --regtest wallet inscribe --fee-rate 1 --file recursive-inscription.html
 Finally you will have to mine some blocks and start the server:
 
 ```
-bitcoin-cli generatetoaddress 6 <receive address>
+dogecoin-cli generatetoaddress 6 <receive address>
 ```
 
 ### Mainnet Dependencies

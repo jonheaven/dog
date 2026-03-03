@@ -624,7 +624,7 @@ impl Wallet {
     let bitcoin_version = client.version()?;
     if bitcoin_version < MIN_VERSION {
       bail!(
-        "Bitcoin Core {} or newer required, current version is {}",
+        "Dogecoin Core {} or newer required, current version is {}",
         Self::format_bitcoin_core_version(MIN_VERSION),
         Self::format_bitcoin_core_version(bitcoin_version),
       );

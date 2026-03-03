@@ -58,7 +58,7 @@ pub(crate) struct Decode {
   #[arg(
     long,
     conflicts_with = "file",
-    help = "Fetch transaction with <TXID> from Bitcoin Core."
+    help = "Fetch transaction with <TXID> from Dogecoin Core."
   )]
   txid: Option<Txid>,
   #[arg(long, conflicts_with = "txid", help = "Load transaction from <FILE>.")]

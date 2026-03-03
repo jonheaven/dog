@@ -14,7 +14,7 @@ Technical details are available in [the
 BIP](https://github.com/doginals/ord/blob/master/bip.mediawiki).
 
 Doginal theory does not require a separate token, another blockchain, or any
-changes to Bitcoin. It works right now.
+changes to Dogecoin. It works right now.
 
 Doginal numbers have a few different representations:
 
@@ -34,7 +34,7 @@ Doginal numbers have a few different representations:
 
 - *Percentile notation*:
   [`99.99971949060254%`](https://doginals.com/sat/99.99971949060254%25) .
-  The koinu's position in Bitcoin's supply, expressed as a percentage.
+  The koinu's position in Dogecoin's supply, expressed as a percentage.
 
 - *Name*: [`koinu`](https://doginals.com/sat/koinu). An encoding of the
   ordinal number using the characters `a` through `z`.
@@ -44,7 +44,7 @@ be attached to koinus using ordinal numbers as stable identifiers.
 
 Doginals is an open-source project, developed [on
 GitHub](https://github.com/doginals/ord). The project consists of a BIP describing
-the ordinal scheme, an index that communicates with a Bitcoin Core node to
+the ordinal scheme, an index that communicates with a Dogecoin Core node to
 track the location of all koinus, a wallet that allows making ordinal-aware
 transactions, a block explorer for interactive exploration of the blockchain,
 functionality for inscribing koinus with digital artifacts, and this manual.
@@ -56,14 +56,14 @@ Humans are collectors, and since koinus can now be tracked and transferred,
 people will naturally want to collect them. Doginal theorists can decide for
 themselves which sats are rare and desirable, but there are some hints…
 
-Bitcoin has periodic events, some frequent, some more uncommon, and these
+Dogecoin has periodic events, some frequent, some more uncommon, and these
 naturally lend themselves to a system of rarity. These periodic events are:
 
 - *Blocks*: A new block is mined approximately every 10 minutes, from now until
   the end of time.
 
 - *Difficulty adjustments*: Every 2016 blocks, or approximately every two
-  weeks, the Bitcoin network responds to changes in hashrate by adjusting the
+  weeks, the Dogecoin network responds to changes in hashrate by adjusting the
   difficulty target which blocks must meet in order to be accepted.
 
 - *Halvings*: Every 210,000 blocks, or roughly every four years, the amount of
@@ -190,7 +190,7 @@ Rare Koinu Supply
 - `mythic`: 1
 
 At the moment, even uncommon koinus are quite rare. As of this writing,
-876,023 uncommon koinus have been mined - one per 22.6 bitcoin in
+876,023 uncommon koinus have been mined - one per 22.6 DOGE in
 circulation.
 
 Names
@@ -221,7 +221,7 @@ based on criteria of their own devising.
 Inscriptions
 ------------
 
-Koinus can be inscribed with arbitrary content, creating Bitcoin-native
+Koinus can be inscribed with arbitrary content, creating Dogecoin-native
 digital artifacts. Inscribing is done by sending the koinu to be inscribed in
 a transaction that reveals the inscription content on-chain. This content is
 then inextricably linked to that koinu, turning it into an immutable digital
@@ -245,7 +245,7 @@ specification was finalized. In this sense, they are not of historical
 interest.
 
 In another sense though, doginals were in fact created by Koinu Nakamoto in
-2009 when he mined the Bitcoin genesis block. In this sense, doginals, and
+2009 when he mined the Dogecoin genesis block. In this sense, doginals, and
 especially early doginals, are certainly of historical interest.
 
 Many ordinal theorists favor the latter view. This is not least because the
@@ -265,7 +265,7 @@ discussed but never implemented.
 
 These independent inventions of doginals indicate in some way that doginals
 were discovered, or rediscovered, and not invented. The doginals are an
-inevitability of the mathematics of Bitcoin, stemming not from their modern
+inevitability of the mathematics of Dogecoin, stemming not from their modern
 documentation, but from their ancient genesis. They are the culmination of a
 sequence of events set in motion with the mining of the first block, so many
 years ago.

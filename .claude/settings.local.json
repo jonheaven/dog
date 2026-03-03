@@ -14,7 +14,9 @@
       "Bash(git mv:*)",
       "Bash(xargs sed:*)",
       "Bash(git -C /c/Users/jheav/Desktop/doge/dog mv:*)",
-      "Bash(cargo test:*)"
+      "Bash(cargo test:*)",
+      "Bash(./target/debug/dog:*)",
+      "Bash(git push:*)"
     ]
   }
 }

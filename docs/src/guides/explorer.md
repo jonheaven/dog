@@ -6,7 +6,7 @@ explorer on mainnet at [doginals.com](https://doginals.com), on signet at
 [signet.doginals.com](https://signet.doginals.com), and on testnet at
 [testnet.doginals.com](https://testnet.doginals.com). As of version 0.16.0 the
 wallet needs `dog server` running in the background. This is analogous to how
-`bitcoin-cli` needs `bitcoind` running in the background.
+`dogecoin-cli` needs `dogecoind` running in the background.
 
 ### Running The Explorer
 The server can be run locally with:
@@ -49,7 +49,7 @@ the genesis block coinbase transaction:
 
 ### Sats
 
-Sats can be searched by integer, their position within the entire bitcoin
+Sats can be searched by integer, their position within the entire dogecoin
 supply:
 
 [2099994106992659](https://doginals.com/search/2099994106992659)
@@ -67,7 +67,7 @@ By name, their base 26 representation using the letters "a" through "z":
 
 [ahistorical](https://doginals.com/search/ahistorical)
 
-Or by percentile, the percentage of bitcoin's supply that has been or will have
+Or by percentile, the percentage of dogecoin's supply that has been or will have
 been issued when they are mined:
 
 [100%](https://doginals.com/search/100%)
