@@ -252,6 +252,14 @@ fn parse_scriptSig_pushes(tx: &bitcoin::Transaction) -> Vec<SPush> {
     let op = script[i];
     i += 1;
 
+    // OP_1 through OP_16 (0x51–0x60): small integer encoded directly in the
+    // opcode byte — no following data bytes.  Used for remaining_count 1-16
+    // in multi-part inscriptions (H3imdall-dev encoding).
+    if (0x51..=0x60).contains(&op) {
+      result.push(SPush::Bytes(vec![op - 0x50]));
+      continue;
+    }
+
     let chunk: &[u8] = if op == 0x00 {
       // OP_0 — pushes empty bytes (body separator in the envelope format).
       &[]
@@ -335,19 +343,34 @@ fn collect_continuation_chunks(pushes: &[SPush], chunks: &mut HashMap<u16, Vec<u
   collect_int_data_pairs(&pushes[..data_end], chunks);
 }
 
-/// Walk a push slice and insert every `Int(idx) → Bytes(data)` pair into `chunks`.
+/// Walk a push slice and insert every `(idx, data)` pair into `chunks`.
+///
+/// Handles all three remaining_count encodings used by Doginals tools:
+/// - `SPush::Int(n)`          — 2-byte LE pushdata  → remaining_count 128-N
+/// - `SPush::Bytes(b)` b==[]  — OP_0               → remaining_count 0 (last chunk)
+/// - `SPush::Bytes(b)` b.len()==1 — 1-byte pushdata → remaining_count 1-127
+///
+/// The `data.len() >= 20` guard prevents false positives (e.g. confusing a
+/// 1-byte tag field with a chunk index).
 fn collect_int_data_pairs(pushes: &[SPush], chunks: &mut HashMap<u16, Vec<u8>>) {
   let mut i = 0;
   while i + 1 < pushes.len() {
-    match (&pushes[i], &pushes[i + 1]) {
-      (SPush::Int(idx), SPush::Bytes(data)) => {
-        chunks.insert(*idx, data.clone());
-        i += 2;
-      }
-      _ => {
-        i += 1;
+    let idx_opt: Option<u16> = match &pushes[i] {
+      SPush::Int(n)              => Some(*n),
+      SPush::Bytes(b) if b.is_empty() => Some(0),
+      SPush::Bytes(b) if b.len() == 1 => Some(b[0] as u16),
+      _ => None,
+    };
+    if let Some(idx) = idx_opt {
+      if let SPush::Bytes(data) = &pushes[i + 1] {
+        if data.len() >= 20 {
+          chunks.insert(idx, data.clone());
+          i += 2;
+          continue;
+        }
       }
     }
+    i += 1;
   }
 }
 
