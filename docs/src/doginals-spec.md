@@ -1,7 +1,9 @@
 # Official Doginals Protocol v1
 
-**Dogecoin Inscriptions (Doginals)** — March 2026
-**Canonical reference maintained by [jonheaven/dog](https://github.com/jonheaven/dog)** (the fastest and most correct Dogecoin Ordinals indexer)
+**Version:** v1 · **Date:** 2026-03-03 · **Status:** Active
+[View on GitHub](https://github.com/jonheaven/dog/blob/master/docs/src/doginals-spec.md)
+
+**Canonical reference maintained by [jonheaven/dog](https://github.com/jonheaven/dog)** — the fastest and most correct Dogecoin Doginals indexer
 
 Doginals give individual **koinu** (1 DOGE = 100,000,000 koinu) numismatic value by
 permanently binding arbitrary data to them via on-chain inscriptions.
@@ -226,6 +228,25 @@ dog index update && dog server
 
 This specification is binding. All marketplaces, explorers, wallets, and AI agents
 building on Dogecoin inscriptions must follow it to remain compatible.
+
+---
+
+## Implementers Checklist
+
+Ship these two files from the reference repo — everything else depends on them:
+
+| File | Purpose | Location |
+|------|---------|----------|
+| `starting_koinu.json` | Cumulative koinu offset before each block (wonky era) | repo root |
+| `subsidies.json` | Per-height block subsidy in koinu (wonky era) | repo root |
+
+Quick verification steps:
+
+- [ ] `cargo test -p doginals` passes all subsidy assertions
+- [ ] `dog scan --from 4609000 --to 4610000` returns inscriptions without error
+- [ ] `dog server` serves `/koinucard` endpoint
+- [ ] Inscription IDs are in `<txid>i<index>` format
+- [ ] No Taproot or SegWit assumptions in the envelope parser
 
 ---
 
