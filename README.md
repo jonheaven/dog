@@ -2,9 +2,12 @@
 > times. Periodically back up your redb index so you can restore from a
 > checkpoint. See [reindexing](docs/src/guides/reindexing.md).
 
-<h1 align=center><code>dog</code></h1>
+<h1 align=center><code>dog</code> — Official Doginals Indexer & Explorer</h1>
 
 <div align=center>
+  <a href=https://github.com/jonheaven/dog/blob/master/docs/src/doginals-spec.md>
+    <img src=https://img.shields.io/badge/Spec-v1-brightgreen alt="Doginals Spec v1">
+  </a>
   <a href=https://github.com/jonheaven/dog/actions>
     <img src=https://img.shields.io/github/actions/workflow/status/jonheaven/dog/ci.yaml?branch=master alt="build status">
   </a>
@@ -14,14 +17,26 @@
 </div>
 <br>
 
-**[Official Doginals Protocol Specification v1 →](docs/src/doginals-spec.md)**
+**The fastest, most correct Doginals indexer, block explorer, and CLI wallet.**
 
-`dog` is a Dogecoin ordinals indexer, block explorer, and command-line wallet.
-It is experimental software with no warranty. See [LICENSE](LICENSE) for
-details.
+Doginals imbue every **koinu** with numismatic value, making them collectable
+and tradeable as on-chain digital artifacts. This repo is the canonical
+reference implementation — used by builders, marketplaces, and collectors who
+want the real thing.
 
-Doginals (Dogecoin inscriptions) imbue koinus with numismatic value, allowing
-them to be collected and traded as curios.
+**[📖 Official Doginals Protocol v1 Spec →](docs/src/doginals-spec.md)** · includes koinu math, envelope format & implementers checklist
+
+It is experimental software with no warranty. See [LICENSE](LICENSE) for details.
+
+---
+
+## Why This Is the One Everyone Uses
+
+- **100% Dogecoin-native** — fixed 10,000 DOGE/block floor forever, AuxPoW, Scrypt, correct koinu numbering
+- **5–20× faster sync** via direct `.blk` file indexing (no RPC bottleneck)
+- **Mathematically perfect** koinu numbering — `cargo test -p doginals` proves it
+- **Legacy inscription envelope** — the only format that actually works on Dogecoin (no Taproot, no SegWit)
+- **Full DRC-20 + Dogecoin Name System** support out of the box
 
 ---
 
@@ -31,7 +46,7 @@ them to be collected and traded as curios.
 
 | Command | Description |
 |---------|-------------|
-| `dog index update` | Index the chain (inscriptions, Dunes, sat ranges) |
+| `dog index update` | Index the chain (inscriptions, Dunes, koinu ranges) |
 | `dog server` | Run the block explorer web UI |
 
 ### Dogecoin-specific
@@ -48,8 +63,8 @@ them to be collected and traded as curios.
 
 ### Fast sync (direct .blk file reads)
 
-`dog` can read blocks directly from Dogecoin Core's binary `.blk` files,
-bypassing JSON-RPC entirely — typically **5-20x faster** for initial indexing.
+`dog` reads blocks directly from Dogecoin Core's binary `.blk` files,
+bypassing JSON-RPC entirely — typically **5–20× faster** for initial indexing.
 
 ```
 # Build a shadow copy of Core's block index (safe while Core is running)
@@ -100,6 +115,8 @@ dog index update
 ```
 dog server
 ```
+
+Open http://localhost:80 — you now have your own Doginals explorer.
 
 ---
 
@@ -169,8 +186,10 @@ See [docs/src/dns.md](docs/src/dns.md) for details.
 ## Doginals Inscription Protocol (v1)
 
 Doginals use a **legacy scriptSig envelope** — no Taproot, no SegWit, no
-witness data.  Dogecoin has neither as of 2026, so this is the only valid
+witness data. Dogecoin has neither as of 2026, so this is the only valid
 on-chain inscription format.
+
+Full specification: **[docs/src/doginals-spec.md](docs/src/doginals-spec.md)**
 
 ### Envelope layout
 
@@ -216,8 +235,8 @@ scriptSig pushes:
 ### Multi-part inscriptions
 
 Content too large for a single transaction is split across multiple
-transactions.  The push immediately after `"ord"` is the piece count (a
-push integer).  `dog` reassembles parts by scanning for the matching
+transactions. The push immediately after `"ord"` is the piece count (a
+push integer). `dog` reassembles parts by scanning for the matching
 continuation transactions within the same block range.
 
 ### DRC-20
@@ -341,3 +360,8 @@ RUST_LOG=debug RUST_BACKTRACE=1 dog server   # full debug + backtrace
 ## Donate
 
 DOGE: `DFundmtrigBGH6Q2MFAibzSq6NxsxMPMjB`
+
+---
+
+*Made with ❤️ for the Dogecoin community.*
+*Star ⭐ this repo if you're building the future of Dogecoin NFTs.*
