@@ -318,8 +318,9 @@ fn parse_multipart_header(pushes: &[SPush]) -> Option<(u16, String, HashMap<u16,
     return None;
   }
   matches!(pushes[0], SPush::Ord).then_some(())?;
+  // N >= 1: single-tx inscriptions use N=1; multi-tx use N>1.
   let piece_count = match pushes[1] {
-    SPush::Int(n) if n > 1 => n,
+    SPush::Int(n) if n >= 1 => n,
     _ => return None,
   };
   let content_type = match &pushes[2] {

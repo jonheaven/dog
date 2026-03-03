@@ -8,6 +8,7 @@ pub mod env;
 pub mod epochs;
 pub mod find;
 pub mod index;
+pub mod inscribe;
 pub mod list;
 pub mod parse;
 pub mod dunes;
@@ -40,6 +41,8 @@ pub(crate) enum Subcommand {
   Find(find::Find),
   #[command(subcommand, about = "Index commands")]
   Index(index::IndexSubcommand),
+  #[command(about = "Write a Dogecoin inscription to the chain")]
+  Inscribe(inscribe::InscribeCommand),
   #[command(about = "List the koinus in an output")]
   List(list::List),
   #[command(about = "Parse a koinu from ordinal notation")]
@@ -79,6 +82,7 @@ impl Subcommand {
       Self::Epochs => epochs::run(),
       Self::Find(find) => find.run(settings),
       Self::Index(index) => index.run(settings),
+      Self::Inscribe(cmd) => cmd.run(settings),
       Self::List(list) => list.run(settings),
       Self::Parse(parse) => parse.run(),
       Self::Dunes => dunes::run(settings),
