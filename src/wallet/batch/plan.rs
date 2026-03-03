@@ -450,7 +450,7 @@ impl Plan {
 
       let inner = Dunestone {
         edicts: Vec::new(),
-        etching: Some(ordinals::Etching {
+        etching: Some(doginals::Etching {
           divisibility: (etching.divisibility > 0).then_some(etching.divisibility),
           premine: (premine > 0).then_some(premine),
           dune: Some(etching.dune.dune),
@@ -458,8 +458,8 @@ impl Plan {
           symbol: Some(etching.symbol),
           terms: etching
             .terms
-            .map(|terms| -> Result<ordinals::Terms> {
-              Ok(ordinals::Terms {
+            .map(|terms| -> Result<doginals::Terms> {
+              Ok(doginals::Terms {
                 cap: (terms.cap > 0).then_some(terms.cap),
                 height: (
                   terms.height.and_then(|range| range.start),

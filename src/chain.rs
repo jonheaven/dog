@@ -7,9 +7,9 @@ use {super::*, clap::ValueEnum};
 
 /// Compile-time Dogecoin chain constants.
 ///
-/// These match the values from
-/// `dogecoin/src/chainparams.cpp` and serve as the canonical
-/// source-of-truth within this codebase.
+/// Values are taken directly from
+/// [`dogecoin/src/chainparams.cpp`](https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp)
+/// and serve as the canonical source-of-truth within this codebase.
 pub mod chainparams {
   /// Network magic bytes that prefix every record in `.blk` files and every
   /// P2P message on Dogecoin mainnet (`0xC0C0C0C0`).

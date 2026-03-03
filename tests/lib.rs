@@ -16,7 +16,7 @@ use {
     decimal::Decimal, outgoing::Outgoing, subcommand::dunes::DuneInfo, templates::InscriptionHtml,
     wallet::ListDescriptorsResult, wallet::batch,
   },
-  ordinals::{
+  doginals::{
     Artifact, COIN_VALUE, Charm, Edict, Pile, Rarity, Dune, DuneId, Dunestone, Koinu, KoinuPoint,
     SpacedDune,
   },

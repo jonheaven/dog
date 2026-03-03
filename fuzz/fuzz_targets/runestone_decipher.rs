@@ -7,7 +7,7 @@ use {
     Transaction, TxOut,
   },
   libfuzzer_sys::fuzz_target,
-  ordinals::Dunestone,
+  doginals::Dunestone,
 };
 
 fuzz_target!(|input: Vec<Vec<u8>>| {

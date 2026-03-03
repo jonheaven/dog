@@ -1286,6 +1286,7 @@ dependencies = [
  "ctrlc",
  "derive_more",
  "dirs",
+ "doginals",
  "env_logger",
  "futures",
  "hex",
@@ -1302,7 +1303,6 @@ dependencies = [
  "mockcore",
  "mp4",
  "nix 0.31.1",
- "ordinals",
  "pretty_assertions",
  "redb",
  "ref-cast",
@@ -1329,6 +1329,19 @@ dependencies = [
  "tower-http",
  "unindent",
  "urlencoding",
+]
+
+[[package]]
+name = "doginals"
+version = "0.0.15"
+dependencies = [
+ "bitcoin",
+ "derive_more",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

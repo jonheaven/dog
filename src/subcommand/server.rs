@@ -2846,7 +2846,7 @@ mod tests {
   }
 
   #[test]
-  fn search_by_query_returns_satscard() {
+  fn search_by_query_returns_koinucard() {
     TestServer::new().assert_redirect(
       "/search?query=https://koinucard.com/start%23foo",
       "/koinucard?foo",
@@ -8675,7 +8675,7 @@ next
   }
 
   #[test]
-  fn satscard_form_with_coinkite_url_redirects_to_query() {
+  fn koinucard_form_with_coinkite_url_redirects_to_query() {
     TestServer::new().assert_redirect(
       &format!(
         "/koinucard?url={}",
@@ -8686,18 +8686,18 @@ next
   }
 
   #[test]
-  fn satscard_form_with_ordinals_url_redirects_to_query() {
+  fn koinucard_form_with_doginals_url_redirects_to_query() {
     TestServer::new().assert_redirect(
       &format!(
         "/koinucard?url={}",
         urlencoding::encode(koinucard::tests::ORDINALS_URL)
       ),
-      &format!("/koinucard?{}", koinucard::tests::ordinals_query()),
+      &format!("/koinucard?{}", koinucard::tests::doginals_query()),
     );
   }
 
   #[test]
-  fn satscard_missing_form_query_is_error() {
+  fn koinucard_missing_form_query_is_error() {
     TestServer::new().assert_response(
       "/koinucard?url=https://foo.com",
       StatusCode::BAD_REQUEST,
@@ -8706,7 +8706,7 @@ next
   }
 
   #[test]
-  fn satscard_invalid_query_parameters() {
+  fn koinucard_invalid_query_parameters() {
     TestServer::new().assert_response(
       "/koinucard?foo=bar",
       StatusCode::BAD_REQUEST,
@@ -8715,7 +8715,7 @@ next
   }
 
   #[test]
-  fn satscard_empty_query_parameters_are_allowed() {
+  fn koinucard_empty_query_parameters_are_allowed() {
     TestServer::builder()
       .chain(Chain::Dogecoin)
       .build()
@@ -8723,20 +8723,20 @@ next
   }
 
   #[test]
-  fn satscard_display_without_address_index() {
+  fn koinucard_display_without_address_index() {
     TestServer::builder()
       .chain(Chain::Dogecoin)
       .build()
       .assert_html(
         format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
         KoinucardHtml {
-          koinucard: Some((koinucard::tests::coinkite_satscard(), None)),
+          koinucard: Some((koinucard::tests::coinkite_koinucard(), None)),
         },
       );
   }
 
   #[test]
-  fn satscard_coinkite_display_with_address_index_empty() {
+  fn koinucard_coinkite_display_with_address_index_empty() {
     TestServer::builder()
       .chain(Chain::Dogecoin)
       .index_addresses()
@@ -8745,7 +8745,7 @@ next
         format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
         KoinucardHtml {
           koinucard: Some((
-            koinucard::tests::coinkite_satscard(),
+            koinucard::tests::coinkite_koinucard(),
             Some(AddressHtml {
               address: koinucard::tests::coinkite_address(),
               header: false,
@@ -8760,18 +8760,18 @@ next
   }
 
   #[test]
-  fn satscard_ordinals_display_with_address_index_empty() {
+  fn koinucard_doginals_display_with_address_index_empty() {
     TestServer::builder()
       .chain(Chain::Dogecoin)
       .index_addresses()
       .build()
       .assert_html(
-        format!("/koinucard?{}", koinucard::tests::ordinals_query()),
+        format!("/koinucard?{}", koinucard::tests::doginals_query()),
         KoinucardHtml {
           koinucard: Some((
-            koinucard::tests::ordinals_satscard(),
+            koinucard::tests::doginals_koinucard(),
             Some(AddressHtml {
-              address: koinucard::tests::ordinals_address(),
+              address: koinucard::tests::doginals_address(),
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
@@ -8784,7 +8784,7 @@ next
   }
 
   #[test]
-  fn satscard_address_recovery_fails_on_wrong_chain() {
+  fn koinucard_address_recovery_fails_on_wrong_chain() {
     TestServer::builder()
       .chain(Chain::DogecoinTestnet)
       .build()

@@ -6,7 +6,7 @@ pub(crate) use {
     opcodes,
   },
   mockcore::TransactionTemplate,
-  ordinals::COIN_VALUE,
+  doginals::COIN_VALUE,
   pretty_assertions::assert_eq as pretty_assert_eq,
   std::iter,
   tempfile::TempDir,

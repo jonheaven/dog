@@ -30,17 +30,17 @@ pub enum SnafuError {
   },
   #[snafu(display("Failed to parse dune `{}`", input))]
   DuneParse {
-    source: ordinals::spaced_dune::Error,
+    source: doginals::spaced_dune::Error,
     input: String,
   },
   #[snafu(display("Failed to parse sat `{}`", input))]
   SatParse {
-    source: ordinals::koinu::Error,
+    source: doginals::koinu::Error,
     input: String,
   },
   #[snafu(display("Failed to parse sat point `{}`", input))]
   KoinuPointParse {
-    source: ordinals::koinu_point::Error,
+    source: doginals::koinu_point::Error,
     input: String,
   },
   #[snafu(display("Unrecognized representation: `{}`", input))]

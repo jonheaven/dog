@@ -1,4 +1,4 @@
-use {super::*, dog::subcommand::epochs::Output, ordinals::Koinu};
+use {super::*, dog::subcommand::epochs::Output, doginals::Koinu};
 
 #[test]
 fn empty() {

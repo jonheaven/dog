@@ -2,6 +2,7 @@ Summary
 =======
 
 [Introduction](introduction.md)
+- [**Doginals Protocol Specification v1**](doginals-spec.md)
 - [Lineage & State of the Art](lineage.md)
 - [Dogecoin Port](dogecoin.md)
 - [Overview](overview.md)
@@ -22,6 +23,7 @@ Summary
 - [Scanning](scanning.md)
 - [DRC-20 Tokens](drc20.md)
 - [Dogecoin Name System](dns.md)
+- [Koinucard](koinucard.md)
 - [Security](security.md)
 - [FAQ](faq.md)
 - [Contributing](contributing.md)

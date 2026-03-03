@@ -1,3 +1,18 @@
+//! Koinucard — Dogecoin physical bearer card support.
+//!
+//! Inspired by Coinkite's [SatCard](https://getsatscard.com) product, which
+//! lets you load satoshis onto a physical NFC card and hand them to someone
+//! like cash.  A **Koinucard** is the same concept adapted for Dogecoin: a
+//! card whose koinu balance can be swept by scanning a URL that encodes the
+//! card's public key and chain state.
+//!
+//! The name follows the project's Bitcoin → Dogecoin terminology map:
+//! satoshi → koinu, SatCard → Koinucard.
+//!
+//! Offering physical Koinucards as a product in the Dogecoin/Doginals
+//! ecosystem would be a natural extension — the parsing and display
+//! infrastructure is already here.
+
 use super::*;
 
 #[derive(Debug, PartialEq)]
@@ -205,15 +220,15 @@ pub(crate) mod tests {
     "0f32f39b6ec52e2c275833aec27986257f18811487a54047d953b412a7836fb1",
   );
 
-  pub(crate) fn ordinals_query() -> &'static str {
+  pub(crate) fn doginals_query() -> &'static str {
     ORDINALS_URL.split_once('?').unwrap().1
   }
 
-  pub(crate) fn ordinals_satscard() -> Koinucard {
-    Koinucard::from_query_parameters(Chain::Dogecoin, ordinals_query()).unwrap()
+  pub(crate) fn doginals_koinucard() -> Koinucard {
+    Koinucard::from_query_parameters(Chain::Dogecoin, doginals_query()).unwrap()
   }
 
-  pub(crate) fn ordinals_address() -> Address {
+  pub(crate) fn doginals_address() -> Address {
     "bc1q97v7v0jfe3wm82sm40nxguyj09rjv34w9rytlk"
       .parse::<Address<NetworkUnchecked>>()
       .unwrap()
@@ -233,15 +248,15 @@ pub(crate) mod tests {
   );
 
   #[test]
-  fn query_from_ordinals_url() {
+  fn query_from_doginals_url() {
     assert_eq!(
-      ordinals_satscard(),
+      doginals_koinucard(),
       Koinucard {
-        address: ordinals_address(),
+        address: doginals_address(),
         nonce: [0xb3, 0x7c, 0xca, 0xa6, 0x2a, 0xa8, 0x49, 0xe7],
         slot: 0,
         state: State::Sealed,
-        query_parameters: ordinals_query().into(),
+        query_parameters: doginals_query().into(),
       }
     );
   }
@@ -250,7 +265,7 @@ pub(crate) mod tests {
     COINKITE_URL.split_once('#').unwrap().1
   }
 
-  pub(crate) fn coinkite_satscard() -> Koinucard {
+  pub(crate) fn coinkite_koinucard() -> Koinucard {
     Koinucard::from_query_parameters(Chain::Dogecoin, coinkite_fragment()).unwrap()
   }
 
@@ -265,7 +280,7 @@ pub(crate) mod tests {
   #[test]
   fn query_from_coinkite_url() {
     assert_eq!(
-      coinkite_satscard(),
+      coinkite_koinucard(),
       Koinucard {
         address: coinkite_address(),
         nonce: [0x76, 0x64, 0x16, 0x8a, 0x4e, 0xf7, 0xb8, 0xe8],

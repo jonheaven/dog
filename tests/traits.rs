@@ -1,4 +1,4 @@
-use {super::*, dog::subcommand::traits::Output, ordinals::Rarity};
+use {super::*, dog::subcommand::traits::Output, doginals::Rarity};
 
 #[test]
 fn traits_command_prints_sat_traits() {

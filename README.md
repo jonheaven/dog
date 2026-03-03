@@ -14,6 +14,8 @@
 </div>
 <br>
 
+**[Official Doginals Protocol Specification v1 →](docs/src/doginals-spec.md)**
+
 `dog` is a Dogecoin ordinals indexer, block explorer, and command-line wallet.
 It is experimental software with no warranty. See [LICENSE](LICENSE) for
 details.
@@ -161,6 +163,77 @@ dog dns config satoshi.doge
 ```
 
 See [docs/src/dns.md](docs/src/dns.md) for details.
+
+---
+
+## Doginals Inscription Protocol (v1)
+
+Doginals use a **legacy scriptSig envelope** — no Taproot, no SegWit, no
+witness data.  Dogecoin has neither as of 2026, so this is the only valid
+on-chain inscription format.
+
+### Envelope layout
+
+An inscription lives in the `scriptSig` of `input[0]` of the commit
+transaction as a sequence of data-push operations:
+
+```
+PUSH("ord")              ← 3-byte protocol marker (ASCII "ord", hex 6f7264)
+PUSH(<tag>)              ← field tag (see table below)
+PUSH(<value>)            ← field value
+... (repeat tag/value pairs)
+PUSH("")                 ← empty push at a tag position = body separator
+PUSH(<body_chunk>)       ← content bytes (repeat for large payloads)
+```
+
+#### Field tags
+
+| Tag (hex) | Field              | Notes                                        |
+|-----------|--------------------|----------------------------------------------|
+| `01`      | `content_type`     | MIME string, e.g. `text/plain;charset=utf-8` |
+| `02`      | `pointer`          | koinu-offset redirect                        |
+| `03`      | `parent`           | parent inscription ID                        |
+| `05`      | `metadata`         | CBOR metadata blob                           |
+| `07`      | `metaprotocol`     | sub-protocol identifier (e.g. `drc-20`)      |
+| `09`      | `content_encoding` | `br`, `gzip`, etc.                           |
+| `0b`      | `delegate`         | delegation target inscription ID             |
+| `00`      | *(body separator)* | empty push at an even (tag) position         |
+
+Even-numbered tags are consensus-critical; unknown odd tags are tolerated
+(same rule as Bitcoin Ordinals).
+
+### Minimal example — a text inscription
+
+```
+scriptSig pushes:
+  "ord"                        ← protocol marker
+  \x01                         ← tag: content_type
+  "text/plain;charset=utf-8"   ← value
+  ""                           ← body separator (empty tag push)
+  "Hello, Dogecoin!"           ← body
+```
+
+### Multi-part inscriptions
+
+Content too large for a single transaction is split across multiple
+transactions.  The push immediately after `"ord"` is the piece count (a
+push integer).  `dog` reassembles parts by scanning for the matching
+continuation transactions within the same block range.
+
+### DRC-20
+
+DRC-20 tokens set `metaprotocol = "drc-20"` and use a JSON body:
+
+```json
+{ "p": "drc-20", "op": "deploy",   "tick": "dogi", "max": "21000000", "lim": "1000" }
+{ "p": "drc-20", "op": "mint",     "tick": "dogi", "amt": "1000" }
+{ "p": "drc-20", "op": "transfer", "tick": "dogi", "amt": "500" }
+```
+
+### Parser source
+
+[`src/inscriptions/envelope.rs`](src/inscriptions/envelope.rs) —
+`RawEnvelope::from_transactions_dogecoin()`
 
 ---
 

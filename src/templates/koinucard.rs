@@ -23,7 +23,7 @@ mod tests {
   fn title() {
     assert_eq!(
       KoinucardHtml {
-        koinucard: Some((crate::koinucard::tests::coinkite_satscard(), None)),
+        koinucard: Some((crate::koinucard::tests::coinkite_koinucard(), None)),
       }
       .title(),
       format!("Koinucard {}", crate::koinucard::tests::coinkite_address())
@@ -36,7 +36,7 @@ mod tests {
   fn no_address_info() {
     pretty_assert_eq!(
       KoinucardHtml {
-        koinucard: Some((crate::koinucard::tests::coinkite_satscard(), None)),
+        koinucard: Some((crate::koinucard::tests::coinkite_koinucard(), None)),
       }
       .to_string(),
       r#"<h1>Koinucard bc1ql86vqdwylsgmgkkrae5nrafte8yp43a5x2tplf</h1>
@@ -69,7 +69,7 @@ mod tests {
     pretty_assert_eq!(
       KoinucardHtml {
         koinucard: Some((
-          crate::koinucard::tests::coinkite_satscard(),
+          crate::koinucard::tests::coinkite_koinucard(),
           Some(AddressHtml {
             address: crate::koinucard::tests::coinkite_address(),
             header: false,
@@ -123,7 +123,7 @@ mod tests {
         koinucard: Some((
           Koinucard {
             state: crate::koinucard::State::Error,
-            ..crate::koinucard::tests::coinkite_satscard()
+            ..crate::koinucard::tests::coinkite_koinucard()
           },
           Some(AddressHtml {
             address: crate::koinucard::tests::coinkite_address(),
@@ -151,7 +151,7 @@ mod tests {
         koinucard: Some((
           Koinucard {
             state: crate::koinucard::State::Unsealed,
-            ..crate::koinucard::tests::coinkite_satscard()
+            ..crate::koinucard::tests::coinkite_koinucard()
           },
           Some(AddressHtml {
             address: crate::koinucard::tests::coinkite_address(),

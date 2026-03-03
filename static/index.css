@@ -255,15 +255,15 @@ a.mythic {
   width: 100%;
 }
 
-.satscard-error {
+.koinucard-error {
   color: red;
 }
 
-.satscard-sealed {
+.koinucard-sealed {
   color: green;
 }
 
-.satscard-unsealed {
+.koinucard-unsealed {
   color: yellow;
 }
 

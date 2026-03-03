@@ -3,7 +3,7 @@ use {
     Index,
     entry::{Entry, SatRange},
   },
-  ordinals::varint,
+  doginals::varint,
   redb::TypeName,
   ref_cast::RefCast,
   std::ops::Deref,

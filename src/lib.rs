@@ -60,7 +60,7 @@ use {
   ciborium::Value,
   clap::{ArgGroup, Parser},
   error::{ResultExt, SnafuError},
-  ordinals::{
+  doginals::{
     Artifact, Charm, Edict, Epoch, Etching, Height, Pile, Rarity, Dune, DuneId, Dunestone, Koinu,
     KoinuPoint, SpacedDune, Terms, varint,
   },

@@ -1,6 +1,6 @@
 #![no_main]
 
-use {libfuzzer_sys::fuzz_target, ordinals::varint};
+use {libfuzzer_sys::fuzz_target, doginals::varint};
 
 fuzz_target!(|input: u128| {
   let mut encoded = Vec::new();
