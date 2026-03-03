@@ -22,9 +22,9 @@ members = [".", "crates/*"]
 [workspace.package]
 authors = ["The Dog Maintainers"]
 edition = "2024"
-homepage = "https://github.com/ordinals/ord"
+homepage = "https://github.com/jonheaven/dog"
 license = "CC0-1.0"
-repository = "https://github.com/ordinals/ord"
+repository = "https://github.com/jonheaven/dog"
 rust-version = "1.89.0"
 
 [workspace.dependencies]

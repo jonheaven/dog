@@ -36,6 +36,11 @@ use {
   },
 };
 
+// Sanity-check: magic constants must be exactly 4 bytes.
+const _: () = assert!(crate::chain::chainparams::MAGIC_MAINNET.len() == 4);
+const _: () = assert!(crate::chain::chainparams::MAGIC_TESTNET.len() == 4);
+const _: () = assert!(crate::chain::chainparams::MAGIC_REGTEST.len() == 4);
+
 /// height → (blk_file_index, data_offset_within_file)
 type BlkIndex = HashMap<u32, (u32, u64)>;
 
@@ -288,14 +293,22 @@ fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
 
 /// Each block record in a `.blk` file:
 /// ```text
-///   [4 bytes]  network magic  (0xC0C0C0C0 for Dogecoin mainnet)
+///   [4 bytes]  network magic  (see chainparams::MAGIC_*)
 ///   [4 bytes]  block_size     (little-endian u32)
 ///   [N bytes]  raw serialized block
 /// ```
 ///
+/// Magic bytes by network (from [`crate::chain::chainparams`]):
+/// - mainnet: `C0 C0 C0 C0`
+/// - testnet: `FC C1 B7 DC`
+/// - regtest: `FA BF B5 DA`
+///
 /// The LevelDB `data_offset` points to the start of the raw block bytes
 /// (i.e., 8 bytes into the record). So `data_offset - 4` is where
-/// `block_size` lives.
+/// `block_size` lives. Because we locate blocks via the LevelDB index
+/// rather than linear `.blk` scanning, we never need to read or match the
+/// magic bytes at runtime — the constants serve as documentation and for
+/// future validation tooling.
 fn read_block_from_file(blk_dir: &Path, file_idx: u32, data_offset: u64) -> Result<Block> {
   let path = blk_dir.join(format!("blk{:05}.dat", file_idx));
   let file =

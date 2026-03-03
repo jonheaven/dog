@@ -16,7 +16,11 @@
       "Bash(git -C /c/Users/jheav/Desktop/doge/dog mv:*)",
       "Bash(cargo test:*)",
       "Bash(./target/debug/dog:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh api repos/apezord/ord-dogecoin/contents/src/chain.rs --jq '.content')",
+      "Bash(gh api repos/verydogelabs/wonky-ord-dogecoin/git/trees/HEAD --jq '.tree[] | .path')",
+      "WebFetch(domain:api.github.com)",
+      "Bash(cargo check --bin dog)"
     ]
   }
 }

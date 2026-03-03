@@ -35,6 +35,20 @@ pub const CYCLE_EPOCHS: u32 = 6;
 
 // Dogecoin-specific chain constants.
 pub const DIFFCHANGE_INTERVAL: u32 = 1;
+
+/// The actual Dogecoin subsidy halving interval: every 100,000 blocks after
+/// the wonky era.
+///
+/// Source: `dogecoin/src/chainparams.cpp` `nSubsidyHalvingInterval`.
+pub const DOGECOIN_HALVING_INTERVAL: u32 = 100_000;
+
+/// Internal epoch machinery constant.
+///
+/// Set to 1 so that `Epoch(n)` maps 1-to-1 with block height `n`.  This lets
+/// the existing ordinals epoch machinery work unmodified while `Epoch::subsidy`
+/// and `Epoch::starting_sat` delegate to the Dogecoin-specific subsidy
+/// functions in `epoch.rs`.  The *actual* Dogecoin halving interval is
+/// `DOGECOIN_HALVING_INTERVAL`.
 pub const SUBSIDY_HALVING_INTERVAL: u32 = 1;
 
 fn default<T: Default>() -> T {

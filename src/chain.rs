@@ -1,5 +1,38 @@
 use {super::*, clap::ValueEnum};
 
+// ---------------------------------------------------------------------------
+// Dogecoin network chain parameters
+// Reference: dogecoin/src/chainparams.cpp
+// ---------------------------------------------------------------------------
+
+/// Compile-time Dogecoin chain constants.
+///
+/// These match the values from
+/// `dogecoin/src/chainparams.cpp` and serve as the canonical
+/// source-of-truth within this codebase.
+pub mod chainparams {
+  /// Network magic bytes that prefix every record in `.blk` files and every
+  /// P2P message on Dogecoin mainnet (`0xC0C0C0C0`).
+  pub const MAGIC_MAINNET: [u8; 4] = [0xc0, 0xc0, 0xc0, 0xc0];
+
+  /// Network magic bytes for Dogecoin testnet (`0xFCC1B7DC`).
+  pub const MAGIC_TESTNET: [u8; 4] = [0xfc, 0xc1, 0xb7, 0xdc];
+
+  /// Network magic bytes for Dogecoin regtest (`0xFABFB5DA`).
+  pub const MAGIC_REGTEST: [u8; 4] = [0xfa, 0xbf, 0xb5, 0xda];
+
+  /// Dogecoin genesis block hash (big-endian / display form).
+  ///
+  /// `dogecoin/src/chainparams.cpp`:
+  /// `hashGenesisBlock == uint256("0x1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691")`
+  pub const GENESIS_HASH: &str =
+    "1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691";
+
+  /// Number of blocks between each subsidy halving after the wonky era
+  /// (`nSubsidyHalvingInterval = 100000`).
+  pub const HALVING_INTERVAL: u32 = 100_000;
+}
+
 #[derive(Default, ValueEnum, Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Chain {
