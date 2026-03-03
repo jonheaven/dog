@@ -345,25 +345,41 @@ fn collect_continuation_chunks(pushes: &[SPush], chunks: &mut HashMap<u16, Vec<u
 
 /// Walk a push slice and insert every `(idx, data)` pair into `chunks`.
 ///
-/// Handles all three remaining_count encodings used by Doginals tools:
-/// - `SPush::Int(n)`          — 2-byte LE pushdata  → remaining_count 128-N
-/// - `SPush::Bytes(b)` b==[]  — OP_0               → remaining_count 0 (last chunk)
-/// - `SPush::Bytes(b)` b.len()==1 — 1-byte pushdata → remaining_count 1-127
+/// This function is ONLY ever called on slices that have already had the
+/// inscription header (ord / piece_count / content_type) and the trailing
+/// sig+pubkey stripped away.  After that stripping, the remaining pushes are
+/// exclusively `(remaining_count, chunk_bytes)` pairs — there are no tag
+/// fields or other metadata to confuse the parser.
 ///
-/// The `data.len() >= 20` guard prevents false positives (e.g. confusing a
-/// 1-byte tag field with a chunk index).
+/// Handles all three remaining_count encodings used by Doginals tools:
+/// - `SPush::Int(n)`                — 2-byte LE pushdata → remaining_count 128–N
+/// - `SPush::Bytes(b)` b.is_empty() — OP_0              → remaining_count 0 (last chunk)
+/// - `SPush::Bytes(b)` b.len()==1   — 1-byte pushdata   → remaining_count 1–127
+///
+/// Guard: we only accept a pairing when the data push is non-empty (`>= 1`
+/// byte).  Empty data would mean OP_0 appeared at a *data* position, which
+/// is not valid in this format (OP_0 only appears at *index* positions as
+/// remaining_count 0).
+///
+/// NOTE: an earlier version used `data.len() >= 20` here as a "safety net"
+/// against false positives.  That was wrong: it would silently drop the last
+/// chunk of any file whose tail is fewer than 20 bytes (e.g. a 4,813-byte
+/// file has a 13-byte last chunk and would be corrupt).  Because the caller
+/// guarantees no tag bytes are present in this slice, `>= 1` is both correct
+/// and sufficient.  If you ever find yourself widening this guard again,
+/// something has gone wrong in the call-site stripping — fix that instead.
 fn collect_int_data_pairs(pushes: &[SPush], chunks: &mut HashMap<u16, Vec<u8>>) {
   let mut i = 0;
   while i + 1 < pushes.len() {
     let idx_opt: Option<u16> = match &pushes[i] {
-      SPush::Int(n)              => Some(*n),
+      SPush::Int(n)                    => Some(*n),
       SPush::Bytes(b) if b.is_empty() => Some(0),
       SPush::Bytes(b) if b.len() == 1 => Some(b[0] as u16),
       _ => None,
     };
     if let Some(idx) = idx_opt {
       if let SPush::Bytes(data) = &pushes[i + 1] {
-        if data.len() >= 20 {
+        if !data.is_empty() {
           chunks.insert(idx, data.clone());
           i += 2;
           continue;
