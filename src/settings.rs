@@ -1,4 +1,14 @@
-use {super::*, bitcoincore_rpc::Auth};
+use {super::*, bitcoincore_rpc::Auth, bitcoincore_rpc::RpcApi};
+
+/// Minimal subset of `getblockchaininfo` we actually need.
+///
+/// Dogecoin Core 1.14.x returns `softforks` as a JSON array, but
+/// `bitcoincore_rpc::GetBlockchainInfoResult` expects a HashMap — that mismatch
+/// causes a deserialisation error.  We only need `chain`, so we skip the rest.
+#[derive(Deserialize)]
+struct DogecoinBlockchainInfo {
+  chain: String,
+}
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default, deny_unknown_fields)]
@@ -440,10 +450,10 @@ impl Settings {
 
     let mut checks = 0;
     let rpc_chain = loop {
-      match client.get_blockchain_info() {
+      match client.call::<DogecoinBlockchainInfo>("getblockchaininfo", &[]) {
         Ok(blockchain_info) => {
           // Dogecoin Core returns "main"/"test"/"regtest".
-          break match blockchain_info.chain.to_string().as_str() {
+          break match blockchain_info.chain.as_str() {
             "main" => Chain::Dogecoin,
             "test" => Chain::DogecoinTestnet,
             "regtest" => Chain::DogecoinRegtest,

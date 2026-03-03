@@ -204,10 +204,53 @@ impl ScanCommand {
 }
 
 /// Get a block by height via RPC.
+///
+/// Dogecoin blocks after height 371,337 carry an AuxPoW header that the
+/// `bitcoin` crate cannot deserialize. We work around this by fetching the
+/// list of txids first (`getblock … 1`), then pulling each transaction
+/// individually via `getrawtransaction`. Transactions are plain legacy format
+/// (no AuxPoW), so they deserialize fine.
 fn fetch_block_rpc(client: &bitcoincore_rpc::Client, height: u32) -> crate::Result<bitcoin::Block> {
-  use bitcoincore_rpc::RpcApi;
+  use {
+    bitcoin::consensus::deserialize,
+    bitcoincore_rpc::RpcApi,
+    serde::Deserialize,
+  };
+
   let hash = client.get_block_hash(height.into())?;
-  Ok(client.get_block(&hash)?)
+
+  // Only decode the txid list — avoids AuxPoW deserialization of the header.
+  #[derive(Deserialize)]
+  struct BlockTxids {
+    tx: Vec<bitcoin::Txid>,
+  }
+  let info: BlockTxids =
+    client.call("getblock", &[serde_json::to_value(hash)?, serde_json::Value::from(1u8)])?;
+
+  // Fetch and deserialize each transaction individually.
+  let txdata = info
+    .tx
+    .iter()
+    .map(|txid| {
+      let hex: String =
+        client.call("getrawtransaction", &[serde_json::to_value(txid)?, serde_json::Value::from(false)])?;
+      let bytes = hex::decode(hex.trim())?;
+      deserialize::<bitcoin::Transaction>(&bytes).map_err(|e| anyhow::anyhow!(e))
+    })
+    .collect::<crate::Result<Vec<_>>>()?;
+
+  // Construct a minimal Block — scan only uses `txdata`.
+  Ok(bitcoin::Block {
+    header: bitcoin::block::Header {
+      version: bitcoin::block::Version::ONE,
+      prev_blockhash: bitcoin::BlockHash::all_zeros(),
+      merkle_root: bitcoin::TxMerkleNode::all_zeros(),
+      time: 0,
+      bits: bitcoin::CompactTarget::from_consensus(0),
+      nonce: 0,
+    },
+    txdata,
+  })
 }
 
 /// Map a MIME content-type to a file extension for the exported content file.
