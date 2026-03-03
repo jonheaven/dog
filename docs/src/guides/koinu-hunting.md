@@ -1,8 +1,8 @@
-Sat Hunting
-===========
+Koinu Hunting
+=============
 
 Doginal hunting is difficult but rewarding. The feeling of owning a wallet full
-of UTXOs, redolent with the scent of rare and exotic sats, is beyond compare.
+of UTXOs, redolent with the scent of rare and exotic koinus, is beyond compare.
 
 Doginals are numbers for koinus. Every koinu has an ordinal number and
 every ordinal number has a koinu.
@@ -33,13 +33,13 @@ There are a few things you'll need before you start.
    dogecoin-cli getblockcount
    ```
 
-2. Second, you'll need a synced `ord` index.
+2. Second, you'll need a synced `dog` index.
 
-   - Get a copy of `ord` from [the repo](https://github.com/doginals/ord/).
+   - Get a copy of `dog` from [the repo](https://github.com/doginals/ord/).
 
-   - Run `ord --index-sats server`. It should connect to your dogecoin core node and start indexing.
-     
-   - Once it has finished indexing, leave the server running and submit new `ord` commands in a separate terminal session.
+   - Run `dog --index-koinu server`. It should connect to your dogecoin core node and start indexing.
+
+   - Once it has finished indexing, leave the server running and submit new `dog` commands in a separate terminal session.
 
 3. Third, you'll need a wallet with UTXOs that you want to search.
 
@@ -48,8 +48,8 @@ Searching for Rare Doginals
 
 ### Searching for Rare Doginals in a Dogecoin Core Wallet
 
-The `ord wallet` command is just a wrapper around Dogecoin Core's RPC API, so
-searching for rare doginals in a Dogecoin Core wallet is Easy. Assuming your
+The `dog wallet` command is just a wrapper around Dogecoin Core's RPC API, so
+searching for rare doginals in a Dogecoin Core wallet is easy. Assuming your
 wallet is named `foo`:
 
 1. Load your wallet:
@@ -58,15 +58,15 @@ wallet is named `foo`:
    dogecoin-cli loadwallet foo
    ```
 
-2. Display any rare doginals wallet `foo`'s UTXOs:
+2. Display any rare koinus in wallet `foo`'s UTXOs:
 
    ```sh
-   ord --index-sats wallet --name foo sats
+   dog --index-koinu wallet --name foo sats
    ```
 
 ### Searching for Rare Doginals in a Non-Dogecoin Core Wallet
 
-The `ord wallet` command is just a wrapper around Dogecoin Core's RPC API, so to
+The `dog wallet` command is just a wrapper around Dogecoin Core's RPC API, so to
 search for rare doginals in a non-Dogecoin Core wallet, you'll need to import
 your wallet's descriptors into Dogecoin Core.
 
@@ -121,10 +121,10 @@ your wallet of funds.
    dogecoin-cli getwalletinfo
    ```
 
-6. Display your wallet's rare doginals:
+6. Display your wallet's rare koinus:
 
    ```sh
-   ord wallet sats
+   dog wallet sats
    ```
 
 ### Searching for Rare Doginals in a Wallet that Exports Multi-path Descriptors
@@ -222,10 +222,10 @@ those multiple descriptors into Dogecoin Core.
    dogecoin-cli getwalletinfo
    ```
 
-7. Display your wallet's rare doginals:
+7. Display your wallet's rare koinus:
 
    ```sh
-   ord wallet sats
+   dog wallet sats
    ```
 
 ### Exporting Descriptors
@@ -237,11 +237,11 @@ button to display the descriptor.
 
 ### Transferring Doginals
 
-The `ord` wallet supports transferring specific koinus by using the
+The `dog` wallet supports transferring specific koinus by using the
 name of the koinu. To send the koinu `zonefruits`, do:
 
 ```
-ord wallet send <RECEIVING_ADDRESS> zonefruits --fee-rate 21
+dog wallet send <RECEIVING_ADDRESS> zonefruits --fee-rate 21
 ```
 
 You can also use the `dogecoin-cli` commands `createrawtransaction`,

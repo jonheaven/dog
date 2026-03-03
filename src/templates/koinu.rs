@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Boilerplate)]
-pub(crate) struct SatHtml {
+pub(crate) struct KoinuHtml {
   pub(crate) address: Option<Address>,
   pub(crate) blocktime: Blocktime,
   pub(crate) inscriptions: Vec<InscriptionId>,
@@ -9,7 +9,7 @@ pub(crate) struct SatHtml {
   pub(crate) satpoint: Option<KoinuPoint>,
 }
 
-impl PageContent for SatHtml {
+impl PageContent for KoinuHtml {
   fn title(&self) -> String {
     format!("Koinu {}", self.sat)
   }
@@ -22,7 +22,7 @@ mod tests {
   #[test]
   fn first() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu(0),
         satpoint: None,
@@ -62,7 +62,7 @@ mod tests {
   #[test]
   fn last() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu(2099999997689999),
         satpoint: None,
@@ -100,7 +100,7 @@ mod tests {
   #[test]
   fn sat_with_next_and_prev() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu(1),
         satpoint: None,
@@ -114,7 +114,7 @@ mod tests {
   #[test]
   fn sat_with_inscription() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu(0),
         satpoint: None,
@@ -136,7 +136,7 @@ mod tests {
   #[test]
   fn sat_with_reinscription() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu(0),
         satpoint: None,
@@ -159,7 +159,7 @@ mod tests {
   #[test]
   fn last_sat_next_link_is_disabled() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu::LAST,
         satpoint: None,
@@ -173,7 +173,7 @@ mod tests {
   #[test]
   fn sat_with_satpoint() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: None,
         sat: Koinu(0),
         satpoint: Some(satpoint(1, 0)),
@@ -187,7 +187,7 @@ mod tests {
   #[test]
   fn sat_with_address() {
     assert_regex_match!(
-      SatHtml {
+      KoinuHtml {
         address: Some(address(0)),
         sat: Koinu(0),
         satpoint: Some(satpoint(1, 0)),

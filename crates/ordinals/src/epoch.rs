@@ -8,10 +8,10 @@ use super::*;
 // ---------------------------------------------------------------------------
 
 /// Cumulative shiboshi totals at each block boundary during the wonky era.
-/// `STARTING_SATS[n]` is the total number of shiboshis minted before block n.
-static STARTING_SATS: LazyLock<Vec<u64>> = LazyLock::new(|| {
-  serde_json::from_str(include_str!("../../../starting_sats.json"))
-    .expect("starting_sats.json must be valid JSON")
+/// `STARTING_KOINU[n]` is the total number of shiboshis minted before block n.
+static STARTING_KOINU: LazyLock<Vec<u64>> = LazyLock::new(|| {
+  serde_json::from_str(include_str!("../../../starting_koinu.json"))
+    .expect("starting_koinu.json must be valid JSON")
 });
 
 /// Per-block subsidy (in shiboshis) for every block in the wonky era.
@@ -53,15 +53,15 @@ pub fn dogecoin_block_subsidy(height: u32) -> u64 {
 
 /// Return the cumulative shiboshis minted before `height`.
 ///
-/// For wonky-era heights this is read directly from `starting_sats.json`.
+/// For wonky-era heights this is read directly from `starting_koinu.json`.
 /// For post-wonky heights it is computed by summing the fixed epoch rewards.
-pub fn dogecoin_starting_sats(height: u32) -> u64 {
+pub fn dogecoin_starting_koinu(height: u32) -> u64 {
   let h = height as usize;
-  if h < STARTING_SATS.len() {
-    return STARTING_SATS[h];
+  if h < STARTING_KOINU.len() {
+    return STARTING_KOINU[h];
   }
   // Sum up all wonky-era koinu then add standard-era rewards.
-  let wonky_total = *STARTING_SATS.last().unwrap_or(&0);
+  let wonky_total = *STARTING_KOINU.last().unwrap_or(&0);
   let post_wonky = cumulative_post_wonky_sats(height);
   wonky_total.saturating_add(post_wonky)
 }
@@ -134,7 +134,7 @@ impl Epoch {
   }
 
   pub fn starting_sat(self) -> Koinu {
-    Koinu(dogecoin_starting_sats(self.0))
+    Koinu(dogecoin_starting_koinu(self.0))
   }
 
   pub fn starting_height(self) -> Height {
@@ -142,10 +142,10 @@ impl Epoch {
     Height(self.0 * SUBSIDY_HALVING_INTERVAL)
   }
 
-  /// Iterator over every epoch's starting sat (from `starting_sats.json`).
+  /// Iterator over every epoch's starting sat (from `starting_koinu.json`).
   /// Used by the `ord epochs` subcommand.
-  pub fn all_starting_sats() -> impl Iterator<Item = Koinu> {
-    STARTING_SATS.iter().copied().map(Koinu)
+  pub fn all_starting_koinu() -> impl Iterator<Item = Koinu> {
+    STARTING_KOINU.iter().copied().map(Koinu)
   }
 }
 
@@ -157,26 +157,26 @@ impl PartialEq<u32> for Epoch {
 
 impl From<Koinu> for Epoch {
   fn from(sat: Koinu) -> Self {
-    // Binary search through the STARTING_SATS array, then fall back to
+    // Binary search through the STARTING_KOINU array, then fall back to
     // post-wonky computation.
-    let starting_sats = &*STARTING_SATS;
+    let starting_koinu = &*STARTING_KOINU;
     let target = sat.n();
 
     // Find the last entry ≤ target (this is the epoch/block where sat lives).
-    match starting_sats.binary_search(&target) {
+    match starting_koinu.binary_search(&target) {
       Ok(i) => Epoch(i as u32),
       Err(i) => {
         // i is the insertion point; the epoch is i-1
         if i == 0 {
           Epoch(0)
-        } else if i < starting_sats.len() {
+        } else if i < starting_koinu.len() {
           Epoch((i - 1) as u32)
         } else {
           // Beyond wonky era: binary search in post-wonky range
           // Approximate: start from WONKY_ERA_LEN and search forward.
-          let wonky_total = *starting_sats.last().unwrap_or(&0);
+          let wonky_total = *starting_koinu.last().unwrap_or(&0);
           if target < wonky_total {
-            Epoch(starting_sats.len().saturating_sub(1) as u32)
+            Epoch(starting_koinu.len().saturating_sub(1) as u32)
           } else {
             // Find the block in the post-wonky range
             let mut h = WONKY_ERA_LEN;

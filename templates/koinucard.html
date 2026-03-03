@@ -13,15 +13,12 @@
   >
   <input type="submit" value="Submit">
 </form>
-<p>
-  <a href=https://docs.ordinals.com/guides/satscards.html>Guide</a>
-</p>
 %% if let Some((Koinucard { address, nonce, slot, state, .. }, address_info)) = &self.koinucard {
 <dl>
   <dt>slot</dt>
   <dd>{{ slot + 1 }}</dd>
   <dt>state</dt>
-  <dd class=satscard-{{ state }}>{{ state }}</dd>
+  <dd class=koinucard-{{ state }}>{{ state }}</dd>
   <dt>address</dt>
   <dd><a class=collapse href=/address/{{address}}>{{ address }}</a></dd>
   <dt>nonce</dt>

@@ -11,7 +11,7 @@ use {
     ItemHtml, OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
     PreviewFontHtml, PreviewImageHtml, PreviewMarkdownHtml, PreviewModelHtml, PreviewPdfHtml,
     PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, DuneHtml, DuneNotFoundHtml,
-    DunesHtml, SatHtml, SatscardHtml, TransactionHtml,
+    DunesHtml, KoinuHtml, KoinucardHtml, TransactionHtml,
   },
   axum::{
     Router,
@@ -717,7 +717,7 @@ impl Server {
     };
 
     Ok(
-      SatscardHtml { koinucard }
+      KoinucardHtml { koinucard }
         .page(server_config)
         .into_response(),
     )
@@ -786,7 +786,7 @@ impl Server {
         })
         .into_response()
       } else {
-        SatHtml {
+        KoinuHtml {
           address,
           blocktime,
           inscriptions,
@@ -8719,7 +8719,7 @@ next
     TestServer::builder()
       .chain(Chain::Dogecoin)
       .build()
-      .assert_html("/koinucard?", SatscardHtml { koinucard: None });
+      .assert_html("/koinucard?", KoinucardHtml { koinucard: None });
   }
 
   #[test]
@@ -8729,7 +8729,7 @@ next
       .build()
       .assert_html(
         format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
-        SatscardHtml {
+        KoinucardHtml {
           koinucard: Some((koinucard::tests::coinkite_satscard(), None)),
         },
       );
@@ -8743,7 +8743,7 @@ next
       .build()
       .assert_html(
         format!("/koinucard?{}", koinucard::tests::coinkite_fragment()),
-        SatscardHtml {
+        KoinucardHtml {
           koinucard: Some((
             koinucard::tests::coinkite_satscard(),
             Some(AddressHtml {
@@ -8767,7 +8767,7 @@ next
       .build()
       .assert_html(
         format!("/koinucard?{}", koinucard::tests::ordinals_query()),
-        SatscardHtml {
+        KoinucardHtml {
           koinucard: Some((
             koinucard::tests::ordinals_satscard(),
             Some(AddressHtml {

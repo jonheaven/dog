@@ -24,8 +24,8 @@ pub(crate) use {
   },
   rare::RareTxt,
   dune_not_found::DuneNotFoundHtml,
-  koinu::SatHtml,
-  koinucard::SatscardHtml,
+  koinu::KoinuHtml,
+  koinucard::KoinucardHtml,
 };
 
 pub use {

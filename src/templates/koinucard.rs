@@ -1,11 +1,11 @@
 use super::*;
 
 #[derive(Boilerplate)]
-pub(crate) struct SatscardHtml {
+pub(crate) struct KoinucardHtml {
   pub(crate) koinucard: Option<(Koinucard, Option<AddressHtml>)>,
 }
 
-impl PageContent for SatscardHtml {
+impl PageContent for KoinucardHtml {
   fn title(&self) -> String {
     if let Some((koinucard, _address_info)) = &self.koinucard {
       format!("Koinucard {}", koinucard.address)
@@ -22,20 +22,20 @@ mod tests {
   #[test]
   fn title() {
     assert_eq!(
-      SatscardHtml {
+      KoinucardHtml {
         koinucard: Some((crate::koinucard::tests::coinkite_satscard(), None)),
       }
       .title(),
       format!("Koinucard {}", crate::koinucard::tests::coinkite_address())
     );
 
-    assert_eq!(SatscardHtml { koinucard: None }.title(), "Koinucard");
+    assert_eq!(KoinucardHtml { koinucard: None }.title(), "Koinucard");
   }
 
   #[test]
   fn no_address_info() {
     pretty_assert_eq!(
-      SatscardHtml {
+      KoinucardHtml {
         koinucard: Some((crate::koinucard::tests::coinkite_satscard(), None)),
       }
       .to_string(),
@@ -50,9 +50,6 @@ mod tests {
   >
   <input type="submit" value="Submit">
 </form>
-<p>
-  <a href=https://docs.ordinals.com/guides/satscards.html>Guide</a>
-</p>
 <dl>
   <dt>slot</dt>
   <dd>1</dd>
@@ -70,7 +67,7 @@ mod tests {
   #[test]
   fn with_address_info() {
     pretty_assert_eq!(
-      SatscardHtml {
+      KoinucardHtml {
         koinucard: Some((
           crate::koinucard::tests::coinkite_satscard(),
           Some(AddressHtml {
@@ -95,9 +92,6 @@ mod tests {
   >
   <input type="submit" value="Submit">
 </form>
-<p>
-  <a href=https://docs.ordinals.com/guides/satscards.html>Guide</a>
-</p>
 <dl>
   <dt>slot</dt>
   <dd>1</dd>
@@ -109,7 +103,7 @@ mod tests {
   <dd>7664168a4ef7b8e8</dd>
 </dl>
 <dl>
-  <dt>sat balance</dt>
+  <dt>koinu balance</dt>
   <dd>0</dd>
   <dt>outputs</dt>
   <dd>
@@ -125,7 +119,7 @@ mod tests {
   #[test]
   fn state_error() {
     assert_regex_match! {
-      SatscardHtml {
+      KoinucardHtml {
         koinucard: Some((
           Koinucard {
             state: crate::koinucard::State::Error,
@@ -153,7 +147,7 @@ mod tests {
   #[test]
   fn state_unsealed() {
     assert_regex_match! {
-      SatscardHtml {
+      KoinucardHtml {
         koinucard: Some((
           Koinucard {
             state: crate::koinucard::State::Unsealed,
