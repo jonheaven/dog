@@ -17,26 +17,14 @@
 </div>
 <br>
 
-**The fastest, most correct Doginals indexer, block explorer, and CLI wallet.**
+**Dogecoin Doginals indexer, block explorer, and CLI wallet.**
 
 Doginals imbue every **koinu** with numismatic value, making them collectable
-and tradeable as on-chain digital artifacts. This repo is the canonical
-reference implementation — used by builders, marketplaces, and collectors who
-want the real thing.
+and tradeable as on-chain digital artifacts.
 
-**[📖 Official Doginals Protocol v1 Spec →](docs/src/doginals-spec.md)** · includes koinu math, envelope format & implementers checklist
+**[📖 Doginals Protocol v1 Spec →](docs/src/doginals-spec.md)** · koinu math, envelope format & implementers checklist
 
 It is experimental software with no warranty. See [LICENSE](LICENSE) for details.
-
----
-
-## Why This Is the One Everyone Uses
-
-- **100% Dogecoin-native** — fixed 10,000 DOGE/block floor forever, AuxPoW, Scrypt, correct koinu numbering
-- **5–20× faster sync** via direct `.blk` file indexing (no RPC bottleneck)
-- **Mathematically perfect** koinu numbering — `cargo test -p doginals` proves it
-- **Legacy inscription envelope** — the only format that actually works on Dogecoin (no Taproot, no SegWit)
-- **Full DRC-20 + Dogecoin Name System** support out of the box
 
 ---
 
@@ -364,4 +352,3 @@ DOGE: `DFundmtrigBGH6Q2MFAibzSq6NxsxMPMjB`
 ---
 
 *Made with ❤️ for the Dogecoin community.*
-*Star ⭐ this repo if you're building the future of Dogecoin NFTs.*
