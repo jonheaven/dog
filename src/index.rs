@@ -15,6 +15,7 @@ use {
   crate::{
     dunes::MintError,
     subcommand::{find::FindRangeOutput, server::query},
+    api::HealthJson,
     templates::StatusHtml,
   },
   bitcoin::block::Header,
@@ -613,6 +614,33 @@ impl Index {
       transaction_index: statistic(Statistic::IndexTransactions)? != 0,
       unrecoverably_reorged: self.unrecoverably_reorged.load(atomic::Ordering::Relaxed),
       uptime: (Utc::now() - self.started).to_std()?,
+    })
+  }
+
+  pub fn health(&self) -> Result<HealthJson> {
+    let index_tip = self
+      .begin_read()?
+      .block_height()?
+      .map(|h| h.n())
+      .unwrap_or(0);
+
+    let chain_tip = u32::try_from(self.client.get_block_count()?).unwrap_or(u32::MAX);
+
+    let lag_blocks = chain_tip.saturating_sub(index_tip);
+
+    let status = if lag_blocks == 0 {
+      "synced"
+    } else if lag_blocks <= 6 {
+      "syncing"
+    } else {
+      "behind"
+    };
+
+    Ok(HealthJson {
+      index_tip,
+      chain_tip,
+      lag_blocks,
+      status: status.into(),
     })
   }
 

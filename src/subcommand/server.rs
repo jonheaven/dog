@@ -276,6 +276,7 @@ impl Server {
         .route("/search", get(Self::search_by_query))
         .route("/search/{*query}", get(Self::search_by_path))
         .route("/static/{*path}", get(Self::static_asset))
+        .route("/health", get(Self::health))
         .route("/status", get(Self::status))
         .route("/tx/{txid}", get(Self::transaction))
         .route("/update", get(Self::update));
@@ -1055,9 +1056,13 @@ impl Server {
 
       let svg = Self::dogemap_svg(block_number, &hash_bytes, tx_count);
 
+      let rarity = Self::dogemap_rarity(block_number);
+      let metaverse = Self::dogemap_metaverse(&hash_bytes, tx_count, block_number);
+
       Ok(
         Json(serde_json::json!({
           "block_number": block_number,
+          "rarity": rarity,
           "claimed": claim.is_some(),
           "owner_inscription_id": claim.as_ref().map(|e| e.owner_inscription_id.to_string()),
           "claim_height": claim.as_ref().map(|e| e.claim_height),
@@ -1065,6 +1070,7 @@ impl Server {
           "block_hash": block_hash_hex,
           "tx_count": tx_count,
           "svg": svg,
+          "metaverse": metaverse,
         }))
         .into_response(),
       )
@@ -1087,6 +1093,57 @@ impl Server {
         })
         .collect();
       Ok(Json(serde_json::json!({ "total": total, "claims": claims })).into_response())
+    })
+  }
+
+  fn dogemap_rarity(block_number: u32) -> &'static str {
+    // Epoch transition blocks: reward changed at these heights
+    const EPOCH_BLOCKS: [u32; 6] = [145_000, 200_000, 300_000, 400_000, 500_000, 600_000];
+    if block_number == 0 {
+      "mythic"
+    } else if EPOCH_BLOCKS.contains(&block_number) {
+      "legendary"
+    } else if block_number % 1_000 == 0 {
+      "epic"
+    } else if block_number % 100 == 0 {
+      "rare"
+    } else if block_number % 10 == 0 {
+      "uncommon"
+    } else {
+      "common"
+    }
+  }
+
+  fn dogemap_metaverse(hash_bytes: &[u8], tx_count: usize, block_number: u32) -> serde_json::Value {
+    // Derive deterministic 3D/metaverse seeds from block data.
+    // All fields are stable — the same block always produces the same values.
+    let b = |i: usize| -> u32 { hash_bytes.get(i).copied().unwrap_or(0) as u32 };
+
+    // color_hue: 0–359, derived from first two hash bytes
+    let color_hue = ((b(0) << 1) | (b(1) >> 7)) % 360;
+
+    // elevation: 0–255, combining bytes 2 and 3 for spread
+    let elevation = (b(2).wrapping_add(b(3).wrapping_mul(3))) % 256;
+
+    // terrain_seed: 32-bit value from bytes 4-7 for noise generation
+    let terrain_seed = (b(4) << 24) | (b(5) << 16) | (b(6) << 8) | b(7);
+
+    // activity: tx density proxy, clamped to 0–100
+    let activity = (tx_count as u32).min(100);
+
+    // biome: one of 8 themes, driven by byte 8 mixed with block parity
+    const BIOMES: [&str; 8] = [
+      "desert", "tundra", "jungle", "ocean",
+      "volcanic", "grassland", "canyon", "space",
+    ];
+    let biome_idx = (b(8).wrapping_add(block_number & 0xFF)) as usize % BIOMES.len();
+
+    serde_json::json!({
+      "color_hue": color_hue,
+      "elevation": elevation,
+      "terrain_seed": terrain_seed,
+      "activity": activity,
+      "biome": BIOMES[biome_idx],
     })
   }
 
@@ -1465,6 +1522,10 @@ impl Server {
         Ok(StatusCode::NOT_FOUND.into_response())
       }
     })
+  }
+
+  async fn health(Extension(index): Extension<Arc<Index>>) -> ServerResult<Json<api::HealthJson>> {
+    task::block_in_place(|| Ok(Json(index.health()?)))
   }
 
   async fn status(

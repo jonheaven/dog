@@ -257,3 +257,11 @@ pub struct AddressInfo {
 pub struct Offers {
   pub offers: Vec<String>,
 }
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct HealthJson {
+  pub index_tip: u32,
+  pub chain_tip: u32,
+  pub lag_blocks: u32,
+  pub status: String,
+}

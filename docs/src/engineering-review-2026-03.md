@@ -50,6 +50,57 @@ rather than always picking the single newest one.
 
 ---
 
+### ✅ `/health` endpoint
+
+A lightweight `GET /health` JSON endpoint was added to support production monitoring without
+parsing the full `/status` response.
+
+**What landed:**
+- `Index::health()` method calls `client.get_block_count()` (RPC) and compares to the
+  indexed tip from the `HEIGHT_TO_BLOCK_HEADER` table.
+- Returns `{ index_tip, chain_tip, lag_blocks, status }` where `status` is `"synced"`,
+  `"syncing"` (≤6 blocks behind), or `"behind"` (>6 blocks behind).
+- Route: `GET /health` → always JSON, no Accept header required.
+
+---
+
+### ✅ Dogemap rarity tiers
+
+Every Dogemap block now carries a `rarity` field in its `/dogemap/{block}` JSON response.
+
+**Tier definitions:**
+
+| Tier | Condition |
+|------|-----------|
+| mythic | Block 0 (genesis) |
+| legendary | Epoch-transition blocks (145,000 / 200,000 / 300,000 / 400,000 / 500,000 / 600,000) |
+| epic | Any block divisible by 1,000 |
+| rare | Any block divisible by 100 |
+| uncommon | Any block divisible by 10 |
+| common | Everything else |
+
+---
+
+### ✅ Metaverse JSON field on `/dogemap/{block}`
+
+A `metaverse` object was added to every `/dogemap/{block}` response.  All fields are
+deterministically derived from the block hash and transaction count — the same block always
+produces the same values.
+
+**Fields:**
+
+| Field | Range | Description |
+|-------|-------|-------------|
+| `color_hue` | 0–359 | HSL hue for the block's primary colour |
+| `elevation` | 0–255 | Terrain height seed |
+| `terrain_seed` | u32 | 32-bit noise seed for procedural terrain |
+| `activity` | 0–100 | Transaction density proxy (clamped) |
+| `biome` | string | One of 8 biome themes driven by hash + block parity |
+
+Biome values: `desert`, `tundra`, `jungle`, `ocean`, `volcanic`, `grassland`, `canyon`, `space`.
+
+---
+
 ## Open recommendations
 
 ### 🔲 Make Dogecoin consensus constants source-generated
@@ -164,7 +215,8 @@ asserts an identical DB state hash, enabling regression detection across refacto
 
 ### Milestone 1 — Reliability
 - ✅ Land reorg savepoint selection fix
-- 🔲 Add reorg metrics and `/health` endpoint
+- ✅ Add `/health` endpoint for production monitoring
+- 🔲 Add reorg metrics (counters, `/health` reorg fields)
 - 🔲 Add reorg simulation integration test
 
 ### Milestone 2 — Operations
@@ -173,6 +225,8 @@ asserts an identical DB state hash, enabling regression detection across refacto
 - 🔲 Redb compaction workflow
 
 ### Milestone 3 — Ecosystem
+- ✅ Dogemap rarity tiers
+- ✅ Metaverse JSON on `/dogemap/{block}`
 - 🔲 Freeze and publish API schemas
 - 🔲 WebSocket / event stream for ecosystem apps
 - 🔲 Deterministic replay harness
