@@ -48,6 +48,31 @@ It is experimental software with no warranty. See [LICENSE](LICENSE) for details
 | `dog drc20 tokens` | List all deployed DRC-20 tokens |
 | `dog drc20 token <tick>` | Show info for a single DRC-20 token |
 | `dog drc20 balance <address>` | Show DRC-20 balances for an address |
+| `dog inscribe --dogemap <block>` | **Claim a Dogemap block title** (e.g. `--dogemap 5056597`) |
+| `dog dogemap status <block>` | Check who owns a block number |
+| `dog dogemap list` | List all claimed Dogemap block titles |
+
+### Dogemaps — Claim Dogecoin Block Titles
+
+Permanent ownership of any Dogecoin block via inscription (Bitcoin Bitmaps analog).
+First to inscribe `{block}.dogemap` as `text/plain` owns that block forever.
+
+```
+# Claim block 5056597
+dog inscribe --dogemap 5056597
+
+# Check ownership
+dog dogemap status 5056597
+
+# Explorer API (returns JSON + procedural orange SVG)
+curl http://localhost:80/dogemap/5056597
+```
+
+The `/dogemap/{block}` API endpoint returns a procedural SVG generated from real
+block data (hash → color seed, tx count → pattern) — ready to drop into a website
+or 3D metaverse renderer.
+
+Full protocol spec: [docs/src/doginals-spec.md — Dogemaps v1](docs/src/doginals-spec.md#dogemaps-block-titles-v1)
 
 ### Fast sync (direct .blk file reads)
 

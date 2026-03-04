@@ -556,7 +556,7 @@ fn sign_template(
 /// Uses the same base58check format as `chain.rs`:
 /// - P2PKH version byte 0x1e (30) → "D..." addresses
 /// - P2SH  version byte 0x16 (22) → "A..." addresses
-fn parse_dogecoin_address(addr: &str) -> crate::Result<bitcoin::ScriptBuf> {
+pub(crate) fn parse_dogecoin_address(addr: &str) -> crate::Result<bitcoin::ScriptBuf> {
   let decoded = bitcoin::base58::decode_check(addr)
     .map_err(|e| anyhow!("invalid Dogecoin address '{addr}': {e}"))?;
 

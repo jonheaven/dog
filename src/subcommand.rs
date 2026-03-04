@@ -5,6 +5,7 @@ pub mod decode;
 pub mod dns;
 pub mod dogemap;
 pub mod drc20;
+pub mod dune;
 pub mod env;
 pub mod epochs;
 pub mod find;
@@ -36,6 +37,8 @@ pub(crate) enum Subcommand {
   Dogemap(dogemap::DogemapCommand),
   #[command(about = "DRC-20 token commands")]
   Drc20(drc20::Drc20Command),
+  #[command(about = "Dune token commands (list, info, balance)")]
+  Dune(dune::DuneCommand),
   #[command(about = "Start a regtest dog and Dogecoin Core instance")]
   Env(env::Env),
   #[command(about = "List the first koinus of each reward epoch")]
@@ -82,6 +85,7 @@ impl Subcommand {
       Self::Dns(dns) => dns.run(settings),
       Self::Dogemap(cmd) => cmd.run(settings),
       Self::Drc20(cmd) => cmd.run(settings),
+      Self::Dune(cmd) => cmd.run(settings),
       Self::Env(env) => env.run(),
       Self::Epochs => epochs::run(),
       Self::Find(find) => find.run(settings),

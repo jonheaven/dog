@@ -1017,6 +1017,48 @@ impl Index {
   }
 
   // ---------------------------------------------------------------------------
+  // Dune balance query by raw script pubkey (for CLI address lookups)
+  // ---------------------------------------------------------------------------
+
+  /// Returns `(SpacedDune, total_amount, divisibility)` for all dunes held
+  /// at any UTXO whose script pubkey matches `script_pubkey`.
+  pub fn get_dune_balances_for_script(
+    &self,
+    script_pubkey: &[u8],
+  ) -> Result<Vec<(SpacedDune, u128, u8, Option<char>)>> {
+    let rtx = self.database.begin_read()?;
+
+    // Get all outpoints for this script pubkey
+    let outpoints: Vec<OutPoint> = rtx
+      .open_multimap_table(SCRIPT_PUBKEY_TO_OUTPOINT)?
+      .get(script_pubkey)?
+      .map(|r| r.map_err(|e| anyhow!(e)).map(|v| OutPoint::load(v.value())))
+      .collect::<Result<_>>()?;
+
+    // Accumulate dune balances across all UTXOs
+    let mut totals: std::collections::BTreeMap<SpacedDune, (u128, u8, Option<char>)> =
+      std::collections::BTreeMap::new();
+
+    for outpoint in outpoints {
+      if let Some(balances) = self.get_dune_balances_for_output(outpoint)? {
+        for (spaced_dune, pile) in balances {
+          totals
+            .entry(spaced_dune)
+            .and_modify(|(total, _, _)| *total += pile.amount)
+            .or_insert((pile.amount, pile.divisibility, pile.symbol));
+        }
+      }
+    }
+
+    Ok(
+      totals
+        .into_iter()
+        .map(|(dune, (amount, div, sym))| (dune, amount, div, sym))
+        .collect(),
+    )
+  }
+
+  // ---------------------------------------------------------------------------
   // Dogemaps queries
   // ---------------------------------------------------------------------------
 
