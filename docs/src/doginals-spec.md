@@ -173,6 +173,69 @@ dog dns resolve satoshi.doge
 
 See [`dns.md`](dns.md).
 
+### Dogemaps (Block Titles) v1
+
+Dogemaps assign permanent ownership of a Dogecoin block number via inscription,
+analogous to Bitcoin Bitmaps. The first inscription to claim a given block number
+owns it forever.
+
+**Claim format**
+
+- Content type: `text/plain`
+- Body: exactly `{block_number}.dogemap` — no whitespace, only ASCII digits before the dot
+- Example body: `5056597.dogemap`
+
+```
+dog inscribe --dogemap 5056597
+```
+
+**Ownership rules**
+
+- First valid inscription per block number wins — all subsequent claims for the same
+  block are ignored by the indexer.
+- Ownership transfers with the inscription UTXO (standard ordinal/doginal transfer rules).
+- Packs are a marketplace UI concept only — no special on-chain format. Each block title
+  is a separate inscription.
+
+**Indexer requirements**
+
+- Parse every `text/plain` inscription body; accept it as a Dogemap claim if and only if
+  the body matches `^\d+\.dogemap$` (trimmed, UTF-8, no leading zeros required).
+- Store the first claim per block number: `block_number → InscriptionId + claim_height + claim_timestamp`.
+- Ignore all subsequent claims for the same block number.
+- Expose queries: block → claim details, paginated list of all claims.
+
+**API endpoints** (provided by this indexer)
+
+| Endpoint | Response |
+|----------|---------|
+| `GET /dogemap/{block}` | JSON: `claimed`, `owner_inscription_id`, `claim_height`, `tx_count`, `block_hash`, `svg` |
+| `GET /dogemaps` | JSON: `total`, paginated list of all claimed blocks |
+
+**Visualization** (recommended, not protocol-enforced)
+
+Generate procedural visuals from the target block's on-chain data:
+
+- Seed color palette from block hash bytes
+- Grid pattern from transaction count
+- Height/depth factor from block size in bytes
+
+The `/dogemap/{block}` endpoint returns an inline SVG seeded this way, ready for 2D
+display or 3D metaverse integration.
+
+**CLI**
+
+```
+# Claim block 5056597
+dog inscribe --dogemap 5056597
+
+# Check who owns a block
+dog dogemap status 5056597
+
+# List all claimed blocks
+dog dogemap list --limit 50
+```
+
 ---
 
 ## 6. Dogecoin-Specific Notes
@@ -247,6 +310,9 @@ Quick verification steps:
 - [ ] `dog server` serves `/koinucard` endpoint
 - [ ] Inscription IDs are in `<txid>i<index>` format
 - [ ] No Taproot or SegWit assumptions in the envelope parser
+- [ ] `dog dogemap status <block>` returns JSON for a known claimed block
+- [ ] `GET /dogemap/<block>` returns `claimed`, `owner_inscription_id`, and `svg` fields
+- [ ] Re-claiming an already-claimed block is silently ignored (second inscription doesn't overwrite)
 
 ---
 

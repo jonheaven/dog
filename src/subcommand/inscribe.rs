@@ -52,7 +52,7 @@ const POSTAGE_DEFAULT: u64 = 100_000;
 
 #[derive(Debug, Parser)]
 #[command(
-  after_help = "Exactly one of --file or --dns must be provided.\n\n\
+  after_help = "Exactly one of --file, --dns, or --dogemap must be provided.\n\n\
     Supported DNS namespaces: .doge .dogecoin .shibe .wow .very .such .much \
     .woof .moon .kabosu .inu .doggo .bark .tail .paws .cheems .cook .boop \
     .zoomies .smol .snoot .pupper .official"
@@ -67,6 +67,13 @@ pub struct InscribeCommand {
     help = "Register a Dogecoin name (e.g. jon.doge) — inscribes the name as text/plain"
   )]
   pub dns: Option<String>,
+
+  #[arg(
+    long,
+    value_name = "BLOCK",
+    help = "Claim a Dogemap block title (e.g. 5056597) — inscribes '5056597.dogemap' as text/plain"
+  )]
+  pub dogemap: Option<u32>,
 
   #[arg(
     long,
@@ -99,20 +106,25 @@ impl InscribeCommand {
     let postage = self.postage.unwrap_or(POSTAGE_DEFAULT);
     let client = settings.dogecoin_rpc_client(self.wallet.clone())?;
 
-    // ── Resolve source: --file or --dns ─────────────────────────────────────
+    // ── Resolve source: --file, --dns, or --dogemap ──────────────────────────
 
-    let (data, mime, label) = match (&self.file, &self.dns) {
-      (Some(path), None) => {
+    let (data, mime, label) = match (&self.file, &self.dns, self.dogemap) {
+      (Some(path), None, None) => {
         let bytes = fs::read(path)?;
         let m = detect_mime(path, &bytes);
         let l = path.display().to_string();
         (bytes, m, l)
       }
-      (None, Some(name)) => {
+      (None, Some(name), None) => {
         (name.as_bytes().to_vec(), "text/plain".to_string(), name.clone())
       }
-      (Some(_), Some(_)) => bail!("only one of --file or --dns may be provided"),
-      (None, None) => bail!("one of --file or --dns is required"),
+      (None, None, Some(block_num)) => {
+        let body = format!("{}.dogemap", block_num);
+        let l = body.clone();
+        (body.into_bytes(), "text/plain".to_string(), l)
+      }
+      (None, None, None) => bail!("one of --file, --dns, or --dogemap is required"),
+      _ => bail!("only one of --file, --dns, or --dogemap may be provided"),
     };
 
     // ── Split into 240-byte chunks ────────────────────────────────────────────

@@ -8,7 +8,10 @@
       "Bash(TMPDIR=\"/f/tmp\" TMP=\"/f/tmp\" TEMP=\"/f/tmp\" CARGO_TARGET_DIR=\"/f/cargo-target/dog\" cargo build --bin dog)",
       "Bash(/f/cargo-target/dog/debug/dog --help)",
       "Bash(/f/cargo-target/dog/debug/dog inscribe --help)",
-      "Bash(cargo build --bin dog)"
+      "Bash(cargo build --bin dog)",
+      "Bash(dog dogemap --help)",
+      "Bash(./target/debug/dog inscribe --help)",
+      "Bash(./target/debug/dog dogemap --help)"
     ]
   }
 }
