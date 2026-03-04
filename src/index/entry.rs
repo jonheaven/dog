@@ -562,6 +562,50 @@ impl Entry for DnsEntry {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Dogemaps entry — stored in DOGEMAP_BLOCK_TO_CLAIM table
+// key: block_number (u32), value: DogemapEntryValue
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Eq, PartialEq, Clone, Serialize, Deserialize)]
+pub struct DogemapEntry {
+  pub block_number: u32,
+  pub owner_inscription_id: InscriptionId,
+  pub claim_height: u32,
+  pub claim_timestamp: u32,
+}
+
+pub(crate) type DogemapEntryValue = (
+  u32,                // block_number (the target block being claimed)
+  InscriptionIdValue, // owner_inscription_id
+  u32,                // claim_height (block height where the claim inscription was made)
+  u32,                // claim_timestamp
+);
+
+impl Entry for DogemapEntry {
+  type Value = DogemapEntryValue;
+
+  fn load(
+    (block_number, owner_inscription_id, claim_height, claim_timestamp): DogemapEntryValue,
+  ) -> Self {
+    Self {
+      block_number,
+      owner_inscription_id: InscriptionId::load(owner_inscription_id),
+      claim_height,
+      claim_timestamp,
+    }
+  }
+
+  fn store(self) -> Self::Value {
+    (
+      self.block_number,
+      self.owner_inscription_id.store(),
+      self.claim_height,
+      self.claim_timestamp,
+    )
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

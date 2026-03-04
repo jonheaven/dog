@@ -265,6 +265,8 @@ impl Server {
         )
         .route("/preview/{inscription_id}", get(Self::preview))
         .route("/rare.txt", get(Self::rare_txt))
+        .route("/dogemap/{block}", get(Self::dogemap))
+        .route("/dogemaps", get(Self::dogemaps))
         .route("/dune/{dune}", get(Self::dune))
         .route("/dunes", get(Self::dunes))
         .route("/dunes/{page}", get(Self::dunes_paginated))
@@ -1030,6 +1032,107 @@ impl Server {
         .into_response()
       })
     })
+  }
+
+  async fn dogemap(
+    Extension(index): Extension<Arc<Index>>,
+    Path(block_number): Path<u32>,
+  ) -> ServerResult {
+    task::block_in_place(|| {
+      let claim = index.get_dogemap_claim(block_number)?;
+      let block_opt = index.get_block_by_height(block_number)?;
+
+      let (tx_count, block_hash_hex) = if let Some(ref block) = block_opt {
+        (block.txdata.len(), block.block_hash().to_string())
+      } else {
+        (0, String::new())
+      };
+
+      let hash_bytes: Vec<u8> = block_opt
+        .as_ref()
+        .map(|b| b.block_hash().to_byte_array().to_vec())
+        .unwrap_or_default();
+
+      let svg = Self::dogemap_svg(block_number, &hash_bytes, tx_count);
+
+      Ok(
+        Json(serde_json::json!({
+          "block_number": block_number,
+          "claimed": claim.is_some(),
+          "owner_inscription_id": claim.as_ref().map(|e| e.owner_inscription_id.to_string()),
+          "claim_height": claim.as_ref().map(|e| e.claim_height),
+          "claim_timestamp": claim.as_ref().map(|e| e.claim_timestamp),
+          "block_hash": block_hash_hex,
+          "tx_count": tx_count,
+          "svg": svg,
+        }))
+        .into_response(),
+      )
+    })
+  }
+
+  async fn dogemaps(Extension(index): Extension<Arc<Index>>) -> ServerResult {
+    task::block_in_place(|| {
+      let entries = index.list_dogemaps(100, 0)?;
+      let total = index.count_dogemaps()?;
+      let claims: Vec<serde_json::Value> = entries
+        .into_iter()
+        .map(|e| {
+          serde_json::json!({
+            "block_number": e.block_number,
+            "owner_inscription_id": e.owner_inscription_id.to_string(),
+            "claim_height": e.claim_height,
+            "claim_timestamp": e.claim_timestamp,
+          })
+        })
+        .collect();
+      Ok(Json(serde_json::json!({ "total": total, "claims": claims })).into_response())
+    })
+  }
+
+  fn dogemap_svg(block_number: u32, hash_bytes: &[u8], tx_count: usize) -> String {
+    // 16×16 orange pixel art seeded by block hash bytes
+    const COLS: u32 = 16;
+    const ROWS: u32 = 16;
+    const CELL: u32 = 24;
+    const PALETTE: [&str; 8] = [
+      "#FF8C00", "#FFA500", "#FFD700", "#D2691E",
+      "#E64A00", "#FF6600", "#CC5500", "#FF9933",
+    ];
+
+    let total = COLS * CELL;
+    let mut cells = String::new();
+
+    for row in 0..ROWS as usize {
+      for col in 0..COLS as usize {
+        let hash_idx = (row * 16 + col) % hash_bytes.len().max(1);
+        let byte = if hash_idx < hash_bytes.len() { hash_bytes[hash_idx] } else { 0 };
+        let palette_idx = (byte as usize).wrapping_add(row).wrapping_add(col * 7) % PALETTE.len();
+        let opacity = if byte < 40 { "0.35" } else { "1.0" };
+        cells.push_str(&format!(
+          r#"<rect x="{}" y="{}" width="{}" height="{}" fill="{}" opacity="{}"/>"#,
+          col as u32 * CELL,
+          row as u32 * CELL,
+          CELL,
+          CELL,
+          PALETTE[palette_idx],
+          opacity,
+        ));
+      }
+    }
+
+    let label = format!("#{block_number} \u{2022} {tx_count}txs");
+    let mut svg = format!(
+      "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{total}\" height=\"{total}\" \
+       viewBox=\"0 0 {total} {total}\">\
+       <rect width=\"{total}\" height=\"{total}\" fill=\"#111\"/>"
+    );
+    svg.push_str(&cells);
+    svg.push_str(&format!(
+      "<text x=\"50%\" y=\"98%\" font-family=\"monospace\" font-size=\"9\" \
+       fill=\"#FF8C00\" text-anchor=\"middle\">{label}</text></svg>"
+    ));
+    svg
   }
 
   async fn dunes(

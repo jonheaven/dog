@@ -1,26 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wc:*)",
-      "Bash(find:*)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:crates.io)",
-      "Bash(python3:*)",
-      "Bash(cargo build:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(ls:*)",
-      "Bash(git mv:*)",
-      "Bash(xargs sed:*)",
-      "Bash(git -C /c/Users/jheav/Desktop/doge/dog mv:*)",
-      "Bash(cargo test:*)",
-      "Bash(./target/debug/dog:*)",
-      "Bash(git push:*)",
-      "Bash(gh api repos/apezord/ord-dogecoin/contents/src/chain.rs --jq '.content')",
-      "Bash(gh api repos/verydogelabs/wonky-ord-dogecoin/git/trees/HEAD --jq '.tree[] | .path')",
-      "WebFetch(domain:api.github.com)",
-      "Bash(cargo check --bin dog)"
+      "Bash(python -c \":*)",
+      "Bash(dogecoin-cli -rpcuser=dogewizard -rpcpassword=typejawn -rpcport=22555 gettxout 1384cbd7ac0433521e55f848a94f978f98822192684307c80caa46a8c0d1413a 0)",
+      "Bash(TMPDIR=\"/f/tmp\" TMP=\"/f/tmp\" TEMP=\"/f/tmp\" cargo build --bin dog)",
+      "Bash(TMPDIR=\"/f/tmp\" TMP=\"/f/tmp\" TEMP=\"/f/tmp\" CARGO_TARGET_DIR=\"/f/cargo-target/dog\" /f/cargo-target/dog/debug/dog --dogecoin-rpc-username dogewizard --dogecoin-rpc-password typejawn scan --from 6012355 --to 6012450 --txid 33c7ceb09ed6d8a179f9a7fae09c334579394a95dd4b4045cede8d48c21da8ad --out /f/inscription-out)",
+      "Bash(TMPDIR=\"/f/tmp\" TMP=\"/f/tmp\" TEMP=\"/f/tmp\" CARGO_TARGET_DIR=\"/f/cargo-target/dog\" cargo build --bin dog)",
+      "Bash(/f/cargo-target/dog/debug/dog --help)",
+      "Bash(/f/cargo-target/dog/debug/dog inscribe --help)",
+      "Bash(cargo build --bin dog)"
     ]
   }
 }

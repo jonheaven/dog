@@ -1,9 +1,9 @@
 use {
   self::{
     entry::{
-      DnsEntryValue, Entry, HeaderValue, InscriptionEntry, InscriptionEntryValue,
-      InscriptionIdValue, OutPointValue, DuneEntryValue, DuneIdValue, KoinuPointValue, SatRange,
-      TxidValue,
+      DnsEntryValue, DogemapEntryValue, Entry, HeaderValue, InscriptionEntry,
+      InscriptionEntryValue, InscriptionIdValue, OutPointValue, DuneEntryValue, DuneIdValue,
+      KoinuPointValue, SatRange, TxidValue,
     },
     event::Event,
     lot::Lot,
@@ -40,7 +40,7 @@ use {
   },
 };
 
-pub use self::entry::{DnsEntry, DuneEntry};
+pub use self::entry::{DnsEntry, DogemapEntry, DuneEntry};
 
 pub(crate) mod entry;
 pub mod event;
@@ -93,6 +93,10 @@ define_table! { DRC20_BALANCE, &str, &[u8] }
 define_table! { DRC20_TRANSFERABLE, &str, &[u8] }
 define_table! { DRC20_OUTPOINT_TO_TRANSFER, &OutPointValue, &[u8] }
 
+// Dogemaps table — first-to-inscribe owns a block number forever
+// key: block_number (u32), value: DogemapEntryValue
+define_table! { DOGEMAP_BLOCK_TO_CLAIM, u32, DogemapEntryValue }
+
 #[derive(Copy, Clone)]
 pub(crate) enum Statistic {
   Schema = 0,
@@ -114,6 +118,7 @@ pub(crate) enum Statistic {
   LastSavepointHeight = 17,
   DnsNames = 18,
   Drc20Tokens = 19,
+  DogemapClaims = 20,
 }
 
 impl Statistic {
@@ -1009,6 +1014,42 @@ impl Index {
     }
     results.sort_by(|a, b| a.0.cmp(&b.0));
     Ok(results)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dogemaps queries
+  // ---------------------------------------------------------------------------
+
+  pub fn get_dogemap_claim(&self, block_number: u32) -> Result<Option<DogemapEntry>> {
+    let tx = self.database.begin_read()?;
+    let table = tx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
+    if let Some(guard) = table.get(&block_number)? {
+      Ok(Some(DogemapEntry::load(guard.value())))
+    } else {
+      Ok(None)
+    }
+  }
+
+  pub fn list_dogemaps(&self, limit: usize, offset: usize) -> Result<Vec<DogemapEntry>> {
+    let tx = self.database.begin_read()?;
+    let table = tx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
+    let mut results = Vec::new();
+    for entry in table.iter()?.skip(offset).take(limit) {
+      let (_, v) = entry?;
+      results.push(DogemapEntry::load(v.value()));
+    }
+    Ok(results)
+  }
+
+  pub fn count_dogemaps(&self) -> Result<u64> {
+    let tx = self.database.begin_read()?;
+    let stats = tx.open_table(STATISTIC_TO_COUNT)?;
+    Ok(
+      stats
+        .get(&Statistic::DogemapClaims.key())?
+        .map(|g| g.value())
+        .unwrap_or(0),
+    )
   }
 
   pub(crate) fn get_offers(&self) -> Result<Vec<Vec<u8>>> {

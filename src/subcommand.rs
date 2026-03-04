@@ -3,6 +3,7 @@ use super::*;
 pub mod balances;
 pub mod decode;
 pub mod dns;
+pub mod dogemap;
 pub mod drc20;
 pub mod env;
 pub mod epochs;
@@ -31,6 +32,8 @@ pub(crate) enum Subcommand {
   Decode(decode::Decode),
   #[command(about = "Dogecoin Name System (DNS) commands")]
   Dns(dns::DnsCommand),
+  #[command(about = "Dogemaps block title commands")]
+  Dogemap(dogemap::DogemapCommand),
   #[command(about = "DRC-20 token commands")]
   Drc20(drc20::Drc20Command),
   #[command(about = "Start a regtest dog and Dogecoin Core instance")]
@@ -77,6 +80,7 @@ impl Subcommand {
       Self::Balances => balances::run(settings),
       Self::Decode(decode) => decode.run(settings),
       Self::Dns(dns) => dns.run(settings),
+      Self::Dogemap(cmd) => cmd.run(settings),
       Self::Drc20(cmd) => cmd.run(settings),
       Self::Env(env) => env.run(),
       Self::Epochs => epochs::run(),

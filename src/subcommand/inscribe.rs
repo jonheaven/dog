@@ -51,9 +51,22 @@ const MAX_PAYLOAD: usize = 1500;
 const POSTAGE_DEFAULT: u64 = 100_000;
 
 #[derive(Debug, Parser)]
+#[command(
+  after_help = "Exactly one of --file or --dns must be provided.\n\n\
+    Supported DNS namespaces: .doge .dogecoin .shibe .wow .very .such .much \
+    .woof .moon .kabosu .inu .doggo .bark .tail .paws .cheems .cook .boop \
+    .zoomies .smol .snoot .pupper .official"
+)]
 pub struct InscribeCommand {
-  #[arg(long, help = "File to inscribe")]
-  pub file: PathBuf,
+  #[arg(long, help = "File to inscribe (image, text, audio, video, …)")]
+  pub file: Option<PathBuf>,
+
+  #[arg(
+    long,
+    value_name = "NAME",
+    help = "Register a Dogecoin name (e.g. jon.doge) — inscribes the name as text/plain"
+  )]
+  pub dns: Option<String>,
 
   #[arg(
     long,
@@ -86,10 +99,24 @@ impl InscribeCommand {
     let postage = self.postage.unwrap_or(POSTAGE_DEFAULT);
     let client = settings.dogecoin_rpc_client(self.wallet.clone())?;
 
-    // ── Read file, detect MIME, split into 240-byte chunks ───────────────────
+    // ── Resolve source: --file or --dns ─────────────────────────────────────
 
-    let data = fs::read(&self.file)?;
-    let mime = detect_mime(&self.file, &data);
+    let (data, mime, label) = match (&self.file, &self.dns) {
+      (Some(path), None) => {
+        let bytes = fs::read(path)?;
+        let m = detect_mime(path, &bytes);
+        let l = path.display().to_string();
+        (bytes, m, l)
+      }
+      (None, Some(name)) => {
+        (name.as_bytes().to_vec(), "text/plain".to_string(), name.clone())
+      }
+      (Some(_), Some(_)) => bail!("only one of --file or --dns may be provided"),
+      (None, None) => bail!("one of --file or --dns is required"),
+    };
+
+    // ── Split into 240-byte chunks ────────────────────────────────────────────
+
     let all_chunks: Vec<&[u8]> = data.chunks(CHUNK_SIZE).collect();
     let n_chunks = all_chunks.len();
 
@@ -105,7 +132,7 @@ impl InscribeCommand {
 
     eprintln!(
       "Inscribing {} ({} bytes, {}) → {} chunk{} across {} transaction{}.",
-      self.file.display(),
+      label,
       data.len(),
       mime,
       n_chunks,

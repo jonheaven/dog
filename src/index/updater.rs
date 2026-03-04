@@ -694,6 +694,7 @@ impl Updater<'_> {
 
         self.index_dns_transaction(tx, *txid, block.header.time, wtx)?;
         self.index_drc20_transaction(tx, *txid, block.header.time, wtx)?;
+        self.index_dogemap_transaction(tx, *txid, block.header.time, wtx)?;
       }
 
       for (vout, output_utxo_entry) in output_utxo_entries.into_iter().enumerate() {
@@ -1149,6 +1150,76 @@ impl Updater<'_> {
         }
         _ => {}
       }
+    }
+
+    Ok(())
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dogemaps indexing
+  //
+  // Protocol: first inscription with plain-text body exactly matching
+  // "{block_number}.dogemap" claims that block number. No re-claiming allowed.
+  // ---------------------------------------------------------------------------
+  fn index_dogemap_transaction(
+    &mut self,
+    tx: &Transaction,
+    txid: Txid,
+    block_time: u32,
+    wtx: &WriteTransaction,
+  ) -> Result<()> {
+    use crate::index::entry::DogemapEntry;
+
+    let envelopes = ParsedEnvelope::from_transaction(tx);
+
+    for (envelope_index, envelope) in envelopes.into_iter().enumerate() {
+      let Some(body) = envelope.payload.body() else {
+        continue;
+      };
+
+      let Ok(text) = std::str::from_utf8(body) else {
+        continue;
+      };
+      let trimmed = text.trim();
+
+      // Must be exactly "{digits}.dogemap"
+      let Some(prefix) = trimmed.strip_suffix(".dogemap") else {
+        continue;
+      };
+      if prefix.is_empty() || !prefix.chars().all(|c| c.is_ascii_digit()) {
+        continue;
+      }
+      let Ok(target_block) = prefix.parse::<u32>() else {
+        continue;
+      };
+
+      // Open the claims table and skip if already claimed (first wins)
+      let mut claims = wtx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
+      if claims.get(&target_block)?.is_some() {
+        continue;
+      }
+
+      let inscription_id = InscriptionId {
+        txid,
+        index: envelope_index as u32,
+      };
+
+      let entry = DogemapEntry {
+        block_number: target_block,
+        owner_inscription_id: inscription_id,
+        claim_height: self.height,
+        claim_timestamp: block_time,
+      };
+
+      claims.insert(&target_block, entry.store())?;
+
+      // Update total count statistic
+      let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
+      let prev = statistic_to_count
+        .get(&Statistic::DogemapClaims.key())?
+        .map(|g| g.value())
+        .unwrap_or(0);
+      statistic_to_count.insert(&Statistic::DogemapClaims.key(), &(prev + 1))?;
     }
 
     Ok(())
