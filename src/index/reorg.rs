@@ -60,10 +60,14 @@ impl Reorg {
 
     let mut wtx = index.begin_write()?;
 
-    let oldest_savepoint =
-      wtx.get_persistent_savepoint(wtx.list_persistent_savepoints()?.min().unwrap())?;
+    let newest_savepoint_id = wtx
+      .list_persistent_savepoints()?
+      .max()
+      .ok_or_else(|| anyhow!("unable to recover from reorg: no savepoints available"))?;
 
-    wtx.restore_savepoint(&oldest_savepoint)?;
+    let newest_savepoint = wtx.get_persistent_savepoint(newest_savepoint_id)?;
+
+    wtx.restore_savepoint(&newest_savepoint)?;
 
     Index::increment_statistic(&wtx, Statistic::Commits, 1)?;
     wtx.commit()?;
