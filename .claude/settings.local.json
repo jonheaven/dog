@@ -11,7 +11,14 @@
       "Bash(cargo build --bin dog)",
       "Bash(dog dogemap --help)",
       "Bash(./target/debug/dog inscribe --help)",
-      "Bash(./target/debug/dog dogemap --help)"
+      "Bash(./target/debug/dog dogemap --help)",
+      "Bash(./target/debug/dog --help)",
+      "Bash(grep -n \"impl FromStr for.*Dune\\\\|parse.*SpacedDune\\\\|SpacedDune.*parse\" crates/doginals/src/*.rs)",
+      "Bash(./target/debug/dog dune --help)",
+      "Bash(grep -v \"test\\\\|//.*index_sats\")",
+      "Bash(xargs sed -i -e 's/index_sats_raw/index_koinu_raw/g' -e 's/IndexSats/IndexKoinu/g' -e 's/has_sat_index/has_koinu_index/g' -e 's/sat_indexed/koinu_indexed/g' -e 's/index_sats/index_koinu/g' -e 's/INDEX_SATS/INDEX_KOINU/g' -e 's/sat_index/koinu_index/g')",
+      "Bash(xargs grep -l \"sat_index\\\\|index_sats\")",
+      "Bash(./target/debug/dog --index-sats index update)"
     ]
   }
 }

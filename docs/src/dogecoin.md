@@ -228,14 +228,14 @@ on subsequent runs fills in the previously-skipped data.
 
 ```bash
 # Index (starts from first_inscription_height = 4,600,000)
-ord --chain dogecoin \
+dog --chain dogecoin \
     --dogecoin-rpc-url http://127.0.0.1:22555 \
     --dogecoin-rpc-username <rpcuser> \
     --dogecoin-rpc-password <rpcpass> \
     index update
 
 # Start the server
-ord --chain dogecoin ... server --http
+dog server --http
 ```
 
 Your `dogecoin.conf` should have `txindex=1` enabled.  Keep your credentials in

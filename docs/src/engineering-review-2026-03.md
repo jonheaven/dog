@@ -1,87 +1,178 @@
 # Doginals Engineering Review (2026-03)
 
-This review focuses on reliability under Dogecoin-specific chain conditions (1-minute blocks, deeper/frequent reorgs), indexer correctness, explorer/API operability, and long-term maintainability.
+This document records the findings from an engineering audit of the `dog` indexer in
+March 2026.  It distinguishes between **changes already shipped** and **open
+recommendations** that have not yet been implemented.
+
+---
+
+## Status key
+
+| Symbol | Meaning |
+|--------|---------|
+| ✅ | Implemented and shipped |
+| 🔲 | Recommended — not yet implemented |
+
+---
 
 ## What is working well
 
-- Dogecoin-specific chain parameters are explicit and easy to audit (`MAGIC_*`, genesis hashes, and chain aliases). This makes consensus-sensitive behavior visible in one place.
-- The project already has Dogecoin-native product features beyond Ordinals parity (DNS, DRC-20, Dogemap, block-range scanning).
-- The indexer has a savepoint concept for reorg recovery, and documents warn users about Dogecoin reorg characteristics.
-- Fast `.blk` direct read flow is already implemented and documented as a first-class indexing mode.
+- Dogecoin-specific chain parameters are explicit and easy to audit (`MAGIC_*`,
+  genesis hashes, chain aliases) — consensus-sensitive behaviour is visible in one
+  place.
+- The project already has Dogecoin-native product features beyond Ordinals parity:
+  DNS, DRC-20, Dogemaps, block-range scanning, and Dune token indexing.
+- The indexer has a savepoint mechanism for reorg recovery; docs warn users about
+  Dogecoin reorg characteristics.
+- Fast `.blk` direct-read flow is implemented and documented as a first-class
+  indexing mode.
 
-## High-priority fixes and improvements
+---
 
-### 1) Reorg recovery target selection (correctness bug)
+## Shipped fixes (this audit cycle)
 
-`Reorg::handle_reorg` should restore the **newest** available savepoint, not the oldest one.
+### ✅ Reorg recovery target selection (correctness fix)
 
-- Why this matters: on Dogecoin, frequent shallow reorgs are expected. Restoring from the oldest savepoint can rollback much further than necessary, increasing downtime and potentially replaying large historical windows.
-- Action taken in this patch: switch recovery to newest savepoint and fail with explicit error if no savepoint exists.
-- Follow-up: store savepoint metadata by height (savepoint id → block height) to restore the best savepoint at or before `height - depth`.
+`Reorg::handle_reorg` previously restored the **oldest** available savepoint.
+On Dogecoin, frequent shallow reorgs are expected; restoring the oldest savepoint
+could roll back much further than necessary, increasing downtime and replaying large
+historical windows.
 
-### 2) Make Dogecoin consensus constants source-generated
+**What landed (`b1033356`):**
+- Switch recovery to the **newest** available savepoint (`.max()` instead of `.min()`
+  on the savepoint-id iterator).
+- Return an explicit error (`"unable to recover from reorg: no savepoints available"`)
+  instead of silently failing when no savepoints exist.
 
-Dogecoin network constants are currently hardcoded. That's fine initially, but brittle over time.
+**Open follow-up (🔲):** Store savepoint metadata keyed by block height so
+`handle_reorg` can select the best savepoint at or below `height - reorg_depth`
+rather than always picking the single newest one.
 
-- Recommendation: add a small CI check/script that validates constants against the canonical Dogecoin Core values from `dogecoin/src/chainparams.cpp`.
-- Benefit: prevents silent drift if upstream Dogecoin changes testnet/regtest defaults.
+---
 
-### 3) Harden reorg observability and SLO tracking
+## Open recommendations
 
-Reorg handling exists but should expose metrics that operators can monitor.
+### 🔲 Make Dogecoin consensus constants source-generated
 
-- Add metrics/counters for:
-  - `reorg_detected_total`
-  - `reorg_recovered_total`
-  - `reorg_unrecoverable_total`
-  - `reorg_depth_histogram`
-  - `savepoint_age_blocks`
-- Add explorer/admin endpoint for current index tip vs core tip and reorg health.
+Dogecoin network constants (`MAGIC_*`, genesis hashes, ports) are currently
+hardcoded in `src/chain.rs`.
 
-### 4) Improve RPC/load resilience for public explorer deployments
+- **Recommendation:** add a CI script that validates these constants against
+  `dogecoin/src/chainparams.cpp` in the canonical Dogecoin Core repo.
+- **Benefit:** prevents silent drift if upstream Dogecoin changes testnet/regtest
+  defaults.
 
-The code retries block fetches and can fall back from `.blk` reads to RPC. Great baseline.
+---
 
-- Recommendation:
-  - Add bounded, jittered exponential backoff everywhere RPC is on the hot path.
-  - Add optional rate-limited worker pools for expensive endpoints (`scan`, `drc20`, DNS list endpoints).
-  - Add cache controls and ETag/Last-Modified for explorer responses.
+### 🔲 Reorg observability and SLO tracking
 
-### 5) Introduce compatibility matrix testing against Dogecoin Core releases
+Reorg handling works but exposes no metrics for operators to monitor.
 
-Given protocol-level coupling, add CI lanes for Dogecoin Core versions (e.g., latest release, previous LTS-ish, and current master snapshot when practical).
+Suggested additions to `/status` or a dedicated `/health` endpoint:
 
-- Run scripted smoke tests:
-  - initial sync from `.blk`
-  - reorg simulation + recovery
-  - inscription parsing with legacy scriptSig envelopes
-  - DNS/DRC-20 read paths
+```json
+{
+  "index_tip": 5056597,
+  "chain_tip": 5056600,
+  "lag_blocks": 3,
+  "reorg_detected_total": 12,
+  "reorg_recovered_total": 12,
+  "reorg_unrecoverable_total": 0,
+  "last_reorg_depth": 2,
+  "savepoint_age_blocks": 5000
+}
+```
 
-## Medium-priority improvements
+Counters should survive process restarts (persisted in redb).
 
-- Add a documented data integrity command (`dog index audit`) to verify DB invariants (height continuity, satpoint ownership uniqueness, inscription linkage).
-- Add an explicit operator guide for production deployments (snapshot cadence, savepoint sizing guidance, SSD/I/O tuning, alerting thresholds).
-- Consider incremental redb compaction/maintenance workflow for long-running nodes.
-- Expand fuzzing around script parsing and envelope extraction for malformed scriptSig edge cases.
+---
 
-## Product roadmap opportunities
+### 🔲 RPC/load resilience for public explorer deployments
 
-- Add canonical JSON schemas/versioning for Dogemap, DNS, and DRC-20 APIs to improve integrator stability.
-- Add a lightweight websocket stream for new inscriptions/transfers and chain-tip updates.
-- Build a deterministic replay harness for “index from height X to Y and compare expected state hashes”.
+The code retries block fetches and can fall back from `.blk` reads to RPC.
 
-## Suggested next milestones
+- Add bounded, jittered exponential backoff on the RPC hot path.
+- Add optional rate-limited worker pools for expensive endpoints (`scan`, `drc20`,
+  DNS list).
+- Add `Cache-Control` / `ETag` / `Last-Modified` for read-only explorer responses.
 
-1. **Reliability milestone**
-   - Land reorg savepoint selection fix (included here).
-   - Add reorg metrics and health endpoint.
-   - Add reorg simulation integration test.
+---
 
-2. **Operations milestone**
-   - Ship production runbook + monitoring dashboards.
-   - Add `dog index audit` and scheduled integrity checks.
+### 🔲 Compatibility matrix testing against Dogecoin Core releases
 
-3. **Ecosystem milestone**
-   - Freeze and publish API schemas.
-   - Add webhook/websocket feeds for ecosystem apps.
+Given protocol-level coupling, add CI lanes for multiple Dogecoin Core versions
+(latest release, previous stable, current master snapshot).
 
+Smoke test scenarios:
+- Initial sync from `.blk` files
+- Reorg simulation + recovery
+- Inscription parsing with legacy scriptSig envelopes
+- DNS / DRC-20 / Dogemaps read paths
+
+---
+
+### 🔲 `dog index audit` command
+
+A data integrity command to verify DB invariants:
+- Height continuity (no gaps in `HEIGHT_TO_BLOCK_HEADER`)
+- Satpoint ownership uniqueness
+- Inscription linkage (every inscription ID maps to a known txid)
+- Dogemap claim uniqueness (no block number claimed twice)
+
+---
+
+### 🔲 Operator production guide
+
+Document recommended settings for production deployments:
+- Savepoint sizing guidance (interval / count tradeoffs for reorg depth vs. disk usage)
+- SSD I/O tuning
+- Snapshot cadence
+- Alerting thresholds (lag, reorg rate)
+
+---
+
+### 🔲 Incremental redb compaction
+
+Long-running nodes accumulate tombstones and fragmentation in the redb file.
+Provide a `dog index compact` command or scheduled auto-compaction workflow.
+
+---
+
+### 🔲 Canonical API schemas
+
+Publish JSON schemas (or OpenAPI fragments) for Dogemap, DNS, and DRC-20 API
+responses to improve integrator stability.
+
+---
+
+### 🔲 WebSocket / event stream
+
+A lightweight WebSocket endpoint for real-time new-inscription, Dogemap-claim,
+and chain-tip-update events — useful for marketplace frontends and metaverse
+integrations.
+
+---
+
+### 🔲 Deterministic replay harness
+
+A test harness that replays blocks from a known height to a target height and
+asserts an identical DB state hash, enabling regression detection across refactors.
+
+---
+
+## Suggested milestones
+
+### Milestone 1 — Reliability
+- ✅ Land reorg savepoint selection fix
+- 🔲 Add reorg metrics and `/health` endpoint
+- 🔲 Add reorg simulation integration test
+
+### Milestone 2 — Operations
+- 🔲 Ship production runbook + monitoring dashboards
+- 🔲 Add `dog index audit` and scheduled integrity checks
+- 🔲 Redb compaction workflow
+
+### Milestone 3 — Ecosystem
+- 🔲 Freeze and publish API schemas
+- 🔲 WebSocket / event stream for ecosystem apps
+- 🔲 Deterministic replay harness
