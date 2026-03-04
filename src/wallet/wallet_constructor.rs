@@ -135,7 +135,7 @@ impl WalletConstructor {
       dogecoin_client,
       database,
       has_dune_index: status.dune_index,
-      has_sat_index: status.sat_index,
+      has_koinu_index: status.koinu_index,
       inscription_info,
       inscriptions,
       locked_utxos,

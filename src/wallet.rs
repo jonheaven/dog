@@ -76,7 +76,7 @@ pub(crate) struct Wallet {
   dogecoin_client: Client,
   database: Database,
   has_dune_index: bool,
-  has_sat_index: bool,
+  has_koinu_index: bool,
   rpc_url: Url,
   utxos: BTreeMap<OutPoint, TxOut>,
   ord_client: reqwest::blocking::Client,
@@ -90,7 +90,7 @@ pub(crate) struct Wallet {
 impl Wallet {
   pub(crate) fn get_wallet_sat_ranges(&self) -> Result<Vec<(OutPoint, Vec<(u64, u64)>)>> {
     ensure!(
-      self.has_sat_index,
+      self.has_koinu_index,
       "ord index must be built with `--index-koinu` to use `--sat`"
     );
 
@@ -108,7 +108,7 @@ impl Wallet {
 
   pub(crate) fn get_output_sat_ranges(&self, output: &OutPoint) -> Result<Vec<(u64, u64)>> {
     ensure!(
-      self.has_sat_index,
+      self.has_koinu_index,
       "ord index must be built with `--index-koinu` to see sat ranges"
     );
 
@@ -125,7 +125,7 @@ impl Wallet {
 
   pub(crate) fn find_sat_in_outputs(&self, sat: Koinu) -> Result<KoinuPoint> {
     ensure!(
-      self.has_sat_index,
+      self.has_koinu_index,
       "ord index must be built with `--index-koinu` to use `--sat`"
     );
 
@@ -352,8 +352,8 @@ impl Wallet {
     )
   }
 
-  pub(crate) fn has_sat_index(&self) -> bool {
-    self.has_sat_index
+  pub(crate) fn has_koinu_index(&self) -> bool {
+    self.has_koinu_index
   }
 
   pub(crate) fn has_dune_index(&self) -> bool {

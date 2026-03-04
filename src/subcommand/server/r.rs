@@ -501,13 +501,13 @@ pub(super) async fn sat_at_index(
   Path((DeserializeFromStr(sat), inscription_index)): Path<(DeserializeFromStr<Koinu>, isize)>,
 ) -> ServerResult<(HeaderMap, Json<api::SatInscription>)> {
   task::block_in_place(|| {
-    if !index.has_sat_index() {
+    if !index.has_koinu_index() {
       return Err(ServerError::NotFound(
         "this server has no sat index".to_string(),
       ));
     }
 
-    let id = index.get_inscription_id_by_sat_indexed(sat, inscription_index)?;
+    let id = index.get_inscription_id_by_koinu_indexed(sat, inscription_index)?;
 
     let mut headers = HeaderMap::new();
 
@@ -524,7 +524,7 @@ pub(super) async fn sat_paginated(
   Path((sat, page)): Path<(u64, u64)>,
 ) -> ServerResult<Json<api::SatInscriptions>> {
   task::block_in_place(|| {
-    if !index.has_sat_index() {
+    if !index.has_koinu_index() {
       return Err(ServerError::NotFound("this server has no sat index".into()));
     }
 
@@ -542,12 +542,12 @@ pub(super) async fn sat_at_index_content(
   accept_encoding: AcceptEncoding,
 ) -> ServerResult {
   let inscription_id = task::block_in_place(|| {
-    if !index.has_sat_index() {
+    if !index.has_koinu_index() {
       return Err(ServerError::NotFound("this server has no sat index".into()));
     }
 
     index
-      .get_inscription_id_by_sat_indexed(sat, inscription_index)?
+      .get_inscription_id_by_koinu_indexed(sat, inscription_index)?
       .ok_or_not_found(|| format!("inscription on sat {sat}"))
   })?;
 

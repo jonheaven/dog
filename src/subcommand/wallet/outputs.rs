@@ -49,7 +49,7 @@ impl Outputs {
             .collect()
         });
 
-      let koinu_ranges = if wallet.has_sat_index() && self.ranges {
+      let koinu_ranges = if wallet.has_koinu_index() && self.ranges {
         Some(
           wallet
             .get_output_sat_ranges(output)?

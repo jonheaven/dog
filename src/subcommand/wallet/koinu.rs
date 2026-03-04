@@ -39,7 +39,7 @@ pub struct OutputAll {
 impl Sats {
   pub(crate) fn run(&self, wallet: Wallet) -> SubcommandResult {
     ensure!(
-      wallet.has_sat_index(),
+      wallet.has_koinu_index(),
       "koinu requires index created with `--index-koinu` flag"
     );
 

@@ -106,7 +106,7 @@ pub(crate) enum Statistic {
   IndexAddresses = 4,
   IndexInscriptions = 5,
   IndexDunes = 6,
-  IndexSats = 7,
+  IndexKoinu = 7,
   IndexTransactions = 8,
   InitialSyncTime = 9,
   LostSats = 10,
@@ -229,8 +229,9 @@ pub struct Index {
   index_addresses: bool,
   index_inscriptions: bool,
   index_dunes: bool,
-  index_sats: bool,
+  index_koinu: bool,
   index_transactions: bool,
+  only_protocols: Option<Vec<String>>,
   path: PathBuf,
   settings: Settings,
   started: DateTime<Utc>,
@@ -384,8 +385,8 @@ impl Index {
 
           Self::set_statistic(
             &mut statistics,
-            Statistic::IndexSats,
-            u64::from(settings.index_sats_raw()),
+            Statistic::IndexKoinu,
+            u64::from(settings.index_koinu_raw()),
           )?;
 
           Self::set_statistic(
@@ -450,7 +451,7 @@ impl Index {
 
     let index_addresses;
     let index_dunes;
-    let index_sats;
+    let index_koinu;
     let index_transactions;
     let index_inscriptions;
 
@@ -460,14 +461,14 @@ impl Index {
       index_addresses = Self::is_statistic_set(&statistics, Statistic::IndexAddresses)?;
       index_inscriptions = Self::is_statistic_set(&statistics, Statistic::IndexInscriptions)?;
       index_dunes = Self::is_statistic_set(&statistics, Statistic::IndexDunes)?;
-      index_sats = Self::is_statistic_set(&statistics, Statistic::IndexSats)?;
+      index_koinu = Self::is_statistic_set(&statistics, Statistic::IndexKoinu)?;
       index_transactions = Self::is_statistic_set(&statistics, Statistic::IndexTransactions)?;
     }
 
     let genesis_block_coinbase_transaction =
       settings.chain().genesis_block().coinbase().unwrap().clone();
 
-    let first_index_height = if index_sats || index_addresses {
+    let first_index_height = if index_koinu || index_addresses {
       0
     } else if index_inscriptions {
       settings.first_inscription_height()
@@ -488,8 +489,9 @@ impl Index {
       height_limit: settings.height_limit(),
       index_addresses,
       index_dunes,
-      index_sats,
+      index_koinu,
       index_transactions,
+      only_protocols: settings.only_protocols().map(|s| s.to_vec()),
       index_inscriptions,
       settings: settings.clone(),
       path,
@@ -544,8 +546,15 @@ impl Index {
     self.index_dunes
   }
 
-  pub fn has_sat_index(&self) -> bool {
-    self.index_sats
+  pub fn has_koinu_index(&self) -> bool {
+    self.index_koinu
+  }
+
+  pub fn should_index_protocol(&self, protocol: &str) -> bool {
+    match &self.only_protocols {
+      None => true,
+      Some(list) => list.iter().any(|p| p.eq_ignore_ascii_case(protocol)),
+    }
   }
 
   pub fn status(&self, json_api: bool) -> Result<StatusHtml> {
@@ -592,7 +601,7 @@ impl Index {
       ),
       dune_index: self.has_dune_index(),
       dunes: statistic(Statistic::Dunes)?,
-      sat_index: self.has_sat_index(),
+      koinu_index: self.has_koinu_index(),
       started: self.started,
       transaction_index: statistic(Statistic::IndexTransactions)? != 0,
       unrecoverably_reorged: self.unrecoverably_reorged.load(atomic::Ordering::Relaxed),
@@ -1780,7 +1789,7 @@ impl Index {
     Ok((ids, more))
   }
 
-  pub fn get_inscription_id_by_sat_indexed(
+  pub fn get_inscription_id_by_koinu_indexed(
     &self,
     sat: Koinu,
     inscription_index: isize,
@@ -2159,7 +2168,7 @@ impl Index {
   }
 
   pub fn list(&self, outpoint: OutPoint) -> Result<Option<Vec<(u64, u64)>>> {
-    if !self.index_sats {
+    if !self.index_koinu {
       return Ok(None);
     }
 
@@ -2692,7 +2701,7 @@ impl Index {
 
     match sat {
       Some(sat) => {
-        if self.index_sats {
+        if self.index_koinu {
           // unbound inscriptions should not be assigned to a sat
           assert_ne!(satpoint.outpoint, unbound_outpoint());
 
@@ -2723,7 +2732,7 @@ impl Index {
         }
       }
       None => {
-        if self.index_sats {
+        if self.index_koinu {
           assert_eq!(satpoint.outpoint, unbound_outpoint())
         }
       }
@@ -6949,7 +6958,7 @@ mod tests {
       index: 0,
     };
     let create_event = event_receiver.blocking_recv().unwrap();
-    let expected_charms = if context.index.index_sats { 513 } else { 0 };
+    let expected_charms = if context.index.index_koinu { 513 } else { 0 };
     assert_eq!(
       create_event,
       Event::InscriptionCreated {

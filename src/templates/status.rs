@@ -15,7 +15,7 @@ pub struct StatusHtml {
   pub minimum_dune_for_next_block: Dune,
   pub dune_index: bool,
   pub dunes: u64,
-  pub sat_index: bool,
+  pub koinu_index: bool,
   pub started: DateTime<Utc>,
   pub transaction_index: bool,
   pub unrecoverably_reorged: bool,

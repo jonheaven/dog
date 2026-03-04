@@ -7,7 +7,7 @@ pub struct ServerConfig {
   pub csp_origin: Option<String>,
   pub decompress: bool,
   pub domain: Option<String>,
-  pub index_sats: bool,
+  pub index_koinu: bool,
   pub json_api_enabled: bool,
   pub proxy: Option<Url>,
 }

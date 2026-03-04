@@ -31,8 +31,9 @@ pub struct Settings {
   index_addresses: bool,
   index_cache_size: Option<usize>,
   index_dunes: bool,
-  index_sats: bool,
+  index_koinu: bool,
   index_transactions: bool,
+  only_protocols: Option<Vec<String>>,
   integration_test: bool,
   max_savepoints: Option<usize>,
   no_index_inscriptions: bool,
@@ -146,8 +147,9 @@ impl Settings {
       index_addresses: self.index_addresses || source.index_addresses,
       index_cache_size: self.index_cache_size.or(source.index_cache_size),
       index_dunes: self.index_dunes || source.index_dunes,
-      index_sats: self.index_sats || source.index_sats,
+      index_koinu: self.index_koinu || source.index_koinu,
       index_transactions: self.index_transactions || source.index_transactions,
+      only_protocols: self.only_protocols.or(source.only_protocols),
       integration_test: self.integration_test || source.integration_test,
       max_savepoints: self.max_savepoints.or(source.max_savepoints),
       no_index_inscriptions: self.no_index_inscriptions || source.no_index_inscriptions,
@@ -182,8 +184,13 @@ impl Settings {
       index_addresses: options.index_addresses,
       index_cache_size: options.index_cache_size,
       index_dunes: options.index_dunes,
-      index_sats: options.index_sats,
+      index_koinu: options.index_koinu,
       index_transactions: options.index_transactions,
+      only_protocols: if options.only.is_empty() {
+        None
+      } else {
+        Some(options.only)
+      },
       integration_test: options.integration_test,
       max_savepoints: options.max_savepoints,
       no_index_inscriptions: options.no_index_inscriptions,
@@ -272,8 +279,14 @@ impl Settings {
       index_addresses: get_bool("INDEX_ADDRESSES"),
       index_cache_size: get_usize("INDEX_CACHE_SIZE")?,
       index_dunes: get_bool("INDEX_DUNES"),
-      index_sats: get_bool("INDEX_SATS"),
+      index_koinu: get_bool("INDEX_KOINU"),
       index_transactions: get_bool("INDEX_TRANSACTIONS"),
+      only_protocols: env.get("ONLY_PROTOCOLS").map(|s| {
+        s.split(',')
+          .map(|p| p.trim().to_lowercase())
+          .filter(|p| !p.is_empty())
+          .collect()
+      }),
       integration_test: get_bool("INTEGRATION_TEST"),
       max_savepoints: get_usize("MAX_SAVEPOINTS")?,
       no_index_inscriptions: get_bool("NO_INDEX_INSCRIPTIONS"),
@@ -304,8 +317,9 @@ impl Settings {
       index_addresses: true,
       index_cache_size: None,
       index_dunes: true,
-      index_sats: true,
+      index_koinu: true,
       index_transactions: false,
+      only_protocols: None,
       integration_test: false,
       max_savepoints: None,
       no_index_inscriptions: false,
@@ -380,8 +394,9 @@ impl Settings {
         }
       }),
       index_dunes: self.index_dunes,
-      index_sats: self.index_sats,
+      index_koinu: self.index_koinu,
       index_transactions: self.index_transactions,
+      only_protocols: self.only_protocols,
       integration_test: self.integration_test,
       max_savepoints: Some(self.max_savepoints.unwrap_or(2)),
       no_index_inscriptions: self.no_index_inscriptions,
@@ -589,12 +604,16 @@ impl Settings {
     self.index_cache_size.unwrap()
   }
 
-  pub fn index_sats_raw(&self) -> bool {
-    self.index_sats
+  pub fn index_koinu_raw(&self) -> bool {
+    self.index_koinu
   }
 
   pub fn index_transactions_raw(&self) -> bool {
     self.index_transactions
+  }
+
+  pub fn only_protocols(&self) -> Option<&[String]> {
+    self.only_protocols.as_deref()
   }
 
   pub fn integration_test(&self) -> bool {
@@ -1101,7 +1120,7 @@ mod tests {
       ("INDEX_ADDRESSES", "1"),
       ("INDEX_CACHE_SIZE", "4"),
       ("INDEX_DUNES", "1"),
-      ("INDEX_SATS", "1"),
+      ("INDEX_KOINU", "1"),
       ("INDEX_TRANSACTIONS", "1"),
       ("INTEGRATION_TEST", "1"),
       ("MAX_SAVEPOINTS", "2"),
@@ -1149,7 +1168,7 @@ mod tests {
         index_addresses: true,
         index_cache_size: Some(4),
         index_dunes: true,
-        index_sats: true,
+        index_koinu: true,
         index_transactions: true,
         integration_test: true,
         no_index_inscriptions: true,
@@ -1214,7 +1233,7 @@ mod tests {
         index_addresses: true,
         index_cache_size: Some(4),
         index_dunes: true,
-        index_sats: true,
+        index_koinu: true,
         index_transactions: true,
         integration_test: true,
         no_index_inscriptions: true,

@@ -372,7 +372,7 @@ impl Updater<'_> {
       wtx.open_table(INSCRIPTION_ID_TO_SEQUENCE_NUMBER)?;
     let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
 
-    if self.index.index_inscriptions || self.index.index_addresses || self.index.index_sats {
+    if self.index.index_inscriptions || self.index.index_addresses || self.index.index_koinu {
       self.index_utxo_entries(
         &block,
         txout_receiver,
@@ -570,7 +570,7 @@ impl Updater<'_> {
     let mut coinbase_inputs = Vec::new();
     let mut lost_sat_ranges = Vec::new();
 
-    if self.index.index_sats {
+    if self.index.index_koinu {
       let h = Height(self.height);
       if h.subsidy() > 0 {
         let start = h.starting_sat();
@@ -643,7 +643,7 @@ impl Updater<'_> {
         .collect::<Vec<UtxoEntryBuf>>();
 
       let input_sat_ranges;
-      if self.index.index_sats {
+      if self.index.index_koinu {
         let leftover_sat_ranges;
 
         if tx_offset == 0 {
@@ -692,9 +692,15 @@ impl Updater<'_> {
           input_sat_ranges.as_ref(),
         )?;
 
-        self.index_dns_transaction(tx, *txid, block.header.time, wtx)?;
-        self.index_drc20_transaction(tx, *txid, block.header.time, wtx)?;
-        self.index_dogemap_transaction(tx, *txid, block.header.time, wtx)?;
+        if self.index.should_index_protocol("dns") {
+          self.index_dns_transaction(tx, *txid, block.header.time, wtx)?;
+        }
+        if self.index.should_index_protocol("drc20") {
+          self.index_drc20_transaction(tx, *txid, block.header.time, wtx)?;
+        }
+        if self.index.should_index_protocol("dogemap") {
+          self.index_dogemap_transaction(tx, *txid, block.header.time, wtx)?;
+        }
       }
 
       for (vout, output_utxo_entry) in output_utxo_entries.into_iter().enumerate() {
@@ -743,7 +749,7 @@ impl Updater<'_> {
 
     statistic_to_count.insert(
       &Statistic::LostSats.key(),
-      &if self.index.index_sats {
+      &if self.index.index_koinu {
         lost_koinu
       } else {
         inscription_updater.lost_koinu

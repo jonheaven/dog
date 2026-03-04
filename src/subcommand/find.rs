@@ -24,7 +24,7 @@ impl Find {
   pub(crate) fn run(self, settings: Settings) -> SubcommandResult {
     let index = Index::open(&settings)?;
 
-    if !index.has_sat_index() {
+    if !index.has_koinu_index() {
       bail!("find requires index created with `--index-koinu` flag");
     }
 

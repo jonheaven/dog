@@ -281,13 +281,28 @@ The v1 envelope format and koinu numbering are **final and will not change**.
 **[jonheaven/dog](https://github.com/jonheaven/dog)** — the official Doginals indexer,
 parser, wallet, and block explorer.
 
-```
+```bash
 # Scan any block range without a full index
 dog scan --from 4609000 --to 4700000
 
-# Full index + explorer
+# Full index + explorer (all sub-protocols)
 dog index update && dog server
+
+# Koinu tracking + dunes + address index
+dog --index-koinu --index-dunes --index-addresses index update
+
+# Only index Dogemap claims (lightweight run)
+dog index update --only dogemap
 ```
+
+### Indexing flags quick-reference
+
+| Flag | Purpose |
+|------|---------|
+| `--index-koinu` | Track every individual koinu (ordinal theory). Needed for `dog find`, `dog list`, `/r/sat/*`. |
+| `--index-dunes` | Index Dune etchings, mints, transfers. Needed for `dog dune *`. |
+| `--index-addresses` | Address → UTXOs multimap. Needed for `dog dune balance`. |
+| `--only dns,drc20,dogemap` | Process only the listed sub-protocols per block (default: all three). |
 
 This specification is binding. All marketplaces, explorers, wallets, and AI agents
 building on Dogecoin inscriptions must follow it to remain compatible.

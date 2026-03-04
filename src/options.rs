@@ -54,9 +54,15 @@ pub struct Options {
   #[arg(long, help = "Track location of dunes.")]
   pub(crate) index_dunes: bool,
   #[arg(long, help = "Track location of all koinu.")]
-  pub(crate) index_sats: bool,
+  pub(crate) index_koinu: bool,
   #[arg(long, help = "Store transactions in index.")]
   pub(crate) index_transactions: bool,
+  #[arg(
+    long,
+    value_delimiter = ',',
+    help = "Only index listed sub-protocols: dns,drc20,dogemap (default: all)."
+  )]
+  pub(crate) only: Vec<String>,
   #[arg(long, help = "Run in integration test mode.")]
   pub(crate) integration_test: bool,
   #[clap(long, short, long, help = "Specify output format. [default: json]")]

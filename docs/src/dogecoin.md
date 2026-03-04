@@ -171,6 +171,59 @@ let envelopes = if index.settings.chain().is_dogecoin() {
 
 ---
 
+### 6. Selective indexing flags
+
+`dog` ships several opt-in flags that control what the index tracks.  All flags
+default to **disabled** unless noted — the only exceptions are the three
+sub-protocol indexers (DNS, DRC-20, Dogemaps) which run by default.
+
+#### Per-feature flags
+
+| Flag | Env var | Default | Effect |
+|------|---------|---------|--------|
+| `--index-koinu` | `ORD_INDEX_KOINU` | off | Track the location of every individual koinu (ordinal theory). Required by `dog find`, `dog list`, `/r/sat/*`, and koinu card endpoints. |
+| `--index-dunes` | `ORD_INDEX_DUNES` | off | Index Dune etching / minting / transfer records. Required by `dog dune *`. |
+| `--index-addresses` | `ORD_INDEX_ADDRESSES` | off | Maintain a script_pubkey → UTXOs multimap. Required by `dog dune balance`. |
+| `--no-index-inscriptions` | `ORD_NO_INDEX_INSCRIPTIONS` | off | Skip inscription indexing entirely (for archival / Dune-only nodes). |
+
+> **Renamed from upstream:** `--index-sats` (Bitcoin's unit) is called
+> `--index-koinu` here because *koinu* is the Dogecoin equivalent of a satoshi.
+> The on-disk `Statistic::IndexKoinu` value is stored in the same slot (7) for
+> forward-compatibility with tools that read the raw redb table.
+
+#### Sub-protocol selector: `--only`
+
+By default the indexer processes all three built-in sub-protocols on every
+block.  Use `--only` to restrict processing to a comma-separated subset:
+
+```
+dns      — Dogecoin Name System (.doge names)
+drc20    — DRC-20 fungible tokens
+dogemap  — Dogemap block-title claims
+```
+
+**Examples**
+
+```bash
+# Index everything (default)
+dog index update
+
+# Only process dogemap claims — skip DNS and DRC-20 entirely
+dog index update --only dogemap
+
+# Only DNS and DRC-20 — useful on a lightweight node
+dog index update --only dns,drc20
+
+# Env-var equivalent
+ORD_ONLY_PROTOCOLS=dogemap dog index update
+```
+
+Sub-protocol gating is applied per-transaction at runtime; no data is
+permanently excluded from the main inscription index.  Switching the flag
+on subsequent runs fills in the previously-skipped data.
+
+---
+
 ## Running against a Dogecoin node
 
 ```bash

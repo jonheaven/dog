@@ -129,7 +129,7 @@ mod tests {
         chain: Chain::Dogecoin,
         csp_origin: Some("https://signet.ordinals.com".into()),
         domain: Some("signet.ordinals.com".into()),
-        index_sats: true,
+        index_koinu: true,
         ..default()
       }),),
       r"<!doctype html>
@@ -179,7 +179,7 @@ mod tests {
         chain: Chain::Dogecoin,
         csp_origin: None,
         domain: None,
-        index_sats: true,
+        index_koinu: true,
         ..default()
       })),
       r".*<nav>\s*<a href=/ title=home>Doginals<sup>beta</sup></a>.*"
@@ -187,13 +187,13 @@ mod tests {
   }
 
   #[test]
-  fn page_no_sat_index() {
+  fn page_no_koinu_index() {
     assert_regex_match!(
       Foo.page(Arc::new(ServerConfig {
         chain: Chain::Dogecoin,
         csp_origin: None,
         domain: None,
-        index_sats: false,
+        index_koinu: false,
         ..default()
       })),
       r".*<nav>\s*<a href=/ title=home>Doginals<sup>beta</sup></a>.*<a href=/clock title=clock>.*</a>\s*<form action=/search.*",
@@ -207,7 +207,7 @@ mod tests {
         chain: Chain::DogecoinTestnet,
         csp_origin: None,
         domain: None,
-        index_sats: true,
+        index_koinu: true,
         ..default()
       })),
       r".*<nav>\s*<a href=/ title=home>Doginals<sup>dogecoin-testnet</sup></a>.*"

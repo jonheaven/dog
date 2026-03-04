@@ -192,7 +192,7 @@ impl Server {
         csp_origin: self.csp_origin.clone(),
         decompress: self.decompress,
         domain: acme_domains.first().cloned(),
-        index_sats: index.has_sat_index(),
+        index_koinu: index.has_koinu_index(),
         json_api_enabled: !self.disable_json_api,
         proxy: self.proxy.clone(),
       });
@@ -1794,7 +1794,7 @@ impl Server {
   ) -> ServerResult<PageHtml<ItemHtml>> {
     task::block_in_place(|| {
       if let query::Inscription::Koinu(_) = query
-        && !index.has_sat_index()
+        && !index.has_koinu_index()
       {
         return Err(ServerError::NotFound("sat index required".into()));
       }
@@ -1850,7 +1850,7 @@ impl Server {
   ) -> ServerResult {
     task::block_in_place(|| {
       if let query::Inscription::Koinu(_) = query
-        && !index.has_sat_index()
+        && !index.has_koinu_index()
       {
         return Err(ServerError::NotFound("sat index required".into()));
       }
@@ -2482,7 +2482,7 @@ mod tests {
       self.ord_flag("--index-dunes")
     }
 
-    fn index_sats(self) -> Self {
+    fn index_koinu(self) -> Self {
       self.ord_flag("--index-koinu")
     }
 
@@ -3075,7 +3075,7 @@ mod tests {
   fn search_by_satpoint_returns_sat() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     let txid = server.mine_blocks(1)[0].txdata[0].compute_txid();
@@ -3102,7 +3102,7 @@ mod tests {
   fn satpoint_returns_sat_in_multiple_ranges() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -4076,10 +4076,10 @@ mod tests {
   }
 
   #[test]
-  fn output_with_sat_index() {
+  fn output_with_koinu_index() {
     let txid = "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b";
     TestServer::builder()
-      .index_sats()
+      .index_koinu()
       .build()
       .assert_response_regex(
         format!("/output/{txid}:0"),
@@ -4102,7 +4102,7 @@ mod tests {
   }
 
   #[test]
-  fn output_without_sat_index() {
+  fn output_without_koinu_index() {
     let txid = "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b";
     TestServer::new().assert_response_regex(
       format!("/output/{txid}:0"),
@@ -4122,7 +4122,7 @@ mod tests {
 
   #[test]
   fn null_output_receives_lost_sats() {
-    let server = TestServer::builder().index_sats().build();
+    let server = TestServer::builder().index_koinu().build();
 
     server.mine_blocks_with_subsidy(1, 0);
 
@@ -4152,7 +4152,7 @@ mod tests {
   fn unbound_output_receives_unbound_inscriptions() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -4476,8 +4476,8 @@ mod tests {
   }
 
   #[test]
-  fn rare_with_sat_index() {
-    TestServer::builder().index_sats().build().assert_response(
+  fn rare_with_koinu_index() {
+    TestServer::builder().index_koinu().build().assert_response(
       "/rare.txt",
       StatusCode::OK,
       "sat\tsatpoint
@@ -4487,7 +4487,7 @@ mod tests {
   }
 
   #[test]
-  fn rare_without_sat_index() {
+  fn rare_without_koinu_index() {
     TestServer::new().assert_response(
       "/rare.txt",
       StatusCode::OK,
@@ -4497,9 +4497,9 @@ mod tests {
   }
 
   #[test]
-  fn show_rare_txt_in_header_with_sat_index() {
+  fn show_rare_txt_in_header_with_koinu_index() {
     TestServer::builder()
-      .index_sats()
+      .index_koinu()
       .build()
       .assert_response_regex(
         "/",
@@ -4513,7 +4513,7 @@ mod tests {
   #[test]
   fn rare_sat_location() {
     TestServer::builder()
-      .index_sats()
+      .index_koinu()
       .build()
       .assert_response_regex(
         "/sat/0",
@@ -4523,7 +4523,7 @@ mod tests {
   }
 
   #[test]
-  fn dont_show_rare_txt_in_header_without_sat_index() {
+  fn dont_show_rare_txt_in_header_without_koinu_index() {
     TestServer::new().assert_response_regex(
       "/",
       StatusCode::OK,
@@ -4588,7 +4588,7 @@ mod tests {
 
   #[test]
   fn outputs_traversed_are_tracked() {
-    let server = TestServer::builder().index_sats().build();
+    let server = TestServer::builder().index_koinu().build();
 
     assert_eq!(
       server
@@ -4620,7 +4620,7 @@ mod tests {
 
   #[test]
   fn coinbase_sat_ranges_are_tracked() {
-    let server = TestServer::builder().index_sats().build();
+    let server = TestServer::builder().index_koinu().build();
 
     assert_eq!(
       server.index.statistic(crate::index::Statistic::SatRanges),
@@ -4644,7 +4644,7 @@ mod tests {
 
   #[test]
   fn split_sat_ranges_are_tracked() {
-    let server = TestServer::builder().index_sats().build();
+    let server = TestServer::builder().index_koinu().build();
 
     assert_eq!(
       server.index.statistic(crate::index::Statistic::SatRanges),
@@ -4668,7 +4668,7 @@ mod tests {
 
   #[test]
   fn fee_sat_ranges_are_tracked() {
-    let server = TestServer::builder().index_sats().build();
+    let server = TestServer::builder().index_koinu().build();
 
     assert_eq!(
       server.index.statistic(crate::index::Statistic::SatRanges),
@@ -5091,7 +5091,7 @@ mod tests {
   fn inscription_page_title() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.mine_blocks(1);
 
@@ -5113,7 +5113,7 @@ mod tests {
   fn inscription_page_has_sat_when_sats_are_tracked() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.mine_blocks(1);
 
@@ -5135,7 +5135,7 @@ mod tests {
   fn inscriptions_can_be_looked_up_by_sat_name() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.mine_blocks(1);
 
@@ -5157,7 +5157,7 @@ mod tests {
   fn gallery_items_can_be_looked_up_by_gallery_sat_name() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -5198,7 +5198,7 @@ mod tests {
   fn inscriptions_can_be_looked_up_by_sat_name_with_letter_i() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.assert_response_regex("/inscription/i", StatusCode::NOT_FOUND, ".*");
   }
@@ -5238,7 +5238,7 @@ mod tests {
   fn feed() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.mine_blocks(1);
 
@@ -5260,7 +5260,7 @@ mod tests {
   fn inscription_with_unknown_type_and_no_body_has_unknown_preview() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.mine_blocks(1);
 
@@ -5294,7 +5294,7 @@ mod tests {
   fn inscription_with_known_type_and_no_body_has_unknown_preview() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
     server.mine_blocks(1);
 
@@ -5362,7 +5362,7 @@ mod tests {
   fn inscriptions_page_with_no_prev_or_next() {
     TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build()
       .assert_response_regex("/inscriptions", StatusCode::OK, ".*prev\nnext.*");
   }
@@ -5371,7 +5371,7 @@ mod tests {
   fn inscriptions_page_with_no_next() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     for i in 0..101 {
@@ -5395,7 +5395,7 @@ mod tests {
   fn inscriptions_page_with_no_prev() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     for i in 0..101 {
@@ -5419,7 +5419,7 @@ mod tests {
   fn collections_page_prev_and_next() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     let mut parent_ids = Vec::new();
@@ -5500,7 +5500,7 @@ next
   fn collections_page_ordered_by_most_recent_child() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -5646,7 +5646,7 @@ next
   fn collections_page_shows_both_parents_of_multi_parent_child() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -5706,7 +5706,7 @@ next
   fn galleries_page_prev_and_next() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     let mut gallery_item_ids = Vec::new();
@@ -5891,7 +5891,7 @@ next
   fn galleries_json() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -5945,7 +5945,7 @@ next
   fn galleries_json_pagination() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     let mut item_ids = Vec::new();
@@ -6013,7 +6013,7 @@ next
   fn non_gallery_inscription_not_in_galleries() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(1);
@@ -6792,7 +6792,7 @@ next
   fn charm_coin() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(2);
@@ -6828,7 +6828,7 @@ next
   fn charm_uncommon() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(2);
@@ -6864,7 +6864,7 @@ next
   fn charm_nineball() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     server.mine_blocks(9);
@@ -7179,7 +7179,7 @@ next
   fn utxo_recursive_endpoint_all() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .index_dunes()
       .build();
 
@@ -7299,7 +7299,7 @@ next
   fn sat_recursive_endpoints() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     assert_eq!(
@@ -7871,7 +7871,7 @@ next
   fn inscriptions_in_block_page() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
-      .index_sats()
+      .index_koinu()
       .build();
 
     for _ in 0..101 {
@@ -7928,7 +7928,7 @@ next
   }
 
   #[test]
-  fn looking_up_inscription_by_sat_requires_sat_index() {
+  fn looking_up_inscription_by_sat_requires_koinu_index() {
     TestServer::builder()
       .chain(Chain::DogecoinRegtest)
       .build()
@@ -8338,7 +8338,7 @@ next
   #[test]
   fn sat_at_index_proxy() {
     let server = TestServer::builder()
-      .index_sats()
+      .index_koinu()
       .chain(Chain::DogecoinRegtest)
       .build();
 
@@ -8369,14 +8369,14 @@ next
       .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
-    let sat_indexed_server_with_proxy = TestServer::builder()
-      .index_sats()
+    let koinu_indexed_server_with_proxy = TestServer::builder()
+      .index_koinu()
       .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
     server_with_proxy.mine_blocks(1);
-    sat_indexed_server_with_proxy.mine_blocks(1);
+    koinu_indexed_server_with_proxy.mine_blocks(1);
 
     pretty_assert_eq!(
       server.get_json::<api::SatInscription>(format!("/r/sat/{ordinal}/at/-1")),
@@ -8389,7 +8389,7 @@ next
     );
 
     pretty_assert_eq!(
-      sat_indexed_server_with_proxy
+      koinu_indexed_server_with_proxy
         .get_json::<api::SatInscription>(format!("/r/sat/{ordinal}/at/-1")),
       api::SatInscription { id: Some(id) }
     );
@@ -8398,7 +8398,7 @@ next
   #[test]
   fn sat_at_index_content_proxy() {
     let server = TestServer::builder()
-      .index_sats()
+      .index_koinu()
       .chain(Chain::DogecoinRegtest)
       .build();
 
@@ -8453,14 +8453,14 @@ next
       .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
-    let sat_indexed_server_with_proxy = TestServer::builder()
-      .index_sats()
+    let koinu_indexed_server_with_proxy = TestServer::builder()
+      .index_koinu()
       .chain(Chain::DogecoinRegtest)
       .server_option("--proxy", server.url.as_ref())
       .build();
 
     server_with_proxy.mine_blocks(1);
-    sat_indexed_server_with_proxy.mine_blocks(1);
+    koinu_indexed_server_with_proxy.mine_blocks(1);
 
     server.assert_response(
       format!("/r/sat/{ordinal}/at/-1/content"),
@@ -8472,7 +8472,7 @@ next
       StatusCode::OK,
       "foo",
     );
-    sat_indexed_server_with_proxy.assert_response(
+    koinu_indexed_server_with_proxy.assert_response(
       format!("/r/sat/{ordinal}/at/-1/content"),
       StatusCode::OK,
       "foo",
@@ -8901,7 +8901,7 @@ next
   #[test]
   fn sat_inscription_at_index_content_endpoint() {
     let server = TestServer::builder()
-      .index_sats()
+      .index_koinu()
       .chain(Chain::DogecoinRegtest)
       .build();
 

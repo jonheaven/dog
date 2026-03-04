@@ -47,7 +47,7 @@ impl UtxoEntry {
     let mut inscriptions = None;
 
     let mut offset = 0;
-    if index.index_sats {
+    if index.index_koinu {
       let (num_sat_ranges, varint_len) = varint::decode(&self.bytes).unwrap();
       offset += varint_len;
 
@@ -210,7 +210,7 @@ impl UtxoEntryBuf {
   }
 
   pub fn push_value(&mut self, value: u64, index: &Index) {
-    assert!(!index.index_sats);
+    assert!(!index.index_koinu);
     varint::encode_to_vec(value.into(), &mut self.vec);
 
     #[cfg(debug_assertions)]
@@ -218,7 +218,7 @@ impl UtxoEntryBuf {
   }
 
   pub fn push_sat_ranges(&mut self, koinu_ranges: &[u8], index: &Index) {
-    assert!(index.index_sats);
+    assert!(index.index_koinu);
     let num_sat_ranges = koinu_ranges.len() / 11;
     assert!(num_sat_ranges * 11 == koinu_ranges.len());
     varint::encode_to_vec(num_sat_ranges.try_into().unwrap(), &mut self.vec);
@@ -269,7 +269,7 @@ impl UtxoEntryBuf {
     let b_parsed = b.parse(index);
     let mut merged = Self::new();
 
-    if index.index_sats {
+    if index.index_koinu {
       let koinu_ranges = [a_parsed.koinu_ranges(), b_parsed.koinu_ranges()].concat();
       merged.push_sat_ranges(&koinu_ranges, index);
     } else {
@@ -295,7 +295,7 @@ impl UtxoEntryBuf {
   pub fn empty(index: &Index) -> Self {
     let mut utxo_entry = Self::new();
 
-    if index.index_sats {
+    if index.index_koinu {
       utxo_entry.push_sat_ranges(&[], index);
     } else {
       utxo_entry.push_value(0, index);
