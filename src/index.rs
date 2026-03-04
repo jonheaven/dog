@@ -584,11 +584,18 @@ impl Index {
     let cursed_inscriptions = statistic(Statistic::CursedInscriptions)?;
     let initial_sync_time = statistic(Statistic::InitialSyncTime)?;
 
+    let active_protocols = match &self.only_protocols {
+      None => vec!["dns".into(), "drc20".into(), "dogemap".into()],
+      Some(list) => list.clone(),
+    };
+
     Ok(StatusHtml {
+      active_protocols,
       address_index: self.has_address_index(),
       blessed_inscriptions,
       chain: self.settings.chain(),
       cursed_inscriptions,
+      dogemap_count: statistic(Statistic::DogemapClaims)?,
       height,
       initial_sync_time: Duration::from_micros(initial_sync_time),
       inscription_index: self.has_inscription_index(),

@@ -74,6 +74,37 @@ or 3D metaverse renderer.
 
 Full protocol spec: [docs/src/doginals-spec.md — Dogemaps v1](docs/src/doginals-spec.md#dogemaps-block-titles-v1)
 
+### Selective Indexing
+
+Customize what gets processed for faster or lighter runs.
+
+```bash
+# Only index Dogemap claims — skip images, DRC-20, DNS entirely
+dog index update --only dogemap
+
+# Only tokens + names (no Dogemaps)
+dog index update --only drc20,dns
+
+# Ultra-light: Dogemaps only, no inscription content stored
+dog index update --only dogemap --no-index-inscriptions
+
+# Track every individual koinu (replaces old --index-sats)
+dog --index-koinu index update
+
+# Full Dune token indexing + address lookup
+dog --index-dunes --index-addresses index update
+```
+
+| Flag | Env var | Effect |
+|------|---------|--------|
+| `--only dns,drc20,dogemap` | `ORD_ONLY_PROTOCOLS` | Process only the listed sub-protocols (default: all three) |
+| `--index-koinu` | `ORD_INDEX_KOINU` | Track every koinu by ordinal number. Required for `dog find`, `dog list`, koinu card. |
+| `--index-dunes` | `ORD_INDEX_DUNES` | Index Dune etchings, mints, transfers. Required for `dog dune *`. |
+| `--index-addresses` | `ORD_INDEX_ADDRESSES` | Address→UTXOs index. Required for `dog dune balance`. |
+| `--no-index-inscriptions` | `ORD_NO_INDEX_INSCRIPTIONS` | Skip inscription content (useful for Dune/Dogemap-only nodes). |
+
+Full reference: [docs/src/dogecoin.md — Selective indexing flags](docs/src/dogecoin.md#6-selective-indexing-flags)
+
 ### Fast sync (direct .blk file reads)
 
 `dog` reads blocks directly from Dogecoin Core's binary `.blk` files,

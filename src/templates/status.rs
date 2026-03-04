@@ -2,10 +2,12 @@ use super::*;
 
 #[derive(Boilerplate, Debug, PartialEq, Serialize, Deserialize)]
 pub struct StatusHtml {
+  pub active_protocols: Vec<String>,
   pub address_index: bool,
   pub blessed_inscriptions: u64,
   pub chain: Chain,
   pub cursed_inscriptions: u64,
+  pub dogemap_count: u64,
   pub height: Option<u32>,
   pub initial_sync_time: Duration,
   pub inscription_index: bool,

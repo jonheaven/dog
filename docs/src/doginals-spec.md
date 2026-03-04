@@ -220,8 +220,9 @@ Generate procedural visuals from the target block's on-chain data:
 - Grid pattern from transaction count
 - Height/depth factor from block size in bytes
 
-The `/dogemap/{block}` endpoint returns an inline SVG seeded this way, ready for 2D
-display or 3D metaverse integration.
+The `/dogemap/{block}` endpoint returns an inline SVG seeded this way — embed it
+directly in websites (`<img src="…/dogemap/5056597">`) or feed `block_hash`,
+`tx_count`, and `block_number` to your 3D metaverse renderer via the same JSON response.
 
 **CLI**
 
