@@ -2821,6 +2821,75 @@ impl Index {
       .collect()
   }
 
+  /// Lazy address lookup via RPC when no address index exists.
+  /// Returns partial results by scanning UTXOs via scantxoutset.
+  pub fn lazy_address_lookup(&self, address: &Address) -> Result<api::AddressInfo> {
+    use serde_json::json;
+
+    let script_pubkey = address.script_pubkey();
+    let script_hex = hex::encode(script_pubkey.as_bytes());
+
+    // Use scantxoutset RPC to find UTXOs without a full index
+    let descriptor = format!("raw({})", script_hex);
+    let result: serde_json::Value = self.client.call(
+      "scantxoutset",
+      &[json!("start"), json!([descriptor])],
+    )?;
+
+    let mut outputs = Vec::new();
+    let mut total_balance = 0u64;
+    let mut inscriptions = Vec::new();
+
+    // Parse the scantxoutset results
+    if let Some(unspents) = result.get("unspents").and_then(|v| v.as_array()) {
+      for unspent in unspents {
+        if let (Some(txid_str), Some(vout), Some(amount_btc)) = (
+          unspent.get("txid").and_then(|v| v.as_str()),
+          unspent.get("vout").and_then(|v| v.as_u64()),
+          unspent.get("amount").and_then(|v| v.as_f64()),
+        ) {
+          let txid = txid_str.parse::<Txid>()?;
+          let outpoint = OutPoint {
+            txid,
+            vout: vout as u32,
+          };
+          outputs.push(outpoint);
+
+          // Convert BTC to koinu (satoshis)
+          total_balance += (amount_btc * 100_000_000.0) as u64;
+
+          // Try to detect inscriptions on this output
+          if let Some(tx) = self.get_transaction(txid)? {
+            let envelopes = inscriptions::ParsedEnvelope::from_transaction(&tx);
+            for envelope in envelopes {
+              let inscription_id = InscriptionId {
+                txid,
+                index: envelope.input,
+              };
+              inscriptions.push(inscription_id);
+            }
+          }
+        }
+      }
+    }
+
+    log::info!(
+      "Lazy lookup for address {}: found {} outputs, {} koinu, {} inscriptions (partial results - full index recommended)",
+      address,
+      outputs.len(),
+      total_balance,
+      inscriptions.len()
+    );
+
+    Ok(api::AddressInfo {
+      outputs,
+      inscriptions: Some(inscriptions),
+      sat_balance: total_balance,
+      dunes_balances: Some(Vec::new()), // Dunes require full index
+      lazy_lookup: Some(true),
+    })
+  }
+
   pub(crate) fn get_aggregated_dune_balances_for_outputs(
     &self,
     outputs: &Vec<OutPoint>,
