@@ -1199,6 +1199,12 @@ impl Updater<'_> {
         continue;
       };
 
+      // Bitmap/Dogemap spec: the claimed block must already exist at inscription time.
+      // Inscriptions targeting a future block are void and must never be indexed.
+      if target_block > self.height {
+        continue;
+      }
+
       // Open the claims table and skip if already claimed (first wins)
       let mut claims = wtx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
       if claims.get(&target_block)?.is_some() {
