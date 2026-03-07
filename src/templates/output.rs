@@ -50,8 +50,8 @@ mod tests {
         </dl>
         <h2>2 Koinu Ranges</h2>
         <ul class=monospace>
-          <li><a href=/sat/0 class=mythic>0</a></li>
-          <li><a href=/sat/1 class=common>1</a>-<a href=/sat/2 class=common>2</a> \\(2 koinu\\)</li>
+          <li><a href=/koinu/0 class=mythic>0</a></li>
+          <li><a href=/koinu/1 class=common>1</a>-<a href=/koinu/2 class=common>2</a> \\(2 koinu\\)</li>
         </ul>
       "
       .unindent()
@@ -113,8 +113,8 @@ mod tests {
         </dl>
         <h2>2 Koinu Ranges</h2>
         <ul class=monospace>
-          <li><a href=/sat/0 class=mythic>0</a></li>
-          <li><a href=/sat/1 class=common>1</a>-<a href=/sat/2 class=common>2</a> \\(2 koinu\\)</li>
+          <li><a href=/koinu/0 class=mythic>0</a></li>
+          <li><a href=/koinu/1 class=common>1</a>-<a href=/koinu/2 class=common>2</a> \\(2 koinu\\)</li>
         </ul>
       "
       .unindent()

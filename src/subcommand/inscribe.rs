@@ -450,9 +450,9 @@ fn script_sig_size(segments: &[Vec<u8>]) -> usize {
 /// - tx overhead  = 10 bytes (version 4 + locktime 4 + 1-byte varint × 2)
 /// - per input    = 32 (txid) + 4 (vout) + varint(scriptSig_len) + scriptSig_len + 4 (seq)
 /// - per output   = 8 (value) + 1 (varint) + 25 (P2PKH script)
-fn calc_fee(scriptSig_bytes: usize, n_outputs: usize, fee_rate: f64) -> u64 {
-  let script_varint = if scriptSig_bytes < 0xfd { 1usize } else { 3 };
-  let input_size = 32 + 4 + script_varint + scriptSig_bytes + 4;
+fn calc_fee(script_sig_bytes: usize, n_outputs: usize, fee_rate: f64) -> u64 {
+  let script_varint = if script_sig_bytes < 0xfd { 1usize } else { 3 };
+  let input_size = 32 + 4 + script_varint + script_sig_bytes + 4;
   let output_size = n_outputs * (8 + 1 + 25);
   let total = 10 + input_size + output_size;
   (total as f64 * fee_rate).ceil() as u64

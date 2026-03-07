@@ -18,12 +18,10 @@ impl IntoResponse for ServerError {
     match self {
       Self::BadRequest(message) => (StatusCode::BAD_REQUEST, message).into_response(),
       Self::Internal(error) => {
-        eprintln!("error serving request: {error}");
+        eprintln!("error serving request: {error:#}");
         (
           StatusCode::INTERNAL_SERVER_ERROR,
-          StatusCode::INTERNAL_SERVER_ERROR
-            .canonical_reason()
-            .unwrap_or_default(),
+          format!("{error:#}"),
         )
           .into_response()
       }

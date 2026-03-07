@@ -1,0 +1,26 @@
+<h1>Koinu Relics</h1>
+<p>Verifiable historical artifacts for Dogecoin transactions.</p>
+
+<h2>How Ownership Works</h2>
+<ul>
+  <li>Each inscription is a distinct artifact on-chain, even if two inscriptions reference the same transaction and Merkle proof.</li>
+  <li>So yes, anyone can technically mint the same source transaction again unless a protocol-level claim rule is enforced.</li>
+  <li>If you want Dogemap-style uniqueness, define and index a canonical claim rule: "first valid inscription for (txid, blockhash) wins".</li>
+</ul>
+
+<h2>Preview</h2>
+<p>
+  Use the auto-theme preview template to render a relic from recursive endpoints:
+  <a href=/static/koinu-relic-auto-theme.html>Open Preview Template</a>
+</p>
+<p>
+  Tip: pass query params for quick preview:
+  <code>/static/koinu-relic-auto-theme.html?txid=...&amp;blockhash=...&amp;proof=[...]</code>
+</p>
+
+<h2>Theme Logic</h2>
+<ul>
+  <li>Regular transactions render in Dogecoin gold / shiba palette.</li>
+  <li>Coinbase-like transactions render in dense pink solo-miner style.</li>
+  <li>Both are still verified from <code>/r/tx</code> and <code>/r/blockinfo</code>.</li>
+</ul>

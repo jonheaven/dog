@@ -1,6 +1,12 @@
 %% if self.header {
 <h1>Address {{ self.address }}</h1>
 %% }
+%% if self.lazy_lookup {
+<div class="warning" style="background: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+  <strong>⚠️ Partial Live Data:</strong> This address info was retrieved via RPC without a full index. 
+  Inscription data may be incomplete. For complete results, run the server with <code>--index-addresses</code>.
+</div>
+%% }
 <dl>
   <dt>koinu balance</dt>
   <dd>{{ self.sat_balance }}</dd>

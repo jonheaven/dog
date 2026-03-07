@@ -3,7 +3,7 @@ use super::*;
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Output {
   pub cardinal: u64,
-  pub ordinal: u64,
+  pub doginal: u64,
   #[serde(default, skip_serializing_if = "Option::is_none")]
   pub dunes: Option<BTreeMap<SpacedDune, Decimal>>,
   #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -21,7 +21,7 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
     .collect::<BTreeSet<OutPoint>>();
 
   let mut cardinal = 0;
-  let mut ordinal = 0;
+  let mut doginal = 0;
   let mut dunes = BTreeMap::new();
   let mut runic = 0;
 
@@ -30,11 +30,11 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
       .get_dunes_balances_in_output(output)?
       .unwrap_or_default();
 
-    let is_ordinal = inscription_outputs.contains(output);
+    let is_doginal = inscription_outputs.contains(output);
     let is_runic = !dune_balances.is_empty();
 
-    if is_ordinal {
-      ordinal += txout.value.to_sat();
+    if is_doginal {
+      doginal += txout.value.to_sat();
     }
 
     if is_runic {
@@ -53,21 +53,21 @@ pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
       runic += txout.value.to_sat();
     }
 
-    if !is_ordinal && !is_runic {
+    if !is_doginal && !is_runic {
       cardinal += txout.value.to_sat();
     }
 
-    if is_ordinal && is_runic {
+    if is_doginal && is_runic {
       eprintln!("warning: output {output} contains both inscriptions and dunes");
     }
   }
 
   Ok(Some(Box::new(Output {
     cardinal,
-    ordinal,
+    doginal,
     dunes: wallet.has_dune_index().then_some(dunes),
     runic: wallet.has_dune_index().then_some(runic),
-    total: cardinal + ordinal + runic,
+    total: cardinal + doginal + runic,
   })))
 }
 
@@ -80,13 +80,13 @@ mod tests {
     assert_eq!(
       serde_json::to_string(&Output {
         cardinal: 0,
-        ordinal: 0,
+        doginal: 0,
         dunes: None,
         runic: None,
         total: 0
       })
       .unwrap(),
-      r#"{"cardinal":0,"ordinal":0,"total":0}"#
+      r#"{"cardinal":0,"doginal":0,"total":0}"#
     );
   }
 }

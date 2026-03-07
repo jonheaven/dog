@@ -71,12 +71,13 @@ mod tests {
         koinucard: Some((
           crate::koinucard::tests::coinkite_koinucard(),
           Some(AddressHtml {
-            address: crate::koinucard::tests::coinkite_address(),
+            address: crate::koinucard::tests::coinkite_address().to_string(),
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
             dunes_balances: None,
             sat_balance: 0,
+            lazy_lookup: false,
           })
         )),
       }
@@ -126,12 +127,13 @@ mod tests {
             ..crate::koinucard::tests::coinkite_koinucard()
           },
           Some(AddressHtml {
-            address: crate::koinucard::tests::coinkite_address(),
+            address: crate::koinucard::tests::coinkite_address().to_string(),
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
             dunes_balances: None,
             sat_balance: 0,
+            lazy_lookup: false,
           })
         )),
       }
@@ -154,12 +156,13 @@ mod tests {
             ..crate::koinucard::tests::coinkite_koinucard()
           },
           Some(AddressHtml {
-            address: crate::koinucard::tests::coinkite_address(),
+            address: crate::koinucard::tests::coinkite_address().to_string(),
             header: false,
             inscriptions: Some(Vec::new()),
             outputs: Vec::new(),
             dunes_balances: None,
             sat_balance: 0,
+            lazy_lookup: false,
           })
         )),
       }

@@ -52,7 +52,7 @@ mod tests {
         </dl>
         .*
         prev
-        <a class=next href=/sat/1>next</a>
+        <a class=next href=/koinu/1>next</a>
         .*
       "
       .unindent()
@@ -89,7 +89,7 @@ mod tests {
           </dd>
         </dl>
         .*
-        <a class=prev href=/sat/2099999997689998>prev</a>
+        <a class=prev href=/koinu/2099999997689998>prev</a>
         next
         .*
       "
@@ -107,7 +107,7 @@ mod tests {
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
-      r"<h1>Koinu 1</h1>.*<a class=prev href=/sat/0>prev</a>\n<a class=next href=/sat/2>next</a>.*",
+      r"<h1>Koinu 1</h1>.*<a class=prev href=/koinu/0>prev</a>\n<a class=next href=/koinu/2>next</a>.*",
     );
   }
 
@@ -166,7 +166,7 @@ mod tests {
         blocktime: Blocktime::confirmed(0),
         inscriptions: Vec::new(),
       },
-      r"<h1>Koinu 2099999997689999</h1>.*<a class=prev href=/sat/2099999997689998>prev</a>\nnext.*",
+      r"<h1>Koinu 2099999997689999</h1>.*<a class=prev href=/koinu/2099999997689998>prev</a>\nnext.*",
     );
   }
 

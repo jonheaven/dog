@@ -51,7 +51,7 @@ pub(crate) enum Subcommand {
   Inscribe(inscribe::InscribeCommand),
   #[command(about = "List the koinus in an output")]
   List(list::List),
-  #[command(about = "Parse a koinu from ordinal notation")]
+  #[command(about = "Parse a koinu from doginal notation")]
   Parse(parse::Parse),
   #[command(about = "List all dunes")]
   Dunes,

@@ -286,7 +286,7 @@ pub struct Error {
 
 impl Display for Error {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "failed to parse sat `{}`: {}", self.input, self.kind)
+    write!(f, "failed to parse koinu `{}`: {}", self.input, self.kind)
   }
 }
 
@@ -827,7 +827,7 @@ mod tests {
         kind: ErrorKind::Percentile
       }
       .to_string(),
-      "failed to parse sat `foo`: invalid percentile",
+      "failed to parse koinu `foo`: invalid percentile",
     );
   }
 

@@ -2485,6 +2485,60 @@ impl Index {
     };
 
     let Some(sequence_number) = sequence_number else {
+      // Index hasn't seen this inscription yet. If it's an ID query we have the txid
+      // directly, so fall back to fetching the raw transaction via RPC (txindex=1).
+      if let query::Inscription::Id(id) = query {
+        let transaction = self.client.get_raw_transaction(&id.txid, None)
+          .map_err(|e| anyhow::anyhow!(
+            "transaction {} not available via RPC — node may not be fully synced to that block yet ({})",
+            id.txid, e
+          ))?;
+        let Some(inscription) = ParsedEnvelope::from_transaction(&transaction)
+          .into_iter()
+          .nth(id.index as usize)
+          .map(|envelope| envelope.payload)
+        else {
+          return Ok(None);
+        };
+        // Derive the satpoint from the transaction output referenced by the inscription index.
+        let satpoint = KoinuPoint {
+          outpoint: OutPoint { txid: id.txid, vout: 0 },
+          offset: 0,
+        };
+        let output = transaction.output.into_iter().next();
+        let address = output
+          .as_ref()
+          .and_then(|o| self.settings.chain().address_from_script(&o.script_pubkey).ok())
+          .map(|a| a.to_string());
+        let effective_mime_type = inscription.content_type().map(str::to_string);
+        return Ok(Some((
+          api::Inscription {
+            address,
+            charms: Vec::new(),
+            child_count: 0,
+            children: Vec::new(),
+            content_length: inscription.content_length(),
+            content_type: inscription.content_type().map(|s| s.to_string()),
+            effective_content_type: effective_mime_type,
+            fee: 0,
+            height: 0,
+            id,
+            next: None,
+            number: -1,
+            parents: Vec::new(),
+            previous: None,
+            properties: inscription.properties(),
+            dune: None,
+            sat: None,
+            satpoint,
+            timestamp: 0,
+            value: output.as_ref().map(|o| o.value.to_sat()),
+            metaprotocol: inscription.metaprotocol().map(|s| s.to_string()),
+          },
+          output,
+          inscription,
+        )));
+      }
       return Ok(None);
     };
 
@@ -2821,73 +2875,60 @@ impl Index {
       .collect()
   }
 
-  /// Lazy address lookup via RPC when no address index exists.
-  /// Returns partial results by scanning UTXOs via scantxoutset.
+  /// Lazy address lookup when no address index exists.
+  /// Tries Dogecoin Core's address index RPC (getaddressutxos) first.
+  /// Falls back to a clear actionable error message.
   pub fn lazy_address_lookup(&self, address: &Address) -> Result<api::AddressInfo> {
     use serde_json::json;
 
-    let script_pubkey = address.script_pubkey();
-    let script_hex = hex::encode(script_pubkey.as_bytes());
+    let address_str = address.to_string();
 
-    // Use scantxoutset RPC to find UTXOs without a full index
-    let descriptor = format!("raw({})", script_hex);
-    let result: serde_json::Value = self.client.call(
-      "scantxoutset",
-      &[json!("start"), json!([descriptor])],
-    )?;
+    // Strategy 1: Dogecoin Core address index (requires addressindex=1 in dogecoin.conf)
+    let core_result: std::result::Result<serde_json::Value, _> = self.client.call(
+      "getaddressutxos",
+      &[json!({ "addresses": [&address_str] })],
+    );
 
-    let mut outputs = Vec::new();
-    let mut total_balance = 0u64;
-    let mut inscriptions = Vec::new();
+    if let Ok(utxos) = core_result {
+      if let Some(utxo_arr) = utxos.as_array() {
+        let mut outputs = Vec::new();
+        let mut total_balance = 0u64;
 
-    // Parse the scantxoutset results
-    if let Some(unspents) = result.get("unspents").and_then(|v| v.as_array()) {
-      for unspent in unspents {
-        if let (Some(txid_str), Some(vout), Some(amount_btc)) = (
-          unspent.get("txid").and_then(|v| v.as_str()),
-          unspent.get("vout").and_then(|v| v.as_u64()),
-          unspent.get("amount").and_then(|v| v.as_f64()),
-        ) {
-          let txid = txid_str.parse::<Txid>()?;
-          let outpoint = OutPoint {
-            txid,
-            vout: vout as u32,
-          };
-          outputs.push(outpoint);
-
-          // Convert BTC to koinu (satoshis)
-          total_balance += (amount_btc * 100_000_000.0) as u64;
-
-          // Try to detect inscriptions on this output
-          if let Some(tx) = self.get_transaction(txid)? {
-            let envelopes = inscriptions::ParsedEnvelope::from_transaction(&tx);
-            for envelope in envelopes {
-              let inscription_id = InscriptionId {
-                txid,
-                index: envelope.input,
-              };
-              inscriptions.push(inscription_id);
+        for utxo in utxo_arr {
+          if let (Some(txid_str), Some(vout), Some(koinu)) = (
+            utxo.get("txid").and_then(|v| v.as_str()),
+            utxo.get("outputIndex").and_then(|v| v.as_u64()),
+            utxo.get("satoshis").and_then(|v| v.as_u64()),
+          ) {
+            if let Ok(txid) = txid_str.parse::<Txid>() {
+              outputs.push(OutPoint { txid, vout: vout as u32 });
+              total_balance += koinu;
             }
           }
         }
+
+        let inscriptions = self.get_inscriptions_for_outputs(&outputs)?;
+        let dunes_balances = self.get_aggregated_dune_balances_for_outputs(&outputs)?;
+
+        log::info!(
+          "Address lookup via Dogecoin Core index: {} — {} outputs, {} koinu",
+          address_str, outputs.len(), total_balance,
+        );
+
+        return Ok(api::AddressInfo {
+          outputs,
+          inscriptions,
+          sat_balance: total_balance,
+          dunes_balances,
+          lazy_lookup: Some(true),
+        });
       }
     }
 
-    log::info!(
-      "Lazy lookup for address {}: found {} outputs, {} koinu, {} inscriptions (partial results - full index recommended)",
-      address,
-      outputs.len(),
-      total_balance,
-      inscriptions.len()
-    );
-
-    Ok(api::AddressInfo {
-      outputs,
-      inscriptions: Some(inscriptions),
-      sat_balance: total_balance,
-      dunes_balances: Some(Vec::new()), // Dunes require full index
-      lazy_lookup: Some(true),
-    })
+    // No address index available anywhere.
+    Err(anyhow::anyhow!(
+      "Address index not available. Re-run the dog indexer with --index-addresses,        or add addressindex=1 to dogecoin.conf and restart Dogecoin Core."
+    ))
   }
 
   pub(crate) fn get_aggregated_dune_balances_for_outputs(

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KOINU RELIC</title>
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    canvas { display: block; margin: 0 auto; max-width: 100vw; max-height: 100vh; }
+  </style>
+</head>
+<body>
+<script>
+// Koinu Relic - verified digital artifact on Dogecoin.
+// Powered by dog indexer recursion endpoints.
+
+const DOG_SERVER = "https://api.wzrd.dog";
+
+const TXID = "REPLACE_WITH_TXID";
+const BLOCKHASH = "REPLACE_WITH_BLOCKHASH";
+const MERKLE_PROOF = [
+  // Example: "L-<64 hex>", "r-<64 hex>"
+  // Paste full proof array from your mint tool.
+];
+
+function hexToBytes(hex) {
+  if (!/^[0-9a-fA-F]*$/.test(hex) || hex.length % 2 !== 0) {
+    throw new Error("invalid hex string");
+  }
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+  return bytes;
+}
+
+function bytesToHex(bytes) {
+  let out = "";
+  for (const b of bytes) out += b.toString(16).padStart(2, "0");
+  return out;
+}
+
+function reverseHexBytes(hex) {
+  return hex.match(/../g).reverse().join("");
+}
+
+async function sha256Hex(hex) {
+  const bytes = hexToBytes(hex);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return bytesToHex(new Uint8Array(digest));
+}
+
+// Returns txid display format (little-endian byte order string)
+async function txidFromRawTxHex(rawTxHex) {
+  const first = await sha256Hex(rawTxHex);
+  const second = await sha256Hex(first);
+  return reverseHexBytes(second);
+}
+
+async function doubleSha256Hex(hex) {
+  return sha256Hex(await sha256Hex(hex));
+}
+
+async function merkleRootFromProof(txidDisplayHex, proof) {
+  // Merkle math uses internal byte order, not display txid byte order.
+  let current = reverseHexBytes(txidDisplayHex);
+
+  for (const p of proof) {
+    const side = p[0];
+    const siblingDisplay = p.slice(2);
+    if (!/^[0-9a-fA-F]{64}$/.test(siblingDisplay)) {
+      throw new Error("invalid proof sibling: " + p);
+    }
+
+    const sibling = reverseHexBytes(siblingDisplay.toLowerCase());
+    if (side === "L") {
+      current = await doubleSha256Hex(sibling + current);
+    } else if (side === "r" || side === "R") {
+      current = await doubleSha256Hex(current + sibling);
+    } else {
+      throw new Error("invalid proof side: " + side);
+    }
+  }
+
+  // Return display-style hex to compare to block merkleroot strings.
+  return reverseHexBytes(current);
+}
+
+function fitCanvas(canvas, baseW, baseH) {
+  const ratio = Math.min(window.innerWidth / baseW, window.innerHeight / baseH);
+  canvas.style.width = Math.floor(baseW * ratio) + "px";
+  canvas.style.height = Math.floor(baseH * ratio) + "px";
+}
+
+async function verifyAndRender() {
+  const status = document.createElement("div");
+  status.style = "position:fixed;top:12px;left:12px;color:#ff0;z-index:100;font-family:monospace";
+  status.textContent = "VERIFYING ON-CHAIN...";
+  document.body.appendChild(status);
+
+  try {
+    if (TXID.startsWith("REPLACE_") || BLOCKHASH.startsWith("REPLACE_")) {
+      throw new Error("fill in TXID, BLOCKHASH, and MERKLE_PROOF before inscription");
+    }
+
+    const txHex = await (await fetch(`${DOG_SERVER}/r/tx/${TXID}`)).text();
+    const computedTxid = await txidFromRawTxHex(txHex.trim());
+    if (computedTxid.toLowerCase() !== TXID.toLowerCase()) {
+      throw new Error("tx data mismatch");
+    }
+
+    const block = await (await fetch(`${DOG_SERVER}/r/blockinfo/${BLOCKHASH}`)).json();
+    const merkleRoot = (block.merkleroot || block.merkle_root || "").toLowerCase();
+    const blockTime = Number(block.time || block.timestamp || 0);
+
+    if (!/^[0-9a-f]{64}$/.test(merkleRoot)) {
+      throw new Error("blockinfo missing merkle root");
+    }
+    if (!Number.isFinite(blockTime) || blockTime <= 0) {
+      throw new Error("blockinfo missing timestamp");
+    }
+
+    const calculatedRoot = await merkleRootFromProof(TXID.toLowerCase(), MERKLE_PROOF);
+    if (calculatedRoot.toLowerCase() !== merkleRoot) {
+      throw new Error("merkle proof failed");
+    }
+
+    const mintedDate = new Date(blockTime * 1000).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    document.body.innerHTML = "<canvas id=\"c\" width=\"860\" height=\"860\"></canvas>";
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+    drawKoinuChip(ctx, mintedDate);
+    fitCanvas(canvas, 860, 860);
+    window.addEventListener("resize", () => fitCanvas(canvas, 860, 860));
+  } catch (e) {
+    document.body.innerHTML = `<h2 style=\"color:#f44;padding:60px;text-align:center;font-family:monospace\">Verification Failed<br><small>${String(e)}</small></h2>`;
+  }
+}
+
+function drawKoinuChip(ctx, mintedDate) {
+  const w = 860;
+  const h = 860;
+
+  ctx.fillStyle = "#0a110f";
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.shadowColor = "#00ffaa";
+  ctx.shadowBlur = 22;
+
+  ctx.strokeStyle = "#002211";
+  ctx.lineWidth = 1.5;
+  for (let x = 36; x < w - 36; x += 29) {
+    ctx.beginPath();
+    ctx.moveTo(x, 36);
+    ctx.lineTo(x, h - 36);
+    ctx.stroke();
+  }
+  for (let y = 36; y < h - 36; y += 29) {
+    ctx.beginPath();
+    ctx.moveTo(36, y);
+    ctx.lineTo(w - 36, y);
+    ctx.stroke();
+  }
+
+  const blockColors = ["#00cc77", "#00ff99", "#008855"];
+  const blockPositions = [
+    [82, 72, 112, 68], [210, 55, 84, 94], [340, 118, 76, 52], [480, 64, 98, 78],
+    [620, 92, 64, 108], [118, 212, 92, 64], [272, 198, 108, 82], [510, 228, 72, 96],
+    [682, 184, 88, 74], [94, 338, 66, 118], [248, 372, 124, 56], [418, 312, 82, 104],
+    [592, 364, 96, 68], [712, 318, 58, 92], [126, 492, 108, 76], [284, 528, 78, 88],
+    [452, 478, 92, 64], [618, 512, 74, 82], [76, 638, 88, 66], [224, 672, 102, 74],
+    [396, 618, 86, 96], [548, 664, 78, 58], [684, 592, 72, 88],
+  ];
+
+  for (let i = 0; i < blockPositions.length; i++) {
+    const b = blockPositions[i];
+    ctx.fillStyle = blockColors[i % 3];
+    ctx.globalAlpha = 0.85;
+    ctx.fillRect(b[0], b[1], b[2], b[3]);
+    ctx.strokeStyle = "#bbffdd";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(b[0] + 2, b[1] + 2, b[2] - 4, b[3] - 4);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.shadowBlur = 35;
+  ctx.fillStyle = "#001a14";
+  ctx.fillRect(238, 248, 384, 364);
+  ctx.strokeStyle = "#00ffcc";
+  ctx.lineWidth = 9;
+  ctx.strokeRect(248, 258, 364, 344);
+
+  ctx.shadowBlur = 28;
+  ctx.fillStyle = "#00ffcc";
+  ctx.font = "bold 94px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("KOINU", w / 2, 408);
+
+  ctx.font = "bold 29px monospace";
+  ctx.fillStyle = "#88ffcc";
+  ctx.fillText("RELIC", w / 2, 455);
+
+  ctx.shadowBlur = 6;
+  ctx.font = "13px monospace";
+  ctx.fillStyle = "#77ffbb";
+  const labels = ["ORD", "INSC", "DOGE", "KOINU", "TXID", "BLOCK", "MERKLE", "PROOF", "0xA3F9", "0x7C2D", "108965", "4389", "532E", "BC1P", "DOG"];
+  for (let i = 0; i < labels.length; i++) {
+    ctx.fillText(labels[i], 92 + (i % 9) * 78, 92 + Math.floor(i / 9) * 92);
+  }
+
+  ctx.fillStyle = "#001f1a";
+  ctx.fillRect(0, h - 78, w, 78);
+  ctx.strokeStyle = "#00ffaa";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(18, h - 68, w - 36, 52);
+
+  ctx.font = "bold 16px monospace";
+  ctx.fillStyle = "#bbffdd";
+  ctx.textAlign = "center";
+  ctx.fillText(`MINTED ${mintedDate}`, w / 2, h - 44);
+  ctx.fillText(`MINTED BY ${TXID.slice(0, 12)}...`, w / 2, h - 24);
+
+  ctx.font = "italic 21px monospace";
+  ctx.fillStyle = "#00dd99";
+  ctx.fillText("wzrd.dog", w - 138, h - 88);
+
+  ctx.font = "10px monospace";
+  ctx.fillStyle = "#00cc66";
+  const stream = "ded110183f00de5cf00e15a69b532ef18ace8a0dd2786a75a5fe43893594e07d10";
+  ctx.fillText(stream, 42, 26);
+  ctx.fillText(stream.split("").reverse().join(""), 42, h - 6);
+}
+
+verifyAndRender();
+</script>
+</body>
+</html>

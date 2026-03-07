@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KOINU RELIC</title>
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    canvas { display: block; margin: 0 auto; max-width: 100vw; max-height: 100vh; }
+  </style>
+</head>
+<body>
+<script>
+// Koinu Relic Auto Theme
+// Regular tx: Dogecoin gold / Shiba palette
+// Coinbase tx: dense pink solo-miner palette
+
+const DOG_SERVER = "https://api.wzrd.dog";
+
+const TXID = "REPLACE_WITH_TXID";
+const BLOCKHASH = "REPLACE_WITH_BLOCKHASH";
+const MERKLE_PROOF = [
+  // Example entry: "L-<64 hex>" or "r-<64 hex>"
+  // Paste the full proof from your mint pipeline.
+];
+
+function parseProofParam(proofParam) {
+  if (!proofParam) return MERKLE_PROOF;
+
+  try {
+    const parsed = JSON.parse(proofParam);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // fall through to comma-separated parsing
+  }
+
+  return proofParam
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+const params = new URLSearchParams(window.location.search);
+const RELIC_SERVER = (params.get("server") || DOG_SERVER).trim();
+const RELIC_TXID = (params.get("txid") || TXID).trim();
+const RELIC_BLOCKHASH = (params.get("blockhash") || BLOCKHASH).trim();
+const RELIC_PROOF = parseProofParam(params.get("proof"));
+
+function hexToBytes(hex) {
+  if (!/^[0-9a-fA-F]*$/.test(hex) || hex.length % 2 !== 0) {
+    throw new Error("invalid hex string");
+  }
+
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+  return bytes;
+}
+
+function bytesToHex(bytes) {
+  let out = "";
+  for (const b of bytes) out += b.toString(16).padStart(2, "0");
+  return out;
+}
+
+function reverseHexBytes(hex) {
+  return hex.match(/../g).reverse().join("");
+}
+
+async function sha256Hex(hex) {
+  const bytes = hexToBytes(hex);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return bytesToHex(new Uint8Array(digest));
+}
+
+async function txidFromRawTxHex(rawTxHex) {
+  const first = await sha256Hex(rawTxHex);
+  const second = await sha256Hex(first);
+  return reverseHexBytes(second);
+}
+
+async function doubleSha256Hex(hex) {
+  return sha256Hex(await sha256Hex(hex));
+}
+
+async function merkleRootFromProof(txidDisplayHex, proof) {
+  let current = reverseHexBytes(txidDisplayHex);
+
+  for (const p of proof) {
+    const side = p[0];
+    const siblingDisplay = p.slice(2);
+
+    if (!/^[0-9a-fA-F]{64}$/.test(siblingDisplay)) {
+      throw new Error("invalid proof sibling: " + p);
+    }
+
+    const sibling = reverseHexBytes(siblingDisplay.toLowerCase());
+
+    if (side === "L") {
+      current = await doubleSha256Hex(sibling + current);
+    } else if (side === "r" || side === "R") {
+      current = await doubleSha256Hex(current + sibling);
+    } else {
+      throw new Error("invalid proof side: " + side);
+    }
+  }
+
+  return reverseHexBytes(current);
+}
+
+function fitCanvas(canvas, width, height) {
+  const ratio = Math.min(window.innerWidth / width, window.innerHeight / height);
+  canvas.style.width = Math.floor(width * ratio) + "px";
+  canvas.style.height = Math.floor(height * ratio) + "px";
+}
+
+function extractEmbeddedText(txHex) {
+  let printable = "";
+  for (let i = 0; i < txHex.length; i += 2) {
+    const n = parseInt(txHex.slice(i, i + 2), 16);
+    if (n >= 32 && n <= 126) printable += String.fromCharCode(n);
+  }
+
+  const words = printable.match(/[A-Za-z0-9]{5,}/g) || [];
+  if (!words.length) return "KOINU";
+  words.sort((a, b) => b.length - a.length);
+  return words[0].toUpperCase();
+}
+
+function createSeededRng(seedHex) {
+  let state = Number.parseInt(seedHex.slice(0, 8), 16) >>> 0;
+  if (state === 0) state = 0x9e3779b9;
+
+  return function rand() {
+    state = (1664525 * state + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+function isLikelyCoinbaseTx(rawTxHex) {
+  return rawTxHex.includes("0000000000000000000000000000000000000000000000000000000000000000ffffffff");
+}
+
+function drawTopAndBottomHex(ctx, w, h, color, seedHex) {
+  ctx.font = "10px monospace";
+  ctx.fillStyle = color;
+
+  const top = (seedHex + seedHex).slice(0, 112);
+  const bottom = top.split("").reverse().join("");
+
+  ctx.fillText(top, 28, 24);
+  ctx.fillText(bottom, 28, h - 8);
+}
+
+function drawMetaBar(ctx, w, h, borderColor, textColor, mintedDate) {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  ctx.fillRect(0, h - 78, w, 78);
+
+  ctx.strokeStyle = borderColor;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(18, h - 68, w - 36, 52);
+
+  ctx.textAlign = "center";
+  ctx.font = "bold 16px monospace";
+  ctx.fillStyle = textColor;
+  ctx.fillText("MINTED " + mintedDate, w / 2, h - 44);
+  ctx.fillText("MINTED BY " + RELIC_TXID.slice(0, 12) + "...", w / 2, h - 24);
+}
+
+function drawGoldTheme(ctx, mintedDate, embedded, rand) {
+  const w = 860;
+  const h = 860;
+
+  ctx.fillStyle = "#1a1204";
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.shadowColor = "#ffcf4a";
+  ctx.shadowBlur = 22;
+
+  ctx.strokeStyle = "#3a280a";
+  ctx.lineWidth = 1.3;
+  for (let x = 24; x < w - 24; x += 20) {
+    ctx.beginPath();
+    ctx.moveTo(x, 24);
+    ctx.lineTo(x, h - 24);
+    ctx.stroke();
+  }
+  for (let y = 24; y < h - 24; y += 20) {
+    ctx.beginPath();
+    ctx.moveTo(24, y);
+    ctx.lineTo(w - 24, y);
+    ctx.stroke();
+  }
+
+  const colors = ["#f2a900", "#ffbf3f", "#e38b00", "#ffcc66"];
+  for (let i = 0; i < 52; i++) {
+    const x = 28 + (i % 13) * 61 + Math.floor(rand() * 10);
+    const y = 28 + Math.floor(i / 13) * 61 + Math.floor(rand() * 10);
+    const bw = 42 + Math.floor(rand() * 54);
+    const bh = 36 + Math.floor(rand() * 56);
+
+    ctx.globalAlpha = 0.8 + rand() * 0.2;
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fillRect(x, y, bw, bh);
+
+    ctx.strokeStyle = "#ffedb0";
+    ctx.lineWidth = 2.8;
+    ctx.strokeRect(x + 2, y + 2, bw - 4, bh - 4);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.shadowBlur = 34;
+  ctx.fillStyle = "#2c1d05";
+  ctx.fillRect(236, 246, 388, 368);
+  ctx.strokeStyle = "#ffd44d";
+  ctx.lineWidth = 9;
+  ctx.strokeRect(246, 256, 368, 348);
+
+  ctx.shadowBlur = 26;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffe08a";
+  ctx.font = "bold 92px monospace";
+  ctx.fillText("KOINU", w / 2, 398);
+  ctx.font = "bold 28px monospace";
+  ctx.fillStyle = "#ffcb57";
+  ctx.fillText("RELIC", w / 2, 446);
+  ctx.font = "bold 20px monospace";
+  ctx.fillStyle = "#ffb13a";
+  ctx.fillText(embedded, w / 2, 486);
+
+  ctx.shadowBlur = 8;
+  ctx.font = "13px monospace";
+  ctx.fillStyle = "#ffd98f";
+  const labels = [embedded, "KOINU", "DOGE", "GOLD", "TXID", "MERKLE", "PROOF", "WZRD", "SHA256", "CURATION", "CHAIN", "RELIC"];
+  for (let i = 0; i < labels.length; i++) {
+    ctx.fillText(labels[i], 72 + (i % 10) * 74, 74 + Math.floor(i / 10) * 88);
+  }
+
+  drawMetaBar(ctx, w, h, "#ffcc4d", "#ffebc2", mintedDate);
+  drawTopAndBottomHex(
+    ctx,
+    w,
+    h,
+    "#f2b347",
+    RELIC_TXID.replace(/[^0-9a-f]/gi, "").toLowerCase(),
+  );
+
+  ctx.font = "italic 19px monospace";
+  ctx.fillStyle = "#ffcf73";
+  ctx.fillText("wzrd.dog", w - 136, h - 88);
+}
+
+function drawPinkTheme(ctx, mintedDate, embedded, rand) {
+  const w = 860;
+  const h = 860;
+
+  ctx.fillStyle = "#17081f";
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.shadowColor = "#ff43c1";
+  ctx.shadowBlur = 25;
+
+  ctx.strokeStyle = "#35113d";
+  ctx.lineWidth = 1.1;
+  for (let x = 20; x < w - 20; x += 17) {
+    ctx.beginPath();
+    ctx.moveTo(x, 20);
+    ctx.lineTo(x, h - 20);
+    ctx.stroke();
+  }
+  for (let y = 20; y < h - 20; y += 17) {
+    ctx.beginPath();
+    ctx.moveTo(20, y);
+    ctx.lineTo(w - 20, y);
+    ctx.stroke();
+  }
+
+  const colors = ["#ff3399", "#ff66cc", "#cc0088", "#aa00ff", "#ff99dd"];
+  for (let i = 0; i < 58; i++) {
+    const x = 24 + (i % 14) * 58 + Math.floor(rand() * 12);
+    const y = 24 + Math.floor(i / 14) * 58 + Math.floor(rand() * 12);
+    const bw = 40 + Math.floor(rand() * 58);
+    const bh = 34 + Math.floor(rand() * 60);
+
+    ctx.globalAlpha = 0.82 + rand() * 0.18;
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fillRect(x, y, bw, bh);
+
+    ctx.strokeStyle = "#ffd5fa";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x + 2, y + 2, bw - 4, bh - 4);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.shadowBlur = 40;
+  ctx.fillStyle = "#220b2b";
+  ctx.fillRect(240, 250, 380, 360);
+  ctx.strokeStyle = "#ff5ad2";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(250, 260, 360, 340);
+
+  ctx.shadowBlur = 30;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffb7f1";
+  ctx.font = "bold 88px monospace";
+  ctx.fillText("KOINU", w / 2, 394);
+  ctx.font = "bold 27px monospace";
+  ctx.fillStyle = "#ffcffa";
+  ctx.fillText("RELIC", w / 2, 440);
+  ctx.font = "bold 20px monospace";
+  ctx.fillStyle = "#ff78c8";
+  ctx.fillText(embedded, w / 2, 482);
+
+  ctx.shadowBlur = 8;
+  ctx.font = "13px monospace";
+  ctx.fillStyle = "#ffccf5";
+  const labels = [embedded, embedded, "KOINU", "DOGE", "TXID", "MERKLE", "PROOF", "SOLO", "MINER", "RELIC", "CHAIN", "WZRD"];
+  for (let i = 0; i < labels.length; i++) {
+    ctx.fillText(labels[i], 68 + (i % 11) * 68, 70 + Math.floor(i / 11) * 90);
+  }
+
+  drawMetaBar(ctx, w, h, "#ff67d8", "#ffd9f6", mintedDate);
+  drawTopAndBottomHex(
+    ctx,
+    w,
+    h,
+    "#ff8dd8",
+    RELIC_TXID.replace(/[^0-9a-f]/gi, "").toLowerCase(),
+  );
+
+  ctx.font = "italic 19px monospace";
+  ctx.fillStyle = "#ff8ed6";
+  ctx.fillText("wzrd.dog", w - 136, h - 88);
+}
+
+async function verifyAndRender() {
+  const status = document.createElement("div");
+  status.style = "position:fixed;top:12px;left:12px;color:#ff0;z-index:100;font-family:monospace";
+  status.textContent = "VERIFYING ON-CHAIN...";
+  document.body.appendChild(status);
+
+  try {
+    if (RELIC_TXID.startsWith("REPLACE_") || RELIC_BLOCKHASH.startsWith("REPLACE_")) {
+      throw new Error("fill TXID, BLOCKHASH, and MERKLE_PROOF before inscription");
+    }
+
+    const txHex = (await (await fetch(`${RELIC_SERVER}/r/tx/${RELIC_TXID}`)).text()).trim().toLowerCase();
+    const computedTxid = await txidFromRawTxHex(txHex);
+    if (computedTxid.toLowerCase() !== RELIC_TXID.toLowerCase()) {
+      throw new Error("tx data mismatch");
+    }
+
+    const block = await (await fetch(`${RELIC_SERVER}/r/blockinfo/${RELIC_BLOCKHASH}`)).json();
+    const merkleRoot = (block.merkleroot || block.merkle_root || "").toLowerCase();
+    const blockTime = Number(block.time || block.timestamp || 0);
+
+    if (!/^[0-9a-f]{64}$/.test(merkleRoot)) {
+      throw new Error("blockinfo missing merkle root");
+    }
+    if (!Number.isFinite(blockTime) || blockTime <= 0) {
+      throw new Error("blockinfo missing timestamp");
+    }
+
+    const calculatedRoot = await merkleRootFromProof(RELIC_TXID.toLowerCase(), RELIC_PROOF);
+    if (calculatedRoot.toLowerCase() !== merkleRoot) {
+      throw new Error("merkle proof failed");
+    }
+
+    const mintedDate = new Date(blockTime * 1000).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const embedded = extractEmbeddedText(txHex);
+    const coinbaseLike = isLikelyCoinbaseTx(txHex);
+    const rand = createSeededRng(RELIC_TXID.replace(/[^0-9a-f]/gi, "").toLowerCase());
+
+    document.body.innerHTML = "<canvas id=\"c\" width=\"860\" height=\"860\"></canvas>";
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+
+    if (coinbaseLike) {
+      drawPinkTheme(ctx, mintedDate, embedded, rand);
+    } else {
+      drawGoldTheme(ctx, mintedDate, embedded, rand);
+    }
+
+    fitCanvas(canvas, 860, 860);
+    window.addEventListener("resize", () => fitCanvas(canvas, 860, 860));
+  } catch (e) {
+    document.body.innerHTML = `<h2 style=\"color:#f44;padding:60px;text-align:center;font-family:monospace\">Verification Failed<br><small>${String(e)}</small></h2>`;
+  }
+}
+
+verifyAndRender();
+</script>
+</body>
+</html>

@@ -150,10 +150,10 @@ mod tests {
         .*
         <dl>
           .*
-          <dt>sat</dt>
-          <dd><a href=/sat/1>1</a></dd>
-          <dt>sat name</dt>
-          <dd><a href=/sat/nvtdijuwxlo>nvtdijuwxlo</a></dd>
+          <dt>koinu</dt>
+          <dd><a href=/koinu/1>1</a></dd>
+          <dt>koinu name</dt>
+          <dd><a href=/koinu/nvtdijuwxlo>nvtdijuwxlo</a></dd>
           <dt>preview</dt>
           .*
         </dl>

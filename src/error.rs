@@ -33,12 +33,12 @@ pub enum SnafuError {
     source: doginals::spaced_dune::Error,
     input: String,
   },
-  #[snafu(display("Failed to parse sat `{}`", input))]
+  #[snafu(display("Failed to parse koinu `{}`", input))]
   SatParse {
     source: doginals::koinu::Error,
     input: String,
   },
-  #[snafu(display("Failed to parse sat point `{}`", input))]
+  #[snafu(display("Failed to parse koinu point `{}`", input))]
   KoinuPointParse {
     source: doginals::koinu_point::Error,
     input: String,

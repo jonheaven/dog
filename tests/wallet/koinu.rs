@@ -74,7 +74,7 @@ fn sats_from_tsv_parse_error() {
     .dog(&dog)
     .expected_exit_code(1)
     .expected_stderr(
-      "error: failed to parse sat from string \"===\" on line 1: failed to parse sat `===`: invalid integer: invalid digit found in string\n",
+      "error: failed to parse koinu from string \"===\" on line 1: failed to parse koinu `===`: invalid integer: invalid digit found in string\n",
     )
     .run_and_extract_stdout();
 }

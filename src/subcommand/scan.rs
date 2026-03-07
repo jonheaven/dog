@@ -63,7 +63,7 @@ struct TxRecord {
   height: u32,
   pushes: Vec<SPush>,
   /// input[0].previous_output.txid — None for coinbase transactions.
-  spends: Option<bitcoin::Txid>,
+  _spends: Option<bitcoin::Txid>,
   recipient: Option<String>,
 }
 
@@ -105,7 +105,7 @@ impl ScanCommand {
 
       for tx in &block.txdata {
         let txid = tx.compute_txid();
-        let pushes = parse_scriptSig_pushes(tx);
+        let pushes = parse_script_sig_pushes(tx);
 
         let spends = if tx.input[0].previous_output.is_null() {
           None
@@ -121,7 +121,7 @@ impl ScanCommand {
           .and_then(|o| chain.address_string_from_script(&o.script_pubkey));
 
         ordered_txids.push(txid);
-        all_txs.insert(txid, TxRecord { height, pushes, spends, recipient });
+        all_txs.insert(txid, TxRecord { height, pushes, _spends: spends, recipient });
       }
 
       if !self.json && height % 1000 == 0 {
@@ -239,7 +239,7 @@ impl ScanCommand {
 // ── Push parsing ──────────────────────────────────────────────────────────────
 
 /// Parse `input[0].script_sig` into a flat list of simplified push items.
-fn parse_scriptSig_pushes(tx: &bitcoin::Transaction) -> Vec<SPush> {
+fn parse_script_sig_pushes(tx: &bitcoin::Transaction) -> Vec<SPush> {
   let script = match tx.input.first() {
     Some(i) => i.script_sig.as_bytes(),
     None => return Vec::new(),

@@ -2,12 +2,13 @@ use super::*;
 
 #[derive(Boilerplate)]
 pub(crate) struct AddressHtml {
-  pub(crate) address: Address,
+  pub(crate) address: String,
   pub(crate) header: bool,
   pub(crate) inscriptions: Option<Vec<InscriptionId>>,
   pub(crate) outputs: Vec<OutPoint>,
   pub(crate) dunes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
   pub(crate) sat_balance: u64,
+  pub(crate) lazy_lookup: bool,
 }
 
 impl PageContent for AddressHtml {
@@ -22,14 +23,12 @@ mod tests {
 
   fn setup() -> AddressHtml {
     AddressHtml {
-      address: Address::from_str("bc1phuq0vkls6w926zdaem6x9n02z2gg7j2xfudgwddyey7uyquarlgsh40ev8")
-        .unwrap()
-        .require_network(Network::Bitcoin)
-        .unwrap(),
+      address: "DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc".to_string(),
       header: true,
       outputs: vec![outpoint(1), outpoint(2)],
       inscriptions: Some(vec![inscription_id(1)]),
       sat_balance: 99,
+      lazy_lookup: false,
       dunes_balances: Some(vec![
         (
           SpacedDune {
@@ -61,14 +60,14 @@ mod tests {
   fn test_address_rendering() {
     let address_html = setup();
     let expected_pattern =
-      r#".*<h1>Address bc1phuq0vkls6w926zdaem6x9n02z2gg7j2xfudgwddyey7uyquarlgsh40ev8</h1>.*"#;
+      r#".*<h1>Address DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc</h1>.*"#;
     assert_regex_match!(address_html, expected_pattern);
   }
 
   #[test]
   fn test_sat_balance_rendering() {
     let address_html = setup();
-    let expected_pattern = r#".*<dt>sat balance</dt>\n\s*<dd>99</dd>.*"#;
+    let expected_pattern = r#".*<dt>koinu balance</dt>\n\s*<dd>99</dd>.*"#;
     assert_regex_match!(address_html, expected_pattern);
   }
 

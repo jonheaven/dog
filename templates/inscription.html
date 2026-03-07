@@ -95,10 +95,10 @@
   <dd>{{ output.value.to_sat() }}</dd>
 %% }
 %% if let Some(sat) = self.sat {
-  <dt>sat</dt>
-  <dd><a href=/sat/{{sat}}>{{sat}}</a></dd>
-  <dt>sat name</dt>
-  <dd><a href=/sat/{{ sat.name() }}>{{ sat.name() }}</a></dd>
+  <dt>koinu</dt>
+  <dd><a href=/koinu/{{sat}}>{{sat}}</a></dd>
+  <dt>koinu name</dt>
+  <dd><a href=/koinu/{{ sat.name() }}>{{ sat.name() }}</a></dd>
 %% }
 %% if let Some(metaprotocol) = self.inscription.metaprotocol() {
   <dt>metaprotocol</dt>
@@ -135,7 +135,7 @@
   <dt>reveal transaction</dt>
   <dd><a class=collapse href=/tx/{{ self.id.txid }}>{{ self.id.txid }}</a></dd>
   <dt>location</dt>
-  <dd><a class=collapse href=/satpoint/{{ self.satpoint }}>{{ self.satpoint }}</a></dd>
+  <dd><a class=collapse href=/koinupoint/{{ self.satpoint }}>{{ self.satpoint }}</a></dd>
   <dt>output</dt>
   <dd><a class=collapse href=/output/{{ self.satpoint.outpoint }}>{{ self.satpoint.outpoint }}</a></dd>
   <dt>offset</dt>

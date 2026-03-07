@@ -70,7 +70,7 @@ impl FromStr for Outgoing {
       Ok(Outgoing::Koinu(
         input.parse().snafu_context(error::SatParse { input })?,
       ))
-    } else if re::SATPOINT.is_match(input) {
+    } else if re::KOINUPOINT.is_match(input) {
       Ok(Outgoing::KoinuPoint(
         input
           .parse()

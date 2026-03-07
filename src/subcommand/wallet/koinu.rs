@@ -140,7 +140,7 @@ impl Sats {
         line.split('\t').next().map(|value| {
           Koinu::from_str(value).map(|sat| (sat, value)).map_err(|err| {
             anyhow!(
-              "failed to parse sat from string \"{value}\" on line {}: {err}",
+              "failed to parse koinu from string \"{value}\" on line {}: {err}",
               i + 1,
             )
           })
@@ -329,7 +329,7 @@ mod tests {
   fn parse_error_reports_line_and_value() {
     assert_eq!(
       Sats::needles("0\n===\n").unwrap_err().to_string(),
-      "failed to parse sat from string \"===\" on line 2: failed to parse sat `===`: invalid integer: invalid digit found in string",
+      "failed to parse koinu from string \"===\" on line 2: failed to parse koinu `===`: invalid integer: invalid digit found in string",
     );
   }
 }

@@ -251,6 +251,8 @@ pub struct AddressInfo {
   pub inscriptions: Option<Vec<InscriptionId>>,
   pub sat_balance: u64,
   pub dunes_balances: Option<Vec<(SpacedDune, Decimal, Option<char>)>>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub lazy_lookup: Option<bool>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]

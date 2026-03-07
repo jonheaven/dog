@@ -70,7 +70,7 @@ pub(super) async fn blockheight_string(
 pub(super) async fn blockinfo(
   Extension(index): Extension<Arc<Index>>,
   Path(DeserializeFromStr(query)): Path<DeserializeFromStr<query::Block>>,
-) -> ServerResult<Json<api::BlockInfo>> {
+) -> ServerResult<Json<serde_json::Value>> {
   task::block_in_place(|| {
     let hash = match query {
       query::Block::Hash(hash) => hash,
@@ -91,7 +91,7 @@ pub(super) async fn blockinfo(
       .block_stats(info.height.try_into().unwrap())?
       .ok_or_not_found(|| format!("block {hash}"))?;
 
-    Ok(Json(api::BlockInfo {
+    let block_info = api::BlockInfo {
       average_fee: stats.avg_fee.to_sat(),
       average_fee_rate: stats.avg_fee_rate.to_sat(),
       bits: header.bits.to_consensus(),
@@ -129,7 +129,18 @@ pub(super) async fn blockinfo(
       transaction_count: info.n_tx.try_into().unwrap(),
       #[allow(clippy::cast_sign_loss)]
       version: info.version.to_consensus() as u32,
-    }))
+    };
+
+    let mut value = serde_json::to_value(&block_info).map_err(anyhow::Error::from)?;
+    if let serde_json::Value::Object(map) = &mut value {
+      map.insert(
+        "merkleroot".into(),
+        serde_json::Value::String(block_info.merkle_root.to_string()),
+      );
+      map.insert("time".into(), serde_json::Value::from(block_info.timestamp));
+    }
+
+    Ok(Json(value))
   })
 }
 
@@ -590,13 +601,13 @@ fn get_relative_inscription(
 pub(super) async fn tx(
   Extension(index): Extension<Arc<Index>>,
   Path(txid): Path<Txid>,
-) -> ServerResult<Json<String>> {
+) -> ServerResult<String> {
   task::block_in_place(|| {
-    Ok(Json(
+    Ok(
       index
         .get_transaction_hex_recursive(txid)?
         .ok_or_not_found(|| format!("transaction {txid}"))?,
-    ))
+    )
   })
 }
 

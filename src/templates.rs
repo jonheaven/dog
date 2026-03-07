@@ -25,6 +25,7 @@ pub(crate) use {
   rare::RareTxt,
   dune_not_found::DuneNotFoundHtml,
   koinu::KoinuHtml,
+  koinu_relics::KoinuRelicsHtml,
   koinucard::KoinucardHtml,
 };
 
@@ -58,6 +59,7 @@ pub mod dune;
 pub mod dune_not_found;
 pub mod dunes;
 pub mod koinu;
+mod koinu_relics;
 mod koinucard;
 pub mod status;
 pub mod transaction;

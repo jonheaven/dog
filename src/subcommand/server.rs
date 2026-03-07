@@ -11,7 +11,7 @@ use {
     ItemHtml, OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
     PreviewFontHtml, PreviewImageHtml, PreviewMarkdownHtml, PreviewModelHtml, PreviewPdfHtml,
     PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, DuneHtml, DuneNotFoundHtml,
-    DunesHtml, KoinuHtml, KoinucardHtml, TransactionHtml,
+    DunesHtml, KoinuHtml, KoinuRelicsHtml, KoinucardHtml, TransactionHtml,
   },
   axum::{
     Router,
@@ -270,9 +270,12 @@ impl Server {
         .route("/dune/{dune}", get(Self::dune))
         .route("/dunes", get(Self::dunes))
         .route("/dunes/{page}", get(Self::dunes_paginated))
+        .route("/koinu/{sat}", get(Self::sat))
         .route("/sat/{sat}", get(Self::sat))
+        .route("/koinupoint/{satpoint}", get(Self::satpoint))
         .route("/satpoint/{satpoint}", get(Self::satpoint))
         .route("/koinucard", get(Self::koinucard))
+        .route("/koinu-relics", get(Self::koinu_relics))
         .route("/search", get(Self::search_by_query))
         .route("/search/{*query}", get(Self::search_by_path))
         .route("/static/{*path}", get(Self::static_asset))
@@ -652,8 +655,8 @@ impl Server {
         "dune"
       } else if re::OUTPOINT.is_match(&path) {
         "output"
-      } else if re::SATPOINT.is_match(&path) {
-        "satpoint"
+      } else if re::KOINUPOINT.is_match(&path) {
+        "koinupoint"
       } else if re::HASH.is_match(&path) {
         if index.block_header(path.parse().unwrap())?.is_some() {
           "block"
@@ -704,13 +707,15 @@ impl Server {
            inscriptions,
            sat_balance,
            dunes_balances,
+           lazy_lookup,
          }| AddressHtml {
-          address: koinucard.address.clone(),
+          address: koinucard.address.to_string(),
           header: false,
           inscriptions,
           outputs,
           dunes_balances,
           sat_balance,
+          lazy_lookup: lazy_lookup.unwrap_or(false),
         },
       );
 
@@ -803,7 +808,7 @@ impl Server {
   }
 
   async fn ordinal(Path(sat): Path<String>) -> Redirect {
-    Redirect::to(&format!("/sat/{sat}"))
+    Redirect::to(&format!("/koinu/{sat}"))
   }
 
   async fn output(
@@ -855,7 +860,7 @@ impl Server {
         if satpoint.offset < total + size {
           let sat = start + satpoint.offset - total;
 
-          return Ok(Redirect::to(&format!("/sat/{sat}")));
+          return Ok(Redirect::to(&format!("/koinu/{sat}")));
         }
         total += size;
       }
@@ -889,10 +894,10 @@ impl Server {
   }
 
   async fn outputs_address(
-    Extension(server_config): Extension<Arc<ServerConfig>>,
+    Extension(_server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
     AcceptJson(accept_json): AcceptJson,
-    Path(address): Path<Address<NetworkUnchecked>>,
+    Path(address_str): Path<String>,
     Query(query): Query<OutputsQuery>,
   ) -> ServerResult {
     task::block_in_place(|| {
@@ -922,8 +927,10 @@ impl Server {
         }
       }
 
-      let address = address
-        .require_network(server_config.chain.network())
+      let script =
+        crate::subcommand::inscribe::parse_dogecoin_address(&address_str)
+          .map_err(|err| ServerError::BadRequest(format!("Invalid address: {err}")))?;
+      let address = Address::from_script(&script, Network::Bitcoin)
         .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
       let outputs = index.get_address_info(&address)?;
@@ -1254,6 +1261,12 @@ impl Server {
     })
   }
 
+  async fn koinu_relics(
+    Extension(server_config): Extension<Arc<ServerConfig>>,
+  ) -> ServerResult<PageHtml<KoinuRelicsHtml>> {
+    Ok(KoinuRelicsHtml.page(server_config))
+  }
+
   async fn blocks(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
@@ -1332,12 +1345,14 @@ impl Server {
   async fn address(
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
-    Path(address): Path<Address<NetworkUnchecked>>,
+    Path(address_str): Path<String>,
     AcceptJson(accept_json): AcceptJson,
   ) -> ServerResult {
     task::block_in_place(|| {
-      let address = address
-        .require_network(server_config.chain.network())
+      let script =
+        crate::subcommand::inscribe::parse_dogecoin_address(&address_str)
+          .map_err(|err| ServerError::BadRequest(format!("Invalid address: {err}")))?;
+      let address = Address::from_script(&script, Network::Bitcoin)
         .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
       let Some(info) = Self::address_info(&index, &address)? else {
@@ -1354,15 +1369,17 @@ impl Server {
           outputs,
           inscriptions,
           dunes_balances,
+          lazy_lookup,
         } = info;
 
         AddressHtml {
-          address,
+          address: address_str,
           header: true,
           inscriptions,
           outputs,
           dunes_balances,
           sat_balance,
+          lazy_lookup: lazy_lookup.unwrap_or(false),
         }
         .page(server_config)
         .into_response()
@@ -1372,7 +1389,13 @@ impl Server {
 
   fn address_info(index: &Index, address: &Address) -> ServerResult<Option<api::AddressInfo>> {
     if !index.has_address_index() {
-      return Ok(None);
+      // Lazy fallback: use RPC to scan for UTXOs without a full index
+      match index.lazy_address_lookup(address) {
+        Ok(info) => return Ok(Some(info)),
+        Err(err) => {
+          return Err(ServerError::Internal(err.context("lazy address lookup failed")));
+        }
+      }
     }
 
     let mut outputs = index.get_address_info(address)?;
@@ -1390,6 +1413,7 @@ impl Server {
       outputs,
       inscriptions,
       dunes_balances,
+      lazy_lookup: None,
     }))
   }
 
@@ -1592,10 +1616,10 @@ impl Server {
         Ok(Redirect::to(&format!("/dune/{dune}")))
       } else if re::ADDRESS.is_match(query) {
         Ok(Redirect::to(&format!("/address/{query}")))
-      } else if re::SATPOINT.is_match(query) {
-        Ok(Redirect::to(&format!("/satpoint/{query}")))
+      } else if re::KOINUPOINT.is_match(query) {
+        Ok(Redirect::to(&format!("/koinupoint/{query}")))
       } else {
-        Ok(Redirect::to(&format!("/sat/{query}")))
+        Ok(Redirect::to(&format!("/koinu/{query}")))
       }
     })
   }
@@ -2985,8 +3009,8 @@ mod tests {
   }
 
   #[test]
-  fn ordinal_redirects_to_sat() {
-    TestServer::new().assert_redirect("/ordinal/0", "/sat/0");
+  fn ordinal_redirects_to_koinu() {
+    TestServer::new().assert_redirect("/ordinal/0", "/koinu/0");
   }
 
   #[test]
@@ -3040,12 +3064,12 @@ mod tests {
 
   #[test]
   fn search_is_whitespace_insensitive() {
-    TestServer::new().assert_redirect("/search/ abc ", "/sat/abc");
+    TestServer::new().assert_redirect("/search/ abc ", "/koinu/abc");
   }
 
   #[test]
-  fn search_by_path_returns_sat() {
-    TestServer::new().assert_redirect("/search/abc", "/sat/abc");
+  fn search_by_path_returns_koinu() {
+    TestServer::new().assert_redirect("/search/abc", "/koinu/abc");
   }
 
   #[test]
@@ -3133,7 +3157,7 @@ mod tests {
   }
 
   #[test]
-  fn search_by_satpoint_returns_sat() {
+  fn search_by_satpoint_returns_koinupoint() {
     let server = TestServer::builder()
       .chain(Chain::DogecoinRegtest)
       .index_koinu()
@@ -3143,17 +3167,17 @@ mod tests {
 
     server.assert_redirect(
       &format!("/search/{txid}:0:0"),
-      &format!("/satpoint/{txid}:0:0"),
+      &format!("/koinupoint/{txid}:0:0"),
     );
 
     server.assert_redirect(
       &format!("/search?query={txid}:0:0"),
-      &format!("/satpoint/{txid}:0:0"),
+      &format!("/koinupoint/{txid}:0:0"),
     );
 
     server.assert_redirect(
-      &format!("/satpoint/{txid}:0:0"),
-      &format!("/sat/{}", 50 * COIN_VALUE),
+      &format!("/koinupoint/{txid}:0:0"),
+      &format!("/koinu/{}", 50 * COIN_VALUE),
     );
 
     server.assert_response_regex("/search/1:2:3", StatusCode::BAD_REQUEST, ".*");
@@ -3190,18 +3214,18 @@ mod tests {
     server.mine_blocks(1);
 
     server.assert_redirect(
-      &format!("/satpoint/{txid}:0:0"),
-      &format!("/sat/{}", 100 * COIN_VALUE),
+      &format!("/koinupoint/{txid}:0:0"),
+      &format!("/koinu/{}", 100 * COIN_VALUE),
     );
 
     server.assert_redirect(
-      &format!("/satpoint/{txid}:0:{}", 50 * COIN_VALUE),
-      &format!("/sat/{}", 50 * COIN_VALUE),
+      &format!("/koinupoint/{txid}:0:{}", 50 * COIN_VALUE),
+      &format!("/koinu/{}", 50 * COIN_VALUE),
     );
 
     server.assert_redirect(
-      &format!("/satpoint/{txid}:0:{}", 50 * COIN_VALUE - 1),
-      &format!("/sat/{}", 150 * COIN_VALUE - 1),
+      &format!("/koinupoint/{txid}:0:{}", 50 * COIN_VALUE - 1),
+      &format!("/koinu/{}", 150 * COIN_VALUE - 1),
     );
   }
 
@@ -3231,7 +3255,7 @@ mod tests {
     );
     server.assert_redirect(
       "/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0:0",
-      "/satpoint/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0:0",
+      "/koinupoint/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b:0:0",
     );
     server.assert_redirect(
       "/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
@@ -4123,7 +4147,7 @@ mod tests {
     TestServer::new().assert_response(
       "/sat/2099999997690000",
       StatusCode::BAD_REQUEST,
-      "Invalid URL: failed to parse sat `2099999997690000`: invalid integer range",
+      "Invalid URL: failed to parse koinu `2099999997690000`: invalid integer range",
     );
   }
 
@@ -4156,7 +4180,7 @@ mod tests {
 </dl>
 <h2>1 Koinu Range</h2>
 <ul class=monospace>
-  <li><a href=/sat/0 class=mythic>0</a>-<a href=/sat/4999999999 class=common>4999999999</a> \\(5000000000 koinu\\)</li>
+  <li><a href=/koinu/0 class=mythic>0</a>-<a href=/koinu/4999999999 class=common>4999999999</a> \\(5000000000 koinu\\)</li>
 </ul>.*"
         ),
       );
@@ -4203,7 +4227,7 @@ mod tests {
 </dl>
 <h2>1 Koinu Range</h2>
 <ul class=monospace>
-  <li><a href=/sat/5000000000 class=uncommon>5000000000</a>-<a href=/sat/9999999999 class=common>9999999999</a> \\(5000000000 koinu\\)</li>
+  <li><a href=/koinu/5000000000 class=uncommon>5000000000</a>-<a href=/koinu/9999999999 class=common>9999999999</a> \\(5000000000 koinu\\)</li>
 </ul>.*"
       ),
     );
@@ -4309,7 +4333,7 @@ mod tests {
       "/",
       StatusCode::OK,
       format!(
-        r".*<title>Ordinals</title>.*
+        r".*<title>Doginals</title>.*
 <h1>Latest Inscriptions</h1>
 <div class=thumbnails>
   <a href=/inscription/{}>.*</a>
@@ -4355,7 +4379,7 @@ mod tests {
       .assert_response_regex(
         "/",
         StatusCode::OK,
-        ".*<a href=/ title=home>Ordinals<sup>regtest</sup></a>.*",
+        ".*<a href=/ title=home>Doginals<sup>regtest</sup></a>.*",
       );
   }
 
@@ -4494,7 +4518,7 @@ mod tests {
     test_server.assert_response(
       format!("/r/tx/{txid}"),
       StatusCode::OK,
-      "\"02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0151ffffffff0100f2052a01000000225120be7cbbe9ca06a7d7b2a17c6b4ff4b85b362cbcd7ee1970daa66dfaa834df59a000000000\""
+      "02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0151ffffffff0100f2052a01000000225120be7cbbe9ca06a7d7b2a17c6b4ff4b85b362cbcd7ee1970daa66dfaa834df59a000000000"
     );
   }
 
@@ -4507,7 +4531,7 @@ mod tests {
     test_server.assert_response(
       "/r/tx/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
       StatusCode::OK,
-      "\"01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000\""
+      "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"
     );
   }
 
@@ -5188,7 +5212,7 @@ mod tests {
     server.assert_response_regex(
       format!("/inscription/{}", InscriptionId { txid, index: 0 }),
       StatusCode::OK,
-      r".*<dt>sat</dt>\s*<dd><a href=/sat/5000000000>5000000000</a></dd>\s*<dt>sat name</dt>\s*<dd><a href=/sat/nvtcsezkbth>nvtcsezkbth</a></dd>\s*<dt>preview</dt>.*",
+      r".*<dt>koinu</dt>\s*<dd><a href=/koinu/5000000000>5000000000</a></dd>\s*<dt>koinu name</dt>\s*<dd><a href=/koinu/nvtcsezkbth>nvtcsezkbth</a></dd>\s*<dt>preview</dt>.*",
     );
   }
 
@@ -8911,12 +8935,13 @@ next
           koinucard: Some((
             koinucard::tests::coinkite_koinucard(),
             Some(AddressHtml {
-              address: koinucard::tests::coinkite_address(),
+              address: koinucard::tests::coinkite_address().to_string(),
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
               dunes_balances: None,
               sat_balance: 0,
+              lazy_lookup: false,
             }),
           )),
         },
@@ -8935,12 +8960,13 @@ next
           koinucard: Some((
             koinucard::tests::doginals_koinucard(),
             Some(AddressHtml {
-              address: koinucard::tests::doginals_address(),
+              address: koinucard::tests::doginals_address().to_string(),
               header: false,
               inscriptions: Some(Vec::new()),
               outputs: Vec::new(),
               dunes_balances: None,
               sat_balance: 0,
+              lazy_lookup: false,
             }),
           )),
         },
