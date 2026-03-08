@@ -319,6 +319,7 @@ impl Server {
         .route("/r/sat/{sat_number}", get(r::sat))
         .route("/r/sat/{sat_number}/{page}", get(r::sat_paginated))
         .route("/r/tx/{txid}", get(r::tx))
+        .route("/r/txproof/{txid}", get(r::txproof))
         .route(
           "/r/undelegated-content/{inscription_id}",
           get(r::undelegated_content),

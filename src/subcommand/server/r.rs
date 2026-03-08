@@ -611,6 +611,19 @@ pub(super) async fn tx(
   })
 }
 
+pub(super) async fn txproof(
+  Extension(index): Extension<Arc<Index>>,
+  Path(txid): Path<Txid>,
+) -> ServerResult<Json<api::TxProof>> {
+  task::block_in_place(|| {
+    Ok(Json(
+      index
+        .get_transaction_proof(txid)?
+        .ok_or_not_found(|| format!("confirmed transaction {txid}"))?,
+    ))
+  })
+}
+
 pub(super) async fn undelegated_content(
   Extension(index): Extension<Arc<Index>>,
   Extension(settings): Extension<Arc<Settings>>,

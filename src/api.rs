@@ -267,3 +267,17 @@ pub struct HealthJson {
   pub lag_blocks: u32,
   pub status: String,
 }
+
+/// Response for `/r/txproof/{txid}` — merkle inclusion proof for a confirmed transaction.
+/// All hash values are in display (reversed) byte order, matching Bitcoin/Dogecoin RPC convention.
+/// The `proof` array contains sibling hashes at each level of the merkle tree,
+/// prefixed with "L-" (sibling is on the left) or "r-" (sibling is on the right).
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TxProof {
+  pub txid: String,
+  pub blockhash: String,
+  pub merkleroot: String,
+  pub time: u64,
+  pub height: u32,
+  pub proof: Vec<String>,
+}

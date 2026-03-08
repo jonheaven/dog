@@ -2118,6 +2118,61 @@ impl Index {
       .into_option()
   }
 
+  /// Returns a merkle inclusion proof for a confirmed transaction.
+  /// Proof sibling hashes are in display (reversed) byte order.
+  /// Returns `None` if the transaction is unknown or unconfirmed.
+  pub fn get_transaction_proof(&self, txid: Txid) -> Result<Option<api::TxProof>> {
+    let tx_info = match self
+      .client
+      .get_raw_transaction_info(&txid, None)
+      .into_option()?
+    {
+      Some(info) => info,
+      None => return Ok(None),
+    };
+
+    let blockhash = match tx_info.blockhash {
+      Some(h) => h,
+      None => return Ok(None), // unconfirmed
+    };
+
+    let block = match self.client.get_block(&blockhash).into_option()? {
+      Some(b) => b,
+      None => return Ok(None),
+    };
+
+    let block_info = match self.client.get_block_header_info(&blockhash).into_option()? {
+      Some(i) => i,
+      None => return Ok(None),
+    };
+
+    // Collect all txids in the block as natural-byte-order [u8; 32] arrays.
+    // Bitcoin merkle trees operate on the raw (natural) byte order of txids.
+    let txid_bytes: Vec<[u8; 32]> = block
+      .txdata
+      .iter()
+      .map(|tx| *tx.compute_txid().as_raw_hash().as_byte_array())
+      .collect();
+
+    let target = *txid.as_raw_hash().as_byte_array();
+
+    let idx = match txid_bytes.iter().position(|b| *b == target) {
+      Some(i) => i,
+      None => return Ok(None),
+    };
+
+    let proof = merkle_proof_path(&txid_bytes, idx);
+
+    Ok(Some(api::TxProof {
+      txid: txid.to_string(),
+      blockhash: blockhash.to_string(),
+      merkleroot: block.header.merkle_root.to_string(),
+      time: block_info.time.try_into().unwrap_or(0),
+      height: block_info.height.try_into().unwrap_or(0),
+      proof,
+    }))
+  }
+
   pub fn find(&self, sat: Koinu) -> Result<Option<KoinuPoint>> {
     let sat = sat.0;
     let rtx = self.begin_read()?;
@@ -3075,6 +3130,57 @@ impl Index {
       txout,
     )))
   }
+}
+
+/// Compute a merkle inclusion proof path for the transaction at `idx` in `txids`.
+///
+/// All txids are supplied as natural-byte-order `[u8; 32]` arrays (the raw hash bytes,
+/// opposite of the display/explorer format).  Returned sibling hashes are in display
+/// (reversed) byte order so the JSON response matches Bitcoin RPC hash convention.
+///
+/// Each entry in the returned `Vec` is prefixed with:
+/// - `"L-"` when the sibling sits to the **left** of the current hash (current is right child)
+/// - `"r-"` when the sibling sits to the **right** of the current hash (current is left child)
+fn merkle_proof_path(txids: &[[u8; 32]], mut idx: usize) -> Vec<String> {
+  use bitcoin::hashes::{sha256, Hash};
+
+  fn sha256d(a: &[u8; 32], b: &[u8; 32]) -> [u8; 32] {
+    let mut buf = [0u8; 64];
+    buf[..32].copy_from_slice(a);
+    buf[32..].copy_from_slice(b);
+    let first = sha256::Hash::hash(&buf);
+    *sha256::Hash::hash(first.as_byte_array()).as_byte_array()
+  }
+
+  fn to_display(bytes: &[u8; 32]) -> String {
+    let mut b = *bytes;
+    b.reverse();
+    hex::encode(b)
+  }
+
+  let mut layer = txids.to_vec();
+  let mut proof = Vec::new();
+
+  while layer.len() > 1 {
+    if layer.len() % 2 == 1 {
+      let last = *layer.last().unwrap();
+      layer.push(last);
+    }
+
+    let sibling_idx = if idx % 2 == 0 { idx + 1 } else { idx - 1 };
+    let prefix = if idx % 2 == 0 { "r" } else { "L" };
+    proof.push(format!("{prefix}-{}", to_display(&layer[sibling_idx])));
+
+    idx /= 2;
+
+    let mut next = Vec::new();
+    for i in (0..layer.len()).step_by(2) {
+      next.push(sha256d(&layer[i], &layer[i + 1]));
+    }
+    layer = next;
+  }
+
+  proof
 }
 
 #[cfg(test)]
