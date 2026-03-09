@@ -95,7 +95,8 @@ impl Reorg {
       .map(|last_savepoint_height| last_savepoint_height.value())
       .unwrap_or(0);
 
-    let blocks = index.client.get_blockchain_info()?.headers;
+    let info: serde_json::Value = index.client.call("getblockchaininfo", &[])?;
+    let blocks = info["headers"].as_u64().unwrap();
 
     let savepoint_interval = u64::try_from(index.settings.savepoint_interval()).unwrap();
     let max_savepoints = u64::try_from(index.settings.max_savepoints()).unwrap();

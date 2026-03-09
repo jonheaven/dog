@@ -68,6 +68,18 @@ impl Chain {
     }
   }
 
+  /// Block height at which AuxPoW (Auxiliary Proof of Work) activates.
+  /// Dogecoin blocks at or above this height have extended headers that the
+  /// bitcoin crate cannot deserialize from raw RPC. Use getblockheader verbose=1
+  /// instead of the raw format for these blocks.
+  pub(crate) fn auxpow_activation_height(self) -> u32 {
+    match self {
+      Self::Dogecoin => 371_337, // Dogecoin Core 1.8, Sept 2014
+      Self::DogecoinTestnet => 0, // Testnet uses AuxPoW from genesis; use header_info always
+      Self::DogecoinRegtest => u32::MAX, // No AuxPoW on regtest
+    }
+  }
+
   pub(crate) fn first_inscription_height(self) -> u32 {
     match self {
       Self::Dogecoin => 4_600_000,
