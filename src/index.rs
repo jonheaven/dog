@@ -761,7 +761,12 @@ impl Index {
               self
                 .unrecoverably_reorged
                 .store(true, atomic::Ordering::Relaxed);
-              return Err(anyhow!(reorg::Error::Unrecoverable));
+              return Err(anyhow!(
+                "unrecoverable reorg detected — the index is inconsistent with the chain. \
+                 This often happens after index recovery from corruption. \
+                 Delete the index and rebuild: rm {:?} && dog index update",
+                self.path
+              ));
             }
             _ => return Err(err),
           };
