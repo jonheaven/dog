@@ -15,9 +15,11 @@ mod dune_updater;
 
 /// Dogecoin Core's getblockheader verbose response. Uses optional nTx because
 /// some Dogecoin Core versions omit it (unlike Bitcoin Core).
+/// The hash field is the canonical block hash from the node (used for reorg detection).
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct DogecoinBlockHeaderInfo {
+  hash: BlockHash,
   version: bitcoin::block::Version,
   #[serde(rename = "merkleroot")]
   merkle_root: TxMerkleNode,
@@ -33,10 +35,12 @@ struct DogecoinBlockHeaderInfo {
 pub(crate) struct BlockData {
   pub(crate) header: Header,
   pub(crate) txdata: Vec<(Transaction, Txid)>,
+  /// Canonical block hash from RPC for AuxPoW blocks (bitcoin crate hash may differ).
+  pub(crate) auxpow_block_hash: Option<BlockHash>,
 }
 
-impl From<Block> for BlockData {
-  fn from(block: Block) -> Self {
+impl BlockData {
+  fn from_block(block: Block, auxpow_block_hash: Option<BlockHash>) -> Self {
     BlockData {
       header: block.header,
       txdata: block
@@ -47,7 +51,14 @@ impl From<Block> for BlockData {
           (transaction, txid)
         })
         .collect(),
+      auxpow_block_hash,
     }
+  }
+}
+
+impl From<Block> for BlockData {
+  fn from(block: Block) -> Self {
+    Self::from_block(block, None)
   }
 }
 
@@ -227,8 +238,8 @@ impl Updater<'_> {
 
         // RPC path: used for tip blocks and when BlkReader is unavailable
         match Self::get_block_with_retries(&client, height, first_index_height, chain) {
-          Ok(Some(block)) => {
-            if let Err(err) = tx.send(block.into()) {
+          Ok(Some(block_data)) => {
+            if let Err(err) = tx.send(block_data) {
               log::info!("Block receiver disconnected: {err}");
               break;
             }
@@ -268,7 +279,7 @@ impl Updater<'_> {
     height: u32,
     first_index_height: u32,
     chain: Chain,
-  ) -> Result<Option<Block>> {
+  ) -> Result<Option<BlockData>> {
     let use_header_info = chain.is_dogecoin() && height >= chain.auxpow_activation_height();
     let mut errors = 0;
     loop {
@@ -279,19 +290,22 @@ impl Updater<'_> {
           option
             .map(|hash| {
               if height >= first_index_height {
-                Ok(client.get_block(&hash)?)
+                let block = client.get_block(&hash)?;
+                Ok(BlockData::from_block(block, None))
               } else if use_header_info {
                 let info: DogecoinBlockHeaderInfo = client
                   .call("getblockheader", &[serde_json::to_value(hash)?, true.into()])?;
-                Ok(Block {
+                let block = Block {
                   header: Self::header_from_block_header_info(&info)?,
                   txdata: Vec::new(),
-                })
+                };
+                Ok(BlockData::from_block(block, Some(info.hash)))
               } else {
-                Ok(Block {
+                let block = Block {
                   header: client.get_block_header(&hash)?,
                   txdata: Vec::new(),
-                })
+                };
+                Ok(BlockData::from_block(block, None))
               }
             })
             .transpose()
@@ -470,6 +484,9 @@ impl Updater<'_> {
     }
 
     height_to_block_header.insert(&self.height, &block.header.store())?;
+    if let Some(hash) = block.auxpow_block_hash {
+      wtx.open_table(HEIGHT_TO_BLOCK_HASH)?.insert(&self.height, &hash.to_byte_array())?;
+    }
 
     self.height += 1;
     self.outputs_traversed += outputs_in_block;
