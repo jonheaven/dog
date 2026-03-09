@@ -297,22 +297,22 @@ function drawStandardRelic(ctx, dateLabel, ageYears, embedded, minter, blockHeig
   ctx.fillText("wzrd.dog", W - 22, H - 88);
 }
 
-// ─── Coinbase relic — Pink NiceHash-style for solo miner blocks ──────────────
+// ─── Coinbase relic — Electric blue for solo miner blocks ───────────────────
 
 function drawCoinbaseRelic(ctx, dateLabel, ageYears, embedded, minter, blockHeight) {
   const W = 860, H = 860;
 
-  ctx.fillStyle = "#1a0011";
+  ctx.fillStyle = "#00091a";
   ctx.fillRect(0, 0, W, H);
 
   // Grid
-  ctx.strokeStyle = "#2d0020";
+  ctx.strokeStyle = "#001833";
   ctx.lineWidth = 1;
   for (let x = 18; x < W - 18; x += 17) { ctx.beginPath(); ctx.moveTo(x, 18); ctx.lineTo(x, H - 18); ctx.stroke(); }
   for (let y = 18; y < H - 18; y += 17) { ctx.beginPath(); ctx.moveTo(18, y); ctx.lineTo(W - 18, y); ctx.stroke(); }
 
-  // Dense pink/purple blocks (more chaotic for coinbase)
-  const PINK = ["#ff2277", "#ff55aa", "#cc0066", "#bb00ee", "#ff88cc"];
+  // Dense blue blocks (more chaotic for coinbase)
+  const BLUE = ["#0066ff", "#0099ff", "#0044cc", "#00aaff", "#3377ff"];
   for (let i = 0; i < 52; i++) {
     const col  = i % 13;
     const row  = Math.floor(i / 13);
@@ -321,12 +321,12 @@ function drawCoinbaseRelic(ctx, dateLabel, ageYears, embedded, minter, blockHeig
     const w    = 44  + (i % 5)  * 14;
     const h    = 36  + (i % 7)  * 10;
     ctx.shadowBlur  = 20;
-    ctx.shadowColor = "#ff00aa";
-    ctx.fillStyle   = PINK[i % PINK.length];
+    ctx.shadowColor = "#0088ff";
+    ctx.fillStyle   = BLUE[i % BLUE.length];
     ctx.globalAlpha = 0.9;
     ctx.fillRect(x, y, w, h);
     ctx.globalAlpha = 1;
-    ctx.strokeStyle = "#ffbbee";
+    ctx.strokeStyle = "#88ccff";
     ctx.lineWidth   = 3;
     ctx.shadowBlur  = 7;
     ctx.strokeRect(x + 3, y + 3, w - 6, h - 6);
@@ -334,38 +334,38 @@ function drawCoinbaseRelic(ctx, dateLabel, ageYears, embedded, minter, blockHeig
   ctx.shadowBlur = 0;
 
   // Central core
-  ctx.fillStyle = "#220012";
+  ctx.fillStyle = "#000f22";
   ctx.fillRect(230, 244, 400, 372);
   ctx.shadowBlur  = 50;
-  ctx.shadowColor = "#ff44cc";
-  ctx.strokeStyle = "#ff44cc";
+  ctx.shadowColor = "#44aaff";
+  ctx.strokeStyle = "#44aaff";
   ctx.lineWidth   = 11;
   ctx.strokeRect(240, 254, 380, 352);
 
   // KOINU + embedded miner message
   ctx.shadowBlur  = 30;
-  ctx.shadowColor = "#ff99ff";
-  ctx.fillStyle   = "#ffbbff";
+  ctx.shadowColor = "#99ddff";
+  ctx.fillStyle   = "#bbddff";
   ctx.font        = "bold 88px monospace";
   ctx.textAlign   = "center";
   ctx.fillText("KOINU", W / 2, 388);
 
   ctx.font      = "bold 25px monospace";
-  ctx.fillStyle = "#ff99cc";
+  ctx.fillStyle = "#66bbff";
   ctx.fillText("RELIC", W / 2, 434);
 
   ctx.font      = "bold 22px monospace";
-  ctx.fillStyle = "#ff4488";
-  ctx.fillText(embedded, W / 2, 482); // e.g. "NICEHASH"
+  ctx.fillStyle = "#2299ff";
+  ctx.fillText(embedded, W / 2, 482); // e.g. pool name / miner tag
 
   ctx.font      = "bold 17px monospace";
-  ctx.fillStyle = "#dd3366";
+  ctx.fillStyle = "#1177dd";
   ctx.fillText(`BLOCK  #${blockHeight.toLocaleString()}`, W / 2, 516);
 
-  // Repeating miner label scattered across (exactly like Pob's NiceHash relic)
+  // Scattered labels
   ctx.shadowBlur = 6;
   ctx.font       = "12px monospace";
-  ctx.fillStyle  = "#ffaadd";
+  ctx.fillStyle  = "#5599cc";
   const rep = [embedded, embedded, "KOINU", "SOLO", "MINED", "DOGE", "ORD", "INSC", "BLOCK", "WZRD", embedded, "SHA256D"];
   rep.forEach((lbl, i) => {
     ctx.fillText(lbl, 52 + (i % 10) * 72, 52 + Math.floor(i / 10) * 90);
@@ -374,33 +374,33 @@ function drawCoinbaseRelic(ctx, dateLabel, ageYears, embedded, minter, blockHeig
   // Age / verified
   ctx.shadowBlur = 0;
   ctx.font       = "12px monospace";
-  ctx.fillStyle  = "#994466";
+  ctx.fillStyle  = "#336688";
   ctx.fillText(`${ageYears} years old  •  Solo mined block  •  Merkle Verified`, W / 2, 566);
 
   // Bottom bar
-  ctx.fillStyle   = "#1f0018";
+  ctx.fillStyle   = "#000d1a";
   ctx.fillRect(0, H - 82, W, 82);
   ctx.shadowBlur  = 16;
-  ctx.shadowColor = "#ff55cc";
-  ctx.strokeStyle = "#ff55cc";
+  ctx.shadowColor = "#2299ff";
+  ctx.strokeStyle = "#2299ff";
   ctx.lineWidth   = 4;
   ctx.strokeRect(16, H - 72, W - 32, 56);
 
   ctx.shadowBlur = 8;
   ctx.font       = "bold 16px monospace";
-  ctx.fillStyle  = "#ffccee";
+  ctx.fillStyle  = "#aaccee";
   ctx.textAlign  = "center";
   ctx.fillText(`MINTED  ${dateLabel}`, W / 2, H - 49);
 
   ctx.font      = "13px monospace";
-  ctx.fillStyle = "#cc6688";
+  ctx.fillStyle = "#4488aa";
   const minterLabel = minter.length > 20 ? minter.slice(0, 18) + "…" : minter;
   ctx.fillText(`MINTED BY  ${minterLabel}`, W / 2, H - 28);
 
   // Hex streams
   ctx.shadowBlur = 0;
   ctx.font       = "9px monospace";
-  ctx.fillStyle  = "#882244";
+  ctx.fillStyle  = "#224466";
   const hexRow   = "D06E3F94101D3A1592935E6260A9288EFFBBDC7A1206230359AC73BFFBED28989B0E303F9410";
   ctx.textAlign  = "left";
   ctx.fillText(hexRow, 24, 18);
@@ -408,7 +408,7 @@ function drawCoinbaseRelic(ctx, dateLabel, ageYears, embedded, minter, blockHeig
 
   // Watermark
   ctx.font      = "italic 17px monospace";
-  ctx.fillStyle = "#ee3388";
+  ctx.fillStyle = "#3399ff";
   ctx.textAlign = "right";
   ctx.fillText("wzrd.dog", W - 22, H - 88);
 }
