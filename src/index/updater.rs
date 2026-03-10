@@ -2,6 +2,7 @@ use {
   self::{inscription_updater::InscriptionUpdater, dune_updater::DuneUpdater},
   super::{fetcher::Fetcher, *},
   futures::future::try_join_all,
+  serde::Deserialize,
   tokio::sync::{
     broadcast::{self, error::TryRecvError},
     mpsc::{self},
@@ -12,13 +13,34 @@ pub(crate) mod blk_reader;
 mod inscription_updater;
 mod dune_updater;
 
+/// Dogecoin Core's getblockheader verbose response. Uses optional nTx because
+/// some Dogecoin Core versions omit it (unlike Bitcoin Core).
+/// The hash field is the canonical block hash from the node (used for reorg detection).
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct DogecoinBlockHeaderInfo {
+  hash: BlockHash,
+  version: bitcoin::block::Version,
+  #[serde(rename = "merkleroot")]
+  merkle_root: TxMerkleNode,
+  time: usize,
+  nonce: u32,
+  bits: String,
+  #[serde(rename = "previousblockhash")]
+  previous_block_hash: Option<BlockHash>,
+  #[serde(rename = "nTx", default)]
+  _n_tx: Option<usize>,
+}
+
 pub(crate) struct BlockData {
   pub(crate) header: Header,
   pub(crate) txdata: Vec<(Transaction, Txid)>,
+  /// Canonical block hash from RPC for AuxPoW blocks (bitcoin crate hash may differ).
+  pub(crate) auxpow_block_hash: Option<BlockHash>,
 }
 
-impl From<Block> for BlockData {
-  fn from(block: Block) -> Self {
+impl BlockData {
+  fn from_block(block: Block, auxpow_block_hash: Option<BlockHash>) -> Self {
     BlockData {
       header: block.header,
       txdata: block
@@ -29,7 +51,14 @@ impl From<Block> for BlockData {
           (transaction, txid)
         })
         .collect(),
+      auxpow_block_hash,
     }
+  }
+}
+
+impl From<Block> for BlockData {
+  fn from(block: Block) -> Self {
+    Self::from_block(block, None)
   }
 }
 
@@ -161,7 +190,7 @@ impl Updater<'_> {
     let (tx, rx) = std::sync::mpsc::sync_channel(32);
 
     let first_index_height = index.first_index_height;
-
+    let chain = index.settings.chain();
     let height_limit = index.height_limit;
 
     let client = index.settings.dogecoin_rpc_client(None)?;
@@ -208,9 +237,9 @@ impl Updater<'_> {
         }
 
         // RPC path: used for tip blocks and when BlkReader is unavailable
-        match Self::get_block_with_retries(&client, height, first_index_height) {
-          Ok(Some(block)) => {
-            if let Err(err) = tx.send(block.into()) {
+        match Self::get_block_with_retries(&client, height, first_index_height, chain) {
+          Ok(Some(block_data)) => {
+            if let Err(err) = tx.send(block_data) {
               log::info!("Block receiver disconnected: {err}");
               break;
             }
@@ -228,11 +257,30 @@ impl Updater<'_> {
     Ok(rx)
   }
 
+  fn header_from_block_header_info(info: &DogecoinBlockHeaderInfo) -> Result<Header> {
+    let bits_bytes = hex::decode(&info.bits)
+      .with_context(|| format!("invalid bits hex: {}", info.bits))?;
+    let bits_array: [u8; 4] = bits_bytes
+      .try_into()
+      .map_err(|b: Vec<u8>| anyhow!("bits must be 4 bytes, got {}", b.len()))?;
+    let bits_u32 = u32::from_le_bytes(bits_array);
+    Ok(Header {
+      version: info.version,
+      prev_blockhash: info.previous_block_hash.unwrap_or(BlockHash::all_zeros()),
+      merkle_root: info.merkle_root,
+      time: u32::try_from(info.time)?,
+      bits: bitcoin::pow::CompactTarget::from_consensus(bits_u32),
+      nonce: info.nonce,
+    })
+  }
+
   fn get_block_with_retries(
     client: &Client,
     height: u32,
     first_index_height: u32,
-  ) -> Result<Option<Block>> {
+    chain: Chain,
+  ) -> Result<Option<BlockData>> {
+    let use_header_info = chain.is_dogecoin() && height >= chain.auxpow_activation_height();
     let mut errors = 0;
     loop {
       match client
@@ -242,12 +290,22 @@ impl Updater<'_> {
           option
             .map(|hash| {
               if height >= first_index_height {
-                Ok(client.get_block(&hash)?)
+                let block = client.get_block(&hash)?;
+                Ok(BlockData::from_block(block, None))
+              } else if use_header_info {
+                let info: DogecoinBlockHeaderInfo = client
+                  .call("getblockheader", &[serde_json::to_value(hash)?, true.into()])?;
+                let block = Block {
+                  header: Self::header_from_block_header_info(&info)?,
+                  txdata: Vec::new(),
+                };
+                Ok(BlockData::from_block(block, Some(info.hash)))
               } else {
-                Ok(Block {
+                let block = Block {
                   header: client.get_block_header(&hash)?,
                   txdata: Vec::new(),
-                })
+                };
+                Ok(BlockData::from_block(block, None))
               }
             })
             .transpose()
@@ -426,6 +484,9 @@ impl Updater<'_> {
     }
 
     height_to_block_header.insert(&self.height, &block.header.store())?;
+    if let Some(hash) = block.auxpow_block_hash {
+      wtx.open_table(HEIGHT_TO_BLOCK_HASH)?.insert(&self.height, &hash.to_byte_array())?;
+    }
 
     self.height += 1;
     self.outputs_traversed += outputs_in_block;
