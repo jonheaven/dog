@@ -428,7 +428,11 @@ RUST_LOG=debug RUST_BACKTRACE=1 dog server   # full debug + backtrace
 
 ## Donate
 
-DOGE: `DFundmtrigBGH6Q2MFAibzSq6NxsxMPMjB`
+`dog` is maintained by [jonheaven](https://github.com/jonheaven) ([@jontype](https://x.com/jontype)) — one year of
+free open-source development for the Dogecoin/Doginals ecosystem. If this tool
+has been useful to you, tips are greatly appreciated!
+
+DOGE: `DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc`
 
 ---
 
