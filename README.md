@@ -17,6 +17,31 @@
 </div>
 <br>
 
+---
+
+## History & Credits
+
+**Dogecoin Doginals** started in early 2023 thanks to the pioneers who built the foundation:
+
+- **apezord** (@apezord) — The O.G. who introduced Doginals to the world. He created the original `ord-dogecoin` port (https://github.com/apezord/ord-dogecoin) and the inscription protocol that brought Ordinals theory to Dogecoin for the first time.
+- **Doge Labs** (verydogelabs / Wonky Ord team) — They forked and advanced the tech with `wonky-ord-dogecoin`, ran the main public indexer/explorer for years, pushed DRC-20, and helped power the ecosystem.
+- The whole early community that kept the dream alive.
+
+When Doge Labs stepped away, their repositories were taken down and the ecosystem went quiet for a long stretch.
+
+Beginning in mid-2025, I (**Jon Heaven** — **@jontype** / jonheaven) picked up the torch. I had already been developing advancements on this indexer in another project when I forked the original work, performed a full modern port + heavy rewrite of the Bitcoin `ord` codebase, and turned it into a fast, clean, actively maintained Dogecoin-native platform with major upgrades: direct `.blk` sync, selective indexing, Dogemaps, Koinu Relics, improved DRC-20 tooling, Dogecoin Name System, and more.
+
+**This repository (jonheaven/dog) is now the canonical, actively developed home of Dogecoin Doginals.**
+
+I’m here because I genuinely care about open-source development on Dogecoin. The code is released under **CC0-1.0** so anyone can freely use, fork, run, or build on it. The full chain of contributors is preserved in the git history and this README.
+
+Huge respect and thanks to apezord, Doge Labs, and every builder who came before. The fire they started is still burning — and I’m committed to keeping it growing.
+
+Big shout-out to the community member who already dropped a bug fix — that’s the spirit! ❤️
+
+— Jon Heaven (@jontype)  
+March 2026
+
 **Dogecoin Doginals indexer, block explorer, and CLI wallet.**
 
 Doginals imbue every **koinu** with numismatic value, making them collectable
