@@ -6,23 +6,47 @@ Dog is actively maintained (commits as recent as hours ago), while wonky-dogeord
 
 ## Quick Side-by-Side Comparison
 
-| Feature / Capability | wonky-dogeord (tylordius) | dog (jonheaven) | Winner & Why |
+### At-a-Glance Result
+
+- `dog` wins: **12** categories
+- Tie: **2** categories
+- `wonky-dogeord` wins: **0** categories
+
+### Protocol Coverage
+
+| Capability | wonky-dogeord | dog | Verdict |
 |---|---|---|---|
-| **Base** | Early fork of `apezord/ord-dogecoin` | Direct port of `ord v0.25.0` + heavy Dogecoin-specific upgrades | **dog** (newer ord base) |
-| **Inscriptions / Doginals** | Yes (from height 4,609,723, scriptSig envelopes) | Yes (full Doginals v1 spec, multi-part, envelope parser) | **dog** (more complete parser + `dog scan`) |
-| **Dunes** | Yes (from height 5,084,000) | Yes (`--index-dunes`) | Tie (dog has selective control) |
-| **DRC-20 tokens + balances/holders** | Yes (requires `--index-transactions`) | Yes (full CLI: `drc20 tokens`, `drc20 balance`, mint/deploy support) | **dog** (dedicated CLI + address indexing) |
-| **Block rewards / subsidies** | "Wonky" fix in `epoch.rs` for blocks 0-144,999 | Accurate Dogecoin subsidies via `subsidies.json` + `starting_koinu.json` | **dog** (external JSON is easier to audit/update) |
-| **Indexing method** | RPC only + `--nr-parallel-requests` | **Direct `.blk` file reads** (5-20x faster) + shadow blk-index | **dog** (huge win) |
-| **Selective / lightweight indexing** | Limited | Granular: `--only dogemap`, `--no-index-inscriptions`, `--index-koinu`, `--index-addresses`, etc. | **dog** (tiny protocol-specific nodes possible) |
-| **Extra Dogecoin-native protocols** | None | **Dogemaps** + **.doge DNS** | **dog** |
-| **Koinu / sat tracking** | No | Full koinu ranges + relic support | **dog** |
-| **CLI tools & wallet** | Basic `ord` commands | Rich CLI: `scan`, `inscribe --dogemap`, `dns`, `drc20`, `dogemap status/list` + wallet | **dog** |
-| **Web explorer / server** | Basic server + OpenAPI spec | Full web UI + API endpoints (`/dogemap/{block}` SVG, etc.) | **dog** |
-| **Scan without full index** | No | `dog scan --from X --to Y --out` | **dog** |
-| **Storage / performance** | ~400 GB full index | More efficient (selective + `.blk`) + redb with reorg backups | **dog** |
-| **Docker / deployment** | Yes + docker-compose | Yes (Dockerfile) + quickstart scripts | Tie |
-| **Activity** | 21 commits, last Oct 2024 | 1,670+ commits, 145 contributors, daily updates | **dog** |
+| Inscriptions / Doginals | Supported | Supported (full v1 parser + `dog scan`) | **dog** |
+| Dunes | Supported | Supported (`--index-dunes`) | Tie |
+| DRC-20 tokens and balances | Supported (`--index-transactions`) | Supported (dedicated `drc20` CLI + address indexing) | **dog** |
+| Early subsidy handling | Hardcoded fix in `epoch.rs` | Data-driven `subsidies.json` + `starting_koinu.json` | **dog** |
+
+### Performance and Indexing
+
+| Capability | wonky-dogeord | dog | Verdict |
+|---|---|---|---|
+| Sync architecture | RPC-driven indexing | Direct `.blk` reads + shadow block index | **dog** |
+| Initial sync speed | Slower (RPC bottleneck) | Typically much faster (5-20x) | **dog** |
+| Selective indexing | Limited | Granular flags (`--only`, `--no-index-inscriptions`, etc.) | **dog** |
+| Storage profile | Heavy full index (~400 GB) | Leaner options via selective indexing | **dog** |
+
+### Product and UX
+
+| Capability | wonky-dogeord | dog | Verdict |
+|---|---|---|---|
+| Koinu tracking | Not first-class | Full koinu range + relic support | **dog** |
+| CLI experience | Basic ord-like commands | Rich Dogecoin-specific command surface | **dog** |
+| Explorer/API | Basic server + OpenAPI file | Full web UI + Dogemap SVG/API endpoints | **dog** |
+| Scan without full index | Not available | `dog scan --from X --to Y --out` | **dog** |
+
+### Dogecoin-Native Features
+
+| Capability | wonky-dogeord | dog | Verdict |
+|---|---|---|---|
+| Dogemaps protocol | No | Yes | **dog** |
+| `.doge` DNS tools | No | Yes (`dns resolve/list/config`) | **dog** |
+| Deployment options | Docker + compose | Dockerfile + quickstart scripts | Tie |
+| Maintenance activity | Inactive since Oct 2024 | Active daily development | **dog** |
 
 ## Does dog have everything that works in wonky-dogeord?
 
