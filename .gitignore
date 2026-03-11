@@ -15,5 +15,6 @@
 ref/
 /.claude
 .claude
+.git-rewrite/
 # Local environment file (contains credentials)
 .env
