@@ -6,14 +6,15 @@ pub mod dns;
 pub mod dogemap;
 pub mod drc20;
 pub mod dune;
+pub mod dunes;
 pub mod env;
 pub mod epochs;
 pub mod find;
 pub mod index;
 pub mod inscribe;
 pub mod list;
+pub mod parity;
 pub mod parse;
-pub mod dunes;
 pub mod scan;
 pub mod server;
 mod settings;
@@ -53,6 +54,8 @@ pub(crate) enum Subcommand {
   List(list::List),
   #[command(about = "Parse a koinu from doginal notation")]
   Parse(parse::Parse),
+  #[command(about = "Compare kabosu marketplace/system responses against dog")]
+  Parity(parity::Parity),
   #[command(about = "List all dunes")]
   Dunes,
   #[command(about = "Scan a block range for inscriptions (no full index required)")]
@@ -93,6 +96,7 @@ impl Subcommand {
       Self::Inscribe(cmd) => cmd.run(settings),
       Self::List(list) => list.run(settings),
       Self::Parse(parse) => parse.run(),
+      Self::Parity(parity) => parity.run(settings),
       Self::Dunes => dunes::run(settings),
       Self::Scan(scan) => scan.run(settings),
       Self::Server(server) => {
