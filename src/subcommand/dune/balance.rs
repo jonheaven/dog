@@ -75,6 +75,9 @@ fn format_pile(amount: u128, divisibility: u8, symbol: Option<char>) -> String {
   if frac == 0 {
     format!("{whole}\u{A0}{sym}")
   } else {
-    format!("{whole}.{frac:0>width$}\u{A0}{sym}", width = divisibility as usize)
+    format!(
+      "{whole}.{frac:0>width$}\u{A0}{sym}",
+      width = divisibility as usize
+    )
   }
 }

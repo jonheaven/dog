@@ -20,9 +20,7 @@
 
 use {
   super::*,
-  crate::{
-    index::updater::blk_reader::BlkReader,
-  },
+  crate::index::updater::blk_reader::BlkReader,
   std::{collections::HashMap, collections::HashSet, fs, io::Write, path::PathBuf},
 };
 
@@ -43,7 +41,10 @@ pub struct ScanCommand {
   )]
   pub txid: Option<String>,
 
-  #[arg(long, help = "Write content + metadata for each inscription to this directory")]
+  #[arg(
+    long,
+    help = "Write content + metadata for each inscription to this directory"
+  )]
   pub out: Option<PathBuf>,
 
   #[arg(long, help = "Output as JSON")]
@@ -53,9 +54,9 @@ pub struct ScanCommand {
 /// Simplified push item extracted from a scriptSig.
 #[derive(Debug, Clone)]
 enum SPush {
-  Ord,             // b"ord" — the Doginals protocol marker
-  Int(u16),        // 2-byte little-endian integer (piece count or chunk index)
-  Bytes(Vec<u8>),  // any other data push (tag, value, body chunk, sig, pubkey…)
+  Ord,            // b"ord" — the Doginals protocol marker
+  Int(u16),       // 2-byte little-endian integer (piece count or chunk index)
+  Bytes(Vec<u8>), // any other data push (tag, value, body chunk, sig, pubkey…)
 }
 
 /// Per-transaction data collected during the first pass.
@@ -121,7 +122,15 @@ impl ScanCommand {
           .and_then(|o| chain.address_string_from_script(&o.script_pubkey));
 
         ordered_txids.push(txid);
-        all_txs.insert(txid, TxRecord { height, pushes, _spends: spends, recipient });
+        all_txs.insert(
+          txid,
+          TxRecord {
+            height,
+            pushes,
+            _spends: spends,
+            recipient,
+          },
+        );
       }
 
       if !self.json && height % 1000 == 0 {
@@ -139,11 +148,10 @@ impl ScanCommand {
     // 2a. Multi-part inscriptions (ord + Int(N) header, followed by spending chain).
     for &txid in &ordered_txids {
       let record = &all_txs[&txid];
-      let (piece_count, content_type, mut chunks) =
-        match parse_multipart_header(&record.pushes) {
-          Some(h) => h,
-          None => continue,
-        };
+      let (piece_count, content_type, mut chunks) = match parse_multipart_header(&record.pushes) {
+        Some(h) => h,
+        None => continue,
+      };
 
       multipart_txids.insert(txid);
 
@@ -331,7 +339,11 @@ fn parse_multipart_header(pushes: &[SPush]) -> Option<(u16, String, HashMap<u16,
   // Collect initial (idx, data) pairs from pushes[3..] minus the last 2
   // (signature and pubkey at the tail of every P2PKH scriptSig).
   let mut chunks = HashMap::new();
-  let data_end = if pushes.len() >= 2 { pushes.len() - 2 } else { 0 };
+  let data_end = if pushes.len() >= 2 {
+    pushes.len() - 2
+  } else {
+    0
+  };
   collect_int_data_pairs(&pushes[3..data_end], &mut chunks);
 
   Some((piece_count, content_type, chunks))
@@ -340,7 +352,11 @@ fn parse_multipart_header(pushes: &[SPush]) -> Option<(u16, String, HashMap<u16,
 /// Extract continuation chunks from a continuation tx's pushes.
 /// Strip the last 2 pushes (signature + pubkey).
 fn collect_continuation_chunks(pushes: &[SPush], chunks: &mut HashMap<u16, Vec<u8>>) {
-  let data_end = if pushes.len() >= 2 { pushes.len() - 2 } else { 0 };
+  let data_end = if pushes.len() >= 2 {
+    pushes.len() - 2
+  } else {
+    0
+  };
   collect_int_data_pairs(&pushes[..data_end], chunks);
 }
 
@@ -373,7 +389,7 @@ fn collect_int_data_pairs(pushes: &[SPush], chunks: &mut HashMap<u16, Vec<u8>>) 
   let mut i = 0;
   while i + 1 < pushes.len() {
     let idx_opt: Option<u16> = match &pushes[i] {
-      SPush::Int(n)                    => Some(*n),
+      SPush::Int(n) => Some(*n),
       SPush::Bytes(b) if b.is_empty() => Some(0),
       SPush::Bytes(b) if b.len() == 1 => Some(b[0] as u16),
       _ => None,
@@ -540,7 +556,10 @@ fn emit_inscription(
         "content_size": body_len,
         "recipient": recipient,
       });
-      fs::write(ins_dir.join("info.json"), serde_json::to_string_pretty(&meta)?)?;
+      fs::write(
+        ins_dir.join("info.json"),
+        serde_json::to_string_pretty(&meta)?,
+      )?;
     }
   }
 
@@ -557,11 +576,7 @@ fn emit_inscription(
 /// individually via `getrawtransaction`. Transactions are plain legacy format
 /// (no AuxPoW), so they deserialize fine.
 fn fetch_block_rpc(client: &bitcoincore_rpc::Client, height: u32) -> crate::Result<bitcoin::Block> {
-  use {
-    bitcoin::consensus::deserialize,
-    bitcoincore_rpc::RpcApi,
-    serde::Deserialize,
-  };
+  use {bitcoin::consensus::deserialize, bitcoincore_rpc::RpcApi, serde::Deserialize};
 
   let hash = client.get_block_hash(height.into())?;
 
@@ -570,16 +585,20 @@ fn fetch_block_rpc(client: &bitcoincore_rpc::Client, height: u32) -> crate::Resu
   struct BlockTxids {
     tx: Vec<bitcoin::Txid>,
   }
-  let info: BlockTxids =
-    client.call("getblock", &[serde_json::to_value(hash)?, serde_json::Value::from(1u8)])?;
+  let info: BlockTxids = client.call(
+    "getblock",
+    &[serde_json::to_value(hash)?, serde_json::Value::from(1u8)],
+  )?;
 
   // Fetch and deserialize each transaction individually.
   let txdata = info
     .tx
     .iter()
     .map(|txid| {
-      let hex: String =
-        client.call("getrawtransaction", &[serde_json::to_value(txid)?, serde_json::Value::from(false)])?;
+      let hex: String = client.call(
+        "getrawtransaction",
+        &[serde_json::to_value(txid)?, serde_json::Value::from(false)],
+      )?;
       let bytes = hex::decode(hex.trim())?;
       deserialize::<bitcoin::Transaction>(&bytes).map_err(|e| anyhow::anyhow!(e))
     })

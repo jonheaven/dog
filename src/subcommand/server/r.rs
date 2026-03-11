@@ -616,11 +616,9 @@ pub(super) async fn txproof(
   Path(txid): Path<Txid>,
 ) -> ServerResult<Json<api::TxProof>> {
   task::block_in_place(|| {
-    Ok(Json(
-      index
-        .get_transaction_proof(txid)?
-        .ok_or_not_found(|| format!("confirmed transaction {txid}"))?,
-    ))
+    Ok(Json(index.get_transaction_proof(txid)?.ok_or_not_found(
+      || format!("confirmed transaction {txid}"),
+    )?))
   })
 }
 

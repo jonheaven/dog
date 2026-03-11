@@ -1,7 +1,4 @@
-use {
-  super::super::*,
-  crate::index::updater::blk_reader::refresh_index_copy,
-};
+use {super::super::*, crate::index::updater::blk_reader::refresh_index_copy};
 
 pub(crate) fn run(settings: Settings) -> SubcommandResult {
   let Some(blocks_dir) = settings.dogecoin_blocks_dir() else {

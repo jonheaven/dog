@@ -39,7 +39,10 @@ impl ListCommand {
         .collect();
       println!("{}", serde_json::to_string_pretty(&rows)?);
     } else {
-      println!("{:<30} {:>14} {:>10} {:>10}", "Dune", "Supply", "Mints", "Block");
+      println!(
+        "{:<30} {:>14} {:>10} {:>10}",
+        "Dune", "Supply", "Mints", "Block"
+      );
       println!("{}", "-".repeat(67));
       for (id, entry) in &entries {
         println!(

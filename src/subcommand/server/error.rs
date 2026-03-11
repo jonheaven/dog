@@ -19,11 +19,7 @@ impl IntoResponse for ServerError {
       Self::BadRequest(message) => (StatusCode::BAD_REQUEST, message).into_response(),
       Self::Internal(error) => {
         eprintln!("error serving request: {error:#}");
-        (
-          StatusCode::INTERNAL_SERVER_ERROR,
-          format!("{error:#}"),
-        )
-          .into_response()
+        (StatusCode::INTERNAL_SERVER_ERROR, format!("{error:#}")).into_response()
       }
       Self::NotAcceptable {
         accept_encoding,

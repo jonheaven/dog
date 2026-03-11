@@ -70,7 +70,10 @@ impl BalanceCommand {
         );
       } else {
         println!("DRC-20 balances for {}", self.address);
-        println!("{:<6} {:>18} {:>18} {:>18}", "Tick", "Available", "Transferable", "Total");
+        println!(
+          "{:<6} {:>18} {:>18} {:>18}",
+          "Tick", "Available", "Transferable", "Total"
+        );
         println!("{}", "-".repeat(65));
         for (tick, avail, trf) in &balances {
           let decimals = 8u8;

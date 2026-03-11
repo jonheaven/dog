@@ -6,12 +6,12 @@ use {
   },
   super::*,
   crate::templates::{
-    AddressHtml, BlockHtml, BlocksHtml, ChildrenHtml, ClockSvg, CollectionsHtml, GalleriesHtml,
-    GalleryHtml, HomeHtml, InputHtml, InscriptionHtml, InscriptionsBlockHtml, InscriptionsHtml,
-    ItemHtml, OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
+    AddressHtml, BlockHtml, BlocksHtml, ChildrenHtml, ClockSvg, CollectionsHtml, DuneHtml,
+    DuneNotFoundHtml, DunesHtml, GalleriesHtml, GalleryHtml, HomeHtml, InputHtml, InscriptionHtml,
+    InscriptionsBlockHtml, InscriptionsHtml, ItemHtml, KoinuHtml, KoinuRelicsHtml, KoinucardHtml,
+    OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
     PreviewFontHtml, PreviewImageHtml, PreviewMarkdownHtml, PreviewModelHtml, PreviewPdfHtml,
-    PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, DuneHtml, DuneNotFoundHtml,
-    DunesHtml, KoinuHtml, KoinuRelicsHtml, KoinucardHtml, TransactionHtml,
+    PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, TransactionHtml,
   },
   axum::{
     Router,
@@ -928,9 +928,8 @@ impl Server {
         }
       }
 
-      let script =
-        crate::subcommand::inscribe::parse_dogecoin_address(&address_str)
-          .map_err(|err| ServerError::BadRequest(format!("Invalid address: {err}")))?;
+      let script = crate::subcommand::inscribe::parse_dogecoin_address(&address_str)
+        .map_err(|err| ServerError::BadRequest(format!("Invalid address: {err}")))?;
       let address = Address::from_script(&script, Network::Bitcoin)
         .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
@@ -1141,8 +1140,14 @@ impl Server {
 
     // biome: one of 8 themes, driven by byte 8 mixed with block parity
     const BIOMES: [&str; 8] = [
-      "desert", "tundra", "jungle", "ocean",
-      "volcanic", "grassland", "canyon", "space",
+      "desert",
+      "tundra",
+      "jungle",
+      "ocean",
+      "volcanic",
+      "grassland",
+      "canyon",
+      "space",
     ];
     let biome_idx = (b(8).wrapping_add(block_number & 0xFF)) as usize % BIOMES.len();
 
@@ -1161,8 +1166,7 @@ impl Server {
     const ROWS: u32 = 16;
     const CELL: u32 = 24;
     const PALETTE: [&str; 8] = [
-      "#FF8C00", "#FFA500", "#FFD700", "#D2691E",
-      "#E64A00", "#FF6600", "#CC5500", "#FF9933",
+      "#FF8C00", "#FFA500", "#FFD700", "#D2691E", "#E64A00", "#FF6600", "#CC5500", "#FF9933",
     ];
 
     let total = COLS * CELL;
@@ -1171,7 +1175,11 @@ impl Server {
     for row in 0..ROWS as usize {
       for col in 0..COLS as usize {
         let hash_idx = (row * 16 + col) % hash_bytes.len().max(1);
-        let byte = if hash_idx < hash_bytes.len() { hash_bytes[hash_idx] } else { 0 };
+        let byte = if hash_idx < hash_bytes.len() {
+          hash_bytes[hash_idx]
+        } else {
+          0
+        };
         let palette_idx = (byte as usize).wrapping_add(row).wrapping_add(col * 7) % PALETTE.len();
         let opacity = if byte < 40 { "0.35" } else { "1.0" };
         cells.push_str(&format!(
@@ -1350,9 +1358,8 @@ impl Server {
     AcceptJson(accept_json): AcceptJson,
   ) -> ServerResult {
     task::block_in_place(|| {
-      let script =
-        crate::subcommand::inscribe::parse_dogecoin_address(&address_str)
-          .map_err(|err| ServerError::BadRequest(format!("Invalid address: {err}")))?;
+      let script = crate::subcommand::inscribe::parse_dogecoin_address(&address_str)
+        .map_err(|err| ServerError::BadRequest(format!("Invalid address: {err}")))?;
       let address = Address::from_script(&script, Network::Bitcoin)
         .map_err(|err| ServerError::BadRequest(err.to_string()))?;
 
@@ -1394,7 +1401,9 @@ impl Server {
       match index.lazy_address_lookup(address) {
         Ok(info) => return Ok(Some(info)),
         Err(err) => {
-          return Err(ServerError::Internal(err.context("lazy address lookup failed")));
+          return Err(ServerError::Internal(
+            err.context("lazy address lookup failed"),
+          ));
         }
       }
     }
@@ -4113,7 +4122,11 @@ mod tests {
 
   #[test]
   fn sat_degree() {
-    TestServer::new().assert_response_regex("/sat/0°0′0″0‴", StatusCode::OK, ".*<h1>Koinu 0</h1>.*");
+    TestServer::new().assert_response_regex(
+      "/sat/0°0′0″0‴",
+      StatusCode::OK,
+      ".*<h1>Koinu 0</h1>.*",
+    );
   }
 
   #[test]

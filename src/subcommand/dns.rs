@@ -1,8 +1,4 @@
-use {
-  super::*,
-  crate::index::DnsEntry,
-  std::collections::HashMap,
-};
+use {super::*, crate::index::DnsEntry, std::collections::HashMap};
 
 pub mod config;
 pub mod list;
@@ -10,11 +6,11 @@ pub mod resolve;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DnsConfig {
-  pub p: String,              // Protocol identifier: "dns"
-  pub op: String,             // Operation: "config"
-  pub name: String,           // Name to configure (e.g., "satoshi.doge")
+  pub p: String,               // Protocol identifier: "dns"
+  pub op: String,              // Operation: "config"
+  pub name: String,            // Name to configure (e.g., "satoshi.doge")
   pub address: Option<String>, // Dogecoin address to point to
-  pub avatar: Option<String>, // Avatar inscription ID or URL
+  pub avatar: Option<String>,  // Avatar inscription ID or URL
   pub reverse: Option<String>, // Reverse resolution address
 }
 

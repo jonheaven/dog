@@ -33,12 +33,12 @@
 
 use {
   super::*,
-  bitcoin::{
-    Amount, OutPoint, Sequence, Transaction, TxIn, TxOut, Txid,
-    consensus::serialize,
-  },
+  bitcoin::{Amount, OutPoint, Sequence, Transaction, TxIn, TxOut, Txid, consensus::serialize},
   bitcoincore_rpc::{RpcApi, json::SignRawTransactionInput},
-  std::{fs, path::{Path, PathBuf}},
+  std::{
+    fs,
+    path::{Path, PathBuf},
+  },
 };
 
 /// Maximum bytes of inscription content per chunk push.
@@ -88,7 +88,10 @@ pub struct InscribeCommand {
   )]
   pub destination: Option<String>,
 
-  #[arg(long, help = "Dogecoin Core wallet name (default: uses the default wallet)")]
+  #[arg(
+    long,
+    help = "Dogecoin Core wallet name (default: uses the default wallet)"
+  )]
   pub wallet: Option<String>,
 
   #[arg(long, help = "Print transaction details without broadcasting anything")]
@@ -115,9 +118,11 @@ impl InscribeCommand {
         let l = path.display().to_string();
         (bytes, m, l)
       }
-      (None, Some(name), None) => {
-        (name.as_bytes().to_vec(), "text/plain".to_string(), name.clone())
-      }
+      (None, Some(name), None) => (
+        name.as_bytes().to_vec(),
+        "text/plain".to_string(),
+        name.clone(),
+      ),
       (None, None, Some(block_num)) => {
         let body = format!("{}.dogemap", block_num);
         let l = body.clone();
@@ -216,8 +221,7 @@ impl InscribeCommand {
 
     // ── Select funding UTXO ───────────────────────────────────────────────────
 
-    let (utxo_txid, utxo_vout, utxo_value, utxo_script) =
-      select_utxo(&client, total_needed)?;
+    let (utxo_txid, utxo_vout, utxo_value, utxo_script) = select_utxo(&client, total_needed)?;
 
     let change_amount = utxo_value.to_sat().saturating_sub(total_needed);
 
@@ -298,12 +302,17 @@ impl InscribeCommand {
       };
 
       // Sign via Core → extract sig + pubkey bytes.
-      let (sig_bytes, pubkey_bytes) =
-        sign_template(&client, &template, prev_txid, prev_vout, &prev_script, prev_value)?;
+      let (sig_bytes, pubkey_bytes) = sign_template(
+        &client,
+        &template,
+        prev_txid,
+        prev_vout,
+        &prev_script,
+        prev_value,
+      )?;
 
       // Assemble the actual scriptSig: inscription data + sig + pubkey.
-      let raw_script_sig =
-        build_script_sig(&segments_per_tx[tx_idx], &sig_bytes, &pubkey_bytes);
+      let raw_script_sig = build_script_sig(&segments_per_tx[tx_idx], &sig_bytes, &pubkey_bytes);
       let actual_script_sig = bitcoin::ScriptBuf::from(raw_script_sig);
 
       // Build the final transaction.

@@ -109,7 +109,10 @@ rpcport={core_port}
 
     let _core_daemon = KillOnDrop(
       Command::new("dogecoind")
-        .arg(format!("-conf={}", absolute.join("dogecoin.conf").display()))
+        .arg(format!(
+          "-conf={}",
+          absolute.join("dogecoin.conf").display()
+        ))
         .stdout(Stdio::null())
         .spawn()
         .expect("failed to start dogecoind"),

@@ -1,4 +1,7 @@
-use {super::*, serde::{Deserialize, Serialize}};
+use {
+  super::*,
+  serde::{Deserialize, Serialize},
+};
 
 pub mod balance;
 pub mod token;
@@ -103,11 +106,8 @@ pub fn parse_amount(s: &str, decimals: u8) -> Option<u128> {
     } else {
       frac_str.parse().ok()?
     };
-    let frac_scaled =
-      frac_part * 10u128.pow((decimals as usize - frac_str.len()) as u32);
-    int_part
-      .checked_mul(scale)?
-      .checked_add(frac_scaled)
+    let frac_scaled = frac_part * 10u128.pow((decimals as usize - frac_str.len()) as u32);
+    int_part.checked_mul(scale)?.checked_add(frac_scaled)
   } else {
     s.parse::<u128>().ok()?.checked_mul(scale)
   }

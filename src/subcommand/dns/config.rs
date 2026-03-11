@@ -1,7 +1,4 @@
-use {
-  super::super::*,
-  crate::subcommand::dns::DnsInfo,
-};
+use {super::super::*, crate::subcommand::dns::DnsInfo};
 
 #[derive(Clone, Debug, Parser)]
 pub struct ConfigCommand {

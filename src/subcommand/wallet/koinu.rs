@@ -138,12 +138,14 @@ impl Sats {
       .filter(|(_i, line)| !line.starts_with('#') && !line.is_empty())
       .filter_map(|(i, line)| {
         line.split('\t').next().map(|value| {
-          Koinu::from_str(value).map(|sat| (sat, value)).map_err(|err| {
-            anyhow!(
-              "failed to parse koinu from string \"{value}\" on line {}: {err}",
-              i + 1,
-            )
-          })
+          Koinu::from_str(value)
+            .map(|sat| (sat, value))
+            .map_err(|err| {
+              anyhow!(
+                "failed to parse koinu from string \"{value}\" on line {}: {err}",
+                i + 1,
+              )
+            })
         })
       })
       .collect::<Result<Vec<(Koinu, &str)>>>()?;
