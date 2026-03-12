@@ -48,6 +48,8 @@ mod server_config;
 
 const MEBIBYTE: usize = 1 << 20;
 const PAGE_SIZE: usize = 100;
+const KOINU_RELIC_STATIC_PATH: &str = "koinu-relic-auto-theme.html";
+const KOINU_RELIC_TEMPLATE: &str = include_str!("../../../koinu-relic/src/inscription.html");
 
 enum SpawnConfig {
   Https(AxumAcceptor),
@@ -1687,12 +1689,23 @@ impl Server {
   }
 
   async fn static_asset(Path(path): Path<String>) -> ServerResult {
-    let content = StaticAssets::get(if let Some(stripped) = path.strip_prefix('/') {
+    let asset_path = if let Some(stripped) = path.strip_prefix('/') {
       stripped
     } else {
       &path
-    })
-    .ok_or_not_found(|| format!("asset {path}"))?;
+    };
+
+    if asset_path == KOINU_RELIC_STATIC_PATH {
+      return Ok(
+        Response::builder()
+          .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+          .body(KOINU_RELIC_TEMPLATE.into())
+          .unwrap(),
+      );
+    }
+
+    let content =
+      StaticAssets::get(asset_path).ok_or_not_found(|| format!("asset {path}"))?;
 
     let mime = mime_guess::from_path(path).first_or_octet_stream();
 
