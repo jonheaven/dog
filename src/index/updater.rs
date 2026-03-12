@@ -1,6 +1,7 @@
 use {
   self::{inscription_updater::InscriptionUpdater, dune_updater::DuneUpdater},
   super::{fetcher::Fetcher, *},
+  bitcoin::consensus::deserialize,
   futures::future::try_join_all,
   serde::Deserialize,
   tokio::sync::{
@@ -257,6 +258,42 @@ impl Updater<'_> {
     Ok(rx)
   }
 
+  /// Fetch full block via getblock(1) + getrawtransaction for each tx.
+  /// Used for Dogecoin AuxPoW blocks when height >= first_index_height (raw getblock fails).
+  fn get_block_auxpow_full(client: &Client, hash: &BlockHash) -> Result<BlockData> {
+    #[derive(Deserialize)]
+    struct BlockTxids {
+      tx: Vec<Txid>,
+    }
+    let info: DogecoinBlockHeaderInfo =
+      client.call("getblockheader", &[serde_json::to_value(hash)?, true.into()])?;
+    let header = Self::header_from_block_header_info(&info)?;
+
+    let txids: BlockTxids =
+      client.call("getblock", &[serde_json::to_value(hash)?, serde_json::Value::from(1u8)])?;
+
+    let txdata: Vec<(Transaction, Txid)> = txids
+      .tx
+      .iter()
+      .map(|txid| {
+        let hex: String = client.call(
+          "getrawtransaction",
+          &[serde_json::to_value(txid)?, serde_json::Value::from(false)],
+        )?;
+        let bytes = hex::decode(hex.trim())?;
+        let tx = deserialize::<Transaction>(&bytes).map_err(anyhow::Error::msg)?;
+        let computed = tx.compute_txid();
+        Ok((tx, computed))
+      })
+      .collect::<Result<Vec<_>>>()?;
+
+    Ok(BlockData {
+      header,
+      txdata,
+      auxpow_block_hash: Some(info.hash),
+    })
+  }
+
   fn header_from_block_header_info(info: &DogecoinBlockHeaderInfo) -> Result<Header> {
     let bits_bytes = hex::decode(&info.bits)
       .with_context(|| format!("invalid bits hex: {}", info.bits))?;
@@ -290,8 +327,12 @@ impl Updater<'_> {
           option
             .map(|hash| {
               if height >= first_index_height {
-                let block = client.get_block(&hash)?;
-                Ok(BlockData::from_block(block, None))
+                if use_header_info {
+                  Self::get_block_auxpow_full(client, &hash)
+                } else {
+                  let block = client.get_block(&hash)?;
+                  Ok(BlockData::from_block(block, None))
+                }
               } else if use_header_info {
                 let info: DogecoinBlockHeaderInfo = client
                   .call("getblockheader", &[serde_json::to_value(hash)?, true.into()])?;
@@ -754,13 +795,13 @@ impl Updater<'_> {
         )?;
 
         if self.index.should_index_protocol("dns") {
-          self.index_dns_transaction(tx, *txid, block.header.time, wtx)?;
+          self.index_dns_transaction(tx, *txid, block.header.time, wtx, statistic_to_count)?;
         }
         if self.index.should_index_protocol("drc20") {
-          self.index_drc20_transaction(tx, *txid, block.header.time, wtx)?;
+          self.index_drc20_transaction(tx, *txid, block.header.time, wtx, statistic_to_count)?;
         }
         if self.index.should_index_protocol("dogemap") {
-          self.index_dogemap_transaction(tx, *txid, block.header.time, wtx)?;
+          self.index_dogemap_transaction(tx, *txid, block.header.time, wtx, statistic_to_count)?;
         }
       }
 
@@ -1002,13 +1043,13 @@ impl Updater<'_> {
     txid: Txid,
     block_time: u32,
     wtx: &WriteTransaction,
+    statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
     use crate::subcommand::dns::is_valid_dns_namespace;
 
     let mut dns_name_to_entry = wtx.open_table(DNS_NAME_TO_ENTRY)?;
     let mut dns_inscription_id_to_name = wtx.open_table(DNS_INSCRIPTION_ID_TO_NAME)?;
     let mut dns_namespace_to_names = wtx.open_multimap_table(DNS_NAMESPACE_TO_NAMES)?;
-    let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
 
     let envelopes = ParsedEnvelope::from_transaction(tx);
 
@@ -1102,6 +1143,7 @@ impl Updater<'_> {
     txid: Txid,
     block_time: u32,
     wtx: &WriteTransaction,
+    statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
     use crate::subcommand::drc20::Drc20Transfer;
 
@@ -1203,17 +1245,17 @@ impl Updater<'_> {
 
       match op {
         "deploy" => {
-          self.drc20_deploy(&json, inscription_id, &addr, block_time, wtx)?;
+          self.drc20_deploy(&json, inscription_id, &addr, block_time, wtx, statistic_to_count)?;
         }
         "mint" => {
-          self.drc20_mint(&json, &addr, wtx)?;
+          self.drc20_mint(&json, &addr, wtx, statistic_to_count)?;
         }
         "transfer" => {
           let outpoint = OutPoint {
             txid,
             vout: out_idx as u32,
           };
-          self.drc20_transfer_create(&json, &addr, outpoint, wtx)?;
+          self.drc20_transfer_create(&json, &addr, outpoint, wtx, statistic_to_count)?;
         }
         _ => {}
       }
@@ -1234,6 +1276,7 @@ impl Updater<'_> {
     txid: Txid,
     block_time: u32,
     wtx: &WriteTransaction,
+    statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
     use crate::index::entry::DogemapEntry;
 
@@ -1287,7 +1330,6 @@ impl Updater<'_> {
       claims.insert(&target_block, entry.store())?;
 
       // Update total count statistic
-      let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
       let prev = statistic_to_count
         .get(&Statistic::DogemapClaims.key())?
         .map(|g| g.value())
@@ -1305,6 +1347,7 @@ impl Updater<'_> {
     deployer: &str,
     block_time: u32,
     wtx: &WriteTransaction,
+    statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
     use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Token};
 
@@ -1367,7 +1410,6 @@ impl Updater<'_> {
     token_table.insert(tick_lower.as_str(), bytes.as_slice())?;
 
     // Update token count statistic
-    let mut statistic_to_count = wtx.open_table(STATISTIC_TO_COUNT)?;
     let prev = statistic_to_count
       .get(&Statistic::Drc20Tokens.key())?
       .map(|g| g.value())
@@ -1382,6 +1424,7 @@ impl Updater<'_> {
     json: &serde_json::Value,
     recipient: &str,
     wtx: &WriteTransaction,
+    _statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
     use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Token};
 
@@ -1450,6 +1493,7 @@ impl Updater<'_> {
     sender: &str,
     outpoint: OutPoint,
     wtx: &WriteTransaction,
+    _statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
     use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Transfer, Drc20Token};
 
