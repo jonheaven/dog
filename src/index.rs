@@ -322,6 +322,15 @@ impl Index {
         let tx = database.begin_write()?;
 
         tx.open_table(NUMBER_TO_OFFER)?;
+        // Ensure DNS/DRC-20/Dogemap tables exist (idempotent for older indexes)
+        tx.open_table(DNS_NAME_TO_ENTRY)?;
+        tx.open_table(DNS_INSCRIPTION_ID_TO_NAME)?;
+        tx.open_multimap_table(DNS_NAMESPACE_TO_NAMES)?;
+        tx.open_table(DRC20_TICK_TO_TOKEN)?;
+        tx.open_table(DRC20_BALANCE)?;
+        tx.open_table(DRC20_TRANSFERABLE)?;
+        tx.open_table(DRC20_OUTPOINT_TO_TRANSFER)?;
+        tx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
 
         tx.commit()?;
 
@@ -364,6 +373,16 @@ impl Index {
         tx.open_table(SEQUENCE_NUMBER_TO_SATPOINT)?;
         tx.open_table(TRANSACTION_ID_TO_DUNE)?;
         tx.open_table(WRITE_TRANSACTION_STARTING_BLOCK_COUNT_TO_TIMESTAMP)?;
+
+        // DNS, DRC-20, Dogemap — create so read API works before any protocol data is indexed
+        tx.open_table(DNS_NAME_TO_ENTRY)?;
+        tx.open_table(DNS_INSCRIPTION_ID_TO_NAME)?;
+        tx.open_multimap_table(DNS_NAMESPACE_TO_NAMES)?;
+        tx.open_table(DRC20_TICK_TO_TOKEN)?;
+        tx.open_table(DRC20_BALANCE)?;
+        tx.open_table(DRC20_TRANSFERABLE)?;
+        tx.open_table(DRC20_OUTPOINT_TO_TRANSFER)?;
+        tx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
 
         {
           let mut statistics = tx.open_table(STATISTIC_TO_COUNT)?;
