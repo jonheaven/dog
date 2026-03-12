@@ -18,3 +18,5 @@ ref/
 .git-rewrite/
 # Local environment file (contains credentials)
 .env
+dog-server.err.txt
+dog-server.out.txt
