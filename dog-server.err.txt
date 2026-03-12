@@ -1,0 +1,6 @@
+Listening on http://0.0.0.0:8089
+error serving request: JSON-RPC error: JSON decode error: legacy address base58 prefix at line 1 column 1521
+error serving request: JSON-RPC error: JSON decode error: legacy address base58 prefix at line 1 column 2462
+error serving request: JSON-RPC error: JSON decode error: legacy address base58 prefix at line 1 column 7544
+error serving request: JSON-RPC error: JSON decode error: legacy address base58 prefix at line 1 column 1519
+error serving request: JSON-RPC error: JSON decode error: legacy address base58 prefix at line 1 column 2397

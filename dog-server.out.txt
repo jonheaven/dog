@@ -1,0 +1,1 @@
+Index file `C:\Users\jheav\AppData\Roaming\dog\index.redb` needs recovery. This can take a long time, especially for the --index-koinu index.
