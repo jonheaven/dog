@@ -20,3 +20,4 @@ ref/
 .env
 dog-server.err.txt
 dog-server.out.txt
+/web-ui/node_modules

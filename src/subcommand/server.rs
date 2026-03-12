@@ -9,7 +9,7 @@ use {
     AddressHtml, BlockHtml, BlocksHtml, ChildrenHtml, ClockSvg, CollectionsHtml, DuneHtml,
     DuneNotFoundHtml, DunesHtml, GalleriesHtml, GalleryHtml, HomeHtml, InputHtml, InscriptionHtml,
     InscriptionsBlockHtml, InscriptionsHtml, ItemHtml, KoinuHtml, KoinuRelicsHtml, KoinucardHtml,
-    OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
+    MonitorHtml, OutputHtml, PageContent, PageHtml, ParentsHtml, PreviewAudioHtml, PreviewCodeHtml,
     PreviewFontHtml, PreviewImageHtml, PreviewMarkdownHtml, PreviewModelHtml, PreviewPdfHtml,
     PreviewTextHtml, PreviewUnknownHtml, PreviewVideoHtml, RareTxt, TransactionHtml,
   },
@@ -282,6 +282,9 @@ impl Server {
         .route("/search/{*query}", get(Self::search_by_path))
         .route("/static/{*path}", get(Self::static_asset))
         .route("/health", get(Self::health))
+        .route("/monitor", get(Self::monitor))
+        .route("/api/monitor", get(Self::api_monitor))
+        .route("/api/status", get(Self::api_status))
         .route("/status", get(Self::status))
         .route("/tx/{txid}", get(Self::transaction))
         .route("/update", get(Self::update));
@@ -1079,7 +1082,7 @@ impl Server {
       let metaverse = Self::dogemap_metaverse(&hash_bytes, tx_count, block_number);
 
       Ok(
-        Json(serde_json::json!({
+        Self::live_json(serde_json::json!({
           "block_number": block_number,
           "rarity": rarity,
           "claimed": claim.is_some(),
@@ -1090,8 +1093,7 @@ impl Server {
           "tx_count": tx_count,
           "svg": svg,
           "metaverse": metaverse,
-        }))
-        .into_response(),
+        })),
       )
     })
   }
@@ -1111,7 +1113,7 @@ impl Server {
           })
         })
         .collect();
-      Ok(Json(serde_json::json!({ "total": total, "claims": claims })).into_response())
+      Ok(Self::live_json(serde_json::json!({ "total": total, "claims": claims })))
     })
   }
 
@@ -1248,13 +1250,12 @@ impl Server {
       let next = more.then_some(page_index + 1);
 
       Ok(if accept_json {
-        Json(DunesHtml {
+        Self::live_json(DunesHtml {
           entries,
           more,
           prev,
           next,
         })
-        .into_response()
       } else {
         DunesHtml {
           entries,
@@ -1304,7 +1305,7 @@ impl Server {
       }
 
       Ok(if accept_json {
-        Json(api::Blocks::new(blocks, featured_blocks)).into_response()
+        Self::live_json(api::Blocks::new(blocks, featured_blocks))
       } else {
         BlocksHtml::new(blocks, featured_blocks)
           .page(server_config)
@@ -1470,14 +1471,13 @@ impl Server {
       let dunes = index.get_dunes_in_block(u64::from(height))?;
       Ok(if accept_json {
         let inscriptions = index.get_inscriptions_in_block(height)?;
-        Json(api::Block::new(
+        Self::live_json(api::Block::new(
           block,
           Height(height),
           Self::index_height(&index)?,
           inscriptions,
           dunes,
         ))
-        .into_response()
       } else {
         let (featured_inscriptions, total_num) =
           index.get_highest_paying_inscriptions_in_block(height, 8)?;
@@ -1570,8 +1570,169 @@ impl Server {
     })
   }
 
-  async fn health(Extension(index): Extension<Arc<Index>>) -> ServerResult<Json<api::HealthJson>> {
-    task::block_in_place(|| Ok(Json(index.health()?)))
+  fn live_json<T: Serialize>(value: T) -> Response {
+    let mut response = Json(value).into_response();
+    response.headers_mut().insert(
+      header::CACHE_CONTROL,
+      HeaderValue::from_static("no-store, max-age=0"),
+    );
+    response.headers_mut().insert(
+      HeaderName::from_static("x-indexing-mode"),
+      HeaderValue::from_static("additive-live"),
+    );
+    response
+  }
+
+  fn status_parts(
+    index: &Index,
+    json_api_enabled: bool,
+  ) -> Result<(crate::templates::StatusHtml, api::HealthJson)> {
+    Ok((index.status(json_api_enabled)?, index.health()?))
+  }
+
+  fn live_status_snapshot(
+    status: &crate::templates::StatusHtml,
+    health: &api::HealthJson,
+  ) -> api::LiveStatusJson {
+    let timing_seconds = if health.lag_blocks > 0 && status.initial_sync_time.as_secs_f64() > 0.0 {
+      status.initial_sync_time.as_secs_f64()
+    } else {
+      status.uptime.as_secs_f64().max(1.0)
+    };
+
+    api::LiveStatusJson {
+      chain: status.chain,
+      height: status.height,
+      chain_tip: health.chain_tip,
+      lag_blocks: health.lag_blocks,
+      status: health.status.clone(),
+      syncing: health.lag_blocks > 0,
+      blocks_per_second: f64::from(health.index_tip.saturating_add(1)) / timing_seconds,
+      inscriptions_per_second: status.inscriptions as f64 / timing_seconds,
+      inscriptions: status.inscriptions,
+      dunes: status.dunes,
+      dogemaps: status.dogemap_count,
+      dogespells: 0,
+      dmp: 0,
+      dogelotto: 0,
+      active_protocols: status.active_protocols.clone(),
+      updated_at: Utc::now().timestamp(),
+    }
+  }
+
+  fn memory_usage_bytes() -> u64 {
+    let Ok(pid) = sysinfo::get_current_pid() else {
+      return 0;
+    };
+
+    let mut system = System::new();
+    system.refresh_processes(sysinfo::ProcessesToUpdate::Some(&[pid]), true);
+
+    system.process(pid).map(|process| process.memory()).unwrap_or(0)
+  }
+
+  fn monitor_snapshot(index: &Index, json_api_enabled: bool) -> Result<api::MonitorJson> {
+    let (status, health) = Self::status_parts(index, json_api_enabled)?;
+    let live_status = Self::live_status_snapshot(&status, &health);
+    let mut feed = Vec::new();
+
+    for (number, inscription_id) in index.get_feed_inscriptions(18)? {
+      if let Some(entry) = index.get_inscription_entry(inscription_id)? {
+        feed.push(api::MonitorFeedItem {
+          kind: "inscription".into(),
+          title: format!("Inscription {number}"),
+          subtitle: format!("{inscription_id} indexed at height {}", entry.height),
+          link: format!("/inscription/{inscription_id}"),
+          height: Some(entry.height),
+          timestamp: u64::from(entry.timestamp),
+        });
+      }
+    }
+
+    let (recent_dunes, _) = index.dunes_paginated(10, 0)?;
+    for (id, entry) in recent_dunes {
+      feed.push(api::MonitorFeedItem {
+        kind: "dune".into(),
+        title: format!("Dune {}", entry.spaced_dune),
+        subtitle: format!("Etched as {id} in block {}", entry.block),
+        link: format!("/dune/{}", entry.spaced_dune),
+        height: Some(u32::try_from(entry.block).unwrap_or(u32::MAX)),
+        timestamp: entry.timestamp,
+      });
+    }
+
+    for entry in index.list_recent_dogemaps(10)? {
+      feed.push(api::MonitorFeedItem {
+        kind: "dogemap".into(),
+        title: format!("Dogemap #{}", entry.block_number),
+        subtitle: format!(
+          "Claimed by {} at height {}",
+          entry.owner_inscription_id, entry.claim_height
+        ),
+        link: format!("/dogemap/{}", entry.block_number),
+        height: Some(entry.claim_height),
+        timestamp: u64::from(entry.claim_timestamp),
+      });
+    }
+
+    feed.sort_by(|left, right| {
+      right
+        .timestamp
+        .cmp(&left.timestamp)
+        .then_with(|| right.height.unwrap_or_default().cmp(&left.height.unwrap_or_default()))
+        .then_with(|| left.title.cmp(&right.title))
+    });
+    feed.truncate(30);
+
+    Ok(api::MonitorJson {
+      status: live_status,
+      stats: api::MonitorStatsJson {
+        total_indexed: status.inscriptions + status.dunes + status.dogemap_count,
+        blessed_inscriptions: status.blessed_inscriptions,
+        cursed_inscriptions: status.cursed_inscriptions,
+        memory_usage_bytes: Self::memory_usage_bytes(),
+        reorg_count: index.reorg_count(),
+        webhook_deliveries: 0,
+        initial_sync_seconds: status.initial_sync_time.as_secs(),
+        uptime_seconds: status.uptime.as_secs(),
+      },
+      feed,
+    })
+  }
+
+  async fn health(Extension(index): Extension<Arc<Index>>) -> ServerResult<Response> {
+    task::block_in_place(|| Ok(Self::live_json(index.health()?)))
+  }
+
+  async fn api_status(
+    Extension(server_config): Extension<Arc<ServerConfig>>,
+    Extension(index): Extension<Arc<Index>>,
+  ) -> ServerResult<Response> {
+    task::block_in_place(|| {
+      let (status, health) = Self::status_parts(&index, server_config.json_api_enabled)?;
+      Ok(Self::live_json(Self::live_status_snapshot(&status, &health)))
+    })
+  }
+
+  async fn api_monitor(
+    Extension(server_config): Extension<Arc<ServerConfig>>,
+    Extension(index): Extension<Arc<Index>>,
+  ) -> ServerResult<Response> {
+    task::block_in_place(|| Ok(Self::live_json(Self::monitor_snapshot(&index, server_config.json_api_enabled)?)))
+  }
+
+  async fn monitor(
+    Extension(server_config): Extension<Arc<ServerConfig>>,
+    Extension(index): Extension<Arc<Index>>,
+  ) -> ServerResult<PageHtml<MonitorHtml>> {
+    task::block_in_place(|| {
+      Ok(
+        MonitorHtml {
+          monitor: Self::monitor_snapshot(&index, server_config.json_api_enabled)?,
+        }
+        .page(server_config),
+      )
+    })
   }
 
   async fn status(
@@ -1581,7 +1742,7 @@ impl Server {
   ) -> ServerResult {
     task::block_in_place(|| {
       Ok(if accept_json {
-        Json(index.status(server_config.json_api_enabled)?).into_response()
+        Self::live_json(index.status(server_config.json_api_enabled)?)
       } else {
         index
           .status(server_config.json_api_enabled)?
@@ -2265,12 +2426,11 @@ impl Server {
       let next = more.then_some(page_index + 1);
 
       Ok(if accept_json {
-        Json(api::Inscriptions {
+        Self::live_json(api::Inscriptions {
           ids: inscriptions,
           page_index,
           more,
         })
-        .into_response()
       } else {
         InscriptionsHtml {
           inscriptions,
@@ -2319,12 +2479,11 @@ impl Server {
       }
 
       Ok(if accept_json {
-        Json(api::Inscriptions {
+        Self::live_json(api::Inscriptions {
           ids: inscriptions,
           page_index,
           more,
         })
-        .into_response()
       } else {
         InscriptionsBlockHtml::new(
           block_height,
@@ -4061,6 +4220,56 @@ mod tests {
 </dl>
 .*",
     );
+  }
+
+  #[test]
+  fn monitor_page_renders() {
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
+
+    server.assert_response_regex(
+      "/monitor",
+      StatusCode::OK,
+      ".*Live Index Monitor.*wallet-tools-root.*Immediate additive feed.*",
+    );
+  }
+
+  #[test]
+  fn api_status_exposes_live_snapshot() {
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
+
+    server.mine_blocks(3);
+
+    let status = server.get_json::<api::LiveStatusJson>("/api/status");
+
+    assert_eq!(status.chain, Chain::DogecoinRegtest);
+    assert_eq!(status.height, Some(3));
+    assert_eq!(status.chain_tip, 3);
+    assert_eq!(status.inscriptions, 0);
+    assert!(status.blocks_per_second >= 0.0);
+  }
+
+  #[test]
+  fn api_monitor_exposes_additive_feed() {
+    let server = TestServer::builder().chain(Chain::DogecoinRegtest).build();
+
+    server.mine_blocks(3);
+
+    server.core.broadcast_tx(TransactionTemplate {
+      inputs: &[(
+        1,
+        0,
+        0,
+        inscription("text/plain;charset=utf-8", "dog monitor feed").to_witness(),
+      )],
+      ..default()
+    });
+
+    server.mine_blocks(1);
+
+    let monitor = server.get_json::<api::MonitorJson>("/api/monitor");
+
+    assert_eq!(monitor.status.height, Some(4));
+    assert!(monitor.feed.len() <= 30);
   }
 
   #[test]

@@ -1,0 +1,170 @@
+<section id=monitor-root class=monitor-shell>
+  <section class="monitor-hero monitor-panel">
+    <div>
+      <p class=monitor-eyebrow>Primary monitor</p>
+      <h1>Live Index Monitor</h1>
+      <p class=monitor-copy>
+        Web-first indexing visibility for Doginals, dunes, and dogemaps with additive updates as soon as new data lands.
+      </p>
+    </div>
+    <div class=monitor-hero-grid>
+      <div class=monitor-hero-stat>
+        <span class=monitor-stat-label>Status</span>
+        <strong data-live-status>{{ self.sync_label() }}</strong>
+      </div>
+      <div class=monitor-hero-stat>
+        <span class=monitor-stat-label>Current height</span>
+%% if let Some(height) = self.monitor.status.height {
+        <strong data-live-height><a href=/block/{{ height }}>{{ height }}</a></strong>
+%% } else {
+        <strong data-live-height>{{ self.height_label() }}</strong>
+%% }
+      </div>
+      <div class=monitor-hero-stat>
+        <span class=monitor-stat-label>Inscriptions / sec</span>
+        <strong data-live-inscription-rate>{{ self.inscriptions_per_second() }}</strong>
+      </div>
+      <div class=monitor-hero-stat>
+        <span class=monitor-stat-label>Blocks / sec</span>
+        <strong data-live-block-rate>{{ self.blocks_per_second() }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class=monitor-layout>
+    <aside class=monitor-sidebar>
+      <section class="monitor-panel monitor-sidebar-panel">
+        <div class=monitor-panel-heading>
+          <div>
+            <p class=monitor-eyebrow>Wallet tools</p>
+            <h2>Dogestash console</h2>
+          </div>
+        </div>
+        <p class=monitor-copy>
+          Sign messages, verify balance context, and generate test DMP intents directly from the explorer.
+        </p>
+        <div id=wallet-tools-root></div>
+      </section>
+
+      <section class="monitor-panel monitor-sidebar-panel">
+        <div class=monitor-panel-heading>
+          <div>
+            <p class=monitor-eyebrow>Live progress</p>
+            <h2>Indexer telemetry</h2>
+          </div>
+        </div>
+        <dl class=monitor-metrics>
+          <div>
+            <dt>Chain tip</dt>
+            <dd data-live-chain-tip>{{ self.monitor.status.chain_tip }}</dd>
+          </div>
+          <div>
+            <dt>Lag blocks</dt>
+            <dd data-live-lag>{{ self.monitor.status.lag_blocks }}</dd>
+          </div>
+          <div>
+            <dt>Protocols</dt>
+            <dd data-live-active-protocols>{{ self.monitor.status.active_protocols.join(", ") }}</dd>
+          </div>
+          <div>
+            <dt>Uptime</dt>
+            <dd data-live-uptime>{{ humantime::format_duration(Duration::from_secs(self.monitor.stats.uptime_seconds)) }}</dd>
+          </div>
+          <div>
+            <dt>Initial sync</dt>
+            <dd data-live-initial-sync>{{ humantime::format_duration(Duration::from_secs(self.monitor.stats.initial_sync_seconds)) }}</dd>
+          </div>
+        </dl>
+        <p class=monitor-note>
+          DogeSpells, DMP, and DogeLotto counters stay visible here and remain zero until this explorer indexes those protocol families.
+        </p>
+      </section>
+    </aside>
+
+    <section class=monitor-main>
+      <div class=monitor-card-grid>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Total indexed</span>
+          <strong data-live-total-indexed>{{ self.monitor.stats.total_indexed }}</strong>
+          <p>Immediate additive visibility across current indexed datasets.</p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Memory usage</span>
+          <strong data-live-memory>{{ self.memory_usage() }}</strong>
+          <p>Resident memory for the explorer process.</p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Reorg count</span>
+          <strong data-live-reorgs>{{ self.monitor.stats.reorg_count }}</strong>
+          <p>Recoverable and unrecoverable reorgs seen this process lifetime.</p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Webhook deliveries</span>
+          <strong data-live-webhooks>{{ self.monitor.stats.webhook_deliveries }}</strong>
+          <p>Reserved for external delivery hooks.</p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Inscriptions</span>
+          <strong data-live-inscriptions>{{ self.monitor.status.inscriptions }}</strong>
+          <p>
+            Blessed <span data-live-blessed>{{ self.monitor.stats.blessed_inscriptions }}</span>
+            and cursed <span data-live-cursed>{{ self.monitor.stats.cursed_inscriptions }}</span>.
+          </p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Dunes</span>
+          <strong data-live-dunes>{{ self.monitor.status.dunes }}</strong>
+          <p>Etchings discovered by the live index.</p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Dogemaps</span>
+          <strong data-live-dogemaps>{{ self.monitor.status.dogemaps }}</strong>
+          <p>Claimed block titles visible immediately.</p>
+        </article>
+        <article class=monitor-card>
+          <span class=monitor-card-label>Protocols</span>
+          <strong>
+            <span data-live-dogespells>{{ self.monitor.status.dogespells }}</span> /
+            <span data-live-dmp>{{ self.monitor.status.dmp }}</span> /
+            <span data-live-dogelotto>{{ self.monitor.status.dogelotto }}</span>
+          </strong>
+          <p>DogeSpells / DMP / DogeLotto live counters.</p>
+        </article>
+      </div>
+
+      <section class="monitor-panel monitor-feed-panel">
+        <div class=monitor-panel-heading>
+          <div>
+            <p class=monitor-eyebrow>Live feed</p>
+            <h2>Immediate additive feed</h2>
+          </div>
+          <a class=monitor-inline-link href=/inscriptions>Explore inscriptions</a>
+        </div>
+        <p class=monitor-copy>
+          Newly indexed items appear here during sync without waiting for the explorer to finish catching up.
+        </p>
+        <ul id=monitor-feed-list class=monitor-feed>
+%% for item in &self.monitor.feed {
+          <li class=monitor-feed-item data-feed-key="{{ item.kind }}:{{ item.title }}:{{ item.timestamp }}">
+            <div class=monitor-feed-meta>
+              <span class="monitor-feed-kind monitor-feed-kind-{{ item.kind }}">{{ item.kind }}</span>
+%% if let Some(height) = item.height {
+              <span class=monitor-feed-height>height {{ height }}</span>
+%% } else {
+              <span class=monitor-feed-height>watching live</span>
+%% }
+            </div>
+            <a class=monitor-feed-link href={{ item.link }}>{{ item.title }}</a>
+            <p class=monitor-feed-copy>{{ item.subtitle }}</p>
+          </li>
+%% }
+%% if self.monitor.feed.is_empty() {
+          <li class="monitor-feed-item monitor-feed-item-empty" data-feed-key=empty>
+            Waiting for the next indexed inscription, dune, or dogemap claim.
+          </li>
+%% }
+        </ul>
+      </section>
+    </section>
+  </div>
+</section>

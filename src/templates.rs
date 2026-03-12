@@ -16,6 +16,7 @@ pub(crate) use {
   inscriptions::InscriptionsHtml,
   inscriptions_block::InscriptionsBlockHtml,
   metadata::MetadataHtml,
+  monitor::MonitorHtml,
   output::OutputHtml,
   parents::ParentsHtml,
   preview::{
@@ -51,6 +52,7 @@ pub mod inscriptions;
 mod inscriptions_block;
 mod item;
 mod metadata;
+mod monitor;
 pub mod output;
 mod parents;
 mod preview;

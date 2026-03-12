@@ -238,6 +238,7 @@ pub struct Index {
   settings: Settings,
   started: DateTime<Utc>,
   first_index_height: u32,
+  reorg_count: AtomicU64,
   unrecoverably_reorged: AtomicBool,
 }
 
@@ -518,6 +519,7 @@ impl Index {
       settings: settings.clone(),
       path,
       started: Utc::now(),
+      reorg_count: AtomicU64::new(0),
       unrecoverably_reorged: AtomicBool::new(false),
     })
   }
@@ -529,6 +531,10 @@ impl Index {
 
   pub fn have_full_utxo_index(&self) -> bool {
     self.first_index_height == 0
+  }
+
+  pub fn reorg_count(&self) -> u64 {
+    self.reorg_count.load(atomic::Ordering::Relaxed)
   }
 
   /// Unlike normal outpoints, which are added to index on creation and removed
@@ -776,9 +782,11 @@ impl Index {
 
           match err.downcast_ref() {
             Some(&reorg::Error::Recoverable { height, depth }) => {
+              self.reorg_count.fetch_add(1, atomic::Ordering::Relaxed);
               Reorg::handle_reorg(self, height, depth)?;
             }
             Some(&reorg::Error::Unrecoverable) => {
+              self.reorg_count.fetch_add(1, atomic::Ordering::Relaxed);
               self
                 .unrecoverably_reorged
                 .store(true, atomic::Ordering::Relaxed);
@@ -1134,7 +1142,11 @@ impl Index {
 
   pub fn get_dogemap_claim(&self, block_number: u32) -> Result<Option<DogemapEntry>> {
     let tx = self.database.begin_read()?;
-    let table = tx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
+    let table = match tx.open_table(DOGEMAP_BLOCK_TO_CLAIM) {
+      Ok(table) => table,
+      Err(redb::TableError::TableDoesNotExist(_)) => return Ok(None),
+      Err(err) => return Err(err.into()),
+    };
     if let Some(guard) = table.get(&block_number)? {
       Ok(Some(DogemapEntry::load(guard.value())))
     } else {
@@ -1144,11 +1156,30 @@ impl Index {
 
   pub fn list_dogemaps(&self, limit: usize, offset: usize) -> Result<Vec<DogemapEntry>> {
     let tx = self.database.begin_read()?;
-    let table = tx.open_table(DOGEMAP_BLOCK_TO_CLAIM)?;
+    let table = match tx.open_table(DOGEMAP_BLOCK_TO_CLAIM) {
+      Ok(table) => table,
+      Err(redb::TableError::TableDoesNotExist(_)) => return Ok(Vec::new()),
+      Err(err) => return Err(err.into()),
+    };
     let mut results = Vec::new();
     for entry in table.iter()?.skip(offset).take(limit) {
       let (_, v) = entry?;
       results.push(DogemapEntry::load(v.value()));
+    }
+    Ok(results)
+  }
+
+  pub fn list_recent_dogemaps(&self, limit: usize) -> Result<Vec<DogemapEntry>> {
+    let tx = self.database.begin_read()?;
+    let table = match tx.open_table(DOGEMAP_BLOCK_TO_CLAIM) {
+      Ok(table) => table,
+      Err(redb::TableError::TableDoesNotExist(_)) => return Ok(Vec::new()),
+      Err(err) => return Err(err.into()),
+    };
+    let mut results = Vec::new();
+    for entry in table.iter()?.rev().take(limit) {
+      let (_, value) = entry?;
+      results.push(DogemapEntry::load(value.value()));
     }
     Ok(results)
   }

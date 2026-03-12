@@ -268,6 +268,55 @@ pub struct HealthJson {
   pub status: String,
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct LiveStatusJson {
+  pub chain: Chain,
+  pub height: Option<u32>,
+  pub chain_tip: u32,
+  pub lag_blocks: u32,
+  pub status: String,
+  pub syncing: bool,
+  pub blocks_per_second: f64,
+  pub inscriptions_per_second: f64,
+  pub inscriptions: u64,
+  pub dunes: u64,
+  pub dogemaps: u64,
+  pub dogespells: u64,
+  pub dmp: u64,
+  pub dogelotto: u64,
+  pub active_protocols: Vec<String>,
+  pub updated_at: i64,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MonitorStatsJson {
+  pub total_indexed: u64,
+  pub blessed_inscriptions: u64,
+  pub cursed_inscriptions: u64,
+  pub memory_usage_bytes: u64,
+  pub reorg_count: u64,
+  pub webhook_deliveries: u64,
+  pub initial_sync_seconds: u64,
+  pub uptime_seconds: u64,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MonitorFeedItem {
+  pub kind: String,
+  pub title: String,
+  pub subtitle: String,
+  pub link: String,
+  pub height: Option<u32>,
+  pub timestamp: u64,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct MonitorJson {
+  pub status: LiveStatusJson,
+  pub stats: MonitorStatsJson,
+  pub feed: Vec<MonitorFeedItem>,
+}
+
 /// Response for `/r/txproof/{txid}` — merkle inclusion proof for a confirmed transaction.
 /// All hash values are in display (reversed) byte order, matching Bitcoin/Dogecoin RPC convention.
 /// The `proof` array contains sibling hashes at each level of the merkle tree,
