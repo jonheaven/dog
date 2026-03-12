@@ -326,7 +326,17 @@ impl Server {
           "/r/undelegated-content/{inscription_id}",
           get(r::undelegated_content),
         )
-        .route("/r/utxo/{outpoint}", get(r::utxo));
+        .route("/r/utxo/{outpoint}", get(r::utxo))
+        .route("/r/drc20/tokens", get(r::drc20_tokens))
+        .route("/r/drc20/token/{tick}", get(r::drc20_token))
+        .route("/r/drc20/balance/{address}", get(r::drc20_balances))
+        .route("/r/drc20/balance/{address}/{tick}", get(r::drc20_balance))
+        .route("/r/dns/name/{name}", get(r::dns_name))
+        .route("/r/dns/namespace/{namespace}", get(r::dns_namespace))
+        .route("/r/dns/stats", get(r::dns_stats))
+        .route("/r/dogemap/block/{block_number}", get(r::dogemap_claim))
+        .route("/r/dogemap/list", get(r::dogemap_list))
+        .route("/r/dogemap/count", get(r::dogemap_count));
 
       let proxiable_routes = Router::new()
         .route("/content/{inscription_id}", get(r::content))

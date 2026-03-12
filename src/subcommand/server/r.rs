@@ -661,3 +661,176 @@ pub(super) async fn utxo(
     )
   })
 }
+
+// ---------------------------------------------------------------------------
+// DRC-20 recursive API (ord-style JSON)
+// ---------------------------------------------------------------------------
+
+#[derive(serde::Serialize)]
+pub(super) struct Drc20BalanceResponse {
+  pub available: u128,
+  pub transferable: u128,
+}
+
+#[derive(serde::Serialize)]
+pub(super) struct Drc20BalanceEntry {
+  pub tick: String,
+  pub available: u128,
+  pub transferable: u128,
+}
+
+pub(super) async fn drc20_tokens(
+  Extension(index): Extension<Arc<Index>>,
+) -> ServerResult<Json<Vec<crate::subcommand::drc20::Drc20Token>>> {
+  task::block_in_place(|| {
+    let mut tokens = index.get_drc20_tokens()?;
+    tokens.sort_by(|a, b| a.tick.to_lowercase().cmp(&b.tick.to_lowercase()));
+    Ok(Json(tokens))
+  })
+}
+
+pub(super) async fn drc20_token(
+  Extension(index): Extension<Arc<Index>>,
+  Path(tick): Path<String>,
+) -> ServerResult<Json<crate::subcommand::drc20::Drc20Token>> {
+  task::block_in_place(|| {
+    Ok(Json(
+      index
+        .get_drc20_token(&tick)?
+        .ok_or_not_found(|| format!("drc20 token '{tick}'"))?,
+    ))
+  })
+}
+
+pub(super) async fn drc20_balances(
+  Extension(index): Extension<Arc<Index>>,
+  Path(address): Path<String>,
+) -> ServerResult<Json<Vec<Drc20BalanceEntry>>> {
+  task::block_in_place(|| {
+    let list = index.get_drc20_balances(&address)?;
+    let entries: Vec<Drc20BalanceEntry> = list
+      .into_iter()
+      .map(|(tick, available, transferable)| Drc20BalanceEntry {
+        tick,
+        available,
+        transferable,
+      })
+      .collect();
+    Ok(Json(entries))
+  })
+}
+
+pub(super) async fn drc20_balance(
+  Extension(index): Extension<Arc<Index>>,
+  Path((address, tick)): Path<(String, String)>,
+) -> ServerResult<Json<Drc20BalanceResponse>> {
+  task::block_in_place(|| {
+    let (available, transferable) = index.get_drc20_balance(&address, &tick)?;
+    Ok(Json(Drc20BalanceResponse {
+      available,
+      transferable,
+    }))
+  })
+}
+
+// ---------------------------------------------------------------------------
+// DNS (Dogecoin Name System) recursive API
+// ---------------------------------------------------------------------------
+
+pub(super) async fn dns_name(
+  Extension(index): Extension<Arc<Index>>,
+  Path(name): Path<String>,
+) -> ServerResult<Json<crate::index::DnsEntry>> {
+  task::block_in_place(|| {
+    Ok(Json(
+      index
+        .get_dns_name(&name)?
+        .ok_or_not_found(|| format!("dns name '{name}'"))?,
+    ))
+  })
+}
+
+pub(super) async fn dns_namespace(
+  Extension(index): Extension<Arc<Index>>,
+  Path(namespace): Path<String>,
+) -> ServerResult<Json<Vec<String>>> {
+  task::block_in_place(|| {
+    Ok(Json(
+      index
+        .get_dns_names_by_namespace(&namespace)?
+        .ok_or_not_found(|| format!("dns namespace '{namespace}'"))?,
+    ))
+  })
+}
+
+#[derive(serde::Serialize)]
+pub(super) struct DnsStatsResponse {
+  pub total: u64,
+  pub by_namespace: std::collections::HashMap<String, u64>,
+}
+
+pub(super) async fn dns_stats(
+  Extension(index): Extension<Arc<Index>>,
+) -> ServerResult<Json<DnsStatsResponse>> {
+  task::block_in_place(|| {
+    let (total, by_namespace) = index.get_dns_stats()?;
+    Ok(Json(DnsStatsResponse {
+      total,
+      by_namespace,
+    }))
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Dogemap recursive API
+// ---------------------------------------------------------------------------
+
+pub(super) async fn dogemap_claim(
+  Extension(index): Extension<Arc<Index>>,
+  Path(block_number): Path<u32>,
+) -> ServerResult<Json<crate::index::DogemapEntry>> {
+  task::block_in_place(|| {
+    Ok(Json(
+      index
+        .get_dogemap_claim(block_number)?
+        .ok_or_not_found(|| format!("dogemap block {block_number}"))?,
+    ))
+  })
+}
+
+#[derive(serde::Deserialize)]
+pub(super) struct DogemapListQuery {
+  #[serde(default = "default_dogemap_limit")]
+  pub limit: usize,
+  #[serde(default)]
+  pub offset: usize,
+}
+
+fn default_dogemap_limit() -> usize {
+  100
+}
+
+pub(super) async fn dogemap_list(
+  Extension(index): Extension<Arc<Index>>,
+  Query(q): Query<DogemapListQuery>,
+) -> ServerResult<Json<Vec<crate::index::DogemapEntry>>> {
+  task::block_in_place(|| {
+    let limit = q.limit.min(500);
+    let list = index.list_dogemaps(limit, q.offset)?;
+    Ok(Json(list))
+  })
+}
+
+#[derive(serde::Serialize)]
+pub(super) struct DogemapCountResponse {
+  pub count: u64,
+}
+
+pub(super) async fn dogemap_count(
+  Extension(index): Extension<Arc<Index>>,
+) -> ServerResult<Json<DogemapCountResponse>> {
+  task::block_in_place(|| {
+    let count = index.count_dogemaps()?;
+    Ok(Json(DogemapCountResponse { count }))
+  })
+}
