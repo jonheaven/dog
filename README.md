@@ -21,6 +21,26 @@ Indexer • Wallet SDK • Marketplace Protocol • Launchpad Tools
 > times. Periodically back up your redb index so you can restore from a
 > checkpoint. See [reindexing](docs/src/guides/reindexing.md).
 
+<p align="center">
+  <img src="dog-logo.png" alt="dog - 1.5 Gen Doginals Indexer" width="600">
+</p>
+
+# dog — 1.5 Gen Doginals Indexer for Dogecoin
+
+**Maintained & modernized by Jon Heaven (@jontype)**
+
+Built on the foundational work of **Casey Rodarmor** (Bitcoin Ordinals), **apezord** (ord-dogecoin), and **Doge Labs / Wonky Ord** (same core team behind the wonky-ord indexer) — the true pioneers who brought Ordinals to Dogecoin in 1st gen.
+
+This is the actively maintained, up-to-date fork that keeps Doginals indexing alive in 2026:
+- Latest Bitcoin ord base + apezord/wonky changes
+- Modern upgrades, bug fixes, and new protocol support
+- The bridge between 1st-gen and the 2nd-gen production backend (kabosu)
+
+**Often imitated. Never duplicated.**
+
+Part of the leading open-source stack for Doginals on Dogecoin:
+Indexer • Wallet SDK • Marketplace Protocol • Launchpad Tools
+
 <h1 align=center><code>dog</code> — Official Doginals Indexer & Explorer</h1>
 
 <div align=center>
