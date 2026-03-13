@@ -365,6 +365,7 @@ impl Settings {
       server_password: get_string("SERVER_PASSWORD"),
       server_url: get_string("SERVER_URL"),
       server_username: get_string("SERVER_USERNAME"),
+      dogecoin_zmq_address: get_string("DOGECOIN_ZMQ_ADDRESS"),
     })
   }
 
@@ -392,6 +393,7 @@ impl Settings {
       index_cache_size: None,
       index_dunes: true,
       index_koinu: true,
+      index_rare_koinu: false,
       index_transactions: false,
       only_protocols: None,
       integration_test: false,
@@ -1130,6 +1132,8 @@ mod tests {
     let config = Settings {
       dogecoin_rpc_username: Some("config_user".into()),
       dogecoin_rpc_password: Some("config_pass".into()),
+      dogecoin_zmq_address: None,
+      index_rare_koinu: false,
       ..default()
     };
 
@@ -1258,6 +1262,8 @@ mod tests {
         config_dir: Some("config dir".into()),
         cookie_file: Some("cookie file".into()),
         data_dir: Some("/data/dir".into()),
+        dogecoin_zmq_address: None,
+        index_rare_koinu: false,
         height_limit: Some(3),
         first_inscription_height: None,
         batch_write_size: None,
@@ -1404,6 +1410,8 @@ mod tests {
         config_dir: Some("config dir".into()),
         cookie_file: Some("cookie file".into()),
         data_dir: Some("/data/dir".into()),
+        dogecoin_zmq_address: None,
+        index_rare_koinu: false,
         height_limit: Some(3),
         first_inscription_height: None,
         batch_write_size: None,
@@ -1434,6 +1442,8 @@ mod tests {
 
     let config = Settings {
       index: Some("config".into()),
+      dogecoin_zmq_address: None,
+      index_rare_koinu: false,
       ..default()
     };
 

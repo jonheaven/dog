@@ -26,6 +26,7 @@ use {
   crate::Result,
   anyhow::Context,
   bitcoin::{Block, consensus::deserialize},
+  bitcoin::hashes::Hash,
   byteorder::{LittleEndian, ReadBytesExt},
   rusty_leveldb::{DB, LdbIterator, Options},
   std::{
