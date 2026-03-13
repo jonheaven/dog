@@ -94,7 +94,7 @@ impl Settings {
         continue;
       };
 
-      if let Some(key) = var.strip_prefix("ORD_") {
+      if let Some(key) = var.strip_prefix("DOG_") {
         let value = value.into_string().map_err(|value| {
           anyhow!(
             "environment variable `{var}` not valid unicode: `{}`",
@@ -132,7 +132,7 @@ impl Settings {
       } else {
         Self::default_data_dir()?
       }
-      .join("ord.yaml");
+      .join("dog.yaml");
 
       path.exists().then_some(path)
     };
@@ -156,8 +156,8 @@ impl Settings {
       &settings.dogecoin_rpc_username,
       &settings.dogecoin_rpc_password,
     ) {
-      (None, Some(_rpc_pass)) => bail!("no bitcoin RPC username specified"),
-      (Some(_rpc_user), None) => bail!("no bitcoin RPC password specified"),
+      (None, Some(_rpc_pass)) => bail!("no Dogecoin RPC username specified"),
+      (Some(_rpc_user), None) => bail!("no Dogecoin RPC password specified"),
       _ => {}
     };
 
@@ -741,7 +741,7 @@ mod tests {
       )
       .unwrap_err()
       .to_string(),
-      "no bitcoin RPC password specified"
+      "no Dogecoin RPC password specified"
     );
   }
 
@@ -757,7 +757,7 @@ mod tests {
       )
       .unwrap_err()
       .to_string(),
-      "no bitcoin RPC username specified"
+      "no Dogecoin RPC username specified"
     );
   }
 
@@ -1098,7 +1098,7 @@ mod tests {
 
     let tempdir = TempDir::new().unwrap();
 
-    let config_path = tempdir.path().join("ord.yaml");
+    let config_path = tempdir.path().join("dog.yaml");
 
     fs::write(&config_path, serde_yaml::to_string(&config).unwrap()).unwrap();
 
@@ -1167,7 +1167,7 @@ mod tests {
 
   #[test]
   fn example_config_file_is_valid() {
-    let _: Settings = serde_yaml::from_reader(File::open("ord.yaml").unwrap()).unwrap();
+    let _: Settings = serde_yaml::from_reader(File::open("dog.yaml").unwrap()).unwrap();
   }
 
   #[test]
@@ -1252,18 +1252,18 @@ mod tests {
   }
 
   #[test]
-  fn collect_env_accepts_direct_keys_and_prefers_them_over_ord_prefix() {
+  fn collect_env_accepts_direct_keys_and_prefers_them_over_dog_prefix() {
     let env = Settings::collect_env(vec![
       (
-        OsString::from("ORD_DOGECOIN_DATA_DIR"),
-        OsString::from("/ord/dogecoin"),
+        OsString::from("DOG_DOGECOIN_DATA_DIR"),
+        OsString::from("/dog/dogecoin"),
       ),
       (
         OsString::from("DOGECOIN_DATA_DIR"),
         OsString::from("/direct/dogecoin"),
       ),
       (
-        OsString::from("ORD_CHAIN"),
+        OsString::from("DOG_CHAIN"),
         OsString::from("dogecoin-testnet"),
       ),
       (
@@ -1398,7 +1398,7 @@ mod tests {
 
     let tempdir = TempDir::new().unwrap();
 
-    let config_path = tempdir.path().join("ord.yaml");
+    let config_path = tempdir.path().join("dog.yaml");
 
     fs::write(&config_path, serde_yaml::to_string(&config).unwrap()).unwrap();
 

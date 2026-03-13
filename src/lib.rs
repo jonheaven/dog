@@ -19,7 +19,7 @@ use {
     decimal::Decimal,
     deserialize_from_str::DeserializeFromStr,
     fund_raw_transaction::fund_raw_transaction,
-    index::BitcoinCoreRpcResultExt,
+    index::DogecoinCoreRpcResultExt,
     inscriptions::{
       inscription_id,
       media::{self, ImageRendering, Media},
@@ -205,7 +205,7 @@ fn default<T: Default>() -> T {
   Default::default()
 }
 
-pub fn parse_ord_server_args(args: &str) -> (Settings, subcommand::server::Server) {
+pub fn parse_dog_server_args(args: &str) -> (Settings, subcommand::server::Server) {
   match Arguments::try_parse_from(args.split_whitespace()) {
     Ok(arguments) => match arguments.subcommand {
       Subcommand::Server(server) => (
@@ -262,7 +262,7 @@ pub fn main() {
 
   ctrlc::set_handler(move || {
     eprintln!(
-      "Detected Ctrl-C, attempting to shut down ord gracefully. Press Ctrl-C {INTERRUPT_LIMIT} times to force shutdown."
+      "Detected Ctrl-C, attempting to shut down dog gracefully. Press Ctrl-C {INTERRUPT_LIMIT} times to force shutdown."
     );
 
     let interrupts = INTERRUPTS.fetch_add(1, atomic::Ordering::Relaxed);

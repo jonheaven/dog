@@ -1,6 +1,6 @@
 [Unit]
 After=network.target
-Description=Ord server
+Description=Dog server
 StartLimitBurst=120
 StartLimitIntervalSec=10m
 
@@ -8,20 +8,19 @@ StartLimitIntervalSec=10m
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 Environment=RUST_BACKTRACE=1
 Environment=RUST_LOG=info
-ExecStart=/usr/local/bin/ord \
-  --bitcoin-data-dir /var/lib/bitcoind \
+ExecStart=/usr/local/bin/dog \
+  --dogecoin-data-dir /var/lib/dogecoind \
   --chain ${CHAIN} \
-  --config-dir /var/lib/ord \
-  --datadir /var/lib/ord \
+  --config-dir /var/lib/dog \
+  --datadir /var/lib/dog \
   --index-addresses \
   --index-dunes \
-  --index-sats \
+  --index-koinu \
   server \
-  --acme-contact mailto:casey@rodarmor.com \
   --csp-origin https://${CSP_ORIGIN} \
   --http \
   --https
-Group=ord
+Group=dog
 LimitNOFILE=65536
 MemoryDenyWriteExecute=true
 NoNewPrivileges=true
@@ -31,12 +30,12 @@ ProtectHome=true
 ProtectSystem=full
 Restart=on-failure
 RestartSec=5s
-StateDirectory=ord
+StateDirectory=dog
 StateDirectoryMode=0700
 TimeoutStopSec=10m
 Type=simple
-User=ord
-WorkingDirectory=/var/lib/ord
+User=dog
+WorkingDirectory=/var/lib/dog
 
 [Install]
 WantedBy=multi-user.target

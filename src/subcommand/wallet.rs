@@ -38,7 +38,7 @@ pub(crate) struct WalletCommand {
   pub(crate) no_sync: bool,
   #[arg(
     long,
-    help = "Use ord running at <SERVER_URL>. [default: http://localhost:80]"
+    help = "Use dog running at <SERVER_URL>. [default: http://localhost:80]"
   )]
   pub(crate) server_url: Option<Url>,
   #[command(subcommand)]

@@ -1,6 +1,6 @@
 # Dogecoin Port
 
-This repository is a fork of [doginals/ord](https://github.com/doginals/ord) v0.25.0, ported
+This repository is a fork of upstream [`ord`](https://github.com/ordinals/ord) v0.25.0, ported
 to support Dogecoin (and Dogecoin testnet/regtest).  It incorporates the protocol-level work
 from the two earlier community forks and extends them significantly:
 
@@ -181,12 +181,12 @@ sub-protocol indexers (DNS, DRC-20, Dogemaps) which run by default.
 
 | Flag | Env var | Default | Effect |
 |------|---------|---------|--------|
-| `--index-koinu` | `ORD_INDEX_KOINU` | off | Track the location of every individual koinu (ordinal theory). Required by `dog find`, `dog list`, `/r/sat/*`, and koinu card endpoints. |
-| `--index-dunes` | `ORD_INDEX_DUNES` | off | Index Dune etching / minting / transfer records. Required by `dog dune *`. |
-| `--index-addresses` | `ORD_INDEX_ADDRESSES` | off | Maintain a script_pubkey → UTXOs multimap. Required by `dog dune balance`. |
-| `--no-index-inscriptions` | `ORD_NO_INDEX_INSCRIPTIONS` | off | Skip inscription indexing entirely (for archival / Dune-only nodes). |
+| `--index-koinu` | `DOG_INDEX_KOINU` | off | Track the location of every individual koinu (ordinal theory). Required by `dog find`, `dog list`, `/r/sat/*`, and koinu card endpoints. |
+| `--index-dunes` | `DOG_INDEX_DUNES` | off | Index Dune etching / minting / transfer records. Required by `dog dune *`. |
+| `--index-addresses` | `DOG_INDEX_ADDRESSES` | off | Maintain a script_pubkey → UTXOs multimap. Required by `dog dune balance`. |
+| `--no-index-inscriptions` | `DOG_NO_INDEX_INSCRIPTIONS` | off | Skip inscription indexing entirely (for archival / Dune-only nodes). |
 
-> **Renamed from upstream:** `--index-sats` (Bitcoin's unit) is called
+> **Renamed from upstream:** `--index-koinu` (Bitcoin's unit) is called
 > `--index-koinu` here because *koinu* is the Dogecoin equivalent of a satoshi.
 > The on-disk `Statistic::IndexKoinu` value is stored in the same slot (7) for
 > forward-compatibility with tools that read the raw redb table.
@@ -215,7 +215,7 @@ dog index update --only dogemap
 dog index update --only dns,drc20
 
 # Env-var equivalent
-ORD_ONLY_PROTOCOLS=dogemap dog index update
+DOG_ONLY_PROTOCOLS=dogemap dog index update
 ```
 
 Sub-protocol gating is applied per-transaction at runtime; no data is
@@ -263,3 +263,4 @@ a local config file (not committed to the repo).
 | `crates/doginals/src/epoch.rs` | Full Dogecoin epoch/subsidy implementation |
 | `crates/doginals/src/sat.rs` | Updated `SUPPLY` ceiling; `HALVING_INCREMENT` guard |
 | `crates/doginals/src/dune.rs` | `UNLOCK_INTERVAL` guard |
+

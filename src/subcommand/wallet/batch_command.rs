@@ -84,7 +84,7 @@ impl Batch {
 
     ensure!(
       wallet.load_etching(dune)?.is_none(),
-      "dune `{dune}` has pending etching, resume with `ord wallet resume`"
+      "dune `{dune}` has pending etching, resume with `dog wallet resume`"
     );
 
     ensure!(!dune.is_reserved(), "dune `{dune}` is reserved");

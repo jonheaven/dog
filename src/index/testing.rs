@@ -20,7 +20,7 @@ impl ContextBuilder {
     fs::write(&cookie_file, "username:password").unwrap();
 
     let command: Vec<OsString> = vec![
-      "ord".into(),
+      "dog".into(),
       "--dogecoin-rpc-url".into(),
       core.url().into(),
       "--datadir".into(),

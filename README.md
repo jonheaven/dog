@@ -1,23 +1,4 @@
 > **Note:** Dogecoin has more reorgs than Bitcoin due to its 1-minute block
-<p align="center">
-  <img src="dog-logo.png" alt="dog - 1.5 Gen Doginals Indexer" width="600">
-</p>
-
-# dog — 1.5 Gen Doginals Indexer for Dogecoin
-
-**Maintained & modernized by Jon Heaven (@jontype)**
-
-Built on the foundational work of **apezord** (ord-dogecoin), **doge-labs**, and **wonky-ord indexer** — the true pioneers of Doginals on Dogecoin in 1st gen.
-
-This is the actively maintained, up-to-date fork that keeps Doginals indexing alive in 2026:
-- Latest Bitcoin ord base + apezord/wonky changes
-- Modern upgrades, bug fixes, and new protocol support
-- The bridge between 1st-gen and the 2nd-gen production backend (kabosu)
-
-**Often imitated. Never duplicated.**
-
-Part of the leading open-source stack for Doginals on Dogecoin:
-Indexer • Wallet SDK • Marketplace Protocol • Launchpad Tools
 > times. Periodically back up your redb index so you can restore from a
 > checkpoint. See [reindexing](docs/src/guides/reindexing.md).
 
@@ -25,23 +6,23 @@ Indexer • Wallet SDK • Marketplace Protocol • Launchpad Tools
   <img src="dog-logo.png" alt="dog - 1.5 Gen Doginals Indexer" width="600">
 </p>
 
-# dog — 1.5 Gen Doginals Indexer for Dogecoin
+# dog - 1.5 Gen Doginals Indexer for Dogecoin
 
-**Maintained & modernized by Jon Heaven (@jontype)**
+**Maintained and modernized by Jon Heaven (@jontype)**
 
-Built on the foundational work of **Casey Rodarmor** (Bitcoin Ordinals), **apezord** (ord-dogecoin), and **Doge Labs / Wonky Ord** (same core team behind the wonky-ord indexer) — the true pioneers who brought Ordinals to Dogecoin in 1st gen.
-
-This is the actively maintained, up-to-date fork that keeps Doginals indexing alive in 2026:
-- Latest Bitcoin ord base + apezord/wonky changes
+Built on the foundational work of Casey Rodarmor's upstream `ord`, apezord's
+`ord-dogecoin`, and Doge Labs / Wonky Ord, this is the actively maintained
+Dogecoin-native fork that keeps Doginals indexing alive in 2026:
+- Latest upstream `ord` base plus Dogecoin porting work
 - Modern upgrades, bug fixes, and new protocol support
-- The bridge between 1st-gen and the 2nd-gen production backend (kabosu)
+- The bridge between 1st-gen and the 2nd-gen production backend (`kabosu`)
 
 **Often imitated. Never duplicated.**
 
 Part of the leading open-source stack for Doginals on Dogecoin:
-Indexer • Wallet SDK • Marketplace Protocol • Launchpad Tools
+Indexer | Wallet SDK | Marketplace Protocol | Launchpad Tools
 
-<h1 align=center><code>dog</code> — Official Doginals Indexer & Explorer</h1>
+<h1 align=center><code>dog</code> - Official Doginals Indexer & Explorer</h1>
 
 <div align=center>
   <a href=https://github.com/jonheaven/dog/blob/master/docs/src/doginals-spec.md>
@@ -68,7 +49,7 @@ Indexer • Wallet SDK • Marketplace Protocol • Launchpad Tools
 
 When Doge Labs stepped away, their repositories were taken down and the ecosystem went quiet for a long stretch.
 
-Beginning in mid-2025, I (**Jon Heaven** — **@jontype** / jonheaven) picked up the torch. I had already been developing advancements on this indexer in another project when I forked the original work, performed a full modern port + heavy rewrite of the Bitcoin `ord` codebase, and turned it into a fast, clean, actively maintained Dogecoin-native platform with major upgrades: direct `.blk` sync, selective indexing, Dogemaps, Koinu Relics, improved DRC-20 tooling, Dogecoin Name System, and more.
+Beginning in mid-2025, I (**Jon Heaven** — **@jontype** / jonheaven) picked up the torch. I had already been developing advancements on this indexer in another project when I forked the original work, performed a full modern port + heavy rewrite of the Bitcoin `dog` codebase, and turned it into a fast, clean, actively maintained Dogecoin-native platform with major upgrades: direct `.blk` sync, selective indexing, Dogemaps, Koinu Relics, improved DRC-20 tooling, Dogecoin Name System, and more.
 
 **This repository (jonheaven/dog) is now the canonical, actively developed home of Dogecoin Doginals.**
 
@@ -152,7 +133,7 @@ dog index update --only drc20,dns
 # Ultra-light: Dogemaps only, no inscription content stored
 dog index update --only dogemap --no-index-inscriptions
 
-# Track every individual koinu (replaces old --index-sats)
+# Track every individual koinu (replaces old --index-koinu)
 dog --index-koinu index update
 
 # Full Dune token indexing + address lookup
@@ -161,11 +142,11 @@ dog --index-dunes --index-addresses index update
 
 | Flag | Env var | Effect |
 |------|---------|--------|
-| `--only dns,drc20,dogemap` | `ORD_ONLY_PROTOCOLS` | Process only the listed sub-protocols (default: all three) |
-| `--index-koinu` | `ORD_INDEX_KOINU` | Track every koinu by ordinal number. Required for `dog find`, `dog list`, koinu card. |
-| `--index-dunes` | `ORD_INDEX_DUNES` | Index Dune etchings, mints, transfers. Required for `dog dune *`. |
-| `--index-addresses` | `ORD_INDEX_ADDRESSES` | Address→UTXOs index. Required for `dog dune balance`. |
-| `--no-index-inscriptions` | `ORD_NO_INDEX_INSCRIPTIONS` | Skip inscription content (useful for Dune/Dogemap-only nodes). |
+| `--only dns,drc20,dogemap` | `DOG_ONLY_PROTOCOLS` | Process only the listed sub-protocols (default: all three) |
+| `--index-koinu` | `DOG_INDEX_KOINU` | Track every koinu by ordinal number. Required for `dog find`, `dog list`, koinu card. |
+| `--index-dunes` | `DOG_INDEX_DUNES` | Index Dune etchings, mints, transfers. Required for `dog dune *`. |
+| `--index-addresses` | `DOG_INDEX_ADDRESSES` | Address→UTXOs index. Required for `dog dune balance`. |
+| `--no-index-inscriptions` | `DOG_NO_INDEX_INSCRIPTIONS` | Skip inscription content (useful for Dune/Dogemap-only nodes). |
 
 Full reference: [docs/src/dogecoin.md — Selective indexing flags](docs/src/dogecoin.md#6-selective-indexing-flags)
 
@@ -479,3 +460,4 @@ DOGE: `DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc`
 ---
 
 *Made with ❤️ for the Dogecoin community.*
+

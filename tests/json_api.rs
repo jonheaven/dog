@@ -7,7 +7,7 @@ use {
 };
 
 #[test]
-fn get_sat_without_sat_index() {
+fn get_sat_without_koinu_index() {
   let core = mockcore::spawn();
 
   let response =
@@ -44,7 +44,7 @@ fn get_sat_without_sat_index() {
 }
 
 #[test]
-fn get_sat_with_inscription_and_sat_index() {
+fn get_sat_with_inscription_and_koinu_index() {
   let core = mockcore::spawn();
 
   let dog = TestServer::spawn_with_server_args(&core, &["--index-koinu"], &[]);
@@ -629,10 +629,12 @@ fn get_status() {
   pretty_assert_eq!(
     status_json,
     api::Status {
+      active_protocols: vec!["dns".into(), "drc20".into(), "dogemap".into()],
       address_index: false,
       blessed_inscriptions: 1,
       chain: Chain::DogecoinRegtest,
       cursed_inscriptions: 0,
+      dogemap_count: 0,
       height: Some(3),
       initial_sync_time: dummy_duration,
       inscription_index: true,
@@ -642,7 +644,7 @@ fn get_status() {
       minimum_dune_for_next_block: Dune(99218849511960410),
       dune_index: true,
       dunes: 0,
-      sat_index: true,
+      koinu_index: true,
       started: dummy_started,
       transaction_index: false,
       unrecoverably_reorged: false,

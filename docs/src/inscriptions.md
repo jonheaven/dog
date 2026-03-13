@@ -178,7 +178,7 @@ the inscription is present in the wallet. This will only append an inscription t
 a sat, not change the initial inscription.
 
 Reinscribe with satpoint:
-`ord wallet inscribe --fee-rate <FEE_RATE> --reinscribe --file <FILE> --satpoint <SATPOINT>`
+`dog wallet inscribe --fee-rate <FEE_RATE> --reinscribe --file <FILE> --satpoint <SATPOINT>`
 
 Reinscribe on a sat (requires sat index):
 `ord --index-sats wallet inscribe --fee-rate <FEE_RATE> --reinscribe --file <FILE> --sat <SAT>`

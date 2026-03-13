@@ -98,7 +98,7 @@ impl Split {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
       wallet.has_dune_index(),
-      "`ord wallet split` requires index created with `--index-dunes`",
+      "`dog wallet split` requires index created with `--index-dunes`",
     );
 
     wallet.lock_non_cardinal_outputs()?;

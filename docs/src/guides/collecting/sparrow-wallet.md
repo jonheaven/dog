@@ -1,9 +1,9 @@
 Collecting Inscriptions and Doginals with Sparrow Wallet
 =====================
 
-Users who cannot or have not yet set up the [ord](https://github.com/doginals/ord) wallet can receive inscriptions and doginals with alternative dogecoin wallets, as long as they are _very_ careful about how they spend from that wallet.
+Users who cannot or have not yet set up the [dog](https://github.com/jonheaven/dog) wallet can receive inscriptions and doginals with alternative dogecoin wallets, as long as they are _very_ careful about how they spend from that wallet.
 
-This guide gives some basic steps on how to create a wallet with [Sparrow Wallet](https://sparrowwallet.com/) which is compatible with `ord` and can be later imported into `ord`
+This guide gives some basic steps on how to create a wallet with [Sparrow Wallet](https://sparrowwallet.com/) which is compatible with `dog` and can be later imported into `dog`
 
 ## ⚠️⚠️ Warning!! ⚠️⚠️
 As a general rule if you take this approach, you should use this wallet with the Sparrow software as a receive-only wallet.
@@ -14,7 +14,7 @@ Do not spend any koinus from this wallet unless you are sure you know what you a
 
 Download the Sparrow Wallet from the [releases page](https://sparrowwallet.com/download/) for your particular operating system.
 
-Select `File -> New Wallet` and create a new wallet called `ord`.
+Select `File -> New Wallet` and create a new wallet called `dog`.
 
 ![](images/wallet_setup_01.png)
 
@@ -44,7 +44,7 @@ Click `Apply`. Add a password for the wallet if you want to.
 
 ![](images/wallet_setup_07.png)
 
-You now have a wallet which is compatible with `ord`, and can be imported into `ord` using the [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) Seed Phrase. To receive doginals or inscriptions, click on the `Receive` tab and copy a new address.
+You now have a wallet which is compatible with `dog`, and can be imported into `dog` using the [BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) Seed Phrase. To receive doginals or inscriptions, click on the `Receive` tab and copy a new address.
 
 Each time you want to receive you should use a brand-new address, and not re-use existing addresses.
 
@@ -76,31 +76,31 @@ To do this, go to the `UTXOs` tab, find the UTXO you want to freeze, right-click
 
 This UTXO (Inscription) is now un-spendable within the Sparrow Wallet until you unfreeze it.
 
-## Importing into `ord` wallet
+## Importing into `dog` wallet
 
-For details on setting up Dogecoin Core and the `ord` wallet check out the [Wallet Guide](../wallet.md)
+For details on setting up Dogecoin Core and the `dog` wallet check out the [Wallet Guide](../wallet.md)
 
-When setting up `ord`, instead of running `ord wallet create` to create a brand-new wallet, you can import your existing wallet using `ord wallet restore "BIP39 SEED PHRASE"` using the seed phrase you generated with Sparrow Wallet.
+When setting up `dog`, instead of running `dog wallet create` to create a brand-new wallet, you can import your existing wallet using `dog wallet restore "BIP39 SEED PHRASE"` using the seed phrase you generated with Sparrow Wallet.
 
-There is currently a [bug](https://github.com/doginals/ord/issues/1589) which causes an imported wallet to not be automatically rescanned against the blockchain. To work around this you will need to manually trigger a rescan using the dogecoin core cli:
-`dogecoin-cli -rpcwallet=ord rescanblockchain 767430`
+There is currently a [bug](https://github.com/jonheaven/dog/issues/1589) which causes an imported wallet to not be automatically rescanned against the blockchain. To work around this you will need to manually trigger a rescan using the dogecoin core cli:
+`dogecoin-cli -rpcwallet=dog rescanblockchain 767430`
 
-You can then check your wallet's inscriptions using `ord wallet inscriptions`
+You can then check your wallet's inscriptions using `dog wallet inscriptions`
 
-Note that if you have previously created a wallet with `ord`, then you will already have a wallet with the default name, and will need to give your imported wallet a different name. You can use the `--wallet` parameter in all `ord` commands to reference a different wallet, eg:
+Note that if you have previously created a wallet with `dog`, then you will already have a wallet with the default name, and will need to give your imported wallet a different name. You can use the `--wallet` parameter in all `dog` commands to reference a different wallet, eg:
 
-`ord wallet --name ord_from_sparrow wallet restore --from mnemonic`
+`dog wallet --name dog_from_sparrow wallet restore --from mnemonic`
 
-`ord wallet --name ord_from_sparrow wallet inscriptions`
+`dog wallet --name dog_from_sparrow wallet inscriptions`
 
-`dogecoin-cli -rpcwallet=ord_from_sparrow rescanblockchain 767430`
+`dogecoin-cli -rpcwallet=dog_from_sparrow rescanblockchain 767430`
 
 ## Sending inscriptions with Sparrow Wallet
 
 #### ⚠️⚠️ Warning ⚠️⚠️
-While it is highly recommended that you set up a dogecoin core node and run the `ord` software, there are certain limited ways you can send inscriptions out of Sparrow Wallet in a safe way. Please note that this is not recommended, and you should only do this if you fully understand what you are doing.
+While it is highly recommended that you set up a dogecoin core node and run the `dog` software, there are certain limited ways you can send inscriptions out of Sparrow Wallet in a safe way. Please note that this is not recommended, and you should only do this if you fully understand what you are doing.
 
-Using the `ord` software will remove much of the complexity we are describing here, as it is able to automatically and safely handle sending inscriptions in an easy way.
+Using the `dog` software will remove much of the complexity we are describing here, as it is able to automatically and safely handle sending inscriptions in an easy way.
 
 #### ⚠️⚠️ Additional Warning ⚠️⚠️
 Don't use your sparrow inscriptions wallet to do general sends of non-inscription dogecoin. You can setup a separate wallet in sparrow if you need to do normal dogecoin transactions, and keep your inscriptions wallet separate.
@@ -144,7 +144,7 @@ You will then be presented with the transaction construction interface. There ar
 * The transaction should have only 1 input, and this should be the UTXO with the label you want to send
 * The transaction should have only 1 output, which is the address/label where you want to send the inscription
 
-If your transaction looks any different, for example you have multiple inputs, or multiple outputs then this may not be a safe transfer of your inscription, and you should abandon sending until you understand more, or can import into the `ord` wallet.
+If your transaction looks any different, for example you have multiple inputs, or multiple outputs then this may not be a safe transfer of your inscription, and you should abandon sending until you understand more, or can import into the `dog` wallet.
 
 You should set an appropriate transaction fee, Sparrow will usually recommend a reasonable one, but you can also check [mempool.space](https://mempool.space) to see what the recommended fee rate is for sending a transaction.
 
@@ -181,3 +181,4 @@ Make sure that your wallet is connected to a dogecoin node. To validate this, he
 From there you can select a node and click `Test Connection` to validate that Sparrow is able to connect successfully.
 
 ![](images/troubleshooting_02.png)
+

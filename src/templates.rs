@@ -84,7 +84,7 @@ where
     if let Some(domain) = &self.config.domain {
       format!("https://{domain}/static/favicon.png")
     } else {
-      "https://ordinals.com/static/favicon.png".into()
+      "https://doginals.com/static/favicon.png".into()
     }
   }
 
@@ -131,8 +131,8 @@ mod tests {
     assert_regex_match!(
       Foo.page(Arc::new(ServerConfig {
         chain: Chain::Dogecoin,
-        csp_origin: Some("https://signet.ordinals.com".into()),
-        domain: Some("signet.ordinals.com".into()),
+        csp_origin: Some("https://signet.doginals.com".into()),
+        domain: Some("signet.doginals.com".into()),
         index_koinu: true,
         ..default()
       }),),
@@ -143,7 +143,7 @@ mod tests {
     <meta name=format-detection content='telephone=no'>
     <meta name=viewport content='width=device-width,initial-scale=1.0'>
     <meta property=og:title content='Foo'>
-    <meta property=og:image content='https://signet.ordinals.com/static/favicon.png'>
+    <meta property=og:image content='https://signet.doginals.com/static/favicon.png'>
     <meta property=twitter:card content=summary>
     <title>Foo</title>
     <link rel=alternate href=/feed.xml type=application/rss\+xml title='Inscription Feed'>

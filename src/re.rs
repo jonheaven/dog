@@ -15,7 +15,7 @@ pub(crate) static HASH: LazyLock<Regex> = re!(r"[[:xdigit:]]{64}");
 pub(crate) static INSCRIPTION_ID: LazyLock<Regex> = re!(r"[[:xdigit:]]{64}i\d+");
 pub(crate) static INSCRIPTION_NUMBER: LazyLock<Regex> = re!(r"-?[0-9]{1,63}");
 pub(crate) static ORDINALS_SATSCARD_URL: LazyLock<Regex> =
-  re!(r"https://ordinals.com/koinucard\?(?<query>.*)");
+  re!(r"https://doginals.com/koinucard\?(?<query>.*)");
 pub(crate) static OUTPOINT: LazyLock<Regex> = re!(r"[[:xdigit:]]{64}:\d+");
 pub(crate) static DUNE_ID: LazyLock<Regex> = re!(r"[0-9]{1,63}:[0-9]+");
 pub(crate) static DUNE_NUMBER: LazyLock<Regex> = re!(r"-?[0-9]+");

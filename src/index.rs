@@ -188,11 +188,11 @@ pub struct TransactionInfo {
   pub starting_timestamp: u128,
 }
 
-pub(crate) trait BitcoinCoreRpcResultExt<T> {
+pub(crate) trait DogecoinCoreRpcResultExt<T> {
   fn into_option(self) -> Result<Option<T>>;
 }
 
-impl<T> BitcoinCoreRpcResultExt<T> for Result<T, bitcoincore_rpc::Error> {
+impl<T> DogecoinCoreRpcResultExt<T> for Result<T, bitcoincore_rpc::Error> {
   fn into_option(self) -> Result<Option<T>> {
     match self {
       Ok(ok) => Ok(Some(ok)),
@@ -309,11 +309,11 @@ impl Index {
 
           match schema_version.cmp(&SCHEMA_VERSION) {
             cmp::Ordering::Less => bail!(
-              "index at `{}` appears to have been built with an older, incompatible version of ord, consider deleting and rebuilding the index: index schema {schema_version}, ord schema {SCHEMA_VERSION}",
+              "index at `{}` appears to have been built with an older, incompatible version of dog, consider deleting and rebuilding the index: index schema {schema_version}, dog schema {SCHEMA_VERSION}",
               path.display()
             ),
             cmp::Ordering::Greater => bail!(
-              "index at `{}` appears to have been built with a newer, incompatible version of ord, consider updating ord: index schema {schema_version}, ord schema {SCHEMA_VERSION}",
+              "index at `{}` appears to have been built with a newer, incompatible version of dog, consider updating dog: index schema {schema_version}, dog schema {SCHEMA_VERSION}",
               path.display()
             ),
             cmp::Ordering::Equal => {}
@@ -4296,7 +4296,7 @@ mod tests {
         .unwrap()
         .to_string(),
       format!(
-        "index at `{}{delimiter}regtest{delimiter}index.redb` appears to have been built with an older, incompatible version of ord, consider deleting and rebuilding the index: index schema 0, ord schema {SCHEMA_VERSION}",
+        "index at `{}{delimiter}regtest{delimiter}index.redb` appears to have been built with an older, incompatible version of dog, consider deleting and rebuilding the index: index schema 0, dog schema {SCHEMA_VERSION}",
         path.display()
       )
     );
@@ -4332,7 +4332,7 @@ mod tests {
         .unwrap()
         .to_string(),
       format!(
-        "index at `{}{delimiter}regtest{delimiter}index.redb` appears to have been built with a newer, incompatible version of ord, consider updating ord: index schema {}, ord schema {SCHEMA_VERSION}",
+        "index at `{}{delimiter}regtest{delimiter}index.redb` appears to have been built with a newer, incompatible version of dog, consider updating dog: index schema {}, dog schema {SCHEMA_VERSION}",
         path.display(),
         u64::MAX
       )

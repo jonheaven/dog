@@ -31,7 +31,7 @@ impl Arguments {
         continue;
       };
 
-      let Some(key) = variable.strip_prefix("ORD_") else {
+      let Some(key) = variable.strip_prefix("DOG_") else {
         continue;
       };
 

@@ -96,12 +96,12 @@ pub struct Server {
   pub(crate) address: Option<String>,
   #[arg(
     long,
-    help = "Request ACME TLS certificate for <ACME_DOMAIN>. This ord instance must be reachable at <ACME_DOMAIN>:443 to respond to Let's Encrypt ACME challenges."
+    help = "Request ACME TLS certificate for <ACME_DOMAIN>. This dog instance must be reachable at <ACME_DOMAIN>:443 to respond to Let's Encrypt ACME challenges."
   )]
   pub(crate) acme_domain: Vec<String>,
   #[arg(
     long,
-    help = "Use <CSP_ORIGIN> in Content-Security-Policy header. Set this to the public-facing URL of your ord instance."
+    help = "Use <CSP_ORIGIN> in Content-Security-Policy header. Set this to the public-facing URL of your dog instance."
   )]
   pub(crate) csp_origin: Option<String>,
   #[arg(
@@ -109,7 +109,7 @@ pub struct Server {
     help = "Decompress encoded content. Currently only supports brotli. Be careful using this on production instances. A decompressed inscription may be arbitrarily large, making decompression a DoS vector."
   )]
   pub(crate) decompress: bool,
-  #[arg(long, env = "ORD_SERVER_DISABLE_JSON_API", help = "Disable JSON API.")]
+  #[arg(long, env = "DOG_SERVER_DISABLE_JSON_API", help = "Disable JSON API.")]
   pub(crate) disable_json_api: bool,
   #[arg(
     long,
@@ -1315,7 +1315,7 @@ impl Server {
   }
 
   async fn install_script() -> Redirect {
-    Redirect::to("https://raw.githubusercontent.com/ordinals/ord/master/install.sh")
+    Redirect::to("https://raw.githubusercontent.com/jonheaven/dog/master/install.sh")
   }
 
   async fn offer(
@@ -1843,7 +1843,7 @@ impl Server {
         _ => builder.title(format!("Inscriptions – {chain:?}")),
       };
 
-      builder.generator(Some("ord".to_string()));
+      builder.generator(Some("dog".to_string()));
 
       for (number, id) in index.get_feed_inscriptions(300)? {
         builder.item(
@@ -1935,11 +1935,11 @@ impl Server {
   }
 
   async fn faq() -> Redirect {
-    Redirect::to("https://docs.ordinals.com/faq")
+    Redirect::to("https://github.com/jonheaven/dog/blob/master/docs/src/faq.md")
   }
 
   async fn bounties() -> Redirect {
-    Redirect::to("https://docs.ordinals.com/bounties")
+    Redirect::to("https://github.com/jonheaven/dog/blob/master/docs/src/bounties.md")
   }
 
   async fn preview(
@@ -2614,7 +2614,7 @@ mod tests {
   struct Builder {
     core: Option<mockcore::Handle>,
     config: String,
-    ord_args: BTreeMap<String, Option<String>>,
+    dog_args: BTreeMap<String, Option<String>>,
     server_args: BTreeMap<String, Option<String>>,
   }
 
@@ -2626,13 +2626,13 @@ mod tests {
       }
     }
 
-    fn ord_option(mut self, option: &str, value: &str) -> Self {
-      self.ord_args.insert(option.into(), Some(value.into()));
+    fn dog_option(mut self, option: &str, value: &str) -> Self {
+      self.dog_args.insert(option.into(), Some(value.into()));
       self
     }
 
-    fn ord_flag(mut self, flag: &str) -> Self {
-      self.ord_args.insert(flag.into(), None);
+    fn dog_flag(mut self, flag: &str) -> Self {
+      self.dog_args.insert(flag.into(), None);
       self
     }
 
@@ -2647,7 +2647,7 @@ mod tests {
     }
 
     fn chain(self, chain: Chain) -> Self {
-      self.ord_option("--chain", &chain.to_string())
+      self.dog_option("--chain", &chain.to_string())
     }
 
     fn config(self, config: &str) -> Self {
@@ -2662,7 +2662,7 @@ mod tests {
         mockcore::builder()
           .network(
             self
-              .ord_args
+              .dog_args
               .get("--chain")
               .map(|chain| chain.as_ref().unwrap().parse::<Chain>().unwrap())
               .unwrap_or_default()
@@ -2677,7 +2677,7 @@ mod tests {
 
       fs::write(&cookiefile, "username:password").unwrap();
 
-      let mut args = vec!["ord".to_string()];
+      let mut args = vec!["dog".to_string()];
 
       args.push("--dogecoin-rpc-url".into());
       args.push(core.url());
@@ -2688,12 +2688,12 @@ mod tests {
       args.push("--datadir".into());
       args.push(tempdir.path().to_str().unwrap().into());
 
-      if !self.ord_args.contains_key("--chain") {
+      if !self.dog_args.contains_key("--chain") {
         args.push("--chain".into());
         args.push(core.network());
       }
 
-      for (arg, value) in self.ord_args {
+      for (arg, value) in self.dog_args {
         args.push(arg);
 
         if let Some(value) = value {
@@ -2732,16 +2732,16 @@ mod tests {
         .unwrap();
 
       let index = Arc::new(Index::open(&settings).unwrap());
-      let ord_server_handle = Handle::new();
+      let dog_server_handle = Handle::new();
 
       let (tx, rx) = std::sync::mpsc::channel();
 
       {
         let index = index.clone();
-        let ord_server_handle = ord_server_handle.clone();
+        let dog_server_handle = dog_server_handle.clone();
         thread::spawn(|| {
           server
-            .run(settings, index, ord_server_handle, Some(tx))
+            .run(settings, index, dog_server_handle, Some(tx))
             .unwrap()
         });
       }
@@ -2755,7 +2755,7 @@ mod tests {
       TestServer {
         core,
         index,
-        ord_server_handle,
+        dog_server_handle,
         tempdir,
         url: Url::parse(&format!("http://127.0.0.1:{port}")).unwrap(),
       }
@@ -2766,15 +2766,15 @@ mod tests {
     }
 
     fn index_addresses(self) -> Self {
-      self.ord_flag("--index-addresses")
+      self.dog_flag("--index-addresses")
     }
 
     fn index_dunes(self) -> Self {
-      self.ord_flag("--index-dunes")
+      self.dog_flag("--index-dunes")
     }
 
     fn index_koinu(self) -> Self {
-      self.ord_flag("--index-koinu")
+      self.dog_flag("--index-koinu")
     }
 
     fn redirect_http_to_https(self) -> Self {
@@ -2785,7 +2785,7 @@ mod tests {
   struct TestServer {
     core: mockcore::Handle,
     index: Arc<Index>,
-    ord_server_handle: Handle<SocketAddr>,
+    dog_server_handle: Handle<SocketAddr>,
     #[allow(unused)]
     tempdir: TempDir,
     url: Url,
@@ -3014,7 +3014,7 @@ mod tests {
 
   impl Drop for TestServer {
     fn drop(&mut self) {
-      self.ord_server_handle.shutdown();
+      self.dog_server_handle.shutdown();
     }
   }
 
@@ -3122,7 +3122,7 @@ mod tests {
   fn acme_contact_accepts_multiple_values() {
     assert!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "server",
         "--address",
         "127.0.0.1",
@@ -3141,7 +3141,7 @@ mod tests {
   fn acme_domain_accepts_multiple_values() {
     assert!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "server",
         "--address",
         "127.0.0.1",
@@ -3158,7 +3158,7 @@ mod tests {
 
   #[test]
   fn acme_cache_defaults_to_data_dir() {
-    let arguments = Arguments::try_parse_from(["ord", "--datadir", "foo", "server"]).unwrap();
+    let arguments = Arguments::try_parse_from(["dog", "--datadir", "foo", "server"]).unwrap();
 
     let settings = Settings::from_options(arguments.options)
       .or_defaults()
@@ -3178,7 +3178,7 @@ mod tests {
   #[test]
   fn acme_cache_flag_is_respected() {
     let arguments =
-      Arguments::try_parse_from(["ord", "--datadir", "foo", "server", "--acme-cache", "bar"])
+      Arguments::try_parse_from(["dog", "--datadir", "foo", "server", "--acme-cache", "bar"])
         .unwrap();
 
     let settings = Settings::from_options(arguments.options)
@@ -3210,7 +3210,7 @@ mod tests {
   fn install_sh_redirects_to_github() {
     TestServer::new().assert_redirect(
       "/install.sh",
-      "https://raw.githubusercontent.com/ordinals/ord/master/install.sh",
+      "https://raw.githubusercontent.com/jonheaven/dog/master/install.sh",
     );
   }
 
@@ -3221,12 +3221,18 @@ mod tests {
 
   #[test]
   fn bounties_redirects_to_docs_site() {
-    TestServer::new().assert_redirect("/bounties", "https://docs.ordinals.com/bounties");
+    TestServer::new().assert_redirect(
+      "/bounties",
+      "https://github.com/jonheaven/dog/blob/master/docs/src/bounties.md",
+    );
   }
 
   #[test]
   fn faq_redirects_to_docs_site() {
-    TestServer::new().assert_redirect("/faq", "https://docs.ordinals.com/faq");
+    TestServer::new().assert_redirect(
+      "/faq",
+      "https://github.com/jonheaven/dog/blob/master/docs/src/faq.md",
+    );
   }
 
   #[test]
@@ -3250,7 +3256,7 @@ mod tests {
       "/koinucard?foo",
     );
     TestServer::new().assert_redirect(
-      "/search?query=https://ordinals.com/koinucard?foo",
+      "/search?query=https://doginals.com/koinucard?foo",
       "/koinucard?foo",
     );
   }
@@ -4227,7 +4233,7 @@ mod tests {
   <dd>.*</dd>
   <dt>git commit</dt>
   <dd>
-    <a class=collapse href=https://github.com/ordinals/ord/commit/[[:xdigit:]]{40}>
+    <a class=collapse href=https://github.com/jonheaven/dog/commit/[[:xdigit:]]{40}>
       [[:xdigit:]]{40}
     </a>
   </dd>
@@ -4874,7 +4880,7 @@ mod tests {
       StatusCode::OK,
       ".*
       <a href=/clock title=clock>.*</a>
-      <a href=https://docs.ordinals.com/.*",
+      <a href=https://github.com/jonheaven/dog/blob/master/docs/src/.*",
     );
   }
 
@@ -5103,7 +5109,7 @@ mod tests {
       },
       AcceptEncoding::default(),
       &ServerConfig {
-        csp_origin: Some("https://ordinals.com".into()),
+        csp_origin: Some("https://doginals.com".into()),
         ..default()
       },
       true,
@@ -5114,7 +5120,7 @@ mod tests {
     assert_eq!(
       headers["content-security-policy"],
       HeaderValue::from_static(
-        "default-src https://ordinals.com/content/ https://ordinals.com/blockheight https://ordinals.com/blockhash https://ordinals.com/blockhash/ https://ordinals.com/blocktime https://ordinals.com/r/ 'unsafe-eval' 'unsafe-inline' data: blob:"
+        "default-src https://doginals.com/content/ https://doginals.com/blockheight https://doginals.com/blockhash https://doginals.com/blockhash/ https://doginals.com/blocktime https://doginals.com/r/ 'unsafe-eval' 'unsafe-inline' data: blob:"
       )
     );
   }
@@ -5148,7 +5154,7 @@ mod tests {
     {
       let server = TestServer::builder()
         .chain(Chain::DogecoinRegtest)
-        .server_option("--csp-origin", "https://ordinals.com")
+        .server_option("--csp-origin", "https://doginals.com")
         .build();
 
       server.mine_blocks(1);
@@ -5165,7 +5171,7 @@ mod tests {
       server.assert_response_csp(
         format!("/preview/{inscription_id}"),
         StatusCode::OK,
-        "default-src https://ordinals.com",
+        "default-src https://doginals.com",
         format!(".*<html lang=en data-inscription={inscription_id}>.*"),
       );
     }
@@ -8907,11 +8913,11 @@ next
 
   #[test]
   fn authentication_requires_username_and_password() {
-    assert!(Arguments::try_parse_from(["ord", "--server-username", "server", "foo"]).is_err());
-    assert!(Arguments::try_parse_from(["ord", "--server-password", "server", "bar"]).is_err());
+    assert!(Arguments::try_parse_from(["dog", "--server-username", "server", "foo"]).is_err());
+    assert!(Arguments::try_parse_from(["dog", "--server-password", "server", "bar"]).is_err());
     assert!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "--server-username",
         "foo",
         "--server-password",

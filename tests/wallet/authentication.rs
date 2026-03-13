@@ -30,7 +30,7 @@ fn authentication() {
       .run_and_deserialize_output::<Output>(),
     Output {
       cardinal: 50 * COIN_VALUE,
-      ordinal: 0,
+      doginal: 0,
       runic: None,
       dunes: None,
       total: 50 * COIN_VALUE,

@@ -33,7 +33,7 @@ cross-site scripting attacks.
 
 #### Example
 
-- `dog server` is run under `https://example.com/ord`.
+- `dog server` is run under `https://example.com/dog`.
 
 - A dogecoin exchange is run under `https://example.com/exchange`.
 
@@ -44,7 +44,7 @@ cross-site scripting attacks.
   contains JavaScript that accesses `https://example.com/exchange/send` and
   sends them to an attacker-controlled address.
 
-- When a user visits `https://example.com/ord/XYZ`, the malicious JavaScript
+- When a user visits `https://example.com/dog/XYZ`, the malicious JavaScript
   requests `https://example.com/exchange/send`. Because the script executes on
   the user's behalf with the request including the user's session cookie, the
   server sends the user's dogecoin to the attacker.
@@ -80,5 +80,6 @@ site owners.
   well-respected Example Corporation and sends dogecoin to the mint address.
 
 To prevent this, avoid giving users the impression that a domain hosting an
-`ord` explorer can be trusted for anything other than the content of the `ord`
+`dog` explorer can be trusted for anything other than the content of the `dog`
 explorer itself.
+

@@ -8,7 +8,7 @@ dogecoin_rpc_url: https://localhost:8000
 dogecoin_rpc_username: foo
 chain: dogecoin
 commit_interval: 10000
-config: /var/lib/dog/ord.yaml
+config: /var/lib/dog/dog.yaml
 config_dir: /var/lib/dog
 cookie_file: /var/lib/dogecoin/.cookie
 data_dir: /var/lib/dog

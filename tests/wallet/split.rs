@@ -123,7 +123,7 @@ fn simple_split() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 7 * 50 * COIN_VALUE - 20000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(10000),
       dunes: Some([(spaced_dune, "100.0".parse().unwrap())].into()),
       total: 7 * 50 * COIN_VALUE,
@@ -159,7 +159,7 @@ outputs:
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 7 * 50 * COIN_VALUE - 10960,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(666),
       dunes: Some([(spaced_dune, "49.9".parse().unwrap())].into()),
       total: 7 * 50 * COIN_VALUE - 294,

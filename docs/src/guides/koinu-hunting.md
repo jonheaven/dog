@@ -35,7 +35,7 @@ There are a few things you'll need before you start.
 
 2. Second, you'll need a synced `dog` index.
 
-   - Get a copy of `dog` from [the repo](https://github.com/doginals/ord/).
+   - Get a copy of `dog` from [the repo](https://github.com/jonheaven/dog/).
 
    - Run `dog --index-koinu server`. It should connect to your dogecoin core node and start indexing.
 

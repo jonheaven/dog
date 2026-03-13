@@ -5,7 +5,7 @@ fn empty() {
   assert_eq!(
     CommandBuilder::new("epochs").run_and_deserialize_output::<Output>(),
     Output {
-      starting_sats: vec![
+      starting_koinu: vec![
         Koinu(0),
         Koinu(1050000000000000),
         Koinu(1575000000000000),

@@ -480,7 +480,7 @@ curl -s -H "Accept: application/json" \
 
 ### Description
 
-Decode a transaction, congruent to the `ord decode` command
+Decode a transaction, congruent to the `dog decode` command
 
 ### Example
 
@@ -1853,11 +1853,11 @@ curl -s -H "Accept: application/json" \
 
 ### Description
 
-Installs the latest pre-built binary of `ord`
+Installs the latest pre-built binary of `dog`
 
 ### Example
 
-See [wallet.md](wallet.md#installing-ord)
+See [wallet.md](wallet.md#installing-dog)
 </details>
 
 <details>
@@ -5117,7 +5117,7 @@ curl -s -H "Accept: application/json" \
 
 ### Description
 
-Returns details about a specific koinu. Requires index with `--index-sats` flag.
+Returns details about a specific koinu. Requires index with `--index-koinu` flag.
 
 ### Example
 
@@ -5168,7 +5168,7 @@ curl -s -H "Accept: application/json" \
 {
   "address_index": true,
   "blessed_inscriptions": 76332641,
-  "chain": "mainnet",
+  "chain": "dogecoin",
   "cursed_inscriptions": 472043,
   "height": 864351,
   "initial_sync_time": {
@@ -5211,7 +5211,7 @@ curl -s -H "Accept: application/json" \
 
 ```json
 {
-  "chain": "mainnet",
+  "chain": "dogecoin",
   "etching": null,
   "inscription_count": 1,
   "transaction": {
@@ -5244,3 +5244,4 @@ curl -s -H "Accept: application/json" \
 ## Recursive Endpoints
 
 See [Recursion](../inscriptions/recursion.md).
+

@@ -6,12 +6,12 @@ fn default() {
     .integration_test(false)
     .stdout_regex(
       r#"\{
-  "bitcoin_data_dir": ".*(Bitcoin|bitcoin)",
-  "bitcoin_rpc_limit": 12,
-  "bitcoin_rpc_password": null,
-  "bitcoin_rpc_url": "127.0.0.1:8332",
-  "bitcoin_rpc_username": null,
-  "chain": "mainnet",
+  "dogecoin_data_dir": ".*(Dogecoin|dogecoin)",
+  "dogecoin_rpc_limit": 12,
+  "dogecoin_rpc_password": null,
+  "dogecoin_rpc_url": "127.0.0.1:22555",
+  "dogecoin_rpc_username": null,
+  "chain": "dogecoin",
   "commit_interval": 5000,
   "config": null,
   "config_dir": null,
@@ -24,8 +24,9 @@ fn default() {
   "index_addresses": false,
   "index_cache_size": \d+,
   "index_dunes": false,
-  "index_sats": false,
+  "index_koinu": false,
   "index_transactions": false,
+  "only_protocols": null,
   "integration_test": false,
   "max_savepoints": 2,
   "no_index_inscriptions": false,
@@ -45,12 +46,12 @@ fn config_is_loaded_from_config_option() {
 
   let config = tempdir.path().join("dog.yaml");
 
-  fs::write(&config, "chain: regtest").unwrap();
+  fs::write(&config, "chain: dogecoin-regtest").unwrap();
 
   CommandBuilder::new(format!("--config {} settings", config.to_str().unwrap()))
     .stdout_regex(
       r#".*
-  "chain": "regtest",
+  "chain": "dogecoin-regtest",
 .*"#,
     )
     .run_and_extract_stdout();
@@ -86,7 +87,7 @@ fn config_not_found_error_message() {
 fn config_is_loaded_from_config_dir() {
   let tempdir = TempDir::new().unwrap();
 
-  fs::write(tempdir.path().join("dog.yaml"), "chain: regtest").unwrap();
+  fs::write(tempdir.path().join("dog.yaml"), "chain: dogecoin-regtest").unwrap();
 
   CommandBuilder::new(format!(
     "--config-dir {} settings",
@@ -94,7 +95,7 @@ fn config_is_loaded_from_config_dir() {
   ))
   .stdout_regex(
     r#".*
-  "chain": "regtest",
+  "chain": "dogecoin-regtest",
 .*"#,
   )
   .run_and_extract_stdout();
@@ -103,10 +104,10 @@ fn config_is_loaded_from_config_dir() {
 #[test]
 fn config_is_loaded_from_data_dir() {
   CommandBuilder::new("settings")
-    .write("dog.yaml", "chain: regtest")
+    .write("dog.yaml", "chain: dogecoin-regtest")
     .stdout_regex(
       r#".*
-  "chain": "regtest",
+  "chain": "dogecoin-regtest",
 .*"#,
     )
     .run_and_extract_stdout();
@@ -117,16 +118,16 @@ fn env_is_loaded() {
   CommandBuilder::new("settings")
     .stdout_regex(
       r#".*
-  "chain": "mainnet",
+  "chain": "dogecoin",
 .*"#,
     )
     .run_and_extract_stdout();
 
   CommandBuilder::new("settings")
-    .env("ORD_CHAIN", "regtest")
+    .env("DOG_CHAIN", "dogecoin-regtest")
     .stdout_regex(
       r#".*
-  "chain": "regtest",
+  "chain": "dogecoin-regtest",
 .*"#,
     )
     .run_and_extract_stdout();
@@ -138,8 +139,8 @@ fn invalid_env_error_message() {
   use std::os::unix::ffi::OsStringExt;
 
   CommandBuilder::new("settings")
-    .env("ORD_BAR", OsString::from_vec(b"\xFF".into()))
-    .stderr_regex("error: environment variable `ORD_BAR` not valid unicode: `�`\n")
+    .env("DOG_BAR", OsString::from_vec(b"\xFF".into()))
+    .stderr_regex("error: environment variable `DOG_BAR` not valid unicode: `�`\n")
     .expected_exit_code(1)
     .run_and_extract_stdout();
 }

@@ -34,7 +34,7 @@ Passing `6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0` to
 the teleburn command:
 
 ```bash
-$ ord teleburn 6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0
+$ dog teleburn 6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0
 ```
 
 Returns:
@@ -48,3 +48,4 @@ Returns:
 Indicating that `0xe43A06530BdF8A4e067581f48Fae3b535559dA9e` is the Ethereum
 teleburn address for inscription zero, which is, indeed, the current owner, on
 Ethereum, of `rodarmor.eth`.
+

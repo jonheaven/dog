@@ -139,7 +139,7 @@ mod tests {
   fn cbor_and_json_metadata_flags_conflict() {
     assert_regex_match!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "wallet",
         "inscribe",
         "--cbor-metadata",
@@ -159,7 +159,7 @@ mod tests {
   fn satpoint_and_sat_flags_conflict() {
     assert_regex_match!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "--index-koinu",
         "wallet",
         "inscribe",
@@ -179,7 +179,7 @@ mod tests {
   #[test]
   fn delegate_or_file_must_be_set() {
     assert_regex_match!(
-      Arguments::try_parse_from(["ord", "wallet", "inscribe", "--fee-rate", "1"])
+      Arguments::try_parse_from(["dog", "wallet", "inscribe", "--fee-rate", "1"])
         .unwrap_err()
         .to_string(),
       r".*required arguments.*--delegate <DELEGATE>\|--file <FILE>.*"
@@ -187,7 +187,7 @@ mod tests {
 
     assert!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "wallet",
         "inscribe",
         "--file",
@@ -200,7 +200,7 @@ mod tests {
 
     assert!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "wallet",
         "inscribe",
         "--delegate",
@@ -213,7 +213,7 @@ mod tests {
 
     assert!(
       Arguments::try_parse_from([
-        "ord",
+        "dog",
         "wallet",
         "inscribe",
         "--file",

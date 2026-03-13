@@ -32,8 +32,8 @@ pub(crate) struct Env {
 struct Info {
   dogecoin_cli_command: Vec<String>,
   core_port: u16,
-  ord_port: u16,
-  ord_wallet_command: Vec<String>,
+  dog_port: u16,
+  dog_wallet_command: Vec<String>,
 }
 
 impl Env {
@@ -42,13 +42,13 @@ impl Env {
       .ok()
       .map(|listener| listener.local_addr().unwrap().port());
 
-    let ord_port = TcpListener::bind("127.0.0.1:9001")
+    let dog_port = TcpListener::bind("127.0.0.1:9001")
       .ok()
       .map(|listener| listener.local_addr().unwrap().port());
 
-    let (core_port, ord_port) = (
+    let (core_port, dog_port) = (
       core_port.unwrap_or(TcpListener::bind("127.0.0.1:0")?.local_addr()?.port()),
-      ord_port.unwrap_or(TcpListener::bind("127.0.0.1:0")?.local_addr()?.port()),
+      dog_port.unwrap_or(TcpListener::bind("127.0.0.1:0")?.local_addr()?.port()),
     );
 
     let relative = self.directory.to_str().unwrap().to_string();
@@ -126,9 +126,9 @@ rpcport={core_port}
 
     let rpc_url = format!("http://localhost:{core_port}");
 
-    let server_url = format!("http://127.0.0.1:{ord_port}");
+    let server_url = format!("http://127.0.0.1:{dog_port}");
 
-    let config = absolute.join("ord.yaml");
+    let config = absolute.join("dog.yaml");
 
     if !config.try_exists()? {
       fs::write(
@@ -143,23 +143,23 @@ rpcport={core_port}
     let proxy = self.proxy.map(|url| url.to_string());
 
     let mut command = Command::new(&dog);
-    let ord_server = command
+    let dog_server = command
       .arg("--datadir")
       .arg(&absolute)
       .arg("server")
       .arg("--polling-interval=100ms")
       .arg("--http-port")
-      .arg(ord_port.to_string());
+      .arg(dog_port.to_string());
 
     if decompress {
-      ord_server.arg("--decompress");
+      dog_server.arg("--decompress");
     }
 
     if let Some(proxy) = proxy {
-      ord_server.arg("--proxy").arg(proxy);
+      dog_server.arg("--proxy").arg(proxy);
     }
 
-    let _dog = KillOnDrop(ord_server.spawn()?);
+    let _dog = KillOnDrop(dog_server.spawn()?);
 
     thread::sleep(Duration::from_millis(250));
 
@@ -209,9 +209,9 @@ rpcport={core_port}
       File::create(self.directory.join("env.json"))?,
       &Info {
         core_port,
-        ord_port,
+        dog_port,
         dogecoin_cli_command: vec!["dogecoin-cli".into(), format!("-datadir={relative}")],
-        ord_wallet_command: vec![
+        dog_wallet_command: vec![
           dog.to_str().unwrap().into(),
           "--datadir".into(),
           absolute.to_str().unwrap().into(),

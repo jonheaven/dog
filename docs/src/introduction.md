@@ -42,8 +42,8 @@ Authors
 Links
 -----
 
-- [GitHub](https://github.com/doginals/ord/)
-- [BIP](https://github.com/doginals/ord/blob/master/bip.mediawiki)
+- [GitHub](https://github.com/jonheaven/dog/)
+- [BIP](https://github.com/jonheaven/dog/blob/master/bip.mediawiki)
 - [Discord](https://discord.gg/doginals)
 - [Open Doginals Institute Website](https://doginals.org/)
 - [Open Doginals Institute X](https://x.com/ordinalsorg)

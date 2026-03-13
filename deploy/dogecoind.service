@@ -1,17 +1,17 @@
 [Unit]
 After=network-online.target
-Description=Bitcoin daemon
-Documentation=https://github.com/bitcoin/bitcoin/blob/master/doc/init.md
+Description=Dogecoin daemon
+Documentation=https://github.com/dogecoin/dogecoin/blob/master/doc/init.md
 Wants=network-online.target
 
 [Service]
-ConfigurationDirectory=bitcoin
+ConfigurationDirectory=dogecoin
 ConfigurationDirectoryMode=0710
-ExecStart=/usr/local/bin/bitcoind \
-  -conf=/etc/bitcoin/bitcoin.conf \
+ExecStart=/usr/local/bin/dogecoind \
+  -conf=/etc/dogecoin/dogecoin.conf \
   -chain=${CHAIN}
-ExecStartPre=/bin/chgrp bitcoin /etc/bitcoin
-Group=bitcoin
+ExecStartPre=/bin/chgrp dogecoin /etc/dogecoin
+Group=dogecoin
 MemoryDenyWriteExecute=true
 NoNewPrivileges=true
 PermissionsStartOnly=true
@@ -20,14 +20,14 @@ PrivateTmp=true
 ProtectHome=true
 ProtectSystem=full
 Restart=on-failure
-RuntimeDirectory=bitcoind
+RuntimeDirectory=dogecoind
 RuntimeDirectoryMode=0710
-StateDirectory=bitcoind
+StateDirectory=dogecoind
 StateDirectoryMode=0710
 TimeoutStartSec=infinity
 TimeoutStopSec=600
 Type=simple
-User=bitcoin
+User=dogecoin
 
 [Install]
 WantedBy=multi-user.target

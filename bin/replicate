@@ -2,14 +2,14 @@
 
 set -euxo pipefail
 
-systemctl stop ord
+systemctl stop dog
 
 for host in alpha bravo; do
   rsync \
     --archive \
     --progress \
-    /var/lib/ord/index.redb \
-    root@$host.ordinals.net:/var/lib/ord/index.redb.new
+    /var/lib/dog/index.redb \
+    root@$host.ordinals.net:/var/lib/dog/index.redb.new
 done
 
-systemctl restart ord
+systemctl restart dog

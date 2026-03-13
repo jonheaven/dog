@@ -2,7 +2,7 @@ use {
   super::*,
   axum_server::Handle,
   bitcoincore_rpc::{Auth, Client, RpcApi},
-  dog::{Index, parse_ord_server_args},
+  dog::{Index, parse_dog_server_args},
   reqwest::blocking::Response,
   std::net::SocketAddr,
   sysinfo::System,
@@ -10,7 +10,7 @@ use {
 
 pub(crate) struct TestServer {
   client: Client,
-  ord_server_handle: Handle<SocketAddr>,
+  dog_server_handle: Handle<SocketAddr>,
   port: u16,
   #[allow(unused)]
   tempdir: TempDir,
@@ -21,14 +21,14 @@ impl TestServer {
     Self::spawn_with_server_args(core, &[], &[])
   }
 
-  pub(crate) fn spawn_with_args(core: &mockcore::Handle, ord_args: &[&str]) -> Self {
-    Self::spawn_with_server_args(core, ord_args, &[])
+  pub(crate) fn spawn_with_args(core: &mockcore::Handle, dog_args: &[&str]) -> Self {
+    Self::spawn_with_server_args(core, dog_args, &[])
   }
 
   pub(crate) fn spawn_with_server_args(
     core: &mockcore::Handle,
-    ord_args: &[&str],
-    ord_server_args: &[&str],
+    dog_args: &[&str],
+    dog_server_args: &[&str],
   ) -> Self {
     let tempdir = TempDir::new().unwrap();
 
@@ -36,27 +36,27 @@ impl TestServer {
 
     fs::write(&cookiefile, "username:password").unwrap();
 
-    let (settings, server) = parse_ord_server_args(&format!(
-      "dog --bitcoin-rpc-url {} --cookie-file {} --bitcoin-data-dir {} --datadir {} {} server {} --http-port 0 --address 127.0.0.1",
+    let (settings, server) = parse_dog_server_args(&format!(
+      "dog --dogecoin-rpc-url {} --cookie-file {} --dogecoin-data-dir {} --datadir {} {} server {} --http-port 0 --address 127.0.0.1",
       core.url(),
       cookiefile.to_str().unwrap(),
       tempdir.path().display(),
       tempdir.path().display(),
-      ord_args.join(" "),
-      ord_server_args.join(" "),
+      dog_args.join(" "),
+      dog_server_args.join(" "),
     ));
 
     let index = Arc::new(Index::open(&settings).unwrap());
-    let ord_server_handle = Handle::new();
+    let dog_server_handle = Handle::new();
 
     let (tx, rx) = std::sync::mpsc::channel();
 
     {
       let index = index.clone();
-      let ord_server_handle = ord_server_handle.clone();
+      let dog_server_handle = dog_server_handle.clone();
       thread::spawn(|| {
         server
-          .run(settings, index, ord_server_handle, Some(tx))
+          .run(settings, index, dog_server_handle, Some(tx))
           .unwrap()
       });
     }
@@ -67,7 +67,7 @@ impl TestServer {
 
     Self {
       client,
-      ord_server_handle,
+      dog_server_handle,
       port,
       tempdir,
     }
@@ -159,6 +159,6 @@ impl TestServer {
 
 impl Drop for TestServer {
   fn drop(&mut self) {
-    self.ord_server_handle.shutdown();
+    self.dog_server_handle.shutdown();
   }
 }

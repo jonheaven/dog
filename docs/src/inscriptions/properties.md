@@ -59,7 +59,7 @@ of the properties field will be decompressed with
 [Brotli](https://en.wikipedia.org/wiki/Brotli).
 
 Inscription properties my be compressed when inscribing with
-`ord wallet inscribe` and `ord wallet batch` with the `--compress` flag.
+`dog wallet inscribe` and `dog wallet batch` with the `--compress` flag.
 
 To avoid decompression bombs, the maximum size of decompressed properties is
 4,000,000 bytes.
@@ -96,9 +96,9 @@ not imply provenance. Additionally, because of this, inclusion in a gallery
 does not create a backlink from the gallery item's `/inscription` page to the
 gallery.
 
-Galleries may be created when batch inscribing with `ord wallet batch` by
+Galleries may be created when batch inscribing with `dog wallet batch` by
 including an array of string inscription IDs of under the `gallery` key of the
-inscription entry in the batch file, or when using `ord wallet inscribe` using
+inscription entry in the batch file, or when using `dog wallet inscribe` using
 the `--gallery` option.
 
 Attributes

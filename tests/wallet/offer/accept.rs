@@ -52,7 +52,7 @@ fn accepted_offer_works() {
     .dog(&dog)
     .run_and_deserialize_output::<Balance>();
 
-  assert_eq!(balance.ordinal, postage);
+  assert_eq!(balance.doginal, postage);
   assert_eq!(balance.cardinal, 50 * COIN_VALUE);
 
   CommandBuilder::new(format!(
@@ -70,7 +70,7 @@ fn accepted_offer_works() {
     .dog(&dog)
     .run_and_deserialize_output::<Balance>();
 
-  assert_eq!(balance.ordinal, 0);
+  assert_eq!(balance.doginal, 0);
   assert_eq!(balance.cardinal, 2 * 50 * COIN_VALUE + COIN_VALUE + postage);
 
   core
@@ -97,7 +97,7 @@ fn accepted_offer_works() {
     .dog(&dog)
     .run_and_deserialize_output::<Balance>();
 
-  assert_eq!(balance.ordinal, postage);
+  assert_eq!(balance.doginal, postage);
   assert_eq!(
     balance.cardinal,
     4 * 50 * COIN_VALUE - postage * 2 - COIN_VALUE
@@ -350,7 +350,7 @@ fn unexpected_balance_change() {
   .core(&core)
   .dog(&dog)
   .expected_exit_code(1)
-  .expected_stderr("error: unexpected balance change of -0.000099 BTC\n")
+  .expected_stderr("error: unexpected balance change of -0.000099 DOGE\n")
   .run_and_extract_stdout();
 }
 

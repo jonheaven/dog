@@ -9,7 +9,7 @@ pub struct RunicUtxo {
 pub(crate) fn run(wallet: Wallet) -> SubcommandResult {
   let unspent_outputs = wallet.utxos();
   let Some(runic_utxos) = wallet.get_runic_outputs()? else {
-    bail!("`ord wallet runics` requires index created with `--index-dunes`")
+    bail!("`dog wallet runics` requires index created with `--index-dunes`")
   };
 
   let mut result = Vec::new();

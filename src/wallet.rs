@@ -91,7 +91,7 @@ impl Wallet {
   pub(crate) fn get_wallet_sat_ranges(&self) -> Result<Vec<(OutPoint, Vec<(u64, u64)>)>> {
     ensure!(
       self.has_koinu_index,
-      "ord index must be built with `--index-koinu` to use `--sat`"
+      "dog index must be built with `--index-koinu` to use `--sat`"
     );
 
     let mut output_sat_ranges = Vec::new();
@@ -109,7 +109,7 @@ impl Wallet {
   pub(crate) fn get_output_sat_ranges(&self, output: &OutPoint) -> Result<Vec<(u64, u64)>> {
     ensure!(
       self.has_koinu_index,
-      "ord index must be built with `--index-koinu` to see sat ranges"
+      "dog index must be built with `--index-koinu` to see sat ranges"
     );
 
     if let Some(info) = self.output_info.get(output) {
@@ -126,7 +126,7 @@ impl Wallet {
   pub(crate) fn find_sat_in_outputs(&self, sat: Koinu) -> Result<KoinuPoint> {
     ensure!(
       self.has_koinu_index,
-      "ord index must be built with `--index-koinu` to use `--sat`"
+      "dog index must be built with `--index-koinu` to use `--sat`"
     );
 
     for (outpoint, info) in self.output_info.iter() {
@@ -429,7 +429,7 @@ impl Wallet {
 
     loop {
       if SHUTTING_DOWN.load(atomic::Ordering::Relaxed) {
-        eprintln!("Suspending batch. Run `ord wallet resume` to continue.");
+        eprintln!("Suspending batch. Run `dog wallet resume` to continue.");
         return Ok(entry.output);
       }
 
@@ -491,7 +491,7 @@ impl Wallet {
 
     if tr != 2 || descriptors.len() != 2 + rawtr {
       bail!(
-        "wallet \"{}\" contains unexpected output descriptors, and does not appear to be an `ord` wallet, create a new wallet with `ord wallet create`",
+        "wallet \"{}\" contains unexpected output descriptors, and does not appear to be a `dog` wallet, create a new wallet with `dog wallet create`",
         wallet_name
       );
     }
@@ -621,19 +621,19 @@ impl Wallet {
   pub(crate) fn check_version(client: Client) -> Result<Client> {
     const MIN_VERSION: usize = 280000;
 
-    let bitcoin_version = client.version()?;
-    if bitcoin_version < MIN_VERSION {
+    let dogecoin_core_version = client.version()?;
+    if dogecoin_core_version < MIN_VERSION {
       bail!(
         "Dogecoin Core {} or newer required, current version is {}",
-        Self::format_bitcoin_core_version(MIN_VERSION),
-        Self::format_bitcoin_core_version(bitcoin_version),
+        Self::format_dogecoin_core_version(MIN_VERSION),
+        Self::format_dogecoin_core_version(dogecoin_core_version),
       );
     } else {
       Ok(client)
     }
   }
 
-  fn format_bitcoin_core_version(version: usize) -> String {
+  fn format_dogecoin_core_version(version: usize) -> String {
     format!(
       "{}.{}.{}",
       version / 10000,
@@ -699,11 +699,11 @@ impl Wallet {
 
           match schema_version.cmp(&SCHEMA_VERSION) {
             cmp::Ordering::Less => bail!(
-              "wallet database at `{}` appears to have been built with an older, incompatible version of ord, consider deleting and rebuilding the index: index schema {schema_version}, ord schema {SCHEMA_VERSION}",
+              "wallet database at `{}` appears to have been built with an older, incompatible version of dog, consider deleting and rebuilding the index: index schema {schema_version}, dog schema {SCHEMA_VERSION}",
               path.display()
             ),
             cmp::Ordering::Greater => bail!(
-              "wallet database at `{}` appears to have been built with a newer, incompatible version of ord, consider updating ord: index schema {schema_version}, ord schema {SCHEMA_VERSION}",
+              "wallet database at `{}` appears to have been built with a newer, incompatible version of dog, consider updating dog: index schema {schema_version}, dog schema {SCHEMA_VERSION}",
               path.display()
             ),
             cmp::Ordering::Equal => {}
@@ -955,7 +955,7 @@ impl Wallet {
   ) -> Result<Transaction> {
     ensure!(
       self.has_dune_index(),
-      "sending dunes with `ord send` requires index created with `--index-dunes` flag",
+      "sending dunes with `dog send` requires index created with `--index-dunes` flag",
     );
 
     self.lock_non_cardinal_outputs()?;

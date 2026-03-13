@@ -11,7 +11,7 @@ the transfer scheme on the *order* of transaction inputs and outputs. Thus the
 name, *doginals*.
 
 Technical details are available in [the
-BIP](https://github.com/doginals/ord/blob/master/bip.mediawiki).
+BIP](https://github.com/jonheaven/dog/blob/master/bip.mediawiki).
 
 Doginal theory does not require a separate token, another blockchain, or any
 changes to Dogecoin. It works right now.
@@ -43,7 +43,7 @@ Arbitrary assets, such as NFTs, security tokens, accounts, or stablecoins can
 be attached to koinus using ordinal numbers as stable identifiers.
 
 Doginals is an open-source project, developed [on
-GitHub](https://github.com/doginals/ord). The project consists of a BIP describing
+GitHub](https://github.com/jonheaven/dog). The project consists of a BIP describing
 the ordinal scheme, an index that communicates with a Dogecoin Core node to
 track the location of all koinus, a wallet that allows making ordinal-aware
 transactions, a block explorer for interactive exploration of the blockchain,

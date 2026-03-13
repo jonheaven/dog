@@ -132,7 +132,7 @@ fn burns_only_one_sat() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 50 * COIN_VALUE,
-      ordinal: 0,
+      doginal: 0,
       runic: None,
       dunes: None,
       total: 50 * COIN_VALUE,
@@ -158,7 +158,7 @@ fn burns_only_one_sat() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: expected_balance,
-      ordinal: 0,
+      doginal: 0,
       runic: None,
       dunes: None,
       total: expected_balance,
@@ -436,7 +436,7 @@ fn burn_dune() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 450 * COIN_VALUE - 2 * 10000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(10000),
       dunes: Some(
         [(
@@ -467,7 +467,7 @@ fn burn_dune() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 500 * COIN_VALUE - 10000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(0),
       dunes: Some(BTreeMap::new()),
       total: 500 * COIN_VALUE,
@@ -503,7 +503,7 @@ fn burn_dune_with_many_assets_in_wallet() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 119999930000,
-      ordinal: 40000,
+      doginal: 40000,
       runic: Some(30000),
       dunes: Some(
         [
@@ -566,7 +566,7 @@ fn burn_dune_with_many_assets_in_wallet() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 124999940000,
-      ordinal: 40000,
+      doginal: 40000,
       runic: Some(20000),
       dunes: Some(
         [
@@ -737,7 +737,7 @@ fn burning_dune_creates_change_output_for_non_burnt_dunes() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 84999970000,
-      ordinal: 20000,
+      doginal: 20000,
       dunes: Some(
         [
           (SpacedDune::new(Dune(DUNE), 0), "500".parse().unwrap()),

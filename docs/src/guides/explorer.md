@@ -1,7 +1,7 @@
 Doginal Explorer
 ================
 
-The `ord` binary includes a block explorer. We host an instance of the block
+The `dog` binary includes a block explorer. We host an instance of the block
 explorer on mainnet at [doginals.com](https://doginals.com), on signet at
 [signet.doginals.com](https://signet.doginals.com), and on testnet at
 [testnet.doginals.com](https://testnet.doginals.com). As of version 0.16.0 the
@@ -73,3 +73,4 @@ been issued when they are mined:
 [100%](https://doginals.com/search/100%)
 
 ```
+

@@ -26,7 +26,7 @@ fn wallet_balance() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 50 * COIN_VALUE,
-      ordinal: 0,
+      doginal: 0,
       runic: None,
       dunes: None,
       total: 50 * COIN_VALUE,
@@ -49,7 +49,7 @@ fn inscribed_utxos_are_deducted_from_cardinal() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 0,
-      ordinal: 0,
+      doginal: 0,
       runic: None,
       dunes: None,
       total: 0,
@@ -65,7 +65,7 @@ fn inscribed_utxos_are_deducted_from_cardinal() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 100 * COIN_VALUE - 10_000,
-      ordinal: 10_000,
+      doginal: 10_000,
       runic: None,
       dunes: None,
       total: 100 * COIN_VALUE,
@@ -88,7 +88,7 @@ fn runic_utxos_are_deducted_from_cardinal() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 0,
-      ordinal: 0,
+      doginal: 0,
       runic: Some(0),
       dunes: Some(BTreeMap::new()),
       total: 0,
@@ -125,7 +125,7 @@ fn runic_utxos_are_deducted_from_cardinal() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 50 * COIN_VALUE * 7 - 20_000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(10_000),
       dunes: Some(
         vec![(
@@ -159,26 +159,26 @@ fn unsynced_wallet_fails_with_unindexed_output() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 50 * COIN_VALUE,
-      ordinal: 0,
+      doginal: 0,
       runic: None,
       dunes: None,
       total: 50 * COIN_VALUE,
     }
   );
 
-  let no_sync_ord = TestServer::spawn_with_server_args(&core, &[], &["--no-sync"]);
+  let no_sync_dog = TestServer::spawn_with_server_args(&core, &[], &["--no-sync"]);
 
   inscribe(&core, &dog);
 
   CommandBuilder::new("wallet balance")
-    .dog(&no_sync_ord)
+    .dog(&no_sync_dog)
     .core(&core)
     .expected_exit_code(1)
-    .expected_stderr("error: `dog server` 4 blocks behind `bitcoind`, consider using `--no-sync` to ignore this error\n")
+    .expected_stderr("error: `dog server` 4 blocks behind Dogecoin Core, consider using `--no-sync` to ignore this error\n")
     .run_and_extract_stdout();
 
   CommandBuilder::new("wallet --no-sync balance")
-    .dog(&no_sync_ord)
+    .dog(&no_sync_dog)
     .core(&core)
     .expected_exit_code(1)
     .stderr_regex(r"error: output in wallet but not in dog server: [[:xdigit:]]{64}:\d+.*")
@@ -200,7 +200,7 @@ fn runic_utxos_are_displayed_with_decimal_amount() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 0,
-      ordinal: 0,
+      doginal: 0,
       runic: Some(0),
       dunes: Some(BTreeMap::new()),
       total: 0,
@@ -241,7 +241,7 @@ fn runic_utxos_are_displayed_with_decimal_amount() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 50 * COIN_VALUE * 7 - 20_000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(10_000),
       dunes: Some(
         vec![(

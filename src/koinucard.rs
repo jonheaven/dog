@@ -210,7 +210,7 @@ pub(crate) mod tests {
   use super::*;
 
   pub(crate) const ORDINALS_URL: &str = concat!(
-    "https://ordinals.com/koinucard",
+    "https://doginals.com/koinucard",
     "?u=S",
     "&o=0",
     "&r=4w9rytlk",

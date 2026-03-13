@@ -984,7 +984,7 @@ fn sending_dune_creates_change_output_for_non_outgoing_dunes() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 84999960000,
-      ordinal: 20000,
+      doginal: 20000,
       dunes: Some([(SpacedDune::new(Dune(DUNE + 1), 0), "1000".parse().unwrap())].into()),
       runic: Some(10000),
       total: 84999990000,

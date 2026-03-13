@@ -77,7 +77,8 @@ impl Accept {
 
     ensure! {
       balance_change == self.amount.to_signed()?,
-      "unexpected balance change of {balance_change}",
+      "unexpected balance change of {} DOGE",
+      balance_change.to_float_in(bitcoin::Denomination::Bitcoin),
     }
 
     let signatures = Self::psbt_signatures(&psbt)?;

@@ -182,7 +182,7 @@ fn sending_dune_does_not_send_inscription() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 10000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(0),
       dunes: Some(BTreeMap::new()),
       total: 20000,
@@ -234,7 +234,7 @@ fn split_does_not_select_inscribed_or_runic_utxos() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 0,
-      ordinal: 20000,
+      doginal: 20000,
       runic: Some(20000),
       dunes: Some(
         [

@@ -26,7 +26,7 @@ impl Mint {
   pub(crate) fn run(self, wallet: Wallet) -> SubcommandResult {
     ensure!(
       wallet.has_dune_index(),
-      "`ord wallet mint` requires index created with `--index-dunes` flag",
+      "`dog wallet mint` requires index created with `--index-dunes` flag",
     );
 
     let dune = self.dune.dune;

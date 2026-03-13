@@ -85,7 +85,7 @@ pub(crate) struct CommandBuilder {
   expected_stderr: Expected,
   expected_stdout: Expected,
   integration_test: bool,
-  ord_url: Option<Url>,
+  dog_url: Option<Url>,
   stderr: bool,
   stdin: Vec<u8>,
   stdout: bool,
@@ -103,7 +103,7 @@ impl CommandBuilder {
       expected_stderr: Expected::String(String::new()),
       expected_stdout: Expected::String(String::new()),
       integration_test: true,
-      ord_url: None,
+      dog_url: None,
       stderr: true,
       stdin: Vec::new(),
       stdout: true,
@@ -138,7 +138,7 @@ impl CommandBuilder {
 
   pub(crate) fn dog(self, dog: &TestServer) -> Self {
     Self {
-      ord_url: Some(dog.url()),
+      dog_url: Some(dog.url()),
       ..self
     }
   }
@@ -194,7 +194,7 @@ impl CommandBuilder {
 
     if let Some(rpc_server_url) = &self.core_url {
       command.args([
-        "--bitcoin-rpc-url",
+        "--dogecoin-rpc-url",
         rpc_server_url,
         "--cookie-file",
         self.core_cookie_file.as_ref().unwrap().to_str().unwrap(),
@@ -206,10 +206,10 @@ impl CommandBuilder {
     for arg in self.args.iter() {
       args.push(arg.clone());
       if arg == "wallet"
-        && let Some(ord_server_url) = &self.ord_url
+        && let Some(dog_server_url) = &self.dog_url
       {
         args.push("--server-url".to_string());
-        args.push(ord_server_url.to_string());
+        args.push(dog_server_url.to_string());
       }
     }
 
@@ -218,7 +218,7 @@ impl CommandBuilder {
     }
 
     if self.integration_test {
-      command.env("ORD_INTEGRATION_TEST", "1");
+      command.env("DOG_INTEGRATION_TEST", "1");
     }
 
     command

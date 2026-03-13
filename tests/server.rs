@@ -605,16 +605,16 @@ fn expected_sat_time_is_rounded() {
 fn missing_credentials() {
   let core = mockcore::spawn();
 
-  CommandBuilder::new("--bitcoin-rpc-username foo server")
+  CommandBuilder::new("--dogecoin-rpc-username foo server")
     .core(&core)
     .expected_exit_code(1)
-    .expected_stderr("error: no bitcoin RPC password specified\n")
+    .expected_stderr("error: no Dogecoin RPC password specified\n")
     .run_and_extract_stdout();
 
-  CommandBuilder::new("--bitcoin-rpc-password bar server")
+  CommandBuilder::new("--dogecoin-rpc-password bar server")
     .core(&core)
     .expected_exit_code(1)
-    .expected_stderr("error: no bitcoin RPC username specified\n")
+    .expected_stderr("error: no Dogecoin RPC username specified\n")
     .run_and_extract_stdout();
 }
 
@@ -624,31 +624,31 @@ fn all_endpoints_in_recursive_directory_return_json() {
 
   core.mine_blocks(2);
 
-  let ord_server = TestServer::spawn_with_args(&core, &[]);
+  let dog_server = TestServer::spawn_with_args(&core, &[]);
 
   assert_eq!(
-    ord_server.request("/r/blockheight").json::<u64>().unwrap(),
+    dog_server.request("/r/blockheight").json::<u64>().unwrap(),
     2
   );
 
-  assert_eq!(ord_server.request("/r/blocktime").json::<u64>().unwrap(), 2);
+  assert_eq!(dog_server.request("/r/blocktime").json::<u64>().unwrap(), 2);
 
   assert_eq!(
-    ord_server.request("/r/blockhash").json::<String>().unwrap(),
+    dog_server.request("/r/blockhash").json::<String>().unwrap(),
     "70a93647a8d559c7e7ff2df9bd875f5b726a2ff8ca3562003d257df5a4c47ae2"
   );
 
   assert_eq!(
-    ord_server
+    dog_server
       .request("/r/blockhash/0")
       .json::<String>()
       .unwrap(),
     "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
   );
 
-  assert!(ord_server.request("/blockhash").json::<String>().is_err());
+  assert!(dog_server.request("/blockhash").json::<String>().is_err());
 
-  assert!(ord_server.request("/blockhash/2").json::<String>().is_err());
+  assert!(dog_server.request("/blockhash/2").json::<String>().is_err());
 }
 
 #[test]

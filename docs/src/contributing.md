@@ -1,4 +1,4 @@
-Contributing to `ord`
+Contributing to `dog`
 =====================
 
 Suggested Steps
@@ -82,3 +82,4 @@ Pay attention to error messages
 -------------------------------
 
 Read all error messages and don't tolerate warnings.
+

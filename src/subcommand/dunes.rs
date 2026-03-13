@@ -29,7 +29,7 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
 
   ensure!(
     index.has_dune_index(),
-    "`ord dunes` requires index created with `--index-dunes` flag",
+    "`dog dunes` requires index created with `--index-dunes` flag",
   );
 
   index.update()?;

@@ -8,7 +8,7 @@ CHAIN=$1
 DOMAIN=$2
 BRANCH=$3
 COMMIT=$4
-REVISION="ord-$BRANCH-$COMMIT"
+REVISION="dog-$BRANCH-$COMMIT"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -39,28 +39,28 @@ ufw allow ssh
 
 case $CHAIN in
   main)
-    COOKIE_FILE_DIR=/var/lib/bitcoind
-    CSP_ORIGIN=ordinals.com
+    COOKIE_FILE_DIR=/var/lib/dogecoind
+    CSP_ORIGIN=doginals.com
     ufw allow 8333
     ;;
   regtest)
-    COOKIE_FILE_DIR=/var/lib/bitcoind/regtest
-    CSP_ORIGIN=regtest.ordinals.com
+    COOKIE_FILE_DIR=/var/lib/dogecoind/regtest
+    CSP_ORIGIN=regtest.doginals.com
     ufw allow 18444
     ;;
   signet)
-    COOKIE_FILE_DIR=/var/lib/bitcoind/signet
-    CSP_ORIGIN=signet.ordinals.com
+    COOKIE_FILE_DIR=/var/lib/dogecoind/signet
+    CSP_ORIGIN=signet.doginals.com
     ufw allow 38333
     ;;
   test)
-    COOKIE_FILE_DIR=/var/lib/bitcoind/testnet3
-    CSP_ORIGIN=testnet.ordinals.com
+    COOKIE_FILE_DIR=/var/lib/dogecoind/testnet3
+    CSP_ORIGIN=testnet.doginals.com
     ufw allow 18333
     ;;
   testnet4)
-    COOKIE_FILE_DIR=/var/lib/bitcoind/testnet4
-    CSP_ORIGIN=testnet4.ordinals.com
+    COOKIE_FILE_DIR=/var/lib/dogecoind/testnet4
+    CSP_ORIGIN=testnet4.doginals.com
     ufw allow 48333
     ;;
   *)
@@ -70,20 +70,20 @@ case $CHAIN in
 esac
 
 mkdir -p \
-  /etc/systemd/system/bitcoind.service.d \
-  /etc/systemd/system/ord.service.d
+  /etc/systemd/system/dogecoind.service.d \
+  /etc/systemd/system/dog.service.d
 
-OVERRIDE=/etc/systemd/system/ord.service.d/override.conf
+OVERRIDE=/etc/systemd/system/dog.service.d/override.conf
 
 echo '[Service]' > $OVERRIDE
 echo "Environment=CHAIN=$CHAIN" >> $OVERRIDE
 echo "Environment=CSP_ORIGIN=$CSP_ORIGIN" >> $OVERRIDE
 
-if [[ $CHAIN == main && $DOMAIN != charlie.ordinals.net ]]; then
-  echo Environment=ORD_SERVER_DISABLE_JSON_API=true >> $OVERRIDE
+if [[ $CHAIN == main ]]; then
+  echo Environment=DOG_SERVER_DISABLE_JSON_API=true >> $OVERRIDE
 fi
 
-cp $OVERRIDE /etc/systemd/system/bitcoind.service.d/override.conf
+cp $OVERRIDE /etc/systemd/system/dogecoind.service.d/override.conf
 
 sed -i -E 's/#?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 sshd -t
@@ -91,22 +91,14 @@ systemctl restart sshd
 
 ufw --force enable
 
-version=30.0
-if ! bitcoind --version | grep $version; then
-  wget \
-    -O bitcoin.tar.gz \
-    https://bitcoincore.org/bin/bitcoin-core-$version/bitcoin-$version-x86_64-linux-gnu.tar.gz
-
-  tar \
-    -xzvf bitcoin.tar.gz \
-    -C /usr/local/bin \
-    --strip-components 2 \
-    bitcoin-$version/bin/{bitcoin-cli,bitcoind}
-
-  bitcoind --version
+if ! command -v dogecoind > /dev/null || ! command -v dogecoin-cli > /dev/null; then
+  echo "dogecoind and dogecoin-cli must already be installed." >&2
+  exit 1
 fi
 
-rm -f /var/lib/bitcoind/settings.json
+dogecoind --version
+
+rm -f /var/lib/dogecoind/settings.json
 
 if [[ ! -e ~/.cargo/env ]]; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -117,43 +109,43 @@ source ~/.cargo/env
 rustup update stable
 
 cargo build --release
-install --backup target/release/ord /usr/local/bin/ord
+install --backup target/release/dog /usr/local/bin/dog
 
-id --user bitcoin || useradd --system bitcoin
-id --user ord || useradd --system ord
+id --user dogecoin || useradd --system dogecoin
+id --user dog || useradd --system dog
 
-cp deploy/bitcoind.service /etc/systemd/system/
+cp deploy/dogecoind.service /etc/systemd/system/
 
-mkdir -p /etc/bitcoin
-cp deploy/bitcoin.conf /etc/bitcoin/bitcoin.conf
+mkdir -p /etc/dogecoin
+cp deploy/dogecoin.conf /etc/dogecoin/dogecoin.conf
 
-if [[ ! -e ~/.bitcoin/bitcoin.conf ]]; then
-  mkdir -p ~/.bitcoin
-  ln -s /etc/bitcoin/bitcoin.conf ~/.bitcoin/bitcoin.conf
+if [[ ! -e ~/.dogecoin/dogecoin.conf ]]; then
+  mkdir -p ~/.dogecoin
+  ln -s /etc/dogecoin/dogecoin.conf ~/.dogecoin/dogecoin.conf
 fi
 
 systemctl daemon-reload
-systemctl enable bitcoind
-systemctl restart bitcoind
+systemctl enable dogecoind
+systemctl restart dogecoind
 
 while [[ ! -f $COOKIE_FILE_DIR/.cookie ]]; do
-  echo "Waiting for bitcoind…"
+  echo "Waiting for dogecoind..."
   sleep 1
 done
 
-setfacl -m ord:x /var/lib/bitcoind
-setfacl -m ord:x $COOKIE_FILE_DIR
-setfacl -dm ord:r $COOKIE_FILE_DIR
-setfacl -m ord:r $COOKIE_FILE_DIR/.cookie
+setfacl -m dog:x /var/lib/dogecoind
+setfacl -m dog:x $COOKIE_FILE_DIR
+setfacl -dm dog:r $COOKIE_FILE_DIR
+setfacl -m dog:r $COOKIE_FILE_DIR/.cookie
 
-journalctl --unit ord --vacuum-time 1s
+journalctl --unit dog --vacuum-time 1s
 
-cp deploy/ord.service /etc/systemd/system/
+cp deploy/dog.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable ord
-systemctl restart ord
+systemctl enable dog
+systemctl restart dog
 
 while ! curl --fail https://$DOMAIN/status > /dev/null; do
-  echo "Waiting for ord at https://$DOMAIN/status…"
+  echo "Waiting for dog at https://$DOMAIN/status..."
   sleep 1
 done

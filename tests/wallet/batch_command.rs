@@ -1631,7 +1631,7 @@ fn batch_can_etch_dune() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 39999980000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(10000),
       dunes: Some(
         vec![(
@@ -1772,7 +1772,7 @@ fn batch_can_etch_dune_without_premine() {
       .run_and_deserialize_output::<Balance>(),
     Balance {
       cardinal: 39999990000,
-      ordinal: 10000,
+      doginal: 10000,
       runic: Some(0),
       dunes: Some(default()),
       total: 400 * COIN_VALUE,
