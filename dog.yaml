@@ -13,6 +13,7 @@ config_dir: /var/lib/dog
 cookie_file: /var/lib/dogecoin/.cookie
 data_dir: /var/lib/dog
 height_limit: 1000
+first_inscription_height: 4609720
 hidden:
   - 6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0
   - 703e5f7c49d82aab99e605af306b9a30e991e57d42f982908a962a81ac439832i0

@@ -124,6 +124,9 @@ Full protocol spec: [docs/src/doginals-spec.md — Dogemaps v1](docs/src/doginal
 Customize what gets processed for faster or lighter runs.
 
 ```bash
+# Default Doginals sync starts at the first Doginals block, not genesis
+dog index sync
+
 # Only index Dogemap claims — skip images, DRC-20, DNS entirely
 dog index update --only dogemap
 
@@ -136,6 +139,9 @@ dog index update --only dogemap --no-index-inscriptions
 # Track every individual koinu (replaces old --index-koinu)
 dog --index-koinu index update
 
+# Override the starting height manually
+dog --first-inscription-height 0 index sync
+
 # Full Dune token indexing + address lookup
 dog --index-dunes --index-addresses index update
 ```
@@ -143,12 +149,38 @@ dog --index-dunes --index-addresses index update
 | Flag | Env var | Effect |
 |------|---------|--------|
 | `--only dns,drc20,dogemap` | `DOG_ONLY_PROTOCOLS` | Process only the listed sub-protocols (default: all three) |
+| `--first-inscription-height` | `DOG_FIRST_INSCRIPTION_HEIGHT` | Start Doginals indexing at this height. Default mainnet start: `4609720`. Set `0` for a full genesis scan. |
 | `--index-koinu` | `DOG_INDEX_KOINU` | Track every koinu by ordinal number. Required for `dog find`, `dog list`, koinu card. |
 | `--index-dunes` | `DOG_INDEX_DUNES` | Index Dune etchings, mints, transfers. Required for `dog dune *`. |
 | `--index-addresses` | `DOG_INDEX_ADDRESSES` | Address→UTXOs index. Required for `dog dune balance`. |
 | `--no-index-inscriptions` | `DOG_NO_INDEX_INSCRIPTIONS` | Skip inscription content (useful for Dune/Dogemap-only nodes). |
 
 Full reference: [docs/src/dogecoin.md — Selective indexing flags](docs/src/dogecoin.md#6-selective-indexing-flags)
+
+### Default Doginals start height
+
+By default, `dog` starts Doginals indexing at block `4609720`, the first
+Doginals block on Dogecoin mainnet. This avoids wasting time scanning from
+genesis when you only care about Doginals data such as inscriptions, DMP,
+DogeLotto, DNS, DRC-20, and Dogemaps.
+
+Rare koinu users should opt into a full genesis scan:
+
+```bash
+dog --index-koinu index sync
+```
+
+You can also force a genesis scan without enabling koinu tracking:
+
+```bash
+dog --first-inscription-height 0 index sync
+```
+
+To make the override permanent in config, add this to `dog.yaml`:
+
+```yaml
+first_inscription_height: 0
+```
 
 ### Fast sync (direct .blk file reads)
 

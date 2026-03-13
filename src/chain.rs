@@ -82,7 +82,7 @@ impl Chain {
 
   pub(crate) fn first_inscription_height(self) -> u32 {
     match self {
-      Self::Dogecoin => 4_600_000,
+      Self::Dogecoin => 4_609_720,
       Self::DogecoinTestnet => 4_250_000,
       Self::DogecoinRegtest => 0,
     }

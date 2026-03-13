@@ -760,15 +760,24 @@ impl Index {
   pub fn update(&self) -> Result {
     loop {
       let wtx = self.begin_write()?;
+      let next_height = wtx
+        .open_table(HEIGHT_TO_BLOCK_HEADER)?
+        .range(0..)?
+        .next_back()
+        .transpose()?
+        .map(|(height, _header)| height.value() + 1)
+        .unwrap_or(self.first_index_height);
+
+      if next_height == self.first_index_height && self.first_index_height > 0 {
+        log::info!(
+          "Starting Doginals indexing from height {} (first Doginals block)",
+          self.first_index_height
+        );
+      }
 
       let mut updater = Updater {
-        height: wtx
-          .open_table(HEIGHT_TO_BLOCK_HEADER)?
-          .range(0..)?
-          .next_back()
-          .transpose()?
-          .map(|(height, _header)| height.value() + 1)
-          .unwrap_or(0),
+        height: next_height,
+        started_height: next_height,
         index: self,
         outputs_cached: 0,
         outputs_traversed: 0,
@@ -3281,6 +3290,23 @@ mod tests {
   }
 
   #[test]
+  fn update_starts_from_configured_first_inscription_height() {
+    let context = Context::builder()
+      .args(["--first-inscription-height", "2"])
+      .build();
+
+    assert!(!context.index.have_full_utxo_index());
+    assert_eq!(context.index.block_height().unwrap(), None);
+
+    context.mine_blocks(3);
+
+    assert_eq!(context.index.block_hash(Some(0)).unwrap(), None);
+    assert_eq!(context.index.block_hash(Some(1)).unwrap(), None);
+    assert!(context.index.block_hash(Some(2)).unwrap().is_some());
+    assert_eq!(context.index.block_height().unwrap(), Some(Height(3)));
+  }
+
+  #[test]
   fn inscriptions_below_first_inscription_height_are_skipped() {
     let inscription = inscription("text/plain;charset=utf-8", "hello");
     let template = TransactionTemplate {
@@ -3289,7 +3315,9 @@ mod tests {
     };
 
     {
-      let context = Context::builder().build();
+      let context = Context::builder()
+        .args(["--first-inscription-height", "0"])
+        .build();
       context.mine_blocks(1);
       let txid = context.core.broadcast_tx(template.clone());
       let inscription_id = InscriptionId { txid, index: 0 };

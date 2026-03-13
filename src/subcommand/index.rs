@@ -13,7 +13,7 @@ pub(crate) enum IndexSubcommand {
   Info(info::Info),
   #[command(about = "Refresh the shadow copy of Core's block index (safe while Core runs)")]
   RefreshBlkIndex,
-  #[command(about = "Update the index", alias = "run")]
+  #[command(about = "Update the index", alias = "run", alias = "sync")]
   Update,
 }
 

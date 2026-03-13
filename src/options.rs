@@ -42,6 +42,11 @@ pub struct Options {
   pub(crate) data_dir: Option<PathBuf>,
   #[arg(long, help = "Limit index to <HEIGHT_LIMIT> blocks.")]
   pub(crate) height_limit: Option<u32>,
+  #[arg(
+    long,
+    help = "Start Doginals indexing at <FIRST_INSCRIPTION_HEIGHT>. [default: 4609720, or 0 with --index-koinu]"
+  )]
+  pub(crate) first_inscription_height: Option<u32>,
   #[arg(long, help = "Use index at <INDEX>.")]
   pub(crate) index: Option<PathBuf>,
   #[arg(long, help = "Track unspent output addresses.")]

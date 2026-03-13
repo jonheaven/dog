@@ -25,6 +25,7 @@ pub struct Settings {
   cookie_file: Option<PathBuf>,
   data_dir: Option<PathBuf>,
   height_limit: Option<u32>,
+  first_inscription_height: Option<u32>,
   hidden: Option<HashSet<InscriptionId>>,
   http_port: Option<u16>,
   index: Option<PathBuf>,
@@ -65,6 +66,7 @@ impl Settings {
         | "COOKIE_FILE"
         | "DATA_DIR"
         | "HEIGHT_LIMIT"
+        | "FIRST_INSCRIPTION_HEIGHT"
         | "HIDDEN"
         | "HTTP_PORT"
         | "INDEX"
@@ -184,6 +186,9 @@ impl Settings {
       cookie_file: self.cookie_file.or(source.cookie_file),
       data_dir: self.data_dir.or(source.data_dir),
       height_limit: self.height_limit.or(source.height_limit),
+      first_inscription_height: self
+        .first_inscription_height
+        .or(source.first_inscription_height),
       hidden: Some(
         self
           .hidden
@@ -229,6 +234,7 @@ impl Settings {
       cookie_file: options.cookie_file,
       data_dir: options.data_dir,
       height_limit: options.height_limit,
+      first_inscription_height: options.first_inscription_height,
       hidden: None,
       http_port: None,
       index: options.index,
@@ -324,6 +330,7 @@ impl Settings {
       cookie_file: get_path("COOKIE_FILE"),
       data_dir: get_path("DATA_DIR"),
       height_limit: get_u32("HEIGHT_LIMIT")?,
+      first_inscription_height: get_u32("FIRST_INSCRIPTION_HEIGHT")?,
       hidden: inscriptions("HIDDEN")?,
       http_port: get_u16("HTTP_PORT")?,
       index: get_path("INDEX"),
@@ -362,6 +369,7 @@ impl Settings {
       cookie_file: None,
       data_dir: Some(dir.into()),
       height_limit: None,
+      first_inscription_height: None,
       hidden: None,
       http_port: None,
       index: None,
@@ -422,6 +430,7 @@ impl Settings {
       cookie_file: Some(cookie_file),
       data_dir: Some(data_dir),
       height_limit: self.height_limit,
+      first_inscription_height: self.first_inscription_height,
       hidden: self.hidden,
       http_port: self.http_port,
       index: Some(index),
@@ -621,10 +630,12 @@ impl Settings {
   }
 
   pub fn first_inscription_height(&self) -> u32 {
-    if self.integration_test {
+    if self.integration_test || self.index_koinu {
       0
     } else {
-      self.chain.unwrap().first_inscription_height()
+      self
+        .first_inscription_height
+        .unwrap_or_else(|| self.chain.unwrap().first_inscription_height())
     }
   }
 
@@ -1222,6 +1233,7 @@ mod tests {
         cookie_file: Some("cookie file".into()),
         data_dir: Some("/data/dir".into()),
         height_limit: Some(3),
+        first_inscription_height: None,
         hidden: Some(
           vec![
             "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0"
@@ -1366,6 +1378,7 @@ mod tests {
         cookie_file: Some("cookie file".into()),
         data_dir: Some("/data/dir".into()),
         height_limit: Some(3),
+        first_inscription_height: None,
         hidden: None,
         http_port: None,
         index: Some("index".into()),
@@ -1429,5 +1442,38 @@ mod tests {
       Settings::merge(options, env).unwrap().index,
       Some("option".into()),
     );
+  }
+
+  #[test]
+  fn first_inscription_height_defaults_to_doginals_genesis() {
+    assert_eq!(parse(&[]).first_inscription_height(), 4_609_720);
+  }
+
+  #[test]
+  fn first_inscription_height_can_be_overridden() {
+    assert_eq!(
+      parse(&["--first-inscription-height", "123"]).first_inscription_height(),
+      123
+    );
+    assert_eq!(
+      parse(&["--chain=dogecoin-regtest", "--first-inscription-height", "2"])
+        .first_inscription_height(),
+      2
+    );
+
+    let env = vec![("FIRST_INSCRIPTION_HEIGHT", "456")]
+      .into_iter()
+      .map(|(key, value)| (key.into(), value.into()))
+      .collect::<BTreeMap<String, String>>();
+
+    assert_eq!(
+      Settings::from_env(env).unwrap().first_inscription_height,
+      Some(456)
+    );
+  }
+
+  #[test]
+  fn index_koinu_forces_genesis_scan() {
+    assert_eq!(parse(&["--index-koinu"]).first_inscription_height(), 0);
   }
 }

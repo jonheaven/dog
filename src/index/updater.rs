@@ -65,6 +65,7 @@ impl From<Block> for BlockData {
 
 pub(crate) struct Updater<'index> {
   pub(super) height: u32,
+  pub(super) started_height: u32,
   pub(super) index: &'index Index,
   pub(super) outputs_cached: u64,
   pub(super) outputs_traversed: u64,
@@ -75,7 +76,7 @@ impl Updater<'_> {
   pub(crate) fn update_index(&mut self, mut wtx: WriteTransaction) -> Result {
     let start = Instant::now();
     let starting_height = u32::try_from(self.index.client.get_block_count()?).unwrap() + 1;
-    let starting_index_height = self.height;
+    let starting_index_height = self.started_height;
 
     wtx
       .open_table(WRITE_TRANSACTION_STARTING_BLOCK_COUNT_TO_TIMESTAMP)?
@@ -166,7 +167,8 @@ impl Updater<'_> {
       }
     }
 
-    if starting_index_height == 0 && self.height > 0 {
+    if starting_index_height == self.index.first_index_height && self.height > starting_index_height
+    {
       wtx.open_table(STATISTIC_TO_COUNT)?.insert(
         Statistic::InitialSyncTime.key(),
         &u64::try_from(start.elapsed().as_micros())?,
