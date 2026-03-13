@@ -18,6 +18,7 @@ pub struct Settings {
   dogecoin_rpc_password: Option<String>,
   dogecoin_rpc_url: Option<String>,
   dogecoin_rpc_username: Option<String>,
+  dogecoin_zmq_address: Option<String>,
   chain: Option<Chain>,
   commit_interval: Option<usize>,
   config: Option<PathBuf>,
@@ -26,6 +27,7 @@ pub struct Settings {
   data_dir: Option<PathBuf>,
   height_limit: Option<u32>,
   first_inscription_height: Option<u32>,
+  batch_write_size: Option<usize>,
   hidden: Option<HashSet<InscriptionId>>,
   http_port: Option<u16>,
   index: Option<PathBuf>,
@@ -33,6 +35,7 @@ pub struct Settings {
   index_cache_size: Option<usize>,
   index_dunes: bool,
   index_koinu: bool,
+  index_rare_koinu: bool,
   index_transactions: bool,
   only_protocols: Option<Vec<String>>,
   integration_test: bool,
@@ -59,6 +62,7 @@ impl Settings {
         | "DOGECOIN_RPC_USERNAME"
         | "DOGE_RPC_PASSWORD"
         | "DOGE_RPC_USERNAME"
+        | "DOGECOIN_ZMQ_ADDRESS"
         | "CHAIN"
         | "COMMIT_INTERVAL"
         | "CONFIG"
@@ -67,6 +71,7 @@ impl Settings {
         | "DATA_DIR"
         | "HEIGHT_LIMIT"
         | "FIRST_INSCRIPTION_HEIGHT"
+        | "BATCH_WRITE_SIZE"
         | "HIDDEN"
         | "HTTP_PORT"
         | "INDEX"
@@ -179,6 +184,7 @@ impl Settings {
       dogecoin_rpc_password: self.dogecoin_rpc_password.or(source.dogecoin_rpc_password),
       dogecoin_rpc_url: self.dogecoin_rpc_url.or(source.dogecoin_rpc_url),
       dogecoin_rpc_username: self.dogecoin_rpc_username.or(source.dogecoin_rpc_username),
+      dogecoin_zmq_address: self.dogecoin_zmq_address.or(source.dogecoin_zmq_address),
       chain: self.chain.or(source.chain),
       commit_interval: self.commit_interval.or(source.commit_interval),
       config: self.config.or(source.config),
@@ -189,6 +195,7 @@ impl Settings {
       first_inscription_height: self
         .first_inscription_height
         .or(source.first_inscription_height),
+      batch_write_size: self.batch_write_size.or(source.batch_write_size),
       hidden: Some(
         self
           .hidden
@@ -204,6 +211,7 @@ impl Settings {
       index_cache_size: self.index_cache_size.or(source.index_cache_size),
       index_dunes: self.index_dunes || source.index_dunes,
       index_koinu: self.index_koinu || source.index_koinu,
+      index_rare_koinu: self.index_rare_koinu || source.index_rare_koinu,
       index_transactions: self.index_transactions || source.index_transactions,
       only_protocols: self.only_protocols.or(source.only_protocols),
       integration_test: self.integration_test || source.integration_test,
@@ -223,6 +231,7 @@ impl Settings {
       dogecoin_rpc_password: options.dogecoin_rpc_password,
       dogecoin_rpc_url: options.dogecoin_rpc_url,
       dogecoin_rpc_username: options.dogecoin_rpc_username,
+      dogecoin_zmq_address: options.dogecoin_zmq_address,
       chain: options
         .regtest
         .then_some(Chain::DogecoinRegtest)
@@ -235,6 +244,7 @@ impl Settings {
       data_dir: options.data_dir,
       height_limit: options.height_limit,
       first_inscription_height: options.first_inscription_height,
+      batch_write_size: options.batch_write_size,
       hidden: None,
       http_port: None,
       index: options.index,
@@ -242,6 +252,7 @@ impl Settings {
       index_cache_size: options.index_cache_size,
       index_dunes: options.index_dunes,
       index_koinu: options.index_koinu,
+      index_rare_koinu: options.index_rare_koinu,
       index_transactions: options.index_transactions,
       only_protocols: if options.only.is_empty() {
         None
@@ -331,6 +342,7 @@ impl Settings {
       data_dir: get_path("DATA_DIR"),
       height_limit: get_u32("HEIGHT_LIMIT")?,
       first_inscription_height: get_u32("FIRST_INSCRIPTION_HEIGHT")?,
+      batch_write_size: get_usize("BATCH_WRITE_SIZE")?,
       hidden: inscriptions("HIDDEN")?,
       http_port: get_u16("HTTP_PORT")?,
       index: get_path("INDEX"),
@@ -338,6 +350,7 @@ impl Settings {
       index_cache_size: get_usize("INDEX_CACHE_SIZE")?,
       index_dunes: get_bool("INDEX_DUNES"),
       index_koinu: get_bool("INDEX_KOINU"),
+      index_rare_koinu: get_bool("INDEX_RARE_KOINU"),
       index_transactions: get_bool("INDEX_TRANSACTIONS"),
       only_protocols: env.get("ONLY_PROTOCOLS").map(|s| {
         s.split(',')
@@ -362,6 +375,7 @@ impl Settings {
       dogecoin_rpc_password: None,
       dogecoin_rpc_url: Some(rpc_url.into()),
       dogecoin_rpc_username: None,
+      dogecoin_zmq_address: None,
       chain: Some(Chain::DogecoinRegtest),
       commit_interval: None,
       config: None,
@@ -370,6 +384,7 @@ impl Settings {
       data_dir: Some(dir.into()),
       height_limit: None,
       first_inscription_height: None,
+      batch_write_size: None,
       hidden: None,
       http_port: None,
       index: None,
@@ -423,6 +438,7 @@ impl Settings {
           .unwrap_or_else(|| format!("127.0.0.1:{}", chain.default_rpc_port())),
       ),
       dogecoin_rpc_username: self.dogecoin_rpc_username,
+      dogecoin_zmq_address: self.dogecoin_zmq_address,
       chain: Some(chain),
       commit_interval: Some(self.commit_interval.unwrap_or(5000)),
       config: None,
@@ -431,6 +447,7 @@ impl Settings {
       data_dir: Some(data_dir),
       height_limit: self.height_limit,
       first_inscription_height: self.first_inscription_height,
+      batch_write_size: Some(self.batch_write_size.unwrap_or(1000)),
       hidden: self.hidden,
       http_port: self.http_port,
       index: Some(index),
@@ -444,7 +461,8 @@ impl Settings {
         }
       }),
       index_dunes: self.index_dunes,
-      index_koinu: self.index_koinu,
+      index_koinu: self.index_koinu || self.index_rare_koinu,
+      index_rare_koinu: self.index_rare_koinu,
       index_transactions: self.index_transactions,
       only_protocols: self.only_protocols,
       integration_test: self.integration_test,
@@ -630,7 +648,7 @@ impl Settings {
   }
 
   pub fn first_inscription_height(&self) -> u32 {
-    if self.integration_test || self.index_koinu {
+    if self.integration_test || self.index_koinu || self.index_rare_koinu {
       0
     } else {
       self
@@ -705,6 +723,14 @@ impl Settings {
 
   pub fn dogecoin_rpc_limit(&self) -> u32 {
     self.dogecoin_rpc_limit.unwrap()
+  }
+
+  pub fn dogecoin_zmq_address(&self) -> Option<&str> {
+    self.dogecoin_zmq_address.as_deref()
+  }
+
+  pub fn batch_write_size(&self) -> usize {
+    self.batch_write_size.unwrap_or(1000).clamp(500, 2000)
   }
 
   pub fn server_url(&self) -> Option<&str> {
@@ -1234,6 +1260,7 @@ mod tests {
         data_dir: Some("/data/dir".into()),
         height_limit: Some(3),
         first_inscription_height: None,
+        batch_write_size: None,
         hidden: Some(
           vec![
             "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0"
@@ -1379,6 +1406,7 @@ mod tests {
         data_dir: Some("/data/dir".into()),
         height_limit: Some(3),
         first_inscription_height: None,
+        batch_write_size: None,
         hidden: None,
         http_port: None,
         index: Some("index".into()),
@@ -1456,8 +1484,12 @@ mod tests {
       123
     );
     assert_eq!(
-      parse(&["--chain=dogecoin-regtest", "--first-inscription-height", "2"])
-        .first_inscription_height(),
+      parse(&[
+        "--chain=dogecoin-regtest",
+        "--first-inscription-height",
+        "2"
+      ])
+      .first_inscription_height(),
       2
     );
 

@@ -43,8 +43,8 @@ const _: () = assert!(crate::chain::chainparams::MAGIC_MAINNET.len() == 4);
 const _: () = assert!(crate::chain::chainparams::MAGIC_TESTNET.len() == 4);
 const _: () = assert!(crate::chain::chainparams::MAGIC_REGTEST.len() == 4);
 
-/// height → (blk_file_index, data_offset_within_file)
-type BlkIndex = HashMap<u32, (u32, u64)>;
+/// height → (blk_file_index, data_offset_within_file, block_hash_bytes)
+type BlkIndex = HashMap<u32, (u32, u64, [u8; 32])>;
 
 /// Reads blocks directly from Dogecoin Core's `.blk` files.
 pub(crate) struct BlkReader {
@@ -134,16 +134,25 @@ impl BlkReader {
     self.index.keys().copied().max().unwrap_or(0)
   }
 
+  pub(crate) fn location(&self, height: u32) -> Option<(u32, u64, [u8; 32])> {
+    self.index.get(&height).copied()
+  }
+
   /// Read and deserialize a block by height.
   ///
   /// Returns `Ok(None)` when the height is not yet indexed (tip blocks that
   /// haven't been flushed to `.blk` files yet — caller falls back to RPC).
   pub(crate) fn get(&self, height: u32) -> Result<Option<Block>> {
-    let Some(&(file_idx, data_offset)) = self.index.get(&height) else {
+    let Some(&(file_idx, data_offset, expected_hash)) = self.index.get(&height) else {
       return Ok(None);
     };
     let block = read_block_from_file(&self.blocks_dir, file_idx, data_offset)
       .with_context(|| format!("reading block at height {height}"))?;
+
+    if block.block_hash().to_byte_array() != expected_hash {
+      anyhow::bail!("block hash mismatch for height {height}");
+    }
+
     Ok(Some(block))
   }
 }
@@ -223,9 +232,9 @@ fn build_block_index(index_path: &Path) -> Result<BlkIndex> {
       break; // past the block records
     }
 
-    if let Some((height, file_idx, offset)) = parse_index_record(&value) {
+    if let Some((height, file_idx, offset, hash)) = parse_index_record(&key, &value) {
       // first-seen wins; avoids overwriting with stale entries
-      result.entry(height).or_insert((file_idx, offset));
+      result.entry(height).or_insert((file_idx, offset, hash));
     }
   }
 
@@ -244,7 +253,7 @@ fn build_block_index(index_path: &Path) -> Result<BlkIndex> {
 ///     varint  file_number   (blkNNNNN.dat index)
 ///     varint  data_offset   (byte offset within that file)
 /// ```
-fn parse_index_record(value: &[u8]) -> Option<(u32, u32, u64)> {
+fn parse_index_record(key: &[u8], value: &[u8]) -> Option<(u32, u32, u64, [u8; 32])> {
   let mut cur = Cursor::new(value);
 
   let _version = read_varint(&mut cur).ok()?;
@@ -266,7 +275,11 @@ fn parse_index_record(value: &[u8]) -> Option<(u32, u32, u64)> {
   let file_idx = read_varint(&mut cur).ok()? as u32;
   let data_offset = read_varint(&mut cur).ok()?;
 
-  Some((height, file_idx, data_offset))
+  let hash_slice = key.get(1..33)?;
+  let mut hash = [0u8; 32];
+  hash.copy_from_slice(hash_slice);
+
+  Some((height, file_idx, data_offset, hash))
 }
 
 /// Dogecoin Core's LevelDB varint encoding:
@@ -309,7 +322,11 @@ fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
 /// rather than linear `.blk` scanning, we never need to read or match the
 /// magic bytes at runtime — the constants serve as documentation and for
 /// future validation tooling.
-fn read_block_from_file(blk_dir: &Path, file_idx: u32, data_offset: u64) -> Result<Block> {
+pub(crate) fn read_block_from_file(
+  blk_dir: &Path,
+  file_idx: u32,
+  data_offset: u64,
+) -> Result<Block> {
   let path = blk_dir.join(format!("blk{:05}.dat", file_idx));
   let file = fs::File::open(&path).with_context(|| format!("opening {}", path.display()))?;
   let mut reader = BufReader::new(file);

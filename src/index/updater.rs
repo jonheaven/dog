@@ -38,6 +38,7 @@ pub(crate) struct BlockData {
   pub(crate) txdata: Vec<(Transaction, Txid)>,
   /// Canonical block hash from RPC for AuxPoW blocks (bitcoin crate hash may differ).
   pub(crate) auxpow_block_hash: Option<BlockHash>,
+  pub(crate) blk_file_pos: Option<(u32, u64, [u8; 32])>,
 }
 
 impl BlockData {
@@ -53,6 +54,7 @@ impl BlockData {
         })
         .collect(),
       auxpow_block_hash,
+      blk_file_pos: None,
     }
   }
 }
@@ -73,6 +75,33 @@ pub(crate) struct Updater<'index> {
 }
 
 impl Updater<'_> {
+  fn load_redb_block_positions(index: &Index) -> HashMap<u32, (u32, u64, [u8; 32])> {
+    let Ok(rtx) = index.database.begin_read() else {
+      return HashMap::new();
+    };
+    let Ok(table) = rtx.open_table(HEIGHT_TO_BLK_FILE_POS) else {
+      return HashMap::new();
+    };
+
+    let mut positions = HashMap::new();
+    if let Ok(iter) = table.iter() {
+      for entry in iter.flatten() {
+        let (height, value) = entry;
+        let bytes = value.value();
+        if bytes.len() != 44 {
+          continue;
+        }
+        let file_idx = u32::from_le_bytes(bytes[0..4].try_into().unwrap());
+        let offset = u64::from_le_bytes(bytes[4..12].try_into().unwrap());
+        let mut hash = [0u8; 32];
+        hash.copy_from_slice(&bytes[12..44]);
+        positions.insert(height.value(), (file_idx, offset, hash));
+      }
+    }
+
+    positions
+  }
+
   pub(crate) fn update_index(&mut self, mut wtx: WriteTransaction) -> Result {
     let start = Instant::now();
     let starting_height = u32::try_from(self.index.client.get_block_count()?).unwrap() + 1;
@@ -201,17 +230,21 @@ impl Updater<'_> {
     // Try to open a direct .blk file reader for fast initial sync.
     // The shadow copy lives alongside the active Dogecoin Core data dir so
     // dog and kabosu can share it without fighting Core's LevelDB lock.
-    let fast_reader: Option<blk_reader::BlkReader> =
-      index.settings.dogecoin_blocks_dir().and_then(|dir| {
-        let index_copy_dir = index.settings.dogecoin_blk_index_copy_dir()?;
-        match blk_reader::BlkReader::open(&dir, &index_copy_dir) {
-          Ok(reader) => reader,
-          Err(e) => {
-            log::warn!("BlkReader: unexpected error: {e}");
-            None
-          }
+    let blocks_dir = index.settings.dogecoin_blocks_dir();
+    let redb_positions = Self::load_redb_block_positions(index);
+
+    let fast_reader: Option<blk_reader::BlkReader> = blocks_dir.clone().and_then(|dir| {
+      let index_copy_dir = index.settings.dogecoin_blk_index_copy_dir()?;
+      match blk_reader::BlkReader::open(&dir, &index_copy_dir) {
+        Ok(reader) => reader,
+        Err(e) => {
+          log::warn!("BlkReader: unexpected error: {e}");
+          None
         }
-      });
+      }
+    });
+
+    let use_zmq_feed = index.settings.dogecoin_zmq_address().is_some();
 
     thread::spawn(move || {
       loop {
@@ -221,11 +254,39 @@ impl Updater<'_> {
           break;
         }
 
-        // Fast path: read directly from .blk files on disk
+        // Fast path #1: direct .blk seek from persisted redb index
+        if let Some((file_idx, offset, expected_hash)) = redb_positions.get(&height).copied()
+          && let Some(ref blk_dir) = blocks_dir
+        {
+          match blk_reader::read_block_from_file(blk_dir, file_idx, offset) {
+            Ok(block) if block.block_hash().to_byte_array() == expected_hash => {
+              let mut block_data: BlockData = block.into();
+              block_data.blk_file_pos = Some((file_idx, offset, expected_hash));
+              if let Err(err) = tx.send(block_data) {
+                log::info!("Block receiver disconnected: {err}");
+                break;
+              }
+              height += 1;
+              continue;
+            }
+            Ok(_) => {
+              log::warn!(
+                "redb block index mismatch at height {height}, falling back to LevelDB/RPC"
+              );
+            }
+            Err(e) => {
+              log::warn!("redb block index read failed at height {height}: {e}");
+            }
+          }
+        }
+
+        // Fast path #2: read directly from .blk files via Core's LevelDB index copy
         if let Some(ref reader) = fast_reader {
           match reader.get(height) {
             Ok(Some(block)) => {
-              if let Err(err) = tx.send(block.into()) {
+              let mut block_data: BlockData = block.into();
+              block_data.blk_file_pos = reader.location(height);
+              if let Err(err) = tx.send(block_data) {
                 log::info!("Block receiver disconnected: {err}");
                 break;
               }
@@ -250,7 +311,13 @@ impl Updater<'_> {
             }
             height += 1;
           }
-          Ok(None) => break,
+          Ok(None) => {
+            if use_zmq_feed {
+              let _ = client.call::<serde_json::Value>("waitfornewblock", &[1u64.into()]);
+              continue;
+            }
+            break;
+          }
           Err(err) => {
             log::error!("failed to fetch block {height}: {err}");
             break;
@@ -299,6 +366,7 @@ impl Updater<'_> {
       header,
       txdata,
       auxpow_block_hash: Some(info.hash),
+      blk_file_pos: None,
     })
   }
 
@@ -539,6 +607,16 @@ impl Updater<'_> {
       wtx
         .open_table(HEIGHT_TO_BLOCK_HASH)?
         .insert(&self.height, &hash.to_byte_array())?;
+    }
+
+    if let Some((file_idx, offset, hash)) = block.blk_file_pos {
+      let mut value = [0u8; 44];
+      value[..4].copy_from_slice(&file_idx.to_le_bytes());
+      value[4..12].copy_from_slice(&offset.to_le_bytes());
+      value[12..44].copy_from_slice(&hash);
+      wtx
+        .open_table(HEIGHT_TO_BLK_FILE_POS)?
+        .insert(&self.height, &value)?;
     }
 
     self.height += 1;
