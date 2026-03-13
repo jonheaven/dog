@@ -695,6 +695,10 @@ impl Settings {
     self.index_koinu
   }
 
+  pub fn index_rare_koinu_raw(&self) -> bool {
+    self.index_rare_koinu
+  }
+
   pub fn index_transactions_raw(&self) -> bool {
     self.index_transactions
   }

@@ -254,6 +254,33 @@ dog server
 
 Open http://localhost:80 — you now have your own Doginals explorer.
 
+### Explorer upgrades (dApp frontend)
+
+The explorer now ships with a modern **Vite + React 18 + TypeScript + Tailwind** interface on `/monitor` with:
+
+- Live dashboard cards (height, throughput, memory, reorgs).
+- Real-time inscription feed and protocol counters.
+- Inscriptions browser tab with search, filters, and pagination.
+- Protocol tabs for DRC-20, DMP, DogeLotto, DogeSpells, and Dogemap.
+- Portfolio/Trades tab prepared for live Kabosu API data.
+
+### Build the frontend assets
+
+From the repository root:
+
+```
+npm --prefix web-ui install
+npm --prefix web-ui run build
+```
+
+This writes explorer assets to `static/explorer/` and wallet assets to `static/wallet.js`.
+
+### Screenshot placeholders
+
+- `docs/images/explorer-dashboard-placeholder.png`
+- `docs/images/explorer-protocols-placeholder.png`
+- `docs/images/explorer-portfolio-placeholder.png`
+
 ---
 
 ## `dog scan` — inspect inscriptions without a full index

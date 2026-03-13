@@ -106,6 +106,17 @@ impl Updater<'_> {
     let start = Instant::now();
     let starting_height = u32::try_from(self.index.client.get_block_count()?).unwrap() + 1;
     let starting_index_height = self.started_height;
+    let first_inscription_height = self.index.settings.first_inscription_height();
+
+    let rare_koinu_message = if self.index.settings.index_rare_koinu_raw() {
+      "Rare koinu mode enabled."
+    } else {
+      "Rare koinu mode disabled by default for speed."
+    };
+
+    log::info!(
+      "Starting Doginals indexing from genesis block {first_inscription_height} (first Doginals inscription). {rare_koinu_message}"
+    );
 
     wtx
       .open_table(WRITE_TRANSACTION_STARTING_BLOCK_COUNT_TO_TIMESTAMP)?
