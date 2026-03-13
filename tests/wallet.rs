@@ -10,6 +10,7 @@ mod create;
 mod dump;
 mod inscribe;
 mod inscriptions;
+mod koinu;
 mod label;
 mod mint;
 mod offer;
@@ -21,7 +22,6 @@ mod restore;
 #[cfg(unix)]
 mod resume;
 mod runics;
-mod koinu;
 mod selection;
 mod send;
 mod sign;

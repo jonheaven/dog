@@ -73,10 +73,10 @@ impl ScanCommand {
     let chain = settings.chain();
     let client = settings.dogecoin_rpc_client(None)?;
 
-    let index_copy_dir = settings.data_dir().join("blk-index");
-    let reader = settings
-      .dogecoin_blocks_dir()
-      .and_then(|dir| BlkReader::open(&dir, &index_copy_dir).ok().flatten());
+    let reader = settings.dogecoin_blocks_dir().and_then(|dir| {
+      let index_copy_dir = settings.dogecoin_blk_index_copy_dir()?;
+      BlkReader::open(&dir, &index_copy_dir).ok().flatten()
+    });
 
     if reader.is_none() {
       log::info!("BlkReader unavailable — using RPC for block fetching (slower)");

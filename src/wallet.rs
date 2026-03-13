@@ -1122,8 +1122,12 @@ impl Wallet {
       }
     };
 
-    let unsigned_transaction =
-      fund_raw_transaction(self.dogecoin_client(), fee_rate, &unfunded_transaction, None)?;
+    let unsigned_transaction = fund_raw_transaction(
+      self.dogecoin_client(),
+      fee_rate,
+      &unfunded_transaction,
+      None,
+    )?;
 
     let unsigned_transaction = consensus::encode::deserialize(&unsigned_transaction)?;
 

@@ -599,8 +599,11 @@ fn get_transaction() {
 fn get_status() {
   let core = mockcore::builder().network(Network::Regtest).build();
 
-  let dog =
-    TestServer::spawn_with_server_args(&core, &["--regtest", "--index-koinu", "--index-dunes"], &[]);
+  let dog = TestServer::spawn_with_server_args(
+    &core,
+    &["--regtest", "--index-koinu", "--index-dunes"],
+    &[],
+  );
 
   create_wallet(&core, &dog);
   core.mine_blocks(1);

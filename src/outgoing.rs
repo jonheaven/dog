@@ -113,7 +113,10 @@ mod tests {
       assert_eq!(s.parse::<Outgoing>().unwrap(), outgoing);
     }
 
-    case("nvtdijuwxlp", Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()));
+    case(
+      "nvtdijuwxlp",
+      Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()),
+    );
     case("a", Outgoing::Koinu("a".parse().unwrap()));
 
     case(
@@ -196,7 +199,10 @@ mod tests {
       assert_eq!(s, outgoing.to_string());
     }
 
-    case("nvtdijuwxlp", Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()));
+    case(
+      "nvtdijuwxlp",
+      Outgoing::Koinu("nvtdijuwxlp".parse().unwrap()),
+    );
     case("a", Outgoing::Koinu("a".parse().unwrap()));
 
     case(

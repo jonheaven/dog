@@ -17,9 +17,8 @@ static STARTING_KOINU: LazyLock<Vec<u64>> = LazyLock::new(|| {
 /// Per-block subsidy (in shiboshis) for every block in the wonky era.
 /// Keyed by block height as a string (matches the JSON format).
 static SUBSIDIES: LazyLock<std::collections::HashMap<u32, u64>> = LazyLock::new(|| {
-  let raw: serde_json::Value =
-    serde_json::from_str(include_str!("../../../subsidies.json"))
-      .expect("subsidies.json must be valid JSON");
+  let raw: serde_json::Value = serde_json::from_str(include_str!("../../../subsidies.json"))
+    .expect("subsidies.json must be valid JSON");
   raw["epochs"]
     .as_object()
     .expect("subsidies.json must have an 'epochs' object")

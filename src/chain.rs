@@ -25,8 +25,7 @@ pub mod chainparams {
   ///
   /// `dogecoin/src/chainparams.cpp`:
   /// `hashGenesisBlock == uint256("0x1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691")`
-  pub const GENESIS_HASH: &str =
-    "1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691";
+  pub const GENESIS_HASH: &str = "1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691";
 
   /// Number of blocks between each subsidy halving after the wonky era
   /// (`nSubsidyHalvingInterval = 100000`).
@@ -37,10 +36,11 @@ pub mod chainparams {
 #[serde(rename_all = "kebab-case")]
 pub enum Chain {
   #[default]
-  #[value(alias("doge"))]
+  #[value(alias("doge"), alias("mainnet"))]
   Dogecoin,
-  #[value(alias("doge-testnet"))]
+  #[value(alias("doge-testnet"), alias("testnet"))]
   DogecoinTestnet,
+  #[value(alias("doge-regtest"), alias("regtest"))]
   DogecoinRegtest,
 }
 
@@ -74,8 +74,8 @@ impl Chain {
   /// instead of the raw format for these blocks.
   pub(crate) fn auxpow_activation_height(self) -> u32 {
     match self {
-      Self::Dogecoin => 371_337, // Dogecoin Core 1.8, Sept 2014
-      Self::DogecoinTestnet => 0, // Testnet uses AuxPoW from genesis; use header_info always
+      Self::Dogecoin => 371_337,         // Dogecoin Core 1.8, Sept 2014
+      Self::DogecoinTestnet => 0,        // Testnet uses AuxPoW from genesis; use header_info always
       Self::DogecoinRegtest => u32::MAX, // No AuxPoW on regtest
     }
   }

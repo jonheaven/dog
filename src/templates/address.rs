@@ -59,8 +59,7 @@ mod tests {
   #[test]
   fn test_address_rendering() {
     let address_html = setup();
-    let expected_pattern =
-      r#".*<h1>Address DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc</h1>.*"#;
+    let expected_pattern = r#".*<h1>Address DHrqn6H6ocgbRB1Szu7Q1sn1tVTfkpinnc</h1>.*"#;
     assert_regex_match!(address_html, expected_pattern);
   }
 

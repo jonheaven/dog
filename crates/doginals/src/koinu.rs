@@ -743,7 +743,10 @@ mod tests {
   #[test]
   fn percentile() {
     assert_eq!(Koinu(0).percentile(), "0%");
-    assert_eq!(Koinu(Koinu::LAST.n() / 2).percentile(), "49.99999999999998%");
+    assert_eq!(
+      Koinu(Koinu::LAST.n() / 2).percentile(),
+      "49.99999999999998%"
+    );
     assert_eq!(Koinu::LAST.percentile(), "100%");
   }
 

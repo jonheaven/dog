@@ -1,5 +1,5 @@
 use {
-  self::{inscription_updater::InscriptionUpdater, dune_updater::DuneUpdater},
+  self::{dune_updater::DuneUpdater, inscription_updater::InscriptionUpdater},
   super::{fetcher::Fetcher, *},
   bitcoin::consensus::deserialize,
   futures::future::try_join_all,
@@ -11,8 +11,8 @@ use {
 };
 
 pub(crate) mod blk_reader;
-mod inscription_updater;
 mod dune_updater;
+mod inscription_updater;
 
 /// Dogecoin Core's getblockheader verbose response. Uses optional nTx because
 /// some Dogecoin Core versions omit it (unlike Bitcoin Core).
@@ -197,15 +197,17 @@ impl Updater<'_> {
     let client = index.settings.dogecoin_rpc_client(None)?;
 
     // Try to open a direct .blk file reader for fast initial sync.
-    // The shadow copy lives in the dog data dir so it never conflicts with Core's LevelDB lock.
-    let index_copy_dir = index.settings.data_dir().join("blk-index");
-    let fast_reader: Option<blk_reader::BlkReader> = index.settings
-      .dogecoin_blocks_dir()
-      .and_then(|dir| match blk_reader::BlkReader::open(&dir, &index_copy_dir) {
-        Ok(reader) => reader,
-        Err(e) => {
-          log::warn!("BlkReader: unexpected error: {e}");
-          None
+    // The shadow copy lives alongside the active Dogecoin Core data dir so
+    // dog and kabosu can share it without fighting Core's LevelDB lock.
+    let fast_reader: Option<blk_reader::BlkReader> =
+      index.settings.dogecoin_blocks_dir().and_then(|dir| {
+        let index_copy_dir = index.settings.dogecoin_blk_index_copy_dir()?;
+        match blk_reader::BlkReader::open(&dir, &index_copy_dir) {
+          Ok(reader) => reader,
+          Err(e) => {
+            log::warn!("BlkReader: unexpected error: {e}");
+            None
+          }
         }
       });
 
@@ -265,12 +267,16 @@ impl Updater<'_> {
     struct BlockTxids {
       tx: Vec<Txid>,
     }
-    let info: DogecoinBlockHeaderInfo =
-      client.call("getblockheader", &[serde_json::to_value(hash)?, true.into()])?;
+    let info: DogecoinBlockHeaderInfo = client.call(
+      "getblockheader",
+      &[serde_json::to_value(hash)?, true.into()],
+    )?;
     let header = Self::header_from_block_header_info(&info)?;
 
-    let txids: BlockTxids =
-      client.call("getblock", &[serde_json::to_value(hash)?, serde_json::Value::from(1u8)])?;
+    let txids: BlockTxids = client.call(
+      "getblock",
+      &[serde_json::to_value(hash)?, serde_json::Value::from(1u8)],
+    )?;
 
     let txdata: Vec<(Transaction, Txid)> = txids
       .tx
@@ -295,8 +301,8 @@ impl Updater<'_> {
   }
 
   fn header_from_block_header_info(info: &DogecoinBlockHeaderInfo) -> Result<Header> {
-    let bits_bytes = hex::decode(&info.bits)
-      .with_context(|| format!("invalid bits hex: {}", info.bits))?;
+    let bits_bytes =
+      hex::decode(&info.bits).with_context(|| format!("invalid bits hex: {}", info.bits))?;
     let bits_array: [u8; 4] = bits_bytes
       .try_into()
       .map_err(|b: Vec<u8>| anyhow!("bits must be 4 bytes, got {}", b.len()))?;
@@ -334,8 +340,10 @@ impl Updater<'_> {
                   Ok(BlockData::from_block(block, None))
                 }
               } else if use_header_info {
-                let info: DogecoinBlockHeaderInfo = client
-                  .call("getblockheader", &[serde_json::to_value(hash)?, true.into()])?;
+                let info: DogecoinBlockHeaderInfo = client.call(
+                  "getblockheader",
+                  &[serde_json::to_value(hash)?, true.into()],
+                )?;
                 let block = Block {
                   header: Self::header_from_block_header_info(&info)?,
                   txdata: Vec::new(),
@@ -526,7 +534,9 @@ impl Updater<'_> {
 
     height_to_block_header.insert(&self.height, &block.header.store())?;
     if let Some(hash) = block.auxpow_block_hash {
-      wtx.open_table(HEIGHT_TO_BLOCK_HASH)?.insert(&self.height, &hash.to_byte_array())?;
+      wtx
+        .open_table(HEIGHT_TO_BLOCK_HASH)?
+        .insert(&self.height, &hash.to_byte_array())?;
     }
 
     self.height += 1;
@@ -1087,9 +1097,7 @@ impl Updater<'_> {
       // We copy the u32 out immediately so the table guard is released before the next lookup.
       let maybe_seq: Option<u32> = {
         let id_to_seq = wtx.open_table(INSCRIPTION_ID_TO_SEQUENCE_NUMBER)?;
-        id_to_seq
-          .get(&inscription_id.store())?
-          .map(|g| g.value())
+        id_to_seq.get(&inscription_id.store())?.map(|g| g.value())
       };
       let inscription_number: i32 = if let Some(seq) = maybe_seq {
         let num_to_seq = wtx.open_table(INSCRIPTION_NUMBER_TO_SEQUENCE_NUMBER)?;
@@ -1109,7 +1117,7 @@ impl Updater<'_> {
         owner_inscription_number: inscription_number,
         height: self.height,
         timestamp: block_time,
-        fee: 0, // fee calculation requires input lookup; leave 0 for now
+        fee: 0,        // fee calculation requires input lookup; leave 0 for now
         address: None, // resolved dynamically from current satpoint
         avatar: None,
         reverse: None,
@@ -1204,9 +1212,7 @@ impl Updater<'_> {
       };
 
       // Dogecoin wonky workaround: accept text/plain or application/json
-      if !content_type.starts_with("text/plain")
-        && !content_type.starts_with("application/json")
-      {
+      if !content_type.starts_with("text/plain") && !content_type.starts_with("application/json") {
         continue;
       }
 
@@ -1245,7 +1251,14 @@ impl Updater<'_> {
 
       match op {
         "deploy" => {
-          self.drc20_deploy(&json, inscription_id, &addr, block_time, wtx, statistic_to_count)?;
+          self.drc20_deploy(
+            &json,
+            inscription_id,
+            &addr,
+            block_time,
+            wtx,
+            statistic_to_count,
+          )?;
         }
         "mint" => {
           self.drc20_mint(&json, &addr, wtx, statistic_to_count)?;
@@ -1349,7 +1362,7 @@ impl Updater<'_> {
     wtx: &WriteTransaction,
     statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
-    use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Token};
+    use crate::subcommand::drc20::{Drc20Token, json_to_amount_str, parse_amount};
 
     let Some(tick_raw) = json.get("tick").and_then(|v| v.as_str()) else {
       return Ok(());
@@ -1426,7 +1439,7 @@ impl Updater<'_> {
     wtx: &WriteTransaction,
     _statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
-    use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Token};
+    use crate::subcommand::drc20::{Drc20Token, json_to_amount_str, parse_amount};
 
     let Some(tick_raw) = json.get("tick").and_then(|v| v.as_str()) else {
       return Ok(());
@@ -1495,7 +1508,7 @@ impl Updater<'_> {
     wtx: &WriteTransaction,
     _statistic_to_count: &mut Table<'_, u64, u64>,
   ) -> Result<()> {
-    use crate::subcommand::drc20::{parse_amount, json_to_amount_str, Drc20Transfer, Drc20Token};
+    use crate::subcommand::drc20::{Drc20Token, Drc20Transfer, json_to_amount_str, parse_amount};
 
     let Some(tick_raw) = json.get("tick").and_then(|v| v.as_str()) else {
       return Ok(());

@@ -182,8 +182,10 @@ dog --dogecoin-data-dir F:\DogecoinData index refresh-blk-index
 dog --dogecoin-data-dir F:\DogecoinData index update
 ```
 
-The shadow copy lives at `<dog-data-dir>/blk-index/` and is refreshed
-automatically on every `dog index update` run.
+The shadow copy lives alongside your Dogecoin Core data directory at
+`<DOGECOIN_DATA_DIR>/<network>/blk-index/` (`blk-index/` on mainnet,
+`testnet3/blk-index/` on testnet, `regtest/blk-index/` on regtest) and is
+refreshed automatically on every `dog index update` run.
 
 ---
 
@@ -209,8 +211,9 @@ dog --dogecoin-data-dir F:\DogecoinData index update
 dog index refresh-blk-index
 ```
 
-This copies Core's LevelDB block index to dog's data dir so fast `.blk`
-file reads work even while Core is running.
+This copies Core's LevelDB block index into the active Dogecoin Core data
+directory so fast `.blk` file reads work even while Core is running, without
+pulling the shadow copy back into dog's own app-data folder.
 
 ### 3. Index the chain
 

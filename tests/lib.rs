@@ -10,16 +10,16 @@ use {
     transaction::Version,
   },
   chrono::{DateTime, Utc},
-  mockcore::TransactionTemplate,
   dog::{
-    Inscription, InscriptionId, DuneEntry, api, base64_decode, base64_encode, chain::Chain,
+    DuneEntry, Inscription, InscriptionId, api, base64_decode, base64_encode, chain::Chain,
     decimal::Decimal, outgoing::Outgoing, subcommand::dunes::DuneInfo, templates::InscriptionHtml,
     wallet::ListDescriptorsResult, wallet::batch,
   },
   doginals::{
-    Artifact, COIN_VALUE, Charm, Edict, Pile, Rarity, Dune, DuneId, Dunestone, Koinu, KoinuPoint,
+    Artifact, COIN_VALUE, Charm, Dune, DuneId, Dunestone, Edict, Koinu, KoinuPoint, Pile, Rarity,
     SpacedDune,
   },
+  mockcore::TransactionTemplate,
   pretty_assertions::assert_eq as pretty_assert_eq,
   regex::Regex,
   reqwest::{StatusCode, Url},
@@ -58,6 +58,7 @@ mod test_server;
 
 mod balances;
 mod decode;
+mod dunes;
 mod epochs;
 mod find;
 mod index;
@@ -65,7 +66,6 @@ mod info;
 mod json_api;
 mod list;
 mod parse;
-mod dunes;
 mod server;
 mod settings;
 mod subsidy;

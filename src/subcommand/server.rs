@@ -1081,20 +1081,18 @@ impl Server {
       let rarity = Self::dogemap_rarity(block_number);
       let metaverse = Self::dogemap_metaverse(&hash_bytes, tx_count, block_number);
 
-      Ok(
-        Self::live_json(serde_json::json!({
-          "block_number": block_number,
-          "rarity": rarity,
-          "claimed": claim.is_some(),
-          "owner_inscription_id": claim.as_ref().map(|e| e.owner_inscription_id.to_string()),
-          "claim_height": claim.as_ref().map(|e| e.claim_height),
-          "claim_timestamp": claim.as_ref().map(|e| e.claim_timestamp),
-          "block_hash": block_hash_hex,
-          "tx_count": tx_count,
-          "svg": svg,
-          "metaverse": metaverse,
-        })),
-      )
+      Ok(Self::live_json(serde_json::json!({
+        "block_number": block_number,
+        "rarity": rarity,
+        "claimed": claim.is_some(),
+        "owner_inscription_id": claim.as_ref().map(|e| e.owner_inscription_id.to_string()),
+        "claim_height": claim.as_ref().map(|e| e.claim_height),
+        "claim_timestamp": claim.as_ref().map(|e| e.claim_timestamp),
+        "block_hash": block_hash_hex,
+        "tx_count": tx_count,
+        "svg": svg,
+        "metaverse": metaverse,
+      })))
     })
   }
 
@@ -1113,7 +1111,9 @@ impl Server {
           })
         })
         .collect();
-      Ok(Self::live_json(serde_json::json!({ "total": total, "claims": claims })))
+      Ok(Self::live_json(
+        serde_json::json!({ "total": total, "claims": claims }),
+      ))
     })
   }
 
@@ -1628,7 +1628,10 @@ impl Server {
     let mut system = System::new();
     system.refresh_processes(sysinfo::ProcessesToUpdate::Some(&[pid]), true);
 
-    system.process(pid).map(|process| process.memory()).unwrap_or(0)
+    system
+      .process(pid)
+      .map(|process| process.memory())
+      .unwrap_or(0)
   }
 
   fn monitor_snapshot(index: &Index, json_api_enabled: bool) -> Result<api::MonitorJson> {
@@ -1679,7 +1682,12 @@ impl Server {
       right
         .timestamp
         .cmp(&left.timestamp)
-        .then_with(|| right.height.unwrap_or_default().cmp(&left.height.unwrap_or_default()))
+        .then_with(|| {
+          right
+            .height
+            .unwrap_or_default()
+            .cmp(&left.height.unwrap_or_default())
+        })
         .then_with(|| left.title.cmp(&right.title))
     });
     feed.truncate(30);
@@ -1710,7 +1718,9 @@ impl Server {
   ) -> ServerResult<Response> {
     task::block_in_place(|| {
       let (status, health) = Self::status_parts(&index, server_config.json_api_enabled)?;
-      Ok(Self::live_json(Self::live_status_snapshot(&status, &health)))
+      Ok(Self::live_json(Self::live_status_snapshot(
+        &status, &health,
+      )))
     })
   }
 
@@ -1718,7 +1728,12 @@ impl Server {
     Extension(server_config): Extension<Arc<ServerConfig>>,
     Extension(index): Extension<Arc<Index>>,
   ) -> ServerResult<Response> {
-    task::block_in_place(|| Ok(Self::live_json(Self::monitor_snapshot(&index, server_config.json_api_enabled)?)))
+    task::block_in_place(|| {
+      Ok(Self::live_json(Self::monitor_snapshot(
+        &index,
+        server_config.json_api_enabled,
+      )?))
+    })
   }
 
   async fn monitor(
@@ -1875,8 +1890,7 @@ impl Server {
       );
     }
 
-    let content =
-      StaticAssets::get(asset_path).ok_or_not_found(|| format!("asset {path}"))?;
+    let content = StaticAssets::get(asset_path).ok_or_not_found(|| format!("asset {path}"))?;
 
     let mime = mime_guess::from_path(path).first_or_octet_stream();
 

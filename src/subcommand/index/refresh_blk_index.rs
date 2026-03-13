@@ -14,7 +14,11 @@ pub(crate) fn run(settings: Settings) -> SubcommandResult {
     return Ok(None);
   }
 
-  let copy_dir = settings.data_dir().join("blk-index");
+  let Some(copy_dir) = settings.dogecoin_blk_index_copy_dir() else {
+    eprintln!("Could not determine Dogecoin blk-index copy directory.");
+    eprintln!("Set --dogecoin-data-dir or DOGECOIN_DATA_DIR.");
+    return Ok(None);
+  };
 
   println!("Refreshing block index copy...");
   println!("  Source: {}", live_index.display());

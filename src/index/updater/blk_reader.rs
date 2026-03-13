@@ -8,12 +8,14 @@
 //! Dogecoin Core holds an exclusive LevelDB lock on `blocks/index/` while
 //! running, which prevents a second process from opening the same DB.
 //!
-//! To work around this dog maintains a **shadow copy** of the index at
-//! `<dog-data-dir>/blk-index/`.  The copy is refreshed automatically each
-//! time `dog index update` runs.  A smart-copy strategy is used: immutable
-//! SST files (`*.ldb`) are skipped once they already exist in the copy;
-//! only the MANIFEST and WAL are re-copied on each run (usually < 1 second).
-//! The `LOCK` file is never copied so dog can open the copy freely.
+//! To work around this dog maintains a **shadow copy** of the index inside the
+//! active Dogecoin Core network data directory at
+//! `<dogecoin-data-dir>/<network>/blk-index/`. The copy is refreshed
+//! automatically each time `dog index update` runs. A smart-copy strategy is
+//! used: immutable SST files (`*.ldb`) are skipped once they already exist in
+//! the copy; only the MANIFEST and WAL are re-copied on each run (usually
+//! < 1 second). The `LOCK` file is never copied so dog can open the copy
+//! freely.
 //!
 //! The copy can also be refreshed manually:
 //! ```text
@@ -23,9 +25,9 @@
 use {
   crate::Result,
   anyhow::Context,
-  bitcoin::{consensus::deserialize, Block},
+  bitcoin::{Block, consensus::deserialize},
   byteorder::{LittleEndian, ReadBytesExt},
-  rusty_leveldb::{LdbIterator, Options, DB},
+  rusty_leveldb::{DB, LdbIterator, Options},
   std::{
     collections::HashMap,
     ffi::OsStr,
@@ -54,8 +56,8 @@ impl BlkReader {
   /// Try to open a BlkReader.
   ///
   /// `index_copy_dir` is where dog stores its shadow copy of Core's LevelDB
-  /// index (e.g. `<dog-data-dir>/blk-index`). The copy is refreshed here
-  /// before opening so it is always current.
+  /// index (e.g. `<dogecoin-data-dir>/<network>/blk-index`). The copy is
+  /// refreshed here before opening so it is always current.
   ///
   /// Fall-through order:
   /// 1. Refresh shadow copy (smart-copy — fast on subsequent runs)
@@ -159,8 +161,7 @@ impl BlkReader {
 ///
 /// Returns `(copied, skipped)` counts.
 pub(crate) fn refresh_index_copy(live_index: &Path, copy_dir: &Path) -> Result<(u32, u32)> {
-  fs::create_dir_all(copy_dir)
-    .with_context(|| format!("creating {}", copy_dir.display()))?;
+  fs::create_dir_all(copy_dir).with_context(|| format!("creating {}", copy_dir.display()))?;
 
   let (mut copied, mut skipped) = (0u32, 0u32);
 
@@ -190,8 +191,7 @@ pub(crate) fn refresh_index_copy(live_index: &Path, copy_dir: &Path) -> Result<(
       }
     }
 
-    fs::copy(entry.path(), &dst)
-      .with_context(|| format!("copying {:?}", name))?;
+    fs::copy(entry.path(), &dst).with_context(|| format!("copying {:?}", name))?;
     copied += 1;
   }
 
@@ -277,9 +277,9 @@ fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
     let byte = cur.read_u8()?;
     n = (n << 7) | (byte & 0x7F) as u64;
     if byte & 0x80 != 0 {
-      n = n.checked_add(1).ok_or_else(|| {
-        std::io::Error::new(std::io::ErrorKind::InvalidData, "varint overflow")
-      })?;
+      n = n
+        .checked_add(1)
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidData, "varint overflow"))?;
     } else {
       break;
     }
@@ -311,8 +311,7 @@ fn read_varint(cur: &mut Cursor<&[u8]>) -> std::io::Result<u64> {
 /// future validation tooling.
 fn read_block_from_file(blk_dir: &Path, file_idx: u32, data_offset: u64) -> Result<Block> {
   let path = blk_dir.join(format!("blk{:05}.dat", file_idx));
-  let file =
-    fs::File::open(&path).with_context(|| format!("opening {}", path.display()))?;
+  let file = fs::File::open(&path).with_context(|| format!("opening {}", path.display()))?;
   let mut reader = BufReader::new(file);
 
   reader

@@ -1,9 +1,9 @@
 use {
   self::{
     entry::{
-      DnsEntryValue, DogemapEntryValue, Entry, HeaderValue, InscriptionEntry,
-      InscriptionEntryValue, InscriptionIdValue, OutPointValue, DuneEntryValue, DuneIdValue,
-      KoinuPointValue, SatRange, TxidValue,
+      DnsEntryValue, DogemapEntryValue, DuneEntryValue, DuneIdValue, Entry, HeaderValue,
+      InscriptionEntry, InscriptionEntryValue, InscriptionIdValue, KoinuPointValue, OutPointValue,
+      SatRange, TxidValue,
     },
     event::Event,
     lot::Lot,
@@ -13,9 +13,9 @@ use {
   },
   super::*,
   crate::{
+    api::HealthJson,
     dunes::MintError,
     subcommand::{find::FindRangeOutput, server::query},
-    api::HealthJson,
     templates::StatusHtml,
   },
   bitcoin::block::Header,
@@ -982,8 +982,7 @@ impl Index {
     let tx = self.database.begin_read()?;
     let table = tx.open_table(DNS_NAME_TO_ENTRY)?;
     let mut total = 0u64;
-    let mut by_namespace: std::collections::HashMap<String, u64> =
-      std::collections::HashMap::new();
+    let mut by_namespace: std::collections::HashMap<String, u64> = std::collections::HashMap::new();
     for entry in table.iter()? {
       let (name, _) = entry?;
       total += 1;
@@ -1019,7 +1018,10 @@ impl Index {
   // DRC-20 token queries
   // ---------------------------------------------------------------------------
 
-  pub fn get_drc20_token(&self, tick: &str) -> Result<Option<crate::subcommand::drc20::Drc20Token>> {
+  pub fn get_drc20_token(
+    &self,
+    tick: &str,
+  ) -> Result<Option<crate::subcommand::drc20::Drc20Token>> {
     let tick = tick.to_lowercase();
     let tx = self.database.begin_read()?;
     let table = tx.open_table(DRC20_TICK_TO_TOKEN)?;
@@ -1044,11 +1046,7 @@ impl Index {
     Ok(tokens)
   }
 
-  pub fn get_drc20_balance(
-    &self,
-    address: &str,
-    tick: &str,
-  ) -> Result<(u128, u128)> {
+  pub fn get_drc20_balance(&self, address: &str, tick: &str) -> Result<(u128, u128)> {
     let tick = tick.to_lowercase();
     let key = format!("{}\t{}", address, tick);
     let tx = self.database.begin_read()?;
@@ -1065,10 +1063,7 @@ impl Index {
     Ok((available, transferable))
   }
 
-  pub fn get_drc20_balances(
-    &self,
-    address: &str,
-  ) -> Result<Vec<(String, u128, u128)>> {
+  pub fn get_drc20_balances(&self, address: &str) -> Result<Vec<(String, u128, u128)>> {
     let prefix = format!("{}\t", address);
     let tx = self.database.begin_read()?;
     let balance_table = tx.open_table(DRC20_BALANCE)?;
@@ -1557,7 +1552,10 @@ impl Index {
 
   pub fn get_block_by_height(&self, height: u32) -> Result<Option<Block>> {
     let tx = self.database.begin_read()?;
-    let indexed = tx.open_table(HEIGHT_TO_BLOCK_HEADER)?.get(&height)?.is_some();
+    let indexed = tx
+      .open_table(HEIGHT_TO_BLOCK_HEADER)?
+      .get(&height)?
+      .is_some();
     if !indexed {
       return Ok(None);
     }
@@ -1574,15 +1572,12 @@ impl Index {
   pub fn get_block_by_hash(&self, hash: BlockHash) -> Result<Option<Block>> {
     let tx = self.database.begin_read()?;
     let height_to_block_header = tx.open_table(HEIGHT_TO_BLOCK_HEADER)?;
-    let indexed = height_to_block_header
-      .range(0..)?
-      .rev()
-      .any(|entry| {
-        entry
-          .ok()
-          .map(|(_, header)| Header::load(*header.value()).block_hash() == hash)
-          .unwrap_or(false)
-      });
+    let indexed = height_to_block_header.range(0..)?.rev().any(|entry| {
+      entry
+        .ok()
+        .map(|(_, header)| Header::load(*header.value()).block_hash() == hash)
+        .unwrap_or(false)
+    });
     if !indexed {
       return Ok(None);
     }
@@ -2198,7 +2193,11 @@ impl Index {
       None => return Ok(None),
     };
 
-    let block_info = match self.client.get_block_header_info(&blockhash).into_option()? {
+    let block_info = match self
+      .client
+      .get_block_header_info(&blockhash)
+      .into_option()?
+    {
       Some(i) => i,
       None => return Ok(None),
     };
@@ -2614,13 +2613,22 @@ impl Index {
         };
         // Derive the satpoint from the transaction output referenced by the inscription index.
         let satpoint = KoinuPoint {
-          outpoint: OutPoint { txid: id.txid, vout: 0 },
+          outpoint: OutPoint {
+            txid: id.txid,
+            vout: 0,
+          },
           offset: 0,
         };
         let output = transaction.output.into_iter().next();
         let address = output
           .as_ref()
-          .and_then(|o| self.settings.chain().address_from_script(&o.script_pubkey).ok())
+          .and_then(|o| {
+            self
+              .settings
+              .chain()
+              .address_from_script(&o.script_pubkey)
+              .ok()
+          })
           .map(|a| a.to_string());
         let effective_mime_type = inscription.content_type().map(str::to_string);
         return Ok(Some((
@@ -2996,10 +3004,9 @@ impl Index {
     let address_str = address.to_string();
 
     // Strategy 1: Dogecoin Core address index (requires addressindex=1 in dogecoin.conf)
-    let core_result: std::result::Result<serde_json::Value, _> = self.client.call(
-      "getaddressutxos",
-      &[json!({ "addresses": [&address_str] })],
-    );
+    let core_result: std::result::Result<serde_json::Value, _> = self
+      .client
+      .call("getaddressutxos", &[json!({ "addresses": [&address_str] })]);
 
     if let Ok(utxos) = core_result {
       if let Some(utxo_arr) = utxos.as_array() {
@@ -3013,7 +3020,10 @@ impl Index {
             utxo.get("satoshis").and_then(|v| v.as_u64()),
           ) {
             if let Ok(txid) = txid_str.parse::<Txid>() {
-              outputs.push(OutPoint { txid, vout: vout as u32 });
+              outputs.push(OutPoint {
+                txid,
+                vout: vout as u32,
+              });
               total_balance += koinu;
             }
           }
@@ -3024,7 +3034,9 @@ impl Index {
 
         log::info!(
           "Address lookup via Dogecoin Core index: {} — {} outputs, {} koinu",
-          address_str, outputs.len(), total_balance,
+          address_str,
+          outputs.len(),
+          total_balance,
         );
 
         return Ok(api::AddressInfo {
@@ -3199,7 +3211,7 @@ impl Index {
 /// - `"L-"` when the sibling sits to the **left** of the current hash (current is right child)
 /// - `"r-"` when the sibling sits to the **right** of the current hash (current is left child)
 fn merkle_proof_path(txids: &[[u8; 32]], mut idx: usize) -> Vec<String> {
-  use bitcoin::hashes::{sha256, Hash};
+  use bitcoin::hashes::{Hash, sha256};
 
   fn sha256d(a: &[u8; 32], b: &[u8; 32]) -> [u8; 32] {
     let mut buf = [0u8; 64];

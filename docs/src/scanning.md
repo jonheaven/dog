@@ -88,6 +88,11 @@ If you have run `dog index refresh-blk-index` (or it has been run automatically
 during a previous `dog index update`), scanning reads blocks at full disk speed
 without any RPC overhead.
 
+That shadow copy now lives alongside the active Dogecoin Core data directory
+at `<DOGECOIN_DATA_DIR>/<network>/blk-index/`, so `dog` and `kabosu` can share
+the same LevelDB copy instead of maintaining separate copies on different
+drives.
+
 If the blk-index copy is not available, `dog scan` falls back to Dogecoin Core
 RPC automatically — this works but is slower for large ranges.
 

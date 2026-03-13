@@ -45,29 +45,80 @@ pub struct Settings {
 
 impl Settings {
   pub fn load(options: Options) -> Result<Settings> {
+    Self::merge(options, Self::collect_env(env::vars_os())?)
+  }
+
+  fn supported_env_key(key: &str) -> bool {
+    matches!(
+      key,
+      "DOGECOIN_DATA_DIR"
+        | "DOGECOIN_RPC_LIMIT"
+        | "DOGECOIN_RPC_PASSWORD"
+        | "DOGECOIN_RPC_URL"
+        | "DOGECOIN_RPC_USERNAME"
+        | "DOGE_RPC_PASSWORD"
+        | "DOGE_RPC_USERNAME"
+        | "CHAIN"
+        | "COMMIT_INTERVAL"
+        | "CONFIG"
+        | "CONFIG_DIR"
+        | "COOKIE_FILE"
+        | "DATA_DIR"
+        | "HEIGHT_LIMIT"
+        | "HIDDEN"
+        | "HTTP_PORT"
+        | "INDEX"
+        | "INDEX_ADDRESSES"
+        | "INDEX_CACHE_SIZE"
+        | "INDEX_DUNES"
+        | "INDEX_KOINU"
+        | "INDEX_TRANSACTIONS"
+        | "ONLY_PROTOCOLS"
+        | "INTEGRATION_TEST"
+        | "MAX_SAVEPOINTS"
+        | "NO_INDEX_INSCRIPTIONS"
+        | "SAVEPOINT_INTERVAL"
+        | "SERVER_PASSWORD"
+        | "SERVER_URL"
+        | "SERVER_USERNAME"
+    )
+  }
+
+  fn collect_env(
+    vars: impl IntoIterator<Item = (OsString, OsString)>,
+  ) -> Result<BTreeMap<String, String>> {
     let mut env = BTreeMap::<String, String>::new();
 
-    for (var, value) in env::vars_os() {
+    for (var, value) in vars {
       let Some(var) = var.to_str() else {
         continue;
       };
 
-      let Some(key) = var.strip_prefix("ORD_") else {
-        continue;
-      };
-
-      env.insert(
-        key.into(),
-        value.into_string().map_err(|value| {
+      if let Some(key) = var.strip_prefix("ORD_") {
+        let value = value.into_string().map_err(|value| {
           anyhow!(
             "environment variable `{var}` not valid unicode: `{}`",
             value.to_string_lossy()
           )
-        })?,
-      );
+        })?;
+        env.entry(key.into()).or_insert(value);
+        continue;
+      }
+
+      if Self::supported_env_key(var) {
+        env.insert(
+          var.into(),
+          value.into_string().map_err(|value| {
+            anyhow!(
+              "environment variable `{var}` not valid unicode: `{}`",
+              value.to_string_lossy()
+            )
+          })?,
+        );
+      }
     }
 
-    Self::merge(options, env)
+    Ok(env)
   }
 
   pub fn merge(options: Options, env: BTreeMap<String, String>) -> Result<Self> {
@@ -211,6 +262,8 @@ impl Settings {
 
     let get_string = |key| env.get(key).cloned();
 
+    let get_string_any = |keys: &[&str]| keys.iter().find_map(|key| env.get(*key).cloned());
+
     let get_path = |key| env.get(key).map(PathBuf::from);
 
     let get_chain = |key| {
@@ -218,7 +271,7 @@ impl Settings {
         .get(key)
         .map(|chain| chain.parse::<Chain>())
         .transpose()
-        .with_context(|| format!("failed to parse environment variable ORD_{key} as chain"))
+        .with_context(|| format!("failed to parse environment variable {key} as chain"))
     };
 
     let inscriptions = |key| {
@@ -231,9 +284,7 @@ impl Settings {
             .collect::<Result<HashSet<InscriptionId>, inscription_id::ParseError>>()
         })
         .transpose()
-        .with_context(|| {
-          format!("failed to parse environment variable ORD_{key} as inscription list")
-        })
+        .with_context(|| format!("failed to parse environment variable {key} as inscription list"))
     };
 
     let get_u16 = |key| {
@@ -241,7 +292,7 @@ impl Settings {
         .get(key)
         .map(|int| int.parse::<u16>())
         .transpose()
-        .with_context(|| format!("failed to parse environment variable ORD_{key} as u16"))
+        .with_context(|| format!("failed to parse environment variable {key} as u16"))
     };
 
     let get_u32 = |key| {
@@ -249,7 +300,7 @@ impl Settings {
         .get(key)
         .map(|int| int.parse::<u32>())
         .transpose()
-        .with_context(|| format!("failed to parse environment variable ORD_{key} as u32"))
+        .with_context(|| format!("failed to parse environment variable {key} as u32"))
     };
 
     let get_usize = |key| {
@@ -257,15 +308,15 @@ impl Settings {
         .get(key)
         .map(|int| int.parse::<usize>())
         .transpose()
-        .with_context(|| format!("failed to parse environment variable ORD_{key} as usize"))
+        .with_context(|| format!("failed to parse environment variable {key} as usize"))
     };
 
     Ok(Self {
       dogecoin_data_dir: get_path("DOGECOIN_DATA_DIR"),
       dogecoin_rpc_limit: get_u32("DOGECOIN_RPC_LIMIT")?,
-      dogecoin_rpc_password: get_string("DOGECOIN_RPC_PASSWORD"),
+      dogecoin_rpc_password: get_string_any(&["DOGECOIN_RPC_PASSWORD", "DOGE_RPC_PASSWORD"]),
       dogecoin_rpc_url: get_string("DOGECOIN_RPC_URL"),
-      dogecoin_rpc_username: get_string("DOGECOIN_RPC_USERNAME"),
+      dogecoin_rpc_username: get_string_any(&["DOGECOIN_RPC_USERNAME", "DOGE_RPC_USERNAME"]),
       chain: get_chain("CHAIN")?,
       commit_interval: get_usize("COMMIT_INTERVAL")?,
       config: get_path("CONFIG"),
@@ -335,17 +386,7 @@ impl Settings {
 
     let dogecoin_data_dir = match &self.dogecoin_data_dir {
       Some(dogecoin_data_dir) => dogecoin_data_dir.clone(),
-      None => {
-        if cfg!(target_os = "linux") {
-          dirs::home_dir()
-            .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
-            .join(".dogecoin")
-        } else {
-          dirs::data_dir()
-            .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
-            .join("Dogecoin")
-        }
-      }
+      None => Self::default_dogecoin_data_dir()?,
     };
 
     let cookie_file = match self.cookie_file {
@@ -413,6 +454,22 @@ impl Settings {
         .context("could not get data dir")?
         .join("dog"),
     )
+  }
+
+  fn default_dogecoin_data_dir() -> Result<PathBuf> {
+    if cfg!(target_os = "linux") {
+      Ok(
+        dirs::home_dir()
+          .ok_or_else(|| anyhow!("failed to get Dogecoin data dir: could not get home dir"))?
+          .join(".dogecoin"),
+      )
+    } else {
+      Ok(
+        dirs::data_dir()
+          .ok_or_else(|| anyhow!("failed to get Dogecoin data dir: could not get data dir"))?
+          .join("Dogecoin"),
+      )
+    }
   }
 
   pub fn dogecoin_credentials(&self) -> Result<Auth> {
@@ -518,20 +575,9 @@ impl Settings {
       return Ok(cookie_file.clone());
     }
 
-    let chain = self.chain();
-    let path = if let Some(dogecoin_data_dir) = &self.dogecoin_data_dir {
-      dogecoin_data_dir.clone()
-    } else if cfg!(target_os = "linux") {
-      dirs::home_dir()
-        .ok_or_else(|| anyhow!("failed to get cookie file path: could not get home dir"))?
-        .join(".dogecoin")
-    } else {
-      dirs::data_dir()
-        .ok_or_else(|| anyhow!("failed to get cookie file path: could not get data dir"))?
-        .join("Dogecoin")
-    };
-
-    let path = chain.join_with_data_dir(path);
+    let path = self
+      .dogecoin_network_dir()
+      .ok_or_else(|| anyhow!("failed to get cookie file path: could not get Dogecoin data dir"))?;
 
     Ok(path.join(".cookie"))
   }
@@ -547,21 +593,31 @@ impl Settings {
     self.data_dir.as_ref().unwrap().into()
   }
 
+  fn dogecoin_network_dir(&self) -> Option<PathBuf> {
+    let base = if let Some(dogecoin_data_dir) = &self.dogecoin_data_dir {
+      dogecoin_data_dir.clone()
+    } else {
+      Self::default_dogecoin_data_dir().ok()?
+    };
+
+    Some(self.chain.unwrap_or_default().join_with_data_dir(base))
+  }
+
   /// Returns the path to Dogecoin Core's `blocks/` directory, auto-detected
   /// from `--dogecoin-data-dir` (or `DOGECOIN_DATA_DIR` env var) or the platform default (`~/.dogecoin/blocks/`
   /// on Linux, `%APPDATA%\Dogecoin\blocks\` on Windows).
   ///
   /// Returns `None` only if the home/data directory cannot be determined.
   pub fn dogecoin_blocks_dir(&self) -> Option<PathBuf> {
-    let base = if let Some(ref d) = self.dogecoin_data_dir {
-      d.clone()
-    } else if cfg!(target_os = "linux") {
-      dirs::home_dir()?.join(".dogecoin")
-    } else {
-      dirs::data_dir()?.join("Dogecoin")
-    };
-    let chain = self.chain.unwrap_or_default();
-    Some(chain.join_with_data_dir(base).join("blocks"))
+    self.dogecoin_network_dir().map(|dir| dir.join("blocks"))
+  }
+
+  /// Returns the path to dog's shadow copy of Dogecoin Core's `blocks/index`
+  /// LevelDB, colocated with the active Dogecoin network data directory so
+  /// multiple tools can share the same copy without pulling it back into the
+  /// dog's own app-data directory.
+  pub fn dogecoin_blk_index_copy_dir(&self) -> Option<PathBuf> {
+    self.dogecoin_network_dir().map(|dir| dir.join("blk-index"))
   }
 
   pub fn first_inscription_height(&self) -> u32 {
@@ -759,8 +815,11 @@ mod tests {
   #[test]
   fn rpc_url_overrides_network() {
     assert_eq!(
-      parse(&["--dogecoin-rpc-url=127.0.0.1:1234", "--chain=dogecoin-testnet"])
-        .dogecoin_rpc_url(None),
+      parse(&[
+        "--dogecoin-rpc-url=127.0.0.1:1234",
+        "--chain=dogecoin-testnet"
+      ])
+      .dogecoin_rpc_url(None),
       "127.0.0.1:1234/"
     );
   }
@@ -850,12 +909,11 @@ mod tests {
 
   #[test]
   fn cookie_file_defaults_to_dogecoin_data_dir() {
-    let cookie_file =
-      parse(&["--dogecoin-data-dir=foo", "--chain=dogecoin-testnet"])
-        .cookie_file()
-        .unwrap()
-        .display()
-        .to_string();
+    let cookie_file = parse(&["--dogecoin-data-dir=foo", "--chain=dogecoin-testnet"])
+      .cookie_file()
+      .unwrap()
+      .display()
+      .to_string();
 
     assert!(cookie_file.ends_with(if cfg!(windows) {
       r"foo\testnet3\.cookie"
@@ -953,13 +1011,27 @@ mod tests {
 
   #[test]
   fn chain_flags() {
-    Arguments::try_parse_from(["dog", "--regtest", "--chain", "dogecoin-testnet", "index", "update"])
-      .unwrap_err();
+    Arguments::try_parse_from([
+      "dog",
+      "--regtest",
+      "--chain",
+      "dogecoin-testnet",
+      "index",
+      "update",
+    ])
+    .unwrap_err();
     assert_eq!(parse(&["--regtest"]).chain(), Chain::DogecoinRegtest);
     assert_eq!(parse(&["-r"]).chain(), Chain::DogecoinRegtest);
 
-    Arguments::try_parse_from(["dog", "--testnet", "--chain", "dogecoin-regtest", "index", "update"])
-      .unwrap_err();
+    Arguments::try_parse_from([
+      "dog",
+      "--testnet",
+      "--chain",
+      "dogecoin-regtest",
+      "index",
+      "update",
+    ])
+    .unwrap_err();
     assert_eq!(parse(&["--testnet"]).chain(), Chain::DogecoinTestnet);
     assert_eq!(parse(&["-t"]).chain(), Chain::DogecoinTestnet);
   }
@@ -998,8 +1070,7 @@ mod tests {
   #[test]
   fn setting_savepoint_interval() {
     let arguments =
-      Arguments::try_parse_from(["dog", "--savepoint-interval", "500", "index", "update"])
-        .unwrap();
+      Arguments::try_parse_from(["dog", "--savepoint-interval", "500", "index", "update"]).unwrap();
     assert_eq!(arguments.options.savepoint_interval, Some(500));
   }
 
@@ -1178,6 +1249,73 @@ mod tests {
         server_username: Some("server username".into()),
       }
     );
+  }
+
+  #[test]
+  fn collect_env_accepts_direct_keys_and_prefers_them_over_ord_prefix() {
+    let env = Settings::collect_env(vec![
+      (
+        OsString::from("ORD_DOGECOIN_DATA_DIR"),
+        OsString::from("/ord/dogecoin"),
+      ),
+      (
+        OsString::from("DOGECOIN_DATA_DIR"),
+        OsString::from("/direct/dogecoin"),
+      ),
+      (
+        OsString::from("ORD_CHAIN"),
+        OsString::from("dogecoin-testnet"),
+      ),
+      (
+        OsString::from("DOGE_RPC_USERNAME"),
+        OsString::from("alias-user"),
+      ),
+    ])
+    .unwrap();
+
+    assert_eq!(
+      env.get("DOGECOIN_DATA_DIR"),
+      Some(&"/direct/dogecoin".to_string())
+    );
+    assert_eq!(env.get("CHAIN"), Some(&"dogecoin-testnet".to_string()));
+    assert_eq!(
+      env.get("DOGE_RPC_USERNAME"),
+      Some(&"alias-user".to_string())
+    );
+  }
+
+  #[test]
+  fn from_env_supports_doge_rpc_aliases() {
+    let env = vec![
+      ("DOGE_RPC_USERNAME", "doge user"),
+      ("DOGE_RPC_PASSWORD", "doge password"),
+    ]
+    .into_iter()
+    .map(|(key, value)| (key.into(), value.into()))
+    .collect::<BTreeMap<String, String>>();
+
+    let settings = Settings::from_env(env).unwrap();
+
+    assert_eq!(settings.dogecoin_rpc_username.as_deref(), Some("doge user"));
+    assert_eq!(
+      settings.dogecoin_rpc_password.as_deref(),
+      Some("doge password")
+    );
+  }
+
+  #[test]
+  fn blk_index_copy_dir_defaults_to_dogecoin_data_dir() {
+    let path = parse(&["--dogecoin-data-dir=foo", "--chain=dogecoin-testnet"])
+      .dogecoin_blk_index_copy_dir()
+      .unwrap()
+      .display()
+      .to_string();
+
+    assert!(path.ends_with(if cfg!(windows) {
+      r"foo\testnet3\blk-index"
+    } else {
+      "foo/testnet3/blk-index"
+    }));
   }
 
   #[test]

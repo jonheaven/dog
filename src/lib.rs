@@ -27,10 +27,10 @@ use {
     },
     into_u64::IntoU64,
     into_usize::IntoUsize,
+    koinucard::Koinucard,
     option_ext::OptionExt,
     outgoing::Outgoing,
     representation::Representation,
-    koinucard::Koinucard,
     settings::Settings,
     signer::Signer,
     subcommand::{OutputFormat, Subcommand, SubcommandResult},
@@ -59,11 +59,11 @@ use {
   chrono::{DateTime, TimeZone, Utc},
   ciborium::Value,
   clap::{ArgGroup, Parser},
-  error::{ResultExt, SnafuError},
   doginals::{
-    Artifact, Charm, Edict, Epoch, Etching, Height, Pile, Rarity, Dune, DuneId, Dunestone, Koinu,
-    KoinuPoint, SpacedDune, Terms, varint,
+    Artifact, Charm, Dune, DuneId, Dunestone, Edict, Epoch, Etching, Height, Koinu, KoinuPoint,
+    Pile, Rarity, SpacedDune, Terms, varint,
   },
+  error::{ResultExt, SnafuError},
   regex::Regex,
   reqwest::{StatusCode, Url, header::HeaderMap},
   serde::{Deserialize, Deserializer, Serialize},
@@ -98,7 +98,7 @@ use {
 pub use self::{
   chain::Chain,
   fee_rate::FeeRate,
-  index::{Index, DuneEntry},
+  index::{DuneEntry, Index},
   inscriptions::{Envelope, Inscription, InscriptionId, ParsedEnvelope, RawEnvelope},
   object::Object,
   options::Options,
@@ -119,6 +119,7 @@ mod blocktime;
 pub mod chain;
 pub mod decimal;
 mod deserialize_from_str;
+pub mod dunes;
 mod error;
 mod fee_rate;
 mod fund_raw_transaction;
@@ -126,6 +127,7 @@ pub mod index;
 mod inscriptions;
 mod into_u64;
 mod into_usize;
+mod koinucard;
 mod macros;
 mod object;
 mod option_ext;
@@ -134,8 +136,6 @@ pub mod outgoing;
 mod properties;
 mod re;
 mod representation;
-pub mod dunes;
-mod koinucard;
 pub mod settings;
 mod signer;
 pub mod subcommand;

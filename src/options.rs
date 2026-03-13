@@ -84,8 +84,18 @@ pub struct Options {
     help = "Require basic HTTP authentication with <SERVER_USERNAME>. Credentials are sent in cleartext. Consider using authentication in conjunction with HTTPS."
   )]
   pub(crate) server_username: Option<String>,
-  #[arg(long, short, help = "Use regtest. Equivalent to `--chain dogecoin-regtest`.")]
+  #[arg(
+    long,
+    short,
+    conflicts_with_all = ["chain_argument", "testnet"],
+    help = "Use regtest. Equivalent to `--chain dogecoin-regtest`."
+  )]
   pub(crate) regtest: bool,
-  #[arg(long, short, help = "Use testnet. Equivalent to `--chain dogecoin-testnet`.")]
+  #[arg(
+    long,
+    short,
+    conflicts_with_all = ["chain_argument", "regtest"],
+    help = "Use testnet. Equivalent to `--chain dogecoin-testnet`."
+  )]
   pub(crate) testnet: bool,
 }
