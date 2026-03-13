@@ -65,6 +65,7 @@ define_table! { COLLECTION_SEQUENCE_NUMBER_TO_LATEST_CHILD_SEQUENCE_NUMBER, u32,
 define_table! { GALLERY_SEQUENCE_NUMBERS, u32, () }
 define_table! { HEIGHT_TO_BLOCK_HEADER, u32, &HeaderValue }
 define_table! { HEIGHT_TO_BLOCK_HASH, u32, &[u8; 32] }
+define_table! { HEIGHT_TO_BLK_FILE_POS, u32, &[u8; 44] }
 define_table! { HEIGHT_TO_LAST_SEQUENCE_NUMBER, u32, u32 }
 define_table! { HOME_INSCRIPTIONS, u32, InscriptionIdValue }
 define_table! { INSCRIPTION_ID_TO_SEQUENCE_NUMBER, InscriptionIdValue, u32 }

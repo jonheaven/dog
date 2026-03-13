@@ -151,6 +151,9 @@ dog --index-dunes --index-addresses index update
 | `--only dns,drc20,dogemap` | `DOG_ONLY_PROTOCOLS` | Process only the listed sub-protocols (default: all three) |
 | `--first-inscription-height` | `DOG_FIRST_INSCRIPTION_HEIGHT` | Start Doginals indexing at this height. Default mainnet start: `4609720`. Set `0` for a full genesis scan. |
 | `--index-koinu` | `DOG_INDEX_KOINU` | Track every koinu by ordinal number. Required for `dog find`, `dog list`, koinu card. |
+| `--index-rare-koinu` | `DOG_INDEX_RARE_KOINU` | Alias for full rare-koinu mode. Forces Doginals start height to `0`. |
+| `--batch-write-size` | `DOG_BATCH_WRITE_SIZE` | Atomic redb batch target for inscription writes (`500`–`2000`, default `1000`). |
+| `--dogecoin-zmq-address` | `DOG_DOGECOIN_ZMQ_ADDRESS` | Enable low-latency tip updates; when set, indexer waits in real-time for new blocks before RPC fallback. |
 | `--index-dunes` | `DOG_INDEX_DUNES` | Index Dune etchings, mints, transfers. Required for `dog dune *`. |
 | `--index-addresses` | `DOG_INDEX_ADDRESSES` | Address→UTXOs index. Required for `dog dune balance`. |
 | `--no-index-inscriptions` | `DOG_NO_INDEX_INSCRIPTIONS` | Skip inscription content (useful for Dune/Dogemap-only nodes). |
@@ -181,6 +184,15 @@ To make the override permanent in config, add this to `dog.yaml`:
 ```yaml
 first_inscription_height: 0
 ```
+
+### Performance upgrades (Dogecoin Core-inspired)
+
+The indexer now includes a major performance stack:
+
+- **Persisted block seek index in redb**: `height -> (file_idx, offset, hash)` is stored during sync and reused for instant `.blk` seeks on next runs.
+- **Live tip mode flag (`--dogecoin-zmq-address`)**: enables real-time style updates by waiting for new blocks before RPC fallback.
+- **Multi-stage pipeline**: block fetch, parse, scan, and commit paths are decoupled with channels/worker threads for better throughput.
+- **Atomic batch writes**: inscription writes are grouped into larger transactional batches (`--batch-write-size`, clamped to `500..2000`).
 
 ### Fast sync (direct .blk file reads)
 

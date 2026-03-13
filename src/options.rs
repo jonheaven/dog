@@ -16,6 +16,11 @@ pub struct Options {
     help = "Authenticate to Dogecoin Core RPC as <DOGECOIN_RPC_USERNAME>."
   )]
   pub(crate) dogecoin_rpc_username: Option<String>,
+  #[arg(
+    long,
+    help = "Connect to Dogecoin Core ZMQ at <DOGECOIN_ZMQ_ADDRESS> (e.g. tcp://127.0.0.1:28332)."
+  )]
+  pub(crate) dogecoin_zmq_address: Option<String>,
   #[arg(long, help = "Max <N> requests in flight. [default: 12]")]
   pub(crate) dogecoin_rpc_limit: Option<u32>,
   #[arg(long = "chain", value_enum, help = "Use <CHAIN>. [default: dogecoin]")]
@@ -47,6 +52,11 @@ pub struct Options {
     help = "Start Doginals indexing at <FIRST_INSCRIPTION_HEIGHT>. [default: 4609720, or 0 with --index-koinu]"
   )]
   pub(crate) first_inscription_height: Option<u32>,
+  #[arg(
+    long,
+    help = "Batch size for atomic inscription DB writes. [default: 1000]"
+  )]
+  pub(crate) batch_write_size: Option<usize>,
   #[arg(long, help = "Use index at <INDEX>.")]
   pub(crate) index: Option<PathBuf>,
   #[arg(long, help = "Track unspent output addresses.")]
@@ -60,6 +70,12 @@ pub struct Options {
   pub(crate) index_dunes: bool,
   #[arg(long, help = "Track location of all koinu.")]
   pub(crate) index_koinu: bool,
+  #[arg(
+    long,
+    alias = "index-koinu",
+    help = "Track rare koinu and start indexing from height 0."
+  )]
+  pub(crate) index_rare_koinu: bool,
   #[arg(long, help = "Store transactions in index.")]
   pub(crate) index_transactions: bool,
   #[arg(
