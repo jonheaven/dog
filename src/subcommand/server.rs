@@ -4249,7 +4249,7 @@ mod tests {
     server.assert_response_regex(
       "/monitor",
       StatusCode::OK,
-      ".*Live Index Monitor.*wallet-tools-root.*Immediate additive feed.*",
+      r".*monitor-app-root.*static/explorer/explorer\.js.*",
     );
   }
 

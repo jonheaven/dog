@@ -109,7 +109,7 @@ mod tests {
       }
       .to_string()
       .unindent(),
-      ".*Live Index Monitor.*Dogestash console.*Immediate additive feed.*Inscription 42.*"
+      r".*monitor-app-root.*static/explorer/explorer\.js.*"
     );
   }
 }
